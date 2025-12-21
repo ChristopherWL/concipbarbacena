@@ -43,7 +43,8 @@ export interface Profile {
   avatar_url?: string;
   phone?: string;
   is_active: boolean;
-  selected_branch_id?: string;
+  branch_id?: string; // User's assigned branch - determines data access
+  selected_branch_id?: string; // Optional filter for matriz/director users
   created_at: string;
   updated_at: string;
 }
