@@ -129,9 +129,6 @@ export function DashboardOverview() {
         </div>
       )}
 
-      {/* Calendar First */}
-      <DashboardCalendar sector="overview" />
-
       {/* Stats Grid */}
       <StatCardsGrid cards={statCards} />
 
@@ -143,102 +140,29 @@ export function DashboardOverview() {
         />
       )}
 
-      {/* Main Charts Grid */}
+      {/* Calendar + Pie Chart Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* OS Trend Chart - Larger */}
-        <Card className="lg:col-span-8 futuristic-card rounded-xl">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-sm font-semibold">Tendência de Ordens de Serviço</CardTitle>
-                <CardDescription className="text-xs">Últimos 6 meses</CardDescription>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                  <span className="text-xs text-muted-foreground">Total</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="text-xs text-muted-foreground">Concluídas</span>
-                </div>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="h-[220px] chart-container p-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={osTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorOs" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorConcluidas" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="100%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
-                  <XAxis 
-                    dataKey="name" 
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis 
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--popover))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="os" 
-                    name="Total"
-                    stroke="#3b82f6" 
-                    strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#colorOs)" 
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="concluidas" 
-                    name="Concluídas"
-                    stroke="#10b981" 
-                    strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#colorConcluidas)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Calendar - Left side */}
+        <div className="lg:col-span-8">
+          <DashboardCalendar sector="overview" />
+        </div>
 
-        {/* Pie Chart */}
+        {/* Pie Chart - Right side */}
         <Card className="lg:col-span-4 futuristic-card rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Estoque por Categoria</CardTitle>
             <CardDescription className="text-xs">Distribuição atual</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="h-[160px]">
+            <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={stockByCategory || []}
                     cx="50%"
                     cy="50%"
-                    innerRadius={45}
-                    outerRadius={70}
+                    innerRadius={50}
+                    outerRadius={75}
                     paddingAngle={3}
                     dataKey="value"
                     strokeWidth={0}
@@ -274,6 +198,84 @@ export function DashboardOverview() {
           </CardContent>
         </Card>
       </div>
+
+      {/* OS Trend Chart */}
+      <Card className="futuristic-card rounded-xl">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-sm font-semibold">Tendência de Ordens de Serviço</CardTitle>
+              <CardDescription className="text-xs">Últimos 6 meses</CardDescription>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <span className="text-xs text-muted-foreground">Total</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="text-xs text-muted-foreground">Concluídas</span>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="h-[200px] chart-container p-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={osTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorOs" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorConcluidas" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--popover))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '12px'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="os" 
+                  name="Total"
+                  stroke="#3b82f6" 
+                  strokeWidth={2}
+                  fillOpacity={1} 
+                  fill="url(#colorOs)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="concluidas" 
+                  name="Concluídas"
+                  stroke="#10b981" 
+                  strokeWidth={2}
+                  fillOpacity={1} 
+                  fill="url(#colorConcluidas)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Activity + Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
