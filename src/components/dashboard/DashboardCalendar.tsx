@@ -534,116 +534,96 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
 
   return (
     <>
-      <Card className="futuristic-card rounded-lg h-fit">
-        <CardHeader className="pb-0.5 pt-2 px-2">
+      <Card className="futuristic-card rounded-lg h-fit max-w-xs">
+        <CardHeader className="pb-1 pt-2 px-3">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xs font-semibold capitalize text-primary">
-                {showAgenda ? 'Agenda' : format(currentMonth, 'MMM yyyy', { locale: ptBR })}
-              </CardTitle>
-            </div>
-            <div className="flex items-center gap-0.5">
+            <CardTitle className="text-sm font-semibold capitalize text-primary">
+              {showAgenda ? 'Agenda' : format(currentMonth, 'MMM yyyy', { locale: ptBR })}
+            </CardTitle>
+            <div className="flex items-center gap-1">
               {!showAgenda && (
                 <>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-5 w-5"
+                    className="h-6 w-6"
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
                   >
-                    <span className="text-xs">‹</span>
+                    <span className="text-sm">‹</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-5 w-5"
+                    className="h-6 w-6"
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
                   >
-                    <span className="text-xs">›</span>
+                    <span className="text-sm">›</span>
                   </Button>
                 </>
               )}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5"
+                className="h-6 w-6"
                 onClick={() => setShowAgenda(!showAgenda)}
               >
                 {showAgenda ? (
-                  <CalendarDays className="h-3 w-3 text-muted-foreground" />
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <List className="h-3 w-3 text-muted-foreground" />
+                  <List className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0 px-2 pb-2">
+        <CardContent className="pt-0 px-3 pb-2">
           {showAgenda ? (
             // Agenda View
-            <div className="space-y-2 max-h-[200px] overflow-y-auto">
+            <div className="space-y-2 max-h-[150px] overflow-y-auto">
               {upcomingReminders.length > 0 ? (
                 upcomingReminders.map((reminder) => (
                   <div
                     key={reminder.id}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                    className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                   >
-                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                      <Bell className="h-4 w-4" />
+                    <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                      <Bell className="h-3 w-3" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{reminder.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(reminder.reminder_date), "dd 'de' MMMM", { locale: ptBR })}
+                      <p className="text-xs font-medium text-foreground">{reminder.title}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {format(new Date(reminder.reminder_date), "dd 'de' MMM", { locale: ptBR })}
                         {reminder.reminder_time && ` às ${reminder.reminder_time}`}
                       </p>
-                      {reminder.location && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3" />
-                          {reminder.location}
-                        </p>
-                      )}
-                      {/* Show assignment info */}
-                      {(reminder.assigned_user_id || reminder.assigned_role) && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                          {reminder.assigned_user_id ? <User className="h-3 w-3" /> : <Users className="h-3 w-3" />}
-                          {reminder.assigned_user_id 
-                            ? tenantUsers.find(u => u.id === reminder.assigned_user_id)?.full_name || 'Usuário'
-                            : ROLE_LABELS[reminder.assigned_role || ''] || reminder.assigned_role
-                          }
-                        </p>
-                      )}
                     </div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                       {isToday(new Date(reminder.reminder_date)) ? 'Hoje' : format(new Date(reminder.reminder_date), 'dd/MM')}
                     </Badge>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-3">
-                    <CalendarDays className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">Nenhum lembrete agendado</p>
+                <div className="text-center py-4">
+                  <CalendarDays className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
+                  <p className="text-xs text-muted-foreground">Sem lembretes</p>
                 </div>
               )}
             </div>
           ) : (
             // Calendar View
-            <div className="space-y-0">
+            <div>
               {/* Days of week header */}
-              <div className="grid grid-cols-7 text-center">
+              <div className="grid grid-cols-7 text-center mb-1">
                 {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((day, i) => (
-                  <div key={i} className="text-[8px] font-medium text-muted-foreground py-0.5">
+                  <div key={i} className="text-[10px] font-medium text-muted-foreground">
                     {day}
                   </div>
                 ))}
               </div>
               {/* Calendar days */}
-              <div className="grid grid-cols-7">
+              <div className="grid grid-cols-7 gap-px">
                 {/* Empty cells for days before month starts */}
                 {Array.from({ length: startDayOfWeek }).map((_, i) => (
-                  <div key={`empty-${i}`} className="aspect-square" />
+                  <div key={`empty-${i}`} className="h-6" />
                 ))}
                 {/* Actual days */}
                 {daysInMonth.map((day) => {
@@ -657,7 +637,7 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
                       key={day.toISOString()}
                       onClick={() => handleDayClick(day)}
                       className={cn(
-                        'aspect-square flex flex-col items-center justify-center rounded text-[8px] cursor-pointer transition-colors relative',
+                        'h-6 w-full flex items-center justify-center rounded text-xs cursor-pointer transition-colors relative',
                         isToday(day)
                           ? 'bg-primary text-primary-foreground font-bold'
                           : 'hover:bg-muted/50'
@@ -667,8 +647,8 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
                       
                       {/* Event dots */}
                       {eventTypes.length > 0 && (
-                        <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-px">
-                          {eventTypes.slice(0, 3).map((eventType) => (
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-px">
+                          {eventTypes.slice(0, 2).map((eventType) => (
                             <div 
                               key={eventType} 
                               className={cn('w-1 h-1 rounded-full', EVENT_COLORS[eventType])} 
@@ -677,19 +657,9 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
                         </div>
                       )}
                       
-                      {/* Reminder priority lines */}
+                      {/* Reminder indicator */}
                       {hasReminders && (
-                        <div className="absolute top-0.5 left-0.5 right-0.5 flex flex-col gap-px">
-                          {dayReminders.slice(0, 2).map((reminder) => (
-                            <div 
-                              key={reminder.id} 
-                              className={cn(
-                                'h-0.5 w-full rounded-full',
-                                PRIORITY_LINE_COLORS[reminder.priority || 'media']
-                              )} 
-                            />
-                          ))}
-                        </div>
+                        <div className="absolute top-0 right-0.5 w-1 h-1 rounded-full bg-destructive" />
                       )}
                     </div>
                   );
@@ -698,10 +668,10 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
               
               {/* Legend - compact */}
               {legendItems.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-1 pt-1 border-t border-border/30">
-                  {legendItems.slice(0, 3).map((item) => (
-                    <div key={item.label} className="flex items-center gap-0.5 text-[7px] text-muted-foreground">
-                      <div className={cn('w-1 h-1 rounded-full', item.color)} />
+                <div className="flex flex-wrap gap-2 mt-2 pt-1.5 border-t border-border/30">
+                  {legendItems.slice(0, 4).map((item) => (
+                    <div key={item.label} className="flex items-center gap-1 text-[9px] text-muted-foreground">
+                      <div className={cn('w-1.5 h-1.5 rounded-full', item.color)} />
                       <span>{item.label}</span>
                     </div>
                   ))}
