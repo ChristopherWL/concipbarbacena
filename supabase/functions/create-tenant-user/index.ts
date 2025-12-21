@@ -173,12 +173,13 @@ serve(async (req) => {
 
     console.log('User created:', newUser.user.id);
 
-    // Update the user's profile with tenant_id, email, and branch_id
+    // Update the user's profile with tenant_id, email, full_name, and branch_id
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
       .update({ 
         tenant_id: tenant_id, 
         email: email,
+        full_name: full_name,
         selected_branch_id: branch_id || null
       })
       .eq('id', newUser.user.id);
