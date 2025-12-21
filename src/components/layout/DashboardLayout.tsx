@@ -297,28 +297,30 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [user, roles, isSuperAdmin, navigate]);
 
-  // Check if user has permission profile assigned
+  // Check if user has permission template assigned (required to access, except superadmin)
   const { data: hasPermissionProfile, isLoading: isLoadingPermissions } = useQuery({
     queryKey: ['user-has-permission-profile', user?.id, tenant?.id],
     queryFn: async () => {
       if (!user?.id || !tenant?.id) return true;
-      
-      // Superadmins and admins don't need explicit permissions
-      if (isSuperAdmin() || isAdmin()) return true;
-      
+
+      // Only superadmins can bypass the permission profile requirement.
+      if (isSuperAdmin()) return true;
+
       const { data, error } = await supabase
         .from('user_permissions')
-        .select('id')
+        .select('template_id')
         .eq('user_id', user.id)
         .eq('tenant_id', tenant.id)
         .maybeSingle();
-      
+
       if (error) {
         console.error('Error checking permission profile:', error);
-        return true; // Don't block on error
+        // Fail closed: if we can't validate, block access.
+        return false;
       }
-      
-      return !!data;
+
+      // A "perfil de permissões" is considered assigned only when a template is linked.
+      return !!data?.template_id;
     },
     enabled: !!user?.id && !!tenant?.id,
     staleTime: 1000 * 30,
@@ -330,22 +332,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (!user || !profile || roles.length === 0) return false;
     if (isLoadingPermissions) return false;
 
-    // Superadmins can access without branch or permissions
+    // Superadmins can access without branch or permission profile
     if (isSuperAdmin()) return false;
 
-    // Admins can access without explicit permissions
-    if (isAdmin()) {
-      // But still need a branch
-      const hasBranch = !!(profile.branch_id || profile.selected_branch_id || authSelectedBranch);
-      return !hasBranch;
-    }
-
-    // Everyone else must have a branch AND permission profile assigned
+    // Everyone else must have a branch AND a permission profile assigned
     const hasBranch = !!(profile.branch_id || profile.selected_branch_id || authSelectedBranch);
     const hasPermissions = hasPermissionProfile === true;
-    
+
     return !hasBranch || !hasPermissions;
-  }, [user, profile, roles, isSuperAdmin, isAdmin, authSelectedBranch, hasPermissionProfile, isLoadingPermissions]);
+  }, [user, profile, roles, isSuperAdmin, authSelectedBranch, hasPermissionProfile, isLoadingPermissions]);
 
   // Determine the missing requirements for the error message
   const missingRequirements = useMemo(() => {
@@ -1271,6 +1266,22 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </TooltipProvider>
     );
   };
+
+  // While validating permission profile, don't render the app (prevents brief access during load)
+  if (!isSuperAdmin() && isLoadingPermissions) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4 p-8 max-w-md">
+          <div
+            aria-hidden
+            className="mx-auto h-10 w-10 rounded-full border-2 border-border border-t-primary animate-spin"
+          />
+          <h1 className="text-lg font-semibold text-foreground">Validando acesso...</h1>
+          <p className="text-sm text-muted-foreground">Aguarde enquanto verificamos seu perfil de permissões.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show access denied screen if user has incomplete setup
   if (hasIncompleteSetup) {
