@@ -230,6 +230,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     const activeParent = getActiveParentMenu(window.location.pathname);
     return activeParent ? [activeParent] : [];
   });
+
+  // Keep parent menu open when navigating to a child route
+  useEffect(() => {
+    const activeParent = getActiveParentMenu(location.pathname);
+    if (activeParent && !openMenus.includes(activeParent)) {
+      setOpenMenus(prev => [...prev, activeParent]);
+    }
+  }, [location.pathname]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [menuTheme, setMenuTheme] = useState('custom');
   // Scroll behavior states
