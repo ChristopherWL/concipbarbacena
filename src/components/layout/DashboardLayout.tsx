@@ -297,28 +297,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [user, roles, isSuperAdmin, navigate]);
 
-  // Check if user has incomplete setup (no branch and not superadmin/admin)
+  // Block access for users with incomplete setup (no branch assigned)
   const hasIncompleteBranchSetup = useMemo(() => {
     // Wait for data to load
     if (!user || !profile || roles.length === 0) return false;
-    
+
     // Superadmins can access without branch
     if (isSuperAdmin()) return false;
-    
-    // Admins/managers at tenant level (directors) can access without specific branch
-    if (isAdmin() && !profile.selected_branch_id && !profile.branch_id) {
-      // This is ok - they are directors
-      return false;
-    }
-    
-    // Regular users must have a branch assigned
-    const hasBranch = !!(profile.selected_branch_id || profile.branch_id || authSelectedBranch);
-    if (!hasBranch && !isAdmin()) {
-      return true;
-    }
-    
-    return false;
-  }, [user, profile, roles, isSuperAdmin, isAdmin, authSelectedBranch]);
+
+    // Everyone else must have a branch assigned
+    const hasBranch = !!(profile.branch_id || profile.selected_branch_id || authSelectedBranch);
+    return !hasBranch;
+  }, [user, profile, roles, isSuperAdmin, authSelectedBranch]);
 
   // Route protection based on features AND user permissions - redirect if accessing disabled module or no permission
   useEffect(() => {
@@ -1241,11 +1231,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           <h1 className="text-2xl font-bold text-foreground">Acesso Negado</h1>
           <p className="text-muted-foreground">
-            Sua conta ainda não está configurada corretamente. 
-            Você precisa ter uma filial atribuída para acessar o sistema.
+            Sua conta ainda não está configurada corretamente.
+            Para acessar o sistema, é necessário ter uma filial atribuída.
           </p>
           <p className="text-sm text-muted-foreground">
-            Entre em contato com o administrador do sistema para configurar seu acesso.
+            Entre em contato com o Super Admin para liberar seu acesso.
           </p>
           <Button 
             variant="outline" 
