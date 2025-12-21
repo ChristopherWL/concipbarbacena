@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,6 +42,7 @@ interface BranchData {
 
 export default function Configuracoes() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, profile, tenant, selectedBranch, isLoading: authLoading, refetchUserData } = useAuthContext();
   const [saving, setSaving] = useState(false);
   const [searchingCep, setSearchingCep] = useState(false);
@@ -295,6 +297,9 @@ export default function Configuracoes() {
           toast.error('Erro ao salvar logos da filial');
           return;
         }
+
+        // Force refresh of sidebar/top logo
+        await queryClient.invalidateQueries({ queryKey: ['branch-logo', currentBranch.id] });
       }
 
       toast.success('Dados da empresa salvos com sucesso!');
@@ -341,6 +346,17 @@ export default function Configuracoes() {
         toast.error(sanitizeErrorMessage(error));
         return;
       }
+
+      // Update local state so the preview stays consistent
+      setCurrentBranch(prev => prev ? ({
+        ...prev,
+        ...branchForm,
+        logo_url: branchLogos.logo_url || null,
+        logo_dark_url: branchLogos.logo_dark_url || null,
+      }) : prev);
+
+      // Force refresh of sidebar/top logo
+      await queryClient.invalidateQueries({ queryKey: ['branch-logo', currentBranch.id] });
 
       toast.success('Dados da filial salvos com sucesso!');
       if (refetchUserData) await refetchUserData();
