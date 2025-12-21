@@ -133,7 +133,7 @@ export default function Dashboard() {
         <div className="flex flex-col items-center text-center gap-2 sm:-mt-10">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-              Bem-vindo, {profile?.full_name?.split(' ')[0] || 'Usuário'}!
+              Bem-vindo, {profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Usuário'}!
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
               {tenant ? `Visão geral de ${tenant.name}` : 'Entre em contato com o administrador'}

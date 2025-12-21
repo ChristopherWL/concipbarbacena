@@ -1248,7 +1248,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex items-center gap-3 px-4">
           {/* User text - hide on smaller screens */}
           <div className="hidden xl:block text-right">
-            <div className="text-sidebar-foreground text-xs">Olá, <span className="font-semibold">{profile?.full_name || 'Admin'}</span></div>
+            <div className="text-sidebar-foreground text-xs">Olá, <span className="font-semibold">{profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}</span></div>
             <div className="text-sidebar-foreground/60 text-[10px]">Data do último acesso: {currentTime.toLocaleDateString('pt-BR')} {currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
           </div>
           
