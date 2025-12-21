@@ -42,52 +42,57 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
       key={stat.label} 
       onClick={() => stat.href && navigate(stat.href)}
       className={cn(
-        'futuristic-card glow-accent rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:shadow-lg min-w-[140px]',
+        'futuristic-card glow-accent rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg relative group',
         stat.href && 'cursor-pointer'
       )}
     >
-      <CardContent className="p-3 relative z-10">
-        <div className="flex items-center gap-2.5">
+      {/* Subtle decorative element */}
+      <div className="absolute -right-4 -bottom-4 w-16 h-16 rounded-full opacity-[0.07] group-hover:opacity-[0.12] transition-opacity"
+        style={{ background: `linear-gradient(135deg, ${stat.iconColor.includes('blue') ? 'hsl(var(--primary))' : stat.iconColor.includes('emerald') ? 'hsl(142 76% 36%)' : stat.iconColor.includes('amber') ? 'hsl(38 92% 50%)' : stat.iconColor.includes('purple') ? 'hsl(280 85% 65%)' : stat.iconColor.includes('orange') ? 'hsl(25 95% 53%)' : stat.iconColor.includes('cyan') ? 'hsl(186 85% 45%)' : 'hsl(var(--primary))'}, transparent)` }}
+      />
+      
+      <CardContent className="p-3.5 relative z-10">
+        <div className="flex items-center gap-3">
           <div className={cn(
-            'flex items-center justify-center w-9 h-9 rounded-lg shrink-0',
+            'flex items-center justify-center w-10 h-10 rounded-xl shrink-0',
             getIconClass(stat.gradient)
           )}>
-            <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
+            <stat.icon className={cn('h-5 w-5', stat.iconColor)} />
           </div>
           
           <div className="flex-1 min-w-0">
             {stat.value !== null && !isLoading ? (
-              <p className="text-lg font-bold text-foreground data-value leading-tight">
+              <p className="text-xl font-bold text-foreground data-value leading-tight">
                 {stat.value}
               </p>
             ) : (
-              <Skeleton className="h-5 w-12 mb-0.5" />
+              <Skeleton className="h-6 w-14 mb-0.5" />
             )}
             
-            <p className="text-[10px] font-medium text-muted-foreground leading-tight truncate">
+            <p className="text-[11px] font-medium text-muted-foreground leading-tight truncate">
               {stat.label}
             </p>
           </div>
         </div>
         
         {(stat.subValue || stat.subtitle || stat.change) && (
-          <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-border/40">
+          <div className="flex items-center gap-1.5 mt-2.5 pt-2 border-t border-border/40">
             {stat.subValue && (
-              <span className={cn('text-[9px] font-medium', stat.subColor || 'text-muted-foreground')}>
+              <span className={cn('text-[10px] font-medium', stat.subColor || 'text-muted-foreground')}>
                 {stat.subValue}
               </span>
             )}
             {stat.subtitle && (
-              <span className="text-[9px] text-muted-foreground">{stat.subtitle}</span>
+              <span className="text-[10px] text-muted-foreground">{stat.subtitle}</span>
             )}
             {stat.change && (
               <div className={cn(
-                'flex items-center gap-0.5 text-[9px] font-medium ml-auto',
+                'flex items-center gap-0.5 text-[10px] font-medium ml-auto',
                 stat.changeType === 'positive' ? 'text-success' : 
                 stat.changeType === 'negative' ? 'text-destructive' : 'text-muted-foreground'
               )}>
-                {stat.changeType === 'positive' && <ArrowUpRight className="h-2.5 w-2.5" />}
-                {stat.changeType === 'negative' && <ArrowDownRight className="h-2.5 w-2.5" />}
+                {stat.changeType === 'positive' && <ArrowUpRight className="h-3 w-3" />}
+                {stat.changeType === 'negative' && <ArrowDownRight className="h-3 w-3" />}
                 <span>{stat.change}</span>
               </div>
             )}
@@ -98,12 +103,8 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
   );
 
   return (
-    <div className="flex flex-wrap gap-2.5">
-      {cards.map((stat, index) => (
-        <div key={stat.label} className="flex-1 min-w-[140px] max-w-[200px]">
-          {renderCard(stat, index)}
-        </div>
-      ))}
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      {cards.map((stat, index) => renderCard(stat, index))}
     </div>
   );
 }
