@@ -126,15 +126,16 @@ export default function OrdensServico() {
         <PageHeader
           title="Ordens de Serviço"
           description="Gerencie OS e clientes"
+          icon={<ClipboardList className="h-5 w-5" />}
         />
         {!isReadOnly && !isTechnician && (
           <div className="flex flex-wrap justify-center gap-2">
-            <Button variant="outline" onClick={() => setCustomerDialogOpen(true)}>
+            <Button variant="outline" onClick={() => setCustomerDialogOpen(true)} className="hover-lift">
               <UserPlus className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Novo Cliente</span>
               <span className="sm:hidden">Cliente</span>
             </Button>
-            <Button onClick={() => setOrderDialogOpen(true)}>
+            <Button onClick={() => setOrderDialogOpen(true)} className="hover-lift">
               <Plus className="h-4 w-4 mr-2" />
               Nova OS
             </Button>
@@ -142,11 +143,31 @@ export default function OrdensServico() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Card className="cursor-pointer hover:shadow-md" onClick={() => setStatusFilter('all')}><CardContent className="p-4"><p className="text-2xl font-bold">{stats.total}</p><p className="text-xs text-muted-foreground">Total</p></CardContent></Card>
-          <Card className="cursor-pointer hover:shadow-md" onClick={() => setStatusFilter('aberta')}><CardContent className="p-4"><p className="text-2xl font-bold text-info">{stats.abertas}</p><p className="text-xs text-muted-foreground">Abertas</p></CardContent></Card>
-          <Card className="cursor-pointer hover:shadow-md" onClick={() => setStatusFilter('em_andamento')}><CardContent className="p-4"><p className="text-2xl font-bold text-warning">{stats.andamento}</p><p className="text-xs text-muted-foreground">Em Andamento</p></CardContent></Card>
-          <Card className="cursor-pointer hover:shadow-md" onClick={() => setStatusFilter('concluida')}><CardContent className="p-4"><p className="text-2xl font-bold text-success">{stats.concluidas}</p><p className="text-xs text-muted-foreground">Concluídas</p></CardContent></Card>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-stagger">
+          <Card variant="stat" onClick={() => setStatusFilter('all')}>
+            <CardContent className="p-4">
+              <p className="stat-value">{stats.total}</p>
+              <p className="stat-label">Total</p>
+            </CardContent>
+          </Card>
+          <Card variant="stat" onClick={() => setStatusFilter('aberta')}>
+            <CardContent className="p-4">
+              <p className="stat-value text-info">{stats.abertas}</p>
+              <p className="stat-label">Abertas</p>
+            </CardContent>
+          </Card>
+          <Card variant="stat" onClick={() => setStatusFilter('em_andamento')}>
+            <CardContent className="p-4">
+              <p className="stat-value text-warning">{stats.andamento}</p>
+              <p className="stat-label">Em Andamento</p>
+            </CardContent>
+          </Card>
+          <Card variant="stat" onClick={() => setStatusFilter('concluida')}>
+            <CardContent className="p-4">
+              <p className="stat-value text-success">{stats.concluidas}</p>
+              <p className="stat-label">Concluídas</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Filter */}
@@ -155,11 +176,11 @@ export default function OrdensServico() {
         </div>
 
         {/* Orders List */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {ordersLoading ? <Loader2 className="h-8 w-8 animate-spin mx-auto" /> : filteredOrders.length === 0 ? (
-            <Card><CardContent className="py-12 text-center"><ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4" /><p className="text-muted-foreground">Nenhuma OS encontrada</p></CardContent></Card>
+            <Card variant="glass"><CardContent className="py-12 text-center"><ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" /><p className="text-muted-foreground">Nenhuma OS encontrada</p></CardContent></Card>
           ) : filteredOrders.map(order => (
-            <Card key={order.id} className="hover:shadow-md transition-shadow group">
+            <Card key={order.id} variant="elevated" className="group">
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex-1">

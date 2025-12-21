@@ -69,22 +69,23 @@ export default function Estoque() {
         <PageHeader
           title="Gestão de Estoque"
           description="Visão geral do estoque por categoria"
+          icon={<Boxes className="h-5 w-5" />}
         />
 
         {/* Category Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 animate-stagger">
           {categories.map((cat) => {
             const Icon = CATEGORY_ICONS[cat];
             const stats = getCategoryStats(cat);
             return (
               <Card 
                 key={cat} 
-                className="cursor-pointer transition-all hover:shadow-md hover:scale-[1.02] border hover:border-primary/50"
+                variant="interactive"
                 onClick={() => navigate(CATEGORY_ROUTES[cat])}
               >
                 <CardContent className="p-3 sm:p-4">
                   <div className="flex flex-col items-center text-center gap-2">
-                    <div className="p-2 sm:p-3 rounded-lg bg-primary/10">
+                    <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10">
                       <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                     </div>
                     <div>
@@ -93,7 +94,7 @@ export default function Estoque() {
                         {stats.total} produtos • {stats.totalStock} un
                       </p>
                       {stats.lowStock > 0 && (
-                        <p className="text-xs text-destructive font-medium">
+                        <p className="text-xs text-destructive font-medium mt-0.5">
                           {stats.lowStock} em baixa
                         </p>
                       )}
@@ -106,12 +107,12 @@ export default function Estoque() {
 
           {/* Auditoria Card */}
           <Card 
-            className="cursor-pointer transition-all hover:shadow-md hover:scale-[1.02] border hover:border-primary/50"
+            variant="interactive"
             onClick={() => navigate('/estoque/auditoria')}
           >
             <CardContent className="p-3 sm:p-4">
               <div className="flex flex-col items-center text-center gap-2">
-                <div className="p-2 sm:p-3 rounded-lg bg-primary/10">
+                <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10">
                   <ClipboardCheck className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
                 <div>
@@ -120,7 +121,7 @@ export default function Estoque() {
                     {auditStats.total} registros
                   </p>
                   {auditStats.pending > 0 && (
-                    <p className="text-xs text-amber-500 font-medium">
+                    <p className="text-xs text-amber-500 font-medium mt-0.5">
                       {auditStats.pending} pendentes
                     </p>
                   )}
