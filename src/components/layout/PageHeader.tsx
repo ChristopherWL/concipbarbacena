@@ -16,8 +16,8 @@ export function PageHeader({ title, description, children, className, icon }: Pa
       <div className="flex items-center gap-3">
         {/* Left decorative line */}
         <div className="hidden sm:flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-primary/50" />
-          <div className="w-10 h-0.5 bg-gradient-to-r from-primary/50 to-primary/10 rounded-full" />
+          <div className="w-2 h-2 rounded-full bg-primary/60" />
+          <div className="w-10 h-0.5 bg-primary/40 rounded-full" />
         </div>
 
         {/* Icon (optional) */}
@@ -34,8 +34,8 @@ export function PageHeader({ title, description, children, className, icon }: Pa
 
         {/* Right decorative line */}
         <div className="hidden sm:flex items-center gap-1.5">
-          <div className="w-10 h-0.5 bg-gradient-to-l from-primary/50 to-primary/10 rounded-full" />
-          <div className="w-2 h-2 rounded-full bg-primary/50" />
+          <div className="w-10 h-0.5 bg-primary/40 rounded-full" />
+          <div className="w-2 h-2 rounded-full bg-primary/60" />
         </div>
       </div>
 
