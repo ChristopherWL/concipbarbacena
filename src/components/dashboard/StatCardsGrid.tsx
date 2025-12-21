@@ -47,12 +47,13 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
       )}
     >
       {/* Subtle decorative element */}
-      <div className="absolute -right-4 -bottom-4 w-16 h-16 rounded-full opacity-[0.07] group-hover:opacity-[0.12] transition-opacity"
+      <div className="absolute -right-3 -bottom-3 w-14 h-14 rounded-full opacity-[0.08] group-hover:opacity-[0.15] transition-opacity"
         style={{ background: `linear-gradient(135deg, ${stat.iconColor.includes('blue') ? 'hsl(var(--primary))' : stat.iconColor.includes('emerald') ? 'hsl(142 76% 36%)' : stat.iconColor.includes('amber') ? 'hsl(38 92% 50%)' : stat.iconColor.includes('purple') ? 'hsl(280 85% 65%)' : stat.iconColor.includes('orange') ? 'hsl(25 95% 53%)' : stat.iconColor.includes('cyan') ? 'hsl(186 85% 45%)' : 'hsl(var(--primary))'}, transparent)` }}
       />
       
-      <CardContent className="p-3.5 relative z-10">
-        <div className="flex items-center gap-3">
+      <CardContent className="p-4 relative z-10">
+        {/* Icon + Value row */}
+        <div className="flex items-center gap-3 mb-2">
           <div className={cn(
             'flex items-center justify-center w-10 h-10 rounded-xl shrink-0',
             getIconClass(stat.gradient)
@@ -60,23 +61,23 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
             <stat.icon className={cn('h-5 w-5', stat.iconColor)} />
           </div>
           
-          <div className="flex-1 min-w-0">
-            {stat.value !== null && !isLoading ? (
-              <p className="text-xl font-bold text-foreground data-value leading-tight">
-                {stat.value}
-              </p>
-            ) : (
-              <Skeleton className="h-6 w-14 mb-0.5" />
-            )}
-            
-            <p className="text-[11px] font-medium text-muted-foreground leading-tight truncate">
-              {stat.label}
+          {stat.value !== null && !isLoading ? (
+            <p className="text-2xl font-bold text-foreground data-value leading-none">
+              {stat.value}
             </p>
-          </div>
+          ) : (
+            <Skeleton className="h-7 w-12" />
+          )}
         </div>
         
+        {/* Label */}
+        <p className="text-xs font-medium text-muted-foreground leading-tight">
+          {stat.label}
+        </p>
+        
+        {/* Sub info */}
         {(stat.subValue || stat.subtitle || stat.change) && (
-          <div className="flex items-center gap-1.5 mt-2.5 pt-2 border-t border-border/40">
+          <div className="flex items-center flex-wrap gap-1.5 mt-2 pt-2 border-t border-border/40">
             {stat.subValue && (
               <span className={cn('text-[10px] font-medium', stat.subColor || 'text-muted-foreground')}>
                 {stat.subValue}
