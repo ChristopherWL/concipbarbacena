@@ -27,7 +27,7 @@ export default function RecursosHumanos() {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 mt-4">
-          <TabsList className="grid w-full grid-cols-4 h-auto">
+          <TabsList className="grid w-full grid-cols-4 h-auto overflow-visible">
             <TabsTrigger value="colaboradores" className="flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
               <Users className="h-4 w-4" />
               <span>Colaboradores</span>
