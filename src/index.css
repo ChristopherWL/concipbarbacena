@@ -337,122 +337,150 @@
   /* Unified background for header + sidebar */
   .menu-shell-bg {
     z-index: -1;
-    background-color: hsl(var(--sidebar-background));
-    overflow: hidden;
+    background: linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background) / 0.95) 100%);
   }
 
-  /* Primary mesh overlay - animated floating gradients */
+  /* Primary ambient light effect */
   .menu-shell-bg::before {
     content: '';
     position: absolute;
     inset: 0;
-    opacity: 0.5;
     background: 
-      radial-gradient(ellipse 300px 300px at 10% 10%, hsl(var(--sidebar-accent) / 0.6) 0%, transparent 70%),
-      radial-gradient(ellipse 200px 200px at 90% 30%, hsl(var(--primary) / 0.3) 0%, transparent 60%),
-      radial-gradient(ellipse 250px 250px at 50% 80%, hsl(var(--sidebar-border) / 0.4) 0%, transparent 70%),
-      radial-gradient(ellipse 150px 150px at 80% 90%, hsl(var(--sidebar-accent) / 0.35) 0%, transparent 60%);
+      radial-gradient(ellipse 600px 400px at 0% 0%, hsl(var(--primary) / 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse 400px 300px at 100% 100%, hsl(var(--sidebar-accent) / 0.2) 0%, transparent 50%);
     pointer-events: none;
-    animation: meshFloat 25s ease-in-out infinite;
+    animation: ambientPulse 15s ease-in-out infinite;
   }
 
-  /* Secondary layer - subtle grid pattern */
+  /* Noise texture for depth */
   .menu-shell-bg::after {
     content: '';
     position: absolute;
     inset: 0;
-    opacity: 0.04;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
-    background-size: 40px 40px;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
     pointer-events: none;
   }
 
   .dark .menu-shell-bg {
-    background-color: hsl(var(--sidebar-background));
+    background: linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background) / 0.98) 100%);
   }
 
-  @keyframes meshFloat {
-    0%, 100% {
-      background-position: 0% 0%, 100% 0%, 50% 100%, 80% 90%;
-      opacity: 0.5;
-    }
-    25% {
-      background-position: 5% 10%, 95% 5%, 55% 95%, 75% 85%;
-      opacity: 0.55;
-    }
-    50% {
-      background-position: 10% 5%, 90% 10%, 45% 90%, 85% 95%;
-      opacity: 0.5;
-    }
-    75% {
-      background-position: 5% 0%, 95% 5%, 50% 95%, 80% 90%;
-      opacity: 0.55;
-    }
+  @keyframes ambientPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
   }
 
-  /* Floating particles for sidebar */
-  .menu-particle {
+  /* Glass effect for sidebar items */
+  .menu-item-glass {
+    background: hsl(var(--sidebar-foreground) / 0.03);
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--sidebar-foreground) / 0.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .menu-item-glass:hover {
+    background: hsl(var(--sidebar-foreground) / 0.08);
+    border-color: hsl(var(--sidebar-foreground) / 0.1);
+    box-shadow: 0 4px 12px hsl(0 0% 0% / 0.15);
+  }
+
+  /* Active menu item glow */
+  .menu-item-active {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(var(--primary) / 0.08) 100%);
+    border: 1px solid hsl(var(--primary) / 0.25);
+    box-shadow: 
+      0 0 20px hsl(var(--primary) / 0.15),
+      inset 0 1px 0 hsl(var(--sidebar-foreground) / 0.05);
+  }
+
+  /* Sidebar divider with glow */
+  .menu-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, hsl(var(--sidebar-foreground) / 0.15) 50%, transparent 100%);
+    margin: 1rem 0;
+  }
+
+  /* Logo container with subtle glass */
+  .menu-logo-container {
+    background: hsl(var(--sidebar-foreground) / 0.02);
+    border-bottom: 1px solid hsl(var(--sidebar-foreground) / 0.08);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Icon wrapper with inner shadow */
+  .menu-icon-wrapper {
+    background: linear-gradient(135deg, hsl(var(--sidebar-foreground) / 0.08) 0%, hsl(var(--sidebar-foreground) / 0.03) 100%);
+    box-shadow: 
+      inset 0 1px 1px hsl(var(--sidebar-foreground) / 0.1),
+      0 1px 2px hsl(0 0% 0% / 0.1);
+    border: 1px solid hsl(var(--sidebar-foreground) / 0.08);
+  }
+
+  .menu-icon-wrapper-active {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.25) 0%, hsl(var(--primary) / 0.15) 100%);
+    box-shadow: 
+      0 0 12px hsl(var(--primary) / 0.3),
+      inset 0 1px 1px hsl(var(--primary) / 0.2);
+    border: 1px solid hsl(var(--primary) / 0.3);
+  }
+
+  /* Submenu indicator line */
+  .menu-submenu-line {
+    width: 2px;
+    background: linear-gradient(180deg, hsl(var(--primary) / 0.4) 0%, hsl(var(--sidebar-foreground) / 0.1) 100%);
+    border-radius: 2px;
+  }
+
+  /* Floating orb decorations */
+  .menu-orb {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
-    animation: particleFloat 8s ease-in-out infinite;
+    filter: blur(40px);
   }
 
-  .menu-particle-1 {
-    width: 4px;
-    height: 4px;
-    top: 15%;
-    left: 20%;
-    background: hsl(var(--primary) / 0.4);
-    animation-delay: 0s;
+  .menu-orb-1 {
+    width: 150px;
+    height: 150px;
+    top: 10%;
+    left: -30%;
+    background: hsl(var(--primary) / 0.2);
+    animation: orbFloat1 20s ease-in-out infinite;
   }
 
-  .menu-particle-2 {
-    width: 6px;
-    height: 6px;
-    top: 40%;
-    right: 15%;
-    background: hsl(var(--sidebar-accent) / 0.5);
-    animation-delay: -2s;
+  .menu-orb-2 {
+    width: 100px;
+    height: 100px;
+    bottom: 20%;
+    right: -20%;
+    background: hsl(var(--sidebar-accent) / 0.25);
+    animation: orbFloat2 25s ease-in-out infinite;
   }
 
-  .menu-particle-3 {
-    width: 3px;
-    height: 3px;
-    top: 65%;
-    left: 30%;
-    background: hsl(var(--primary) / 0.35);
-    animation-delay: -4s;
+  .menu-orb-3 {
+    width: 80px;
+    height: 80px;
+    top: 50%;
+    left: 50%;
+    background: hsl(var(--primary) / 0.1);
+    animation: orbFloat3 18s ease-in-out infinite;
   }
 
-  .menu-particle-4 {
-    width: 5px;
-    height: 5px;
-    top: 85%;
-    right: 25%;
-    background: hsl(var(--sidebar-border) / 0.6);
-    animation-delay: -6s;
+  @keyframes orbFloat1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(20px, 30px) scale(1.1); }
+    66% { transform: translate(-10px, 15px) scale(0.95); }
   }
 
-  @keyframes particleFloat {
-    0%, 100% {
-      transform: translateY(0) translateX(0) scale(1);
-      opacity: 0.6;
-    }
-    25% {
-      transform: translateY(-10px) translateX(5px) scale(1.1);
-      opacity: 0.8;
-    }
-    50% {
-      transform: translateY(-5px) translateX(-5px) scale(0.9);
-      opacity: 0.5;
-    }
-    75% {
-      transform: translateY(-15px) translateX(3px) scale(1.05);
-      opacity: 0.7;
-    }
+  @keyframes orbFloat2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-15px, -25px) scale(1.15); }
+  }
+
+  @keyframes orbFloat3 {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
   }
 
   /* Header and sidebar become transparent so they look like one continuous piece */

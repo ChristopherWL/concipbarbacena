@@ -1000,21 +1000,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       <Button
                         variant="ghost"
                         className={cn(
-                          'w-full justify-between gap-2 rounded-lg text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-all duration-200 h-11 px-3 group',
-                          hasActiveChild && 'bg-sidebar-accent/50 text-sidebar-foreground shadow-sm'
+                          'w-full justify-between gap-2 rounded-xl text-sidebar-foreground/80 transition-all duration-200 h-12 px-3 group',
+                          hasActiveChild 
+                            ? 'menu-item-active text-sidebar-foreground' 
+                            : 'menu-item-glass'
                         )}
                         onClick={() => toggleMenu(item.name)}
                       >
                         <div className="flex items-center gap-3">
                           <div className={cn(
-                            "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
+                            "flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200",
                             hasActiveChild 
-                              ? "bg-primary/20 text-primary" 
-                              : "bg-sidebar-foreground/5 text-sidebar-foreground/60 group-hover:bg-sidebar-foreground/10 group-hover:text-sidebar-foreground"
+                              ? "menu-icon-wrapper-active text-primary" 
+                              : "menu-icon-wrapper text-sidebar-foreground/70 group-hover:text-sidebar-foreground"
                           )}>
-                            <item.icon className="h-4 w-4" />
+                            <item.icon className="h-4.5 w-4.5" />
                           </div>
-                          <span className="text-sm font-medium">{item.name}</span>
+                          <span className="text-sm font-medium tracking-wide">{item.name}</span>
                           <NotificationBadge count={item.badge || 0} type={item.badgeType} />
                         </div>
                         <ChevronRight className={cn(
@@ -1024,11 +1026,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       </Button>
                       <div
                         className={cn(
-                          "ml-5 pl-3 mt-1 border-l border-sidebar-foreground/10 overflow-hidden transition-all duration-200",
+                          "ml-6 mt-2 overflow-hidden transition-all duration-200 relative",
                           isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
                         )}
                       >
-                        <div className="space-y-0.5 py-1">
+                        {/* Submenu indicator line */}
+                        <div className="absolute left-0 top-0 bottom-2 menu-submenu-line" />
+                        
+                        <div className="space-y-1 pl-4 py-1">
                           {item.children.map((child) => (
                             <Button
                               key={child.name}
@@ -1036,19 +1041,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                               size="sm"
                               data-tour={getTourId(child.name)}
                               className={cn(
-                                'w-full justify-between text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground transition-all duration-150 h-9 pl-3 pr-3 rounded-md group/child',
-                                isActive(child.href) && 'bg-primary/10 text-primary font-medium'
+                                'w-full justify-between text-sidebar-foreground/60 hover:text-sidebar-foreground transition-all duration-150 h-9 px-3 rounded-lg group/child',
+                                isActive(child.href) 
+                                  ? 'bg-primary/15 text-primary font-medium shadow-sm' 
+                                  : 'hover:bg-sidebar-foreground/5'
                               )}
                               onClick={() => handleNavigation(child.href)}
                             >
                               <div className="flex items-center gap-2.5">
                                 <div className={cn(
-                                  "w-1.5 h-1.5 rounded-full transition-all duration-200",
+                                  "w-2 h-2 rounded-full transition-all duration-200",
                                   isActive(child.href) 
-                                    ? "bg-primary scale-125" 
-                                    : "bg-sidebar-foreground/30 group-hover/child:bg-sidebar-foreground/50"
+                                    ? "bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.5)]" 
+                                    : "bg-sidebar-foreground/25 group-hover/child:bg-sidebar-foreground/40"
                                 )} />
-                                <span className="text-xs">{child.name}</span>
+                                <span className="text-xs font-medium">{child.name}</span>
                               </div>
                               <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
                             </Button>
@@ -1160,20 +1167,22 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   variant="ghost"
                   data-tour={getTourId(item.name)}
                   className={cn(
-                    'w-full justify-start gap-3 text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-all duration-200 h-11 px-3 rounded-lg relative group',
-                    isActive(item.href!) && 'bg-sidebar-accent/50 text-sidebar-foreground font-medium shadow-sm'
+                    'w-full justify-start gap-3 text-sidebar-foreground/80 transition-all duration-200 h-12 px-3 rounded-xl relative group',
+                    isActive(item.href!) 
+                      ? 'menu-item-active text-sidebar-foreground font-medium' 
+                      : 'menu-item-glass'
                   )}
                   onClick={() => handleNavigation(item.href!)}
                 >
                   <div className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
+                    "flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200",
                     isActive(item.href!) 
-                      ? "bg-primary/20 text-primary" 
-                      : "bg-sidebar-foreground/5 text-sidebar-foreground/60 group-hover:bg-sidebar-foreground/10 group-hover:text-sidebar-foreground"
+                      ? "menu-icon-wrapper-active text-primary" 
+                      : "menu-icon-wrapper text-sidebar-foreground/70 group-hover:text-sidebar-foreground"
                   )}>
-                    <item.icon className="h-4 w-4" />
+                    <item.icon className="h-4.5 w-4.5" />
                   </div>
-                  <span className="text-sm font-medium">{item.name}</span>
+                  <span className="text-sm font-medium tracking-wide">{item.name}</span>
                   {(item.badge || 0) > 0 && (
                     <NotificationBadge count={item.badge || 0} type={item.badgeType} className="ml-auto" />
                   )}
@@ -1185,7 +1194,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Bottom Divider */}
             {!collapsed && (
               <div className="mt-6 px-3">
-                <div className="h-px bg-gradient-to-r from-transparent via-sidebar-foreground/20 to-transparent" />
+                <div className="menu-divider" />
               </div>
             )}
           </nav>
@@ -1199,11 +1208,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen flex flex-col menu-shell print:block">
       {/* Unified animated theme background */}
       <div aria-hidden className="fixed inset-0 menu-shell-bg print:hidden">
-        {/* Floating particles */}
-        <div className="menu-particle menu-particle-1" />
-        <div className="menu-particle menu-particle-2" />
-        <div className="menu-particle menu-particle-3" />
-        <div className="menu-particle menu-particle-4" />
+        {/* Floating orbs */}
+        <div className="menu-orb menu-orb-1" />
+        <div className="menu-orb menu-orb-2" />
+        <div className="menu-orb menu-orb-3" />
       </div>
 
       {/* Top Header - Full width, invisible background, behind content */}
