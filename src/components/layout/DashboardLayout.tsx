@@ -1528,7 +1528,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <img 
                       src={currentLogo} 
                       alt={tenant?.name || 'Logo'} 
-                      className="h-16 object-contain mb-2 animate-scale-in"
+                      className="h-24 object-contain mb-2 animate-scale-in"
                     />
                   ) : (
                     <div className="text-2xl font-bold text-sidebar-foreground text-center mb-2 animate-scale-in">
@@ -1541,7 +1541,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <img 
                   src={currentLogo} 
                   alt={branchData?.name || tenant?.name || 'Logo'} 
-                  className="h-20 object-contain animate-scale-in"
+                  className="h-28 object-contain animate-scale-in"
                 />
               ) : (
                 <div className="text-3xl font-bold text-sidebar-foreground text-center animate-scale-in">
