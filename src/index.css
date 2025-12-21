@@ -338,32 +338,34 @@
   .menu-shell-bg {
     z-index: -1;
     background-color: hsl(var(--sidebar-background));
+    overflow: hidden;
   }
 
-  /* Mesh overlay layer for menu shell - with subtle animation */
+  /* Primary mesh overlay - animated floating gradients */
   .menu-shell-bg::before {
     content: '';
     position: absolute;
     inset: 0;
-    opacity: 0.4;
+    opacity: 0.5;
     background: 
-      radial-gradient(ellipse at 20% 20%, hsl(var(--sidebar-accent) / 0.5) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, hsl(var(--sidebar-border) / 0.35) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%, hsl(var(--sidebar-accent) / 0.25) 0%, transparent 70%);
+      radial-gradient(ellipse 300px 300px at 10% 10%, hsl(var(--sidebar-accent) / 0.6) 0%, transparent 70%),
+      radial-gradient(ellipse 200px 200px at 90% 30%, hsl(var(--primary) / 0.3) 0%, transparent 60%),
+      radial-gradient(ellipse 250px 250px at 50% 80%, hsl(var(--sidebar-border) / 0.4) 0%, transparent 70%),
+      radial-gradient(ellipse 150px 150px at 80% 90%, hsl(var(--sidebar-accent) / 0.35) 0%, transparent 60%);
     pointer-events: none;
-    animation: meshFloat 20s ease-in-out infinite;
+    animation: meshFloat 25s ease-in-out infinite;
   }
 
-  /* Grid pattern layer */
+  /* Secondary layer - subtle grid pattern */
   .menu-shell-bg::after {
     content: '';
     position: absolute;
     inset: 0;
-    opacity: 0.03;
+    opacity: 0.04;
     background-image: 
-      linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-    background-size: 60px 60px;
+      linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
     pointer-events: none;
   }
 
@@ -373,12 +375,83 @@
 
   @keyframes meshFloat {
     0%, 100% {
-      background-position: 0% 0%;
-      opacity: 0.4;
+      background-position: 0% 0%, 100% 0%, 50% 100%, 80% 90%;
+      opacity: 0.5;
+    }
+    25% {
+      background-position: 5% 10%, 95% 5%, 55% 95%, 75% 85%;
+      opacity: 0.55;
     }
     50% {
-      background-position: 5% 5%;
+      background-position: 10% 5%, 90% 10%, 45% 90%, 85% 95%;
       opacity: 0.5;
+    }
+    75% {
+      background-position: 5% 0%, 95% 5%, 50% 95%, 80% 90%;
+      opacity: 0.55;
+    }
+  }
+
+  /* Floating particles for sidebar */
+  .menu-particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleFloat 8s ease-in-out infinite;
+  }
+
+  .menu-particle-1 {
+    width: 4px;
+    height: 4px;
+    top: 15%;
+    left: 20%;
+    background: hsl(var(--primary) / 0.4);
+    animation-delay: 0s;
+  }
+
+  .menu-particle-2 {
+    width: 6px;
+    height: 6px;
+    top: 40%;
+    right: 15%;
+    background: hsl(var(--sidebar-accent) / 0.5);
+    animation-delay: -2s;
+  }
+
+  .menu-particle-3 {
+    width: 3px;
+    height: 3px;
+    top: 65%;
+    left: 30%;
+    background: hsl(var(--primary) / 0.35);
+    animation-delay: -4s;
+  }
+
+  .menu-particle-4 {
+    width: 5px;
+    height: 5px;
+    top: 85%;
+    right: 25%;
+    background: hsl(var(--sidebar-border) / 0.6);
+    animation-delay: -6s;
+  }
+
+  @keyframes particleFloat {
+    0%, 100% {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 0.6;
+    }
+    25% {
+      transform: translateY(-10px) translateX(5px) scale(1.1);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translateY(-5px) translateX(-5px) scale(0.9);
+      opacity: 0.5;
+    }
+    75% {
+      transform: translateY(-15px) translateX(3px) scale(1.05);
+      opacity: 0.7;
     }
   }
 

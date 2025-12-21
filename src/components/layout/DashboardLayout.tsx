@@ -1198,7 +1198,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col menu-shell print:block">
       {/* Unified animated theme background */}
-      <div aria-hidden className="fixed inset-0 menu-shell-bg print:hidden" />
+      <div aria-hidden className="fixed inset-0 menu-shell-bg print:hidden">
+        {/* Floating particles */}
+        <div className="menu-particle menu-particle-1" />
+        <div className="menu-particle menu-particle-2" />
+        <div className="menu-particle menu-particle-3" />
+        <div className="menu-particle menu-particle-4" />
+      </div>
 
       {/* Top Header - Full width, invisible background, behind content */}
       <header className={cn(
