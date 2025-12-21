@@ -1570,7 +1570,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               alt={tenant?.name || 'Logo'} 
             className={cn(
                 "object-contain transition-all duration-200 ease-out",
-                isAtTop ? "h-24 w-24" : "h-10 w-10"
+                isAtTop ? "h-32 w-32" : "h-10 w-10"
               )}
             />
           ) : (
