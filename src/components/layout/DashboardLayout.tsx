@@ -191,16 +191,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   });
 
   // Determine which logo to show:
-  // 1. If branch has its own logo, use it
-  // 2. If branch is main (matriz) or no branch logo, use tenant logo
+  // 1. If branch has its own logo, use it (even for matriz if logo was set)
+  // 2. Fallback to tenant logo
   const currentLogo = useMemo(() => {
-    // If there's a branch with its own logo, use it
-    if (branchData?.logo_url && !branchData.is_main) {
+    // If the branch has its own logo, always use it
+    if (branchData?.logo_url) {
       return branchData.logo_url;
     }
-    // Otherwise use tenant logo (matriz logo)
+    // Fallback to tenant logo (matriz default)
     return tenant?.logo_url || null;
   }, [branchData, tenant?.logo_url]);
+
+  const currentLogoDark = useMemo(() => {
+    if (branchData?.logo_dark_url) {
+      return branchData.logo_dark_url;
+    }
+    return tenant?.logo_dark_url || null;
+  }, [branchData, tenant?.logo_dark_url]);
 
   // For backward compatibility with director branch selection
   const selectedBranch = directorSelectedBranch;
