@@ -103,7 +103,9 @@ export default function Configuracoes() {
   // Load current branch data
   useEffect(() => {
     const fetchBranchData = async () => {
-      if (!selectedBranch?.id && !profile?.selected_branch_id) {
+      const branchId = selectedBranch?.id || profile?.branch_id || profile?.selected_branch_id;
+
+      if (!branchId) {
         // No branch selected - check if there's a main branch
         if (tenant?.id) {
           const { data: mainBranch } = await supabase
@@ -112,7 +114,7 @@ export default function Configuracoes() {
             .eq('tenant_id', tenant.id)
             .eq('is_main', true)
             .maybeSingle();
-          
+
           if (mainBranch) {
             setCurrentBranch(mainBranch as BranchData);
             setBranchLogos({
@@ -123,9 +125,6 @@ export default function Configuracoes() {
         }
         return;
       }
-
-      const branchId = selectedBranch?.id || profile?.selected_branch_id;
-      if (!branchId) return;
 
       const { data: branch } = await supabase
         .from('branches')
@@ -159,7 +158,7 @@ export default function Configuracoes() {
     };
 
     fetchBranchData();
-  }, [selectedBranch, profile?.selected_branch_id, tenant?.id]);
+  }, [selectedBranch, profile?.branch_id, profile?.selected_branch_id, tenant?.id]);
 
   const searchCEP = useCallback(async (cep: string) => {
     const cleanCep = cep.replace(/\D/g, '');
@@ -284,22 +283,31 @@ export default function Configuracoes() {
 
       // Save branch logos if user is in a filial (non-main branch)
       if (!isMatriz && currentBranch?.id) {
-        const { error: branchError } = await supabase
+        const { data: updatedBranch, error: branchError } = await supabase
           .from('branches')
           .update({
             logo_url: branchLogos.logo_url || null,
             logo_dark_url: branchLogos.logo_dark_url || null
           })
-          .eq('id', currentBranch.id);
+          .eq('id', currentBranch.id)
+          .select('id, logo_url, logo_dark_url')
+          .maybeSingle();
 
-        if (branchError) {
+        // When RLS blocks UPDATE, PostgREST may return 204 (no error) but with no updated row.
+        if (branchError || !updatedBranch) {
           console.error('Error saving branch logos:', branchError);
-          toast.error('Erro ao salvar logos da filial');
+          toast.error('Sem permissão para salvar a logo da filial (ou filial não encontrada).');
           return;
         }
 
         // Force refresh of sidebar/top logo
         await queryClient.invalidateQueries({ queryKey: ['branch-logo', currentBranch.id] });
+
+        // Keep local state in sync
+        setBranchLogos({
+          logo_url: updatedBranch.logo_url || '',
+          logo_dark_url: updatedBranch.logo_dark_url || '',
+        });
       }
 
       toast.success('Dados da empresa salvos com sucesso!');
@@ -319,7 +327,7 @@ export default function Configuracoes() {
     }
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { data: updatedBranch, error } = await supabase
         .from('branches')
         .update({
           name: branchForm.name,
@@ -339,21 +347,23 @@ export default function Configuracoes() {
           logo_url: branchLogos.logo_url || null,
           logo_dark_url: branchLogos.logo_dark_url || null
         })
-        .eq('id', currentBranch.id);
+        .eq('id', currentBranch.id)
+        .select('*')
+        .maybeSingle();
 
-      if (error) {
+      // When RLS blocks UPDATE, PostgREST may return 204 (no error) but with no updated row.
+      if (error || !updatedBranch) {
         console.error('Error saving branch:', error);
-        toast.error(sanitizeErrorMessage(error));
+        toast.error('Sem permissão para salvar dados/Logos desta filial (ou filial não encontrada).');
         return;
       }
 
       // Update local state so the preview stays consistent
-      setCurrentBranch(prev => prev ? ({
-        ...prev,
-        ...branchForm,
-        logo_url: branchLogos.logo_url || null,
-        logo_dark_url: branchLogos.logo_dark_url || null,
-      }) : prev);
+      setCurrentBranch(updatedBranch as BranchData);
+      setBranchLogos({
+        logo_url: updatedBranch.logo_url || '',
+        logo_dark_url: updatedBranch.logo_dark_url || '',
+      });
 
       // Force refresh of sidebar/top logo
       await queryClient.invalidateQueries({ queryKey: ['branch-logo', currentBranch.id] });

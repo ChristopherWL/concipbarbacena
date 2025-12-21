@@ -172,7 +172,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   );
 
   // Determine the current branch (from auth context or director context)
-  const currentBranchId = directorSelectedBranch?.id || authSelectedBranch?.id || profile?.selected_branch_id;
+  const currentBranchId =
+    directorSelectedBranch?.id ||
+    authSelectedBranch?.id ||
+    profile?.branch_id ||
+    profile?.selected_branch_id;
 
   // Fetch branch-specific logo if user is in a branch
   const { data: branchData } = useQuery({
