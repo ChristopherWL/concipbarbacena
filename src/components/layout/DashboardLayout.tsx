@@ -297,18 +297,69 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [user, roles, isSuperAdmin, navigate]);
 
-  // Block access for users with incomplete setup (no branch assigned)
-  const hasIncompleteBranchSetup = useMemo(() => {
+  // Check if user has permission profile assigned
+  const { data: hasPermissionProfile, isLoading: isLoadingPermissions } = useQuery({
+    queryKey: ['user-has-permission-profile', user?.id, tenant?.id],
+    queryFn: async () => {
+      if (!user?.id || !tenant?.id) return true;
+      
+      // Superadmins and admins don't need explicit permissions
+      if (isSuperAdmin() || isAdmin()) return true;
+      
+      const { data, error } = await supabase
+        .from('user_permissions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('tenant_id', tenant.id)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error checking permission profile:', error);
+        return true; // Don't block on error
+      }
+      
+      return !!data;
+    },
+    enabled: !!user?.id && !!tenant?.id,
+    staleTime: 1000 * 30,
+  });
+
+  // Block access for users with incomplete setup (no branch or no permission profile)
+  const hasIncompleteSetup = useMemo(() => {
     // Wait for data to load
     if (!user || !profile || roles.length === 0) return false;
+    if (isLoadingPermissions) return false;
 
-    // Superadmins can access without branch
+    // Superadmins can access without branch or permissions
     if (isSuperAdmin()) return false;
 
-    // Everyone else must have a branch assigned
+    // Admins can access without explicit permissions
+    if (isAdmin()) {
+      // But still need a branch
+      const hasBranch = !!(profile.branch_id || profile.selected_branch_id || authSelectedBranch);
+      return !hasBranch;
+    }
+
+    // Everyone else must have a branch AND permission profile assigned
     const hasBranch = !!(profile.branch_id || profile.selected_branch_id || authSelectedBranch);
-    return !hasBranch;
-  }, [user, profile, roles, isSuperAdmin, authSelectedBranch]);
+    const hasPermissions = hasPermissionProfile === true;
+    
+    return !hasBranch || !hasPermissions;
+  }, [user, profile, roles, isSuperAdmin, isAdmin, authSelectedBranch, hasPermissionProfile, isLoadingPermissions]);
+
+  // Determine the missing requirements for the error message
+  const missingRequirements = useMemo(() => {
+    if (!hasIncompleteSetup) return null;
+    
+    const hasBranch = !!(profile?.branch_id || profile?.selected_branch_id || authSelectedBranch);
+    const hasPermissions = hasPermissionProfile === true;
+    
+    const missing: string[] = [];
+    if (!hasBranch) missing.push('filial');
+    if (!hasPermissions) missing.push('perfil de permissões');
+    
+    return missing;
+  }, [hasIncompleteSetup, profile, authSelectedBranch, hasPermissionProfile]);
 
   // Route protection based on features AND user permissions - redirect if accessing disabled module or no permission
   useEffect(() => {
@@ -1222,7 +1273,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   // Show access denied screen if user has incomplete setup
-  if (hasIncompleteBranchSetup) {
+  if (hasIncompleteSetup) {
+    const requirementsList = missingRequirements?.join(' e ') || 'configurações necessárias';
+    
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-6 p-8 max-w-md">
@@ -1232,7 +1285,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <h1 className="text-2xl font-bold text-foreground">Acesso Negado</h1>
           <p className="text-muted-foreground">
             Sua conta ainda não está configurada corretamente.
-            Para acessar o sistema, é necessário ter uma filial atribuída.
+            Para acessar o sistema, é necessário ter {requirementsList} atribuído(a).
           </p>
           <p className="text-sm text-muted-foreground">
             Entre em contato com o Super Admin para liberar seu acesso.
