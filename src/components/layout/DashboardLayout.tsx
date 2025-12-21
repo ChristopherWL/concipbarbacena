@@ -1560,15 +1560,24 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Large Logo when collapsed - positioned at top of sidebar */}
       {isCollapsed && (
-        <div className="hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out w-16 left-1 top-3">
+        <div className={cn(
+          "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out w-16 left-1",
+          isAtTop ? "top-3" : "top-14"
+        )}>
           {currentLogo ? (
             <img 
               src={currentLogo} 
               alt={tenant?.name || 'Logo'} 
-              className="h-14 w-14 object-contain transition-all duration-200 ease-out"
+              className={cn(
+                "object-contain transition-all duration-200 ease-out",
+                isAtTop ? "h-14 w-14" : "h-10 w-10"
+              )}
             />
           ) : (
-            <div className="font-bold text-sidebar-foreground text-3xl transition-all duration-200 ease-out">
+            <div className={cn(
+              "font-bold text-sidebar-foreground transition-all duration-200 ease-out",
+              isAtTop ? "text-3xl" : "text-xl"
+            )}>
               {(branchData?.name || tenant?.name)?.charAt(0) || 'S'}
             </div>
           )}
