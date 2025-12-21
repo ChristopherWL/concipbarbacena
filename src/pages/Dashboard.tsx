@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { PageLoading } from '@/components/ui/page-loading';
 import { supabase } from '@/integrations/supabase/client';
+import { LayoutDashboard } from 'lucide-react';
 
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { DashboardVendas } from '@/components/dashboard/DashboardVendas';
@@ -129,17 +130,11 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-4 sm:space-y-6 px-2 sm:px-0" data-tour="dashboard-content">
-        {/* Welcome Header */}
-        <div className="flex flex-col items-center text-center gap-2 sm:-mt-10">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-              Bem-vindo, {profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Usuário'}!
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              {tenant ? `Visão geral de ${tenant.name}` : 'Entre em contato com o administrador'}
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title={`Bem-vindo, ${profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Usuário'}!`}
+          description={tenant ? `Visão geral de ${tenant.name}` : 'Entre em contato com o administrador'}
+          icon={<LayoutDashboard className="h-5 w-5" />}
+        />
 
         {renderDashboard()}
       </div>
