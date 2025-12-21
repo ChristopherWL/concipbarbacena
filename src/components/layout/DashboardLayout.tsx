@@ -166,6 +166,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { selectedBranchId, setSelectedBranchId } = useMatrizBranch();
   const { isTourEnabled, resetTour, toggleTourEnabled } = useOnboardingTour();
 
+  const canAccessSettings = useMemo(
+    () => isAdmin() || permissions.page_settings,
+    [isAdmin, permissions.page_settings]
+  );
+
   // Determine the current branch (from auth context or director context)
   const currentBranchId = directorSelectedBranch?.id || authSelectedBranch?.id || profile?.selected_branch_id;
 
@@ -403,12 +408,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       '/fornecedores': 'page_suppliers',
     };
 
-    // Special handling for /configuracoes - only admins can access
-    // Important: wait for roles to be loaded to avoid redirecting admins during initial hydration.
+    // Special handling for /configuracoes
+    // Important: wait for roles to be loaded to avoid redirecting during initial hydration.
     if (path.startsWith('/configuracoes')) {
       if (roles.length === 0) return;
-      if (!isAdmin()) {
-        toast.error('Apenas administradores podem acessar as configurações');
+      if (!canAccessSettings) {
+        toast.error('Você não tem permissão para acessar as configurações');
         navigate('/dashboard', { replace: true });
         return;
       }
@@ -448,7 +453,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     ...(permissions.page_fechamento ? [{ icon: FileCheck, label: 'Fechamento', href: '/fechamento', color: 'bg-pink-500' }] : []),
     ...(features.show_suppliers && permissions.page_suppliers ? [{ icon: Building2, label: 'Fornecedores', href: '/fornecedores', color: 'bg-violet-500' }] : []),
     ...(features.enable_customers && permissions.page_customers ? [{ icon: Users, label: 'Clientes', href: '/clientes', color: 'bg-sky-500' }] : []),
-    ...(isAdmin() ? [{ icon: Settings, label: 'Config', href: '/configuracoes', color: 'bg-slate-500' }] : []),
+    ...(canAccessSettings ? [{ icon: Settings, label: 'Config', href: '/configuracoes', color: 'bg-slate-500' }] : []),
   ];
 
   // Update clock every second
@@ -1437,7 +1442,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {isDark ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
                 {isDark ? 'Modo Claro' : 'Modo Escuro'}
               </DropdownMenuItem>
-              {isAdmin() && (
+              {canAccessSettings && (
                 <DropdownMenuItem onClick={() => navigate('/configuracoes')} className="cursor-pointer" data-tour="settings">
                   <Settings className="mr-2 h-4 w-4" />
                   Configurações
@@ -1656,7 +1661,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                   )}
                 </div>
-                {isAdmin() && (
+                {canAccessSettings && (
                   <DropdownMenuItem onClick={() => navigate('/configuracoes')} className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
                     Configurações
@@ -2028,7 +2033,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   ))}
 
                   {/* Configurações */}
-                  {isAdmin() && (
+                  {canAccessSettings && (
                     <div className="border-t border-sidebar-border mt-4 pt-4">
                       <button
                         onClick={() => {
