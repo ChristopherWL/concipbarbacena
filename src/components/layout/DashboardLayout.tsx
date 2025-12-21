@@ -1391,9 +1391,38 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </Button>
       </div>
 
-      {/* Mobile Header - Simplified */}
-      <div className="lg:hidden bg-transparent text-sidebar-foreground print:hidden">
-        <div className="flex items-center justify-between px-4 py-3">
+      {/* Mobile Header - Landing page style */}
+      <div className="lg:hidden text-sidebar-foreground print:hidden relative overflow-hidden">
+        {/* Animated gradient background */}
+        <div 
+          className="absolute inset-0 animate-gradient-shift"
+          style={{ 
+            background: `linear-gradient(135deg, hsl(222 47% 5%) 0%, hsl(var(--sidebar-accent)) 25%, hsl(222 47% 8%) 50%, hsl(222 47% 5%) 75%, hsl(var(--sidebar-background)) 100%)`,
+            backgroundSize: '400% 400%',
+          }}
+        />
+        
+        {/* Mesh overlay */}
+        <div className="absolute inset-0 opacity-40" style={{
+          background: `radial-gradient(ellipse at 20% 50%, hsl(var(--sidebar-accent)) 0%, transparent 50%),
+                       radial-gradient(ellipse at 80% 50%, hsl(var(--sidebar-border)) 0%, transparent 40%)`
+        }} />
+
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }} />
+
+        {/* Floating decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/2 left-[10%] w-16 h-16 rounded-full opacity-15 animate-float-slow"
+               style={{ background: `radial-gradient(circle, hsl(var(--sidebar-accent)), transparent)` }} />
+          <div className="absolute top-1/4 right-[15%] w-2 h-2 rounded-full bg-white/20 animate-pulse-slow" />
+        </div>
+
+        <div className="flex items-center justify-between px-4 py-3 relative z-10">
           <div className="flex items-center">
             {isDirector && selectedBranch ? (
               <div className="flex flex-col items-start gap-1">
