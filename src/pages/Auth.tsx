@@ -65,6 +65,17 @@ const hexToHSL = (hex: string) => {
   return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
 };
 
+// Create a darker version of a color for gradients
+const getDarkerGradientColor = (hex: string, primaryHex: string) => {
+  const hsl = hexToHSL(hex);
+  // If color is too light (lightness > 70%), create a dark version based on primary hue
+  if (hsl.l > 70) {
+    const primaryHsl = hexToHSL(primaryHex);
+    return `hsl(${primaryHsl.h}, ${Math.min(primaryHsl.s + 20, 100)}%, 25%)`;
+  }
+  return hex;
+};
+
 // Apply theme colors to CSS variables
 const applyThemeColors = (primaryColor: string, secondaryColor: string) => {
   const primary = hexToHSL(primaryColor);
@@ -299,6 +310,8 @@ export default function Auth() {
 
   const primaryColor = branding?.primary_color || '#3b82f6';
   const secondaryColor = branding?.secondary_color || '#1e40af';
+  // For gradients, use a darker version if secondary is too light
+  const gradientSecondary = getDarkerGradientColor(secondaryColor, primaryColor);
 
   return (
     <div 
@@ -380,7 +393,7 @@ export default function Auth() {
               <div 
                 className="absolute inset-0 animate-gradient-shift"
                 style={{ 
-                  background: `linear-gradient(135deg, ${secondaryColor} 0%, ${primaryColor} 25%, ${secondaryColor} 50%, #0f172a 75%, ${secondaryColor} 100%)`,
+                  background: `linear-gradient(135deg, ${gradientSecondary} 0%, ${primaryColor} 25%, ${gradientSecondary} 50%, #0f172a 75%, ${gradientSecondary} 100%)`,
                   backgroundSize: '400% 400%',
                 }}
               />
@@ -388,7 +401,7 @@ export default function Auth() {
               {/* Mesh gradient overlay */}
               <div className="absolute inset-0 opacity-60" style={{
                 background: `radial-gradient(ellipse at 20% 20%, ${primaryColor}40 0%, transparent 50%),
-                             radial-gradient(ellipse at 80% 80%, ${secondaryColor}30 0%, transparent 50%),
+                             radial-gradient(ellipse at 80% 80%, ${gradientSecondary}30 0%, transparent 50%),
                              radial-gradient(ellipse at 50% 50%, ${primaryColor}20 0%, transparent 70%)`
               }} />
 
@@ -407,7 +420,7 @@ export default function Auth() {
           <div className="absolute top-1/4 left-[10%] w-72 h-72 rounded-full opacity-20 animate-float-slow"
                style={{ background: `radial-gradient(circle, ${primaryColor}, transparent)` }} />
           <div className="absolute bottom-1/4 right-[10%] w-96 h-96 rounded-full opacity-15 animate-float-slower"
-               style={{ background: `radial-gradient(circle, ${secondaryColor}, transparent)` }} />
+               style={{ background: `radial-gradient(circle, ${gradientSecondary}, transparent)` }} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-10"
                style={{ background: `radial-gradient(circle, ${primaryColor}, transparent)` }} />
           
