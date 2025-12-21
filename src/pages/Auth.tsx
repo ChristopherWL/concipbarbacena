@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, Building2, Mail, Lock, Sparkles, Zap, ArrowLeft, MapPin } from 'lucide-react';
+import { Loader2, Building2, Mail, Lock, Sparkles, MapPin, ArrowRight, Menu, X, Play } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import {
   Select,
@@ -87,11 +87,22 @@ export default function Auth() {
   const [isLoadingBranches, setIsLoadingBranches] = useState(true);
   const [isBackgroundLoaded, setIsBackgroundLoaded] = useState(false);
   const [isPageReady, setIsPageReady] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
+
+  // Scroll handler for header
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Fetch branches and branding
   useEffect(() => {
@@ -186,7 +197,7 @@ export default function Auth() {
 
   const handleLogin = async (data: LoginFormData) => {
     setIsSubmitting(true);
-    setIsValidatingLocation(true); // Prevent auto-redirect during validation
+    setIsValidatingLocation(true);
     try {
       const { error } = await signIn(data.email, data.password);
       
@@ -218,20 +229,19 @@ export default function Auth() {
       // Fetch user profile
       const { data: profile } = await supabase
         .from('profiles')
-        .select('selected_branch_id')
+        .select('selected_branch_id, branch_id')
         .eq('id', userData.user.id)
         .single();
 
       const isSuperAdminUser = userRoles?.some(r => r.role === 'superadmin');
-      // Director is admin/manager with no branch assigned (selected_branch_id is null or doesn't exist)
+      // Director is admin/manager with no branch assigned
       const isAdminOrManager = userRoles?.some(r => r.role === 'admin' || r.role === 'manager');
-      const hasNoBranchAssigned = !profile?.selected_branch_id;
+      const hasNoBranchAssigned = !profile?.branch_id && !profile?.selected_branch_id;
       const isDirectorUser = isAdminOrManager && hasNoBranchAssigned && !isSuperAdminUser;
       const isGeneralAccessUser = isSuperAdminUser || isDirectorUser;
 
       // Validate location selection
       if (selectedLocation === 'geral') {
-        // User selected "Geral" but is not superadmin or director
         if (!isGeneralAccessUser) {
           toast.error('Acesso negado. Selecione sua filial para fazer login.');
           setIsValidatingLocation(false);
@@ -239,28 +249,16 @@ export default function Auth() {
           return;
         }
       } else {
-        // User selected a branch
         if (isSuperAdminUser && !isDirectorUser) {
-          // Pure superadmin should use "Geral"
           toast.error('SuperAdmin deve acessar pelo local "Geral".');
           setIsValidatingLocation(false);
           await supabase.auth.signOut();
           return;
         }
 
-        // For regular users, validate they have access to the selected branch
         if (!isGeneralAccessUser) {
           // Check if the user is assigned to this branch
-          const userBranchId = profile?.selected_branch_id;
-          
-          // Fetch employee to check branch assignment
-          const { data: employee } = await supabase
-            .from('employees')
-            .select('branch_id')
-            .eq('user_id', userData.user.id)
-            .maybeSingle();
-
-          const assignedBranchId = employee?.branch_id || userBranchId;
+          const assignedBranchId = profile?.branch_id;
           
           if (assignedBranchId && assignedBranchId !== selectedLocation) {
             toast.error('Local incorreto. Selecione a filial correta para seu acesso.');
@@ -278,18 +276,14 @@ export default function Auth() {
           .update({ selected_branch_id: selectedLocation })
           .eq('id', userData.user.id);
       } else {
-        // Clear branch selection for general access
         await supabase
           .from('profiles')
           .update({ selected_branch_id: null })
           .eq('id', userData.user.id);
       }
 
-      // Refetch user data to update the selectedBranch in AuthContext
       await refetchUserData();
-
       toast.success('Login realizado com sucesso!');
-      // Allow redirect to proceed
       setIsValidatingLocation(false);
     } catch (error) {
       toast.error('Erro ao fazer login. Tente novamente.');
@@ -299,7 +293,6 @@ export default function Auth() {
     }
   };
 
-  // Show loading until page is ready (branding + background loaded)
   if (authLoading || !isPageReady) {
     return <PageLoading text="Carregando" size="lg" />;
   }
@@ -309,208 +302,352 @@ export default function Auth() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center overflow-hidden relative px-4 py-8"
+      className="min-h-screen overflow-x-hidden bg-slate-950"
       style={{
-        backgroundImage: branding?.background_url 
-          ? `url(${branding.background_url})` 
-          : `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 50%, ${primaryColor} 100%)`,
-        backgroundSize: branding?.background_url ? 'cover' : '200% 200%',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        animation: branding?.background_url ? 'none' : 'gradientShift 8s ease infinite',
-      }}
+        '--primary-color': primaryColor,
+        '--secondary-color': secondaryColor,
+      } as React.CSSProperties}
     >
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        onClick={() => navigate(-1)}
-        className="absolute top-4 left-4 z-20 text-white/80 hover:text-white hover:bg-white/10 hidden sm:flex"
+      {/* Header */}
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled 
+            ? 'bg-slate-900/95 backdrop-blur-xl border-b border-white/10 shadow-2xl' 
+            : 'bg-transparent'
+        }`}
       >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Voltar
-      </Button>
-
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50" />
-
-      {/* Floating Elements - Hidden on mobile */}
-      <div className="hidden sm:block absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-10 w-24 h-24 bg-white/10 rounded-full floating blur-sm" style={{ animationDelay: '0s' }} />
-        <div className="absolute top-1/3 right-20 w-16 h-16 bg-white/10 rounded-full floating-slow blur-sm" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-1/4 left-1/4 w-12 h-12 bg-white/10 rounded-full floating" style={{ animationDelay: '2s' }} />
-        <Sparkles className="absolute top-20 right-1/3 w-10 h-10 text-white/20 floating" />
-        <Zap className="absolute bottom-20 left-1/3 w-8 h-8 text-white/20 floating-slow" />
-      </div>
-
-      {/* Content */}
-      <div className="w-full max-w-md relative z-10 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-        {/* Mobile Back Button */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="sm:hidden mb-4 text-white/80 hover:text-white hover:bg-white/10 -ml-2"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar
-        </Button>
-
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Link to="/">
-            {branding?.logo_url ? (
-              <img 
-                src={branding.logo_url} 
-                alt={branding.name} 
-                className="h-16 sm:h-20 w-auto cursor-pointer hover:scale-105 transition-all duration-300"
-              />
-            ) : (
-              <div className="flex items-center gap-3 cursor-pointer select-none">
-                <div className="relative w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <Building2 className="w-7 h-7 text-white" />
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-3">
+              {branding?.logo_url ? (
+                <img src={branding.logo_url} alt={branding.name} className="h-12 w-auto" />
+              ) : (
+                <div 
+                  className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg shadow-blue-500/25"
+                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+                >
+                  <Building2 className="w-6 h-6" />
                 </div>
-                <span className="text-2xl font-bold text-white tracking-wider">
-                  {branding?.name || 'SISTEMA'}
-                </span>
-              </div>
-            )}
-          </Link>
+              )}
+              <span className="text-xl font-bold text-white hidden sm:block">{branding?.name || 'Sistema'}</span>
+            </Link>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 text-white rounded-lg hover:bg-white/10 transition-colors"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden hover:bg-white/15 transition-all duration-300">
-          {/* Card Header */}
-          <div className="p-6 sm:p-8 pb-0">
-            <div className="text-center mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Bem-vindo de volta</h2>
-              <p className="text-sm sm:text-base text-white/70">
-                Entre com suas credenciais para acessar
-              </p>
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-slate-900/98 backdrop-blur-xl border-b border-white/10 animate-slide-down">
+            <div className="container mx-auto px-4 py-6">
+              <Link to="/">
+                <Button 
+                  className="w-full"
+                  variant="outline"
+                  style={{ borderColor: `${primaryColor}50`, color: 'white' }}
+                >
+                  Voltar ao Início
+                </Button>
+              </Link>
             </div>
           </div>
+        )}
+      </header>
 
-          {/* Form */}
-          <div className="p-6 sm:p-8 pt-4">
-            <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4 sm:space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="login-email" className="text-sm font-medium text-white">
-                  E-mail
-                </Label>
-                <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70 group-focus-within:text-white transition-colors" />
-                  <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    data-auth-input
-                    className="pl-12 h-12 !bg-slate-800 !text-white border-white/30 placeholder:!text-white/50 focus:border-white/60 focus:ring-2 focus:ring-white/30 transition-all"
-                    {...loginForm.register('email')}
-                  />
-                </div>
-                {loginForm.formState.errors.email && (
-                  <p className="text-sm text-red-300">{loginForm.formState.errors.email.message}</p>
-                )}
+      {/* Hero Section with Login Form */}
+      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0">
+          {branding?.background_url ? (
+            <>
+              <img 
+                src={branding.background_url} 
+                alt="Background" 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/60 to-slate-950/90" />
+            </>
+          ) : (
+            <>
+              {/* Main gradient */}
+              <div 
+                className="absolute inset-0 animate-gradient-shift"
+                style={{ 
+                  background: `linear-gradient(135deg, ${secondaryColor} 0%, ${primaryColor} 25%, ${secondaryColor} 50%, #0f172a 75%, ${secondaryColor} 100%)`,
+                  backgroundSize: '400% 400%',
+                }}
+              />
+              
+              {/* Mesh gradient overlay */}
+              <div className="absolute inset-0 opacity-60" style={{
+                background: `radial-gradient(ellipse at 20% 20%, ${primaryColor}40 0%, transparent 50%),
+                             radial-gradient(ellipse at 80% 80%, ${secondaryColor}30 0%, transparent 50%),
+                             radial-gradient(ellipse at 50% 50%, ${primaryColor}20 0%, transparent 70%)`
+              }} />
+
+              {/* Grid pattern */}
+              <div className="absolute inset-0 opacity-[0.03]" style={{
+                backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                                 linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                backgroundSize: '60px 60px'
+              }} />
+            </>
+          )}
+        </div>
+
+        {/* Floating elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-[10%] w-72 h-72 rounded-full opacity-20 animate-float-slow"
+               style={{ background: `radial-gradient(circle, ${primaryColor}, transparent)` }} />
+          <div className="absolute bottom-1/4 right-[10%] w-96 h-96 rounded-full opacity-15 animate-float-slower"
+               style={{ background: `radial-gradient(circle, ${secondaryColor}, transparent)` }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-10"
+               style={{ background: `radial-gradient(circle, ${primaryColor}, transparent)` }} />
+          
+          {/* Decorative shapes */}
+          <div className="absolute top-20 right-[20%] w-4 h-4 rounded-full bg-blue-400/40 animate-pulse-slow" />
+          <div className="absolute top-40 left-[15%] w-3 h-3 rounded-full bg-cyan-400/40 animate-pulse-slow" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-40 right-[30%] w-2 h-2 rounded-full bg-white/40 animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        </div>
+
+        {/* Content */}
+        <div className="container mx-auto px-4 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
+            {/* Left side - Welcome text */}
+            <div className="text-center lg:text-left">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-white/80 text-sm mb-8 animate-fade-in-up">
+                <Sparkles className="w-4 h-4 text-yellow-400" />
+                <span>Acesso ao sistema</span>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="login-password" className="text-sm font-medium text-white">
-                  Senha
-                </Label>
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70 group-focus-within:text-white transition-colors" />
-                  <Input
-                    id="login-password"
-                    type="password"
-                    placeholder="••••••••"
-                    data-auth-input
-                    className="pl-12 h-12 !bg-slate-800 !text-white border-white/30 placeholder:!text-white/50 focus:border-white/60 focus:ring-2 focus:ring-white/30 transition-all"
-                    {...loginForm.register('password')}
-                  />
-                </div>
-                {loginForm.formState.errors.password && (
-                  <p className="text-sm text-red-300">{loginForm.formState.errors.password.message}</p>
-                )}
-              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight animate-fade-in-up animation-delay-100">
+                Bem-vindo de volta
+              </h1>
+              
+              <p className="text-lg sm:text-xl text-slate-300 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
+                Entre com suas credenciais para acessar o sistema e gerenciar suas operações.
+              </p>
 
-              <div className="space-y-2">
-                <Label htmlFor="location" className="text-sm font-medium text-white">
-                  Local
-                </Label>
-                <div className="relative group">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70 z-10 pointer-events-none" />
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger 
-                      id="location"
-                      className="pl-12 h-12 !bg-slate-800 !text-white border-white/30 focus:border-white/60 focus:ring-2 focus:ring-white/30 transition-all [&>span]:text-white"
+              <div className="hidden lg:flex items-center gap-6 animate-fade-in-up animation-delay-300">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-white/70">Gestão completa</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-white/70">Multi-filiais</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side - Login Form */}
+            <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up animation-delay-200">
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
+                {/* Card Header */}
+                <div className="p-6 sm:p-8 pb-0">
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Fazer Login</h2>
+                    <p className="text-sm sm:text-base text-white/60">
+                      Insira seus dados abaixo
+                    </p>
+                  </div>
+                </div>
+
+                {/* Form */}
+                <div className="p-6 sm:p-8 pt-4">
+                  <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="login-email" className="text-sm font-medium text-white">
+                        E-mail
+                      </Label>
+                      <div className="relative group">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50 group-focus-within:text-white transition-colors" />
+                        <Input
+                          id="login-email"
+                          type="email"
+                          placeholder="seu@email.com"
+                          data-auth-input
+                          className="pl-12 h-12 bg-white/5 text-white border-white/20 placeholder:text-white/40 focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all rounded-xl"
+                          {...loginForm.register('email')}
+                        />
+                      </div>
+                      {loginForm.formState.errors.email && (
+                        <p className="text-sm text-red-300">{loginForm.formState.errors.email.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="login-password" className="text-sm font-medium text-white">
+                        Senha
+                      </Label>
+                      <div className="relative group">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50 group-focus-within:text-white transition-colors" />
+                        <Input
+                          id="login-password"
+                          type="password"
+                          placeholder="••••••••"
+                          data-auth-input
+                          className="pl-12 h-12 bg-white/5 text-white border-white/20 placeholder:text-white/40 focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all rounded-xl"
+                          {...loginForm.register('password')}
+                        />
+                      </div>
+                      {loginForm.formState.errors.password && (
+                        <p className="text-sm text-red-300">{loginForm.formState.errors.password.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="text-sm font-medium text-white">
+                        Local
+                      </Label>
+                      <div className="relative group">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50 z-10 pointer-events-none" />
+                        <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                          <SelectTrigger 
+                            id="location"
+                            className="pl-12 h-12 bg-white/5 text-white border-white/20 focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all rounded-xl [&>span]:text-white"
+                          >
+                            <SelectValue placeholder="Selecione o local" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-white/20">
+                            <SelectItem value="geral" className="text-white hover:bg-white/10">
+                              Geral (Matriz/Diretoria)
+                            </SelectItem>
+                            {branches.map((branch) => (
+                              <SelectItem 
+                                key={branch.id} 
+                                value={branch.id}
+                                className="text-white hover:bg-white/10"
+                              >
+                                {branch.name} {branch.is_main ? '(Matriz)' : ''}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || isLoadingBranches}
+                      className="w-full h-12 text-base font-semibold shadow-lg hover:scale-[1.02] transition-all duration-300 rounded-xl"
+                      style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
                     >
-                      <SelectValue placeholder="Selecione o local" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/30">
-                      <SelectItem value="geral" className="text-white hover:bg-white/10 focus:bg-white/10">
-                        <div className="flex items-center gap-2">
-                          <span className="text-yellow-400">★</span>
-                          <span>Geral (SuperAdmin / Diretor)</span>
-                        </div>
-                      </SelectItem>
-                      {branches.map((branch) => (
-                        <SelectItem 
-                          key={branch.id} 
-                          value={branch.id}
-                          className="text-white hover:bg-white/10 focus:bg-white/10"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4 text-white/70" />
-                            <span>{branch.name}</span>
-                            {branch.is_main && (
-                              <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded">Matriz</span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Entrando...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="mr-2 h-5 w-5" />
+                          Acessar Sistema
+                        </>
+                      )}
+                    </Button>
+                  </form>
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full h-12 bg-white/20 hover:bg-white/30 text-white border border-white/30 font-semibold transition-all duration-200"
-                disabled={isSubmitting || isLoadingBranches}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Entrando...
-                  </>
-                ) : (
-                  'Entrar'
-                )}
-              </Button>
-            </form>
+              {/* Back to home link */}
+              <div className="mt-6 text-center">
+                <Link 
+                  to="/" 
+                  className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+                >
+                  <ArrowRight className="w-4 h-4 rotate-180" />
+                  <span>Voltar para o início</span>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
+      {/* CSS Animations */}
       <style>{`
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
+        @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
         }
-        @keyframes floating {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
+        
+        .animate-gradient-shift {
+          animation: gradient-shift 15s ease infinite;
+        }
+        
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(5deg); }
         }
-        @keyframes floating-slow {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-30px); }
+        
+        @keyframes float-slower {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-30px) rotate(-5deg); }
         }
-        .floating { animation: floating 6s ease-in-out infinite; }
-        .floating-slow { animation: floating-slow 8s ease-in-out infinite; }
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+        
+        .animate-float-slow {
+          animation: float-slow 8s ease-in-out infinite;
         }
-        .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+        
+        .animate-float-slower {
+          animation: float-slower 12s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.2); }
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse-slow 4s ease-in-out infinite;
+        }
+        
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out forwards;
+          opacity: 0;
+        }
+        
+        .animation-delay-100 { animation-delay: 0.1s; }
+        .animation-delay-200 { animation-delay: 0.2s; }
+        .animation-delay-300 { animation-delay: 0.3s; }
+        
+        @keyframes slide-down {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out;
+        }
       `}</style>
     </div>
   );
