@@ -1224,14 +1224,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             />
           )}
           {/* Date - hide on smaller screens */}
-          <div className="hidden xl:flex items-center gap-2 px-4 py-1 rounded-full text-xs text-sidebar-foreground/90">
+          <div className="hidden xl:flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1 rounded-full text-xs text-sidebar-foreground/90">
             <Calendar className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
             <span className="capitalize">
               {currentTime.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </span>
           </div>
           {/* Time - always visible on lg+ */}
-          <div className="flex items-center gap-2 px-4 py-1 rounded-full text-xs font-mono text-sidebar-foreground/90">
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1 rounded-full text-xs font-mono text-sidebar-foreground/90">
             <Clock className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
             <span>{currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
           </div>
