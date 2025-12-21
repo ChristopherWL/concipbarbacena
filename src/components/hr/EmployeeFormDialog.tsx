@@ -743,8 +743,8 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] p-0 flex flex-col">
-        <DialogHeader className="bg-primary px-6 py-4 text-center rounded-t-xl flex-shrink-0">
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0 flex flex-col overflow-hidden border-0">
+        <DialogHeader className="bg-primary px-6 py-4 text-center flex-shrink-0">
           <DialogTitle className="text-primary-foreground text-center">{employee ? 'Editar Colaborador' : 'Novo Colaborador'}</DialogTitle>
           <DialogDescription className="text-primary-foreground/80 text-center">
             Preencha os dados do colaborador. Campos com * são obrigatórios.
