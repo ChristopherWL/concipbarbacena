@@ -1509,11 +1509,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col flex-1 bg-transparent relative z-10">
           {/* Logo - show only when NOT collapsed */}
           {!isCollapsed && (
-            <div className="flex flex-col items-center px-4 pb-2">
+            <div className="flex flex-col items-center px-4 pb-2 animate-fade-in">
               {/* Show branch name or company logo based on director selection */}
               {isDirector && selectedBranch ? (
                 <>
-                  <div className="text-2xl font-bold text-sidebar-foreground text-center mb-2">
+                  <div className="text-2xl font-bold text-sidebar-foreground text-center mb-2 animate-scale-in">
                     {selectedBranch.name}
                   </div>
                   <DirectorBranchDropdown variant="sidebar" />
@@ -1524,10 +1524,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <img 
                       src={currentLogo} 
                       alt={tenant?.name || 'Logo'} 
-                      className="h-16 object-contain mb-2"
+                      className="h-16 object-contain mb-2 animate-scale-in"
                     />
                   ) : (
-                    <div className="text-2xl font-bold text-sidebar-foreground text-center mb-2">
+                    <div className="text-2xl font-bold text-sidebar-foreground text-center mb-2 animate-scale-in">
                       {tenant?.name || 'System'}
                     </div>
                   )}
@@ -1537,10 +1537,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <img 
                   src={currentLogo} 
                   alt={tenant?.name || 'Logo'} 
-                  className="h-20 object-contain"
+                  className="h-20 object-contain animate-scale-in"
                 />
               ) : (
-                <div className="text-3xl font-bold text-sidebar-foreground text-center">
+                <div className="text-3xl font-bold text-sidebar-foreground text-center animate-scale-in">
                   {tenant?.name || 'System'}
                 </div>
               )}
