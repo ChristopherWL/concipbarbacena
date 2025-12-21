@@ -27,20 +27,20 @@ export default function RecursosHumanos() {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 mt-4">
-          <TabsList className="grid w-full grid-cols-4 h-auto overflow-visible">
-            <TabsTrigger value="colaboradores" className="flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
+          <TabsList className="flex w-full h-auto p-2">
+            <TabsTrigger value="colaboradores" className="flex-1 flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
               <Users className="h-4 w-4" />
               <span>Colaboradores</span>
             </TabsTrigger>
-            <TabsTrigger value="ferias" className="flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
+            <TabsTrigger value="ferias" className="flex-1 flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
               <Palmtree className="h-4 w-4" />
               <span>Férias</span>
             </TabsTrigger>
-            <TabsTrigger value="afastamentos" className="flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
+            <TabsTrigger value="afastamentos" className="flex-1 flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
               <FileText className="h-4 w-4" />
               <span>Afastamentos</span>
             </TabsTrigger>
-            <TabsTrigger value="folha" className="flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
+            <TabsTrigger value="folha" className="flex-1 flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
               <Calculator className="h-4 w-4" />
               <span>Folha</span>
             </TabsTrigger>
