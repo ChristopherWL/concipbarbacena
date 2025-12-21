@@ -161,7 +161,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, profile, tenant, roles, signOut, isSuperAdmin, isAdmin, selectedBranch: authSelectedBranch } = useAuthContext();
   const { isDirector, selectedBranch: directorSelectedBranch, isReadOnly } = useDirectorBranch();
   const { features } = useTenantFeatures();
-  const { permissions } = useUserPermissions();
+  const { permissions, isLoading: isPermissionsLoading } = useUserPermissions();
   const { isMatriz } = useBranchFilter();
   const { selectedBranchId, setSelectedBranchId } = useMatrizBranch();
   const { isTourEnabled, resetTour, toggleTourEnabled } = useOnboardingTour();
@@ -359,6 +359,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   // Route protection based on features AND user permissions - redirect if accessing disabled module or no permission
   useEffect(() => {
     const path = location.pathname;
+
+    // Wait for auth + permissions to load to avoid brief unauthorized access.
+    if (!user) return;
+    if (!isSuperAdmin() && isPermissionsLoading) return;
     
     // Feature-based restrictions (modules disabled at tenant level)
     const featureRoutes: Record<string, keyof typeof features> = {
@@ -402,7 +406,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     // Special handling for /configuracoes - only admins can access
     // Important: wait for roles to be loaded to avoid redirecting admins during initial hydration.
     if (path.startsWith('/configuracoes')) {
-      if (!user) return;
       if (roles.length === 0) return;
       if (!isAdmin()) {
         toast.error('Apenas administradores podem acessar as configurações');
@@ -418,7 +421,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         return;
       }
     }
-  }, [location.pathname, features, permissions, navigate, isAdmin, user, roles]);
+  }, [
+    location.pathname,
+    features,
+    permissions,
+    navigate,
+    isAdmin,
+    isSuperAdmin,
+    user,
+    roles,
+    isPermissionsLoading,
+  ]);
 
   // FAB quick actions - Operational pages only (filtered by features AND user permissions)
   const fabActions = [
@@ -1267,8 +1280,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   };
 
-  // While validating permission profile, don't render the app (prevents brief access during load)
-  if (!isSuperAdmin() && isLoadingPermissions) {
+  // While validating access, don't render the app (prevents brief access during load)
+  if (!isSuperAdmin() && (isLoadingPermissions || isPermissionsLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4 p-8 max-w-md">
