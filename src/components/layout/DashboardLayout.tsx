@@ -1536,12 +1536,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               ) : currentLogo ? (
                 <img 
                   src={currentLogo} 
-                  alt={tenant?.name || 'Logo'} 
+                  alt={branchData?.name || tenant?.name || 'Logo'} 
                   className="h-20 object-contain animate-scale-in"
                 />
               ) : (
                 <div className="text-3xl font-bold text-sidebar-foreground text-center animate-scale-in">
-                  {tenant?.name || 'System'}
+                  {branchData?.name || tenant?.name || 'System'}
                 </div>
               )}
             </div>
@@ -1574,7 +1574,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               "font-bold text-sidebar-foreground transition-all duration-200 ease-out",
               isAtTop ? "text-6xl" : "text-2xl"
             )}>
-              {tenant?.name?.charAt(0) || 'S'}
+              {(branchData?.name || tenant?.name)?.charAt(0) || 'S'}
             </div>
           )}
         </div>
@@ -1621,9 +1621,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <DirectorBranchDropdown className="h-7 text-xs" />
               </div>
             ) : currentLogo ? (
-              <img src={currentLogo} alt={tenant?.name || 'Logo'} className="h-8" />
+              <img src={currentLogo} alt={branchData?.name || tenant?.name || 'Logo'} className="h-8" />
             ) : (
-              <span className="font-bold text-lg">{tenant?.name || 'System'}</span>
+              <span className="font-bold text-lg">{branchData?.name || tenant?.name || 'System'}</span>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -1914,9 +1914,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Header - Fixed */}
                 <div className="flex-shrink-0 relative z-10 border-b border-sidebar-border/30 p-4 flex items-center justify-center backdrop-blur-sm bg-sidebar/30">
                   {currentLogo ? (
-                    <img src={currentLogo} alt={tenant?.name || 'Logo'} className="h-8" />
+                    <img src={currentLogo} alt={branchData?.name || tenant?.name || 'Logo'} className="h-8" />
                   ) : (
-                    <span className="text-sidebar-foreground font-bold text-lg">{tenant?.name || 'Sistema'}</span>
+                    <span className="text-sidebar-foreground font-bold text-lg">{branchData?.name || tenant?.name || 'Sistema'}</span>
                   )}
                   <button 
                     onClick={() => setMoreExpanded(false)}
