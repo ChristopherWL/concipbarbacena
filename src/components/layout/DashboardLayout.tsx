@@ -1506,7 +1506,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Mobile Bottom Navigation */}
       <nav className={cn(
-        "lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-sidebar-border/50 transition-transform duration-200 print:hidden overflow-hidden",
+        "lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-sidebar-border/50 transition-transform duration-200 print:hidden",
         !showMobileNav && "translate-y-[calc(100%+2rem)]"
       )}>
         {/* Animated gradient background */}
