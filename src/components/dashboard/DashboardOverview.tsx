@@ -118,8 +118,7 @@ export function DashboardOverview() {
   ];
 
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-5">
       {/* Matriz Branch Selector - Mobile only */}
       {isMatriz && (
         <div className="lg:hidden">
@@ -129,7 +128,6 @@ export function DashboardOverview() {
           />
         </div>
       )}
-
 
       {/* Stats Grid */}
       <StatCardsGrid cards={statCards} />
@@ -142,31 +140,105 @@ export function DashboardOverview() {
         />
       )}
 
-      {/* Calendar + Pie Chart Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendar/Agenda */}
-        <div className="lg:col-span-2">
-          <DashboardCalendar sector="overview" />
-        </div>
-
-        {/* Pie Chart */}
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
+      {/* Main Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* OS Trend Chart - Larger */}
+        <Card className="lg:col-span-8 futuristic-card rounded-xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Estoque por Categoria</CardTitle>
-            <CardDescription>Distribuição atual</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-sm font-semibold">Tendência de Ordens de Serviço</CardTitle>
+                <CardDescription className="text-xs">Últimos 6 meses</CardDescription>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                  <span className="text-xs text-muted-foreground">Total</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <span className="text-xs text-muted-foreground">Concluídas</span>
+                </div>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="h-[200px]">
+            <div className="h-[220px] chart-container p-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={osTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorOs" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorConcluidas" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.3}/>
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--popover))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="os" 
+                    name="Total"
+                    stroke="#3b82f6" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorOs)" 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="concluidas" 
+                    name="Concluídas"
+                    stroke="#10b981" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorConcluidas)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pie Chart */}
+        <Card className="lg:col-span-4 futuristic-card rounded-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold">Estoque por Categoria</CardTitle>
+            <CardDescription className="text-xs">Distribuição atual</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="h-[160px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={stockByCategory || []}
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
+                    innerRadius={45}
+                    outerRadius={70}
+                    paddingAngle={3}
                     dataKey="value"
+                    strokeWidth={0}
                   >
                     {(stockByCategory || []).map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -176,7 +248,8 @@ export function DashboardOverview() {
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--popover))', 
                       border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      borderRadius: '8px',
+                      fontSize: '12px'
                     }}
                     formatter={(value: number, name: string, entry: any) => [
                       `${value} itens`,
@@ -186,11 +259,12 @@ export function DashboardOverview() {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="grid grid-cols-2 gap-2 mt-3">
               {(stockByCategory || []).slice(0, 4).map((item) => (
-                <div key={item.name} className="flex items-center gap-2 text-xs">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-muted-foreground truncate">{item.name}: {item.value}</span>
+                <div key={item.name} className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                  <span className="text-xs text-muted-foreground truncate">{item.name}</span>
+                  <span className="text-xs font-medium ml-auto">{item.value}</span>
                 </div>
               ))}
             </div>
@@ -198,159 +272,89 @@ export function DashboardOverview() {
         </Card>
       </div>
 
-      {/* OS Trend Chart */}
-      <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base">Tendência de OS</CardTitle>
-              <CardDescription>Ordens de serviço nos últimos 6 meses</CardDescription>
-            </div>
-            <TrendingUp className="h-5 w-5 text-muted-foreground" />
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={osTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorOs" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05}/>
-                  </linearGradient>
-                  <linearGradient id="colorConcluidas" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.05}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--popover))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="os" 
-                  name="Total"
-                  stroke="#3b82f6" 
-                  strokeWidth={2.5}
-                  fillOpacity={1} 
-                  fill="url(#colorOs)" 
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="concluidas" 
-                  name="Concluídas"
-                  stroke="#10b981" 
-                  strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorConcluidas)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex justify-center gap-6 mt-2">
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded bg-blue-500" />
-              <span className="text-muted-foreground">Total OS</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded bg-emerald-500" />
-              <span className="text-muted-foreground">Concluídas</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Calendar + Activity + Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Calendar */}
+        <div className="lg:col-span-5">
+          <DashboardCalendar sector="overview" />
+        </div>
 
-      {/* Activity & Alerts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2 border-border/50 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base">Atividades Recentes</CardTitle>
-                <CardDescription>Últimas movimentações do sistema</CardDescription>
-              </div>
-            </div>
+        <Card className="lg:col-span-4 futuristic-card rounded-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold">Atividades Recentes</CardTitle>
+            <CardDescription className="text-xs">Últimas movimentações</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
             {activitiesLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <Skeleton className="h-10 w-10 rounded-lg" />
-                    <div className="space-y-2 flex-1">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-48" />
+                    <Skeleton className="h-8 w-8 rounded-lg" />
+                    <div className="space-y-1.5 flex-1">
+                      <Skeleton className="h-3 w-28" />
+                      <Skeleton className="h-2.5 w-40" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : activities && activities.length > 0 ? (
-              <div className="space-y-3">
-                {activities.slice(0, 5).map((activity) => {
+              <div className="space-y-2">
+                {activities.slice(0, 4).map((activity) => {
                   const Icon = getActivityIcon(activity.type);
                   return (
-                    <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Icon className="h-4 w-4 text-primary" />
+                    <div key={activity.id} className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-muted/30 transition-colors">
+                      <div className="p-1.5 rounded-md bg-primary/10 flex-shrink-0">
+                        <Icon className="h-3.5 w-3.5 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{activity.action}</p>
-                        <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {activity.time}
-                        </p>
+                        <p className="text-xs font-medium leading-tight">{activity.action}</p>
+                        <p className="text-[10px] text-muted-foreground truncate mt-0.5">{activity.description}</p>
+                        <p className="text-[10px] text-muted-foreground/70 mt-1">{activity.time}</p>
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-3">
-                  <TrendingUp className="h-6 w-6 text-muted-foreground" />
+              <div className="text-center py-6">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted mb-2">
+                  <TrendingUp className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <p className="text-sm text-muted-foreground">Nenhuma atividade recente</p>
+                <p className="text-xs text-muted-foreground">Nenhuma atividade</p>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* Alerts */}
-        <Card className="border-border/50 shadow-sm">
+        <Card className="lg:col-span-3 futuristic-card rounded-xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-warning" />
               Alertas
             </CardTitle>
-            <CardDescription>Itens que requerem atenção</CardDescription>
+            <CardDescription className="text-xs">Requerem atenção</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
             {alerts && alerts.length > 0 ? (
               <div className="space-y-2">
-                {alerts.slice(0, 4).map((alert) => (
-                  <div key={alert.id} className={`p-3 rounded-lg text-sm ${
-                    alert.type === 'error' ? 'bg-destructive/10 text-destructive' :
-                    alert.type === 'warning' ? 'bg-warning/10 text-warning-foreground' :
-                    'bg-info/10 text-info-foreground'
+                {alerts.slice(0, 3).map((alert) => (
+                  <div key={alert.id} className={`p-2.5 rounded-lg text-xs ${
+                    alert.type === 'error' ? 'bg-destructive/10 text-destructive border border-destructive/20' :
+                    alert.type === 'warning' ? 'bg-warning/10 text-warning-foreground border border-warning/20' :
+                    'bg-info/10 text-info-foreground border border-info/20'
                   }`}>
                     {alert.message}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-success/10 mb-3">
-                  <CheckCircle className="h-6 w-6 text-success" />
+              <div className="text-center py-6">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-success/10 mb-2">
+                  <CheckCircle className="h-5 w-5 text-success" />
                 </div>
-                <p className="text-sm text-muted-foreground">Tudo em ordem!</p>
+                <p className="text-xs text-muted-foreground">Tudo em ordem!</p>
               </div>
             )}
           </CardContent>

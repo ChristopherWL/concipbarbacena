@@ -1,8 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface StatCard {
   label: string;
@@ -23,6 +24,16 @@ interface StatCardsGridProps {
   isLoading?: boolean;
 }
 
+const getIconClass = (gradient: string) => {
+  if (gradient.includes('blue')) return 'metric-icon-blue';
+  if (gradient.includes('emerald')) return 'metric-icon-emerald';
+  if (gradient.includes('cyan')) return 'metric-icon-cyan';
+  if (gradient.includes('amber')) return 'metric-icon-amber';
+  if (gradient.includes('purple')) return 'metric-icon-purple';
+  if (gradient.includes('orange')) return 'metric-icon-orange';
+  return 'metric-icon';
+};
+
 export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) {
   const navigate = useNavigate();
 
@@ -30,45 +41,51 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
     <Card 
       key={stat.label} 
       onClick={() => stat.href && navigate(stat.href)}
-      className={`group border-border/40 bg-card/50 backdrop-blur-sm hover:bg-card/80 hover:border-border/60 transition-all duration-200 ${stat.href ? 'cursor-pointer' : ''}`}
+      className={cn(
+        'futuristic-card glow-accent rounded-xl',
+        stat.href && 'cursor-pointer'
+      )}
     >
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-3">
-          {/* Icon */}
-          <div className={`flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br ${stat.gradient}`}>
-            <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
-          </div>
-          
-          {/* Content */}
-          <div className="flex-1 min-w-0 text-right">
-            <p className="text-xs font-medium text-muted-foreground mb-0.5">{stat.label}</p>
-            {stat.value !== null && !isLoading ? (
-              <p className="text-xl font-semibold text-foreground tabular-nums">{stat.value}</p>
-            ) : (
-              <Skeleton className="h-7 w-14 ml-auto" />
-            )}
+      <CardContent className="p-4 relative z-10">
+        {/* Top row: Label + Icon */}
+        <div className="flex items-start justify-between mb-3">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            {stat.label}
+          </p>
+          <div className={cn('metric-icon', getIconClass(stat.gradient))}>
+            <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
           </div>
         </div>
         
+        {/* Value */}
+        {stat.value !== null && !isLoading ? (
+          <p className="text-2xl font-bold text-foreground data-value mb-1">
+            {stat.value}
+          </p>
+        ) : (
+          <Skeleton className="h-8 w-20 mb-1" />
+        )}
+        
         {/* Sub info */}
         {(stat.subValue || stat.subtitle || stat.change) && (
-          <div className="mt-3 pt-3 border-t border-border/30">
+          <div className="flex items-center gap-2 mt-2">
             {stat.subValue && (
-              <p className={`text-xs flex items-center gap-1 ${stat.subColor || 'text-muted-foreground'}`}>
-                <span className="truncate">{stat.subValue}</span>
-              </p>
+              <span className={cn('text-xs font-medium', stat.subColor || 'text-muted-foreground')}>
+                {stat.subValue}
+              </span>
             )}
             {stat.subtitle && (
-              <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
+              <span className="text-xs text-muted-foreground">{stat.subtitle}</span>
             )}
             {stat.change && (
-              <div className={`flex items-center gap-1 text-xs font-medium ${
+              <div className={cn(
+                'flex items-center gap-0.5 text-xs font-medium',
                 stat.changeType === 'positive' ? 'text-success' : 
                 stat.changeType === 'negative' ? 'text-destructive' : 'text-muted-foreground'
-              }`}>
+              )}>
                 {stat.changeType === 'positive' && <ArrowUpRight className="h-3 w-3" />}
                 {stat.changeType === 'negative' && <ArrowDownRight className="h-3 w-3" />}
-                <span className="truncate">{stat.change}</span>
+                <span>{stat.change}</span>
               </div>
             )}
           </div>
@@ -78,16 +95,8 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
   );
 
   return (
-    <>
-      {/* Mobile: 2 columns grid */}
-      <div className="md:hidden grid grid-cols-2 gap-3">
-        {cards.map((stat, index) => renderCard(stat, index))}
-      </div>
-
-      {/* Desktop: responsive grid */}
-      <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-        {cards.map((stat, index) => renderCard(stat, index))}
-      </div>
-    </>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {cards.map((stat, index) => renderCard(stat, index))}
+    </div>
   );
 }
