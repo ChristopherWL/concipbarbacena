@@ -42,44 +42,53 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
       key={stat.label} 
       onClick={() => stat.href && navigate(stat.href)}
       className={cn(
-        'futuristic-card glow-accent rounded-xl',
+        'futuristic-card glow-accent rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg',
         stat.href && 'cursor-pointer'
       )}
     >
       <CardContent className="p-4 relative z-10">
-        {/* Top row: Label + Icon */}
-        <div className="flex items-start justify-between mb-3">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            {stat.label}
-          </p>
-          <div className={cn('metric-icon', getIconClass(stat.gradient))}>
-            <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
+        {/* Content row: Icon + Info */}
+        <div className="flex items-center gap-3">
+          {/* Icon container */}
+          <div className={cn(
+            'flex items-center justify-center w-11 h-11 rounded-xl shrink-0',
+            getIconClass(stat.gradient)
+          )}>
+            <stat.icon className={cn('h-5 w-5', stat.iconColor)} />
+          </div>
+          
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            {/* Value */}
+            {stat.value !== null && !isLoading ? (
+              <p className="text-xl font-bold text-foreground data-value leading-tight">
+                {stat.value}
+              </p>
+            ) : (
+              <Skeleton className="h-6 w-14 mb-1" />
+            )}
+            
+            {/* Label */}
+            <p className="text-[11px] font-medium text-muted-foreground leading-tight truncate">
+              {stat.label}
+            </p>
           </div>
         </div>
         
-        {/* Value */}
-        {stat.value !== null && !isLoading ? (
-          <p className="text-2xl font-bold text-foreground data-value mb-1">
-            {stat.value}
-          </p>
-        ) : (
-          <Skeleton className="h-8 w-20 mb-1" />
-        )}
-        
         {/* Sub info */}
         {(stat.subValue || stat.subtitle || stat.change) && (
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
             {stat.subValue && (
-              <span className={cn('text-xs font-medium', stat.subColor || 'text-muted-foreground')}>
+              <span className={cn('text-[10px] font-medium', stat.subColor || 'text-muted-foreground')}>
                 {stat.subValue}
               </span>
             )}
             {stat.subtitle && (
-              <span className="text-xs text-muted-foreground">{stat.subtitle}</span>
+              <span className="text-[10px] text-muted-foreground">{stat.subtitle}</span>
             )}
             {stat.change && (
               <div className={cn(
-                'flex items-center gap-0.5 text-xs font-medium',
+                'flex items-center gap-0.5 text-[10px] font-medium ml-auto',
                 stat.changeType === 'positive' ? 'text-success' : 
                 stat.changeType === 'negative' ? 'text-destructive' : 'text-muted-foreground'
               )}>
