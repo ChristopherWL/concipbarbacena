@@ -1568,9 +1568,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <img 
               src={currentLogo} 
               alt={tenant?.name || 'Logo'} 
-              className={cn(
+            className={cn(
                 "object-contain transition-all duration-200 ease-out",
-                isAtTop ? "h-14 w-14" : "h-10 w-10"
+                isAtTop ? "h-16 w-16" : "h-10 w-10"
               )}
             />
           ) : (
