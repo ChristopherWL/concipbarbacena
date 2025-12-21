@@ -129,6 +129,9 @@ export function DashboardOverview() {
         </div>
       )}
 
+      {/* Calendar First */}
+      <DashboardCalendar sector="overview" />
+
       {/* Stats Grid */}
       <StatCardsGrid cards={statCards} />
 
@@ -272,15 +275,10 @@ export function DashboardOverview() {
         </Card>
       </div>
 
-      {/* Calendar + Activity + Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Calendar */}
-        <div className="lg:col-span-5">
-          <DashboardCalendar sector="overview" />
-        </div>
-
+      {/* Activity + Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Recent Activity */}
-        <Card className="lg:col-span-4 futuristic-card rounded-xl">
+        <Card className="futuristic-card rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Atividades Recentes</CardTitle>
             <CardDescription className="text-xs">Últimas movimentações</CardDescription>
@@ -328,7 +326,7 @@ export function DashboardOverview() {
         </Card>
 
         {/* Alerts */}
-        <Card className="lg:col-span-3 futuristic-card rounded-xl">
+        <Card className="futuristic-card rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-warning" />
