@@ -534,57 +534,57 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
 
   return (
     <>
-      <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-        <CardHeader className="pb-2">
+      <Card className="futuristic-card rounded-xl h-fit">
+        <CardHeader className="pb-1 pt-3 px-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base capitalize text-primary">
+              <CardTitle className="text-sm font-semibold capitalize text-primary">
                 {showAgenda ? 'Agenda' : format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
               </CardTitle>
-              <CardDescription>
-                {showAgenda ? `Próximos compromissos - ${SECTOR_LABELS[sector]}` : `Clique em um dia para ver detalhes - ${SECTOR_LABELS[sector]}`}
+              <CardDescription className="text-[10px]">
+                {showAgenda ? SECTOR_LABELS[sector] : 'Clique em um dia'}
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {!showAgenda && (
-                <div className="flex items-center gap-1">
+                <>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7"
+                    className="h-6 w-6"
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
                   >
-                    <span className="text-lg">‹</span>
+                    <span className="text-sm">‹</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7"
+                    className="h-6 w-6"
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
                   >
-                    <span className="text-lg">›</span>
+                    <span className="text-sm">›</span>
                   </Button>
-                </div>
+                </>
               )}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-6 w-6"
                 onClick={() => setShowAgenda(!showAgenda)}
               >
                 {showAgenda ? (
-                  <CalendarDays className="h-5 w-5 text-muted-foreground" />
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <List className="h-5 w-5 text-muted-foreground" />
+                  <List className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 px-3 pb-3">
           {showAgenda ? (
             // Agenda View
-            <div className="space-y-3 max-h-[280px] overflow-y-auto">
+            <div className="space-y-2 max-h-[200px] overflow-y-auto">
               {upcomingReminders.length > 0 ? (
                 upcomingReminders.map((reminder) => (
                   <div
@@ -633,17 +633,17 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
             </div>
           ) : (
             // Calendar View
-            <div className="space-y-2">
+            <div className="space-y-1">
               {/* Days of week header */}
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
-                  <div key={day} className="text-xs font-medium text-muted-foreground py-2">
+              <div className="grid grid-cols-7 gap-0.5 text-center">
+                {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((day, i) => (
+                  <div key={i} className="text-[10px] font-medium text-muted-foreground py-1">
                     {day}
                   </div>
                 ))}
               </div>
               {/* Calendar days */}
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 gap-0.5">
                 {/* Empty cells for days before month starts */}
                 {Array.from({ length: startDayOfWeek }).map((_, i) => (
                   <div key={`empty-${i}`} className="aspect-square" />
@@ -660,22 +660,21 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
                       key={day.toISOString()}
                       onClick={() => handleDayClick(day)}
                       className={cn(
-                        'aspect-square flex flex-col items-center justify-center rounded-lg text-sm cursor-pointer transition-colors relative p-0.5',
+                        'aspect-square flex flex-col items-center justify-center rounded text-[10px] cursor-pointer transition-colors relative',
                         isToday(day)
                           ? 'bg-primary text-primary-foreground font-bold'
-                          : 'hover:bg-muted'
+                          : 'hover:bg-muted/50'
                       )}
                     >
-                      <span className="text-xs">{format(day, 'd')}</span>
+                      <span>{format(day, 'd')}</span>
                       
-                      {/* Event dots - one per type */}
+                      {/* Event dots */}
                       {eventTypes.length > 0 && (
-                        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-                          {eventTypes.slice(0, 5).map((eventType) => (
+                        <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-px">
+                          {eventTypes.slice(0, 3).map((eventType) => (
                             <div 
                               key={eventType} 
-                              className={cn('w-1.5 h-1.5 rounded-full', EVENT_COLORS[eventType])} 
-                              title={eventType}
+                              className={cn('w-1 h-1 rounded-full', EVENT_COLORS[eventType])} 
                             />
                           ))}
                         </div>
@@ -700,12 +699,12 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
                 })}
               </div>
               
-              {/* Dynamic Legend based on permissions */}
+              {/* Legend - compact */}
               {legendItems.length > 0 && (
-                <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-2 border-t border-border/50">
-                  {legendItems.map((item) => (
-                    <div key={item.label} className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <div className={cn('w-2 h-2 rounded-full', item.color)} />
+                <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-border/30">
+                  {legendItems.slice(0, 4).map((item) => (
+                    <div key={item.label} className="flex items-center gap-1 text-[9px] text-muted-foreground">
+                      <div className={cn('w-1.5 h-1.5 rounded-full', item.color)} />
                       <span>{item.label}</span>
                     </div>
                   ))}
