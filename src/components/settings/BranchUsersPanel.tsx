@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { AppRole } from '@/types/database';
 import { Card, CardContent } from '@/components/ui/card';
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
+import { strongPasswordSchema, checkPasswordStrength } from '@/lib/passwordValidation';
 
 interface UserWithDetails {
   id: string;
@@ -148,10 +150,14 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
-    if (newUserData.password.length < 6) {
-      toast.error('A senha deve ter pelo menos 6 caracteres');
+    
+    // Validate password with strong requirements
+    const passwordValidation = strongPasswordSchema.safeParse(newUserData.password);
+    if (!passwordValidation.success) {
+      toast.error(passwordValidation.error.errors[0].message);
       return;
     }
+    
     if (newUserData.password !== newUserData.confirmPassword) {
       toast.error('As senhas não coincidem');
       return;
@@ -219,10 +225,14 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
 
   const handleChangePassword = async () => {
     if (!selectedUser) return;
-    if (!newPassword || newPassword.length < 6) {
-      toast.error('A senha deve ter pelo menos 6 caracteres');
+    
+    // Validate password with strong requirements
+    const passwordValidation = strongPasswordSchema.safeParse(newPassword);
+    if (!passwordValidation.success) {
+      toast.error(passwordValidation.error.errors[0].message);
       return;
     }
+    
     if (newPassword !== confirmPassword) {
       toast.error('As senhas não coincidem');
       return;
@@ -491,7 +501,7 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
                   type={showPassword ? "text" : "password"}
                   value={newUserData.password}
                   onChange={(e) => setNewUserData({...newUserData, password: e.target.value})}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                 />
                 <Button
                   type="button"
@@ -503,6 +513,9 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
+              {newUserData.password && (
+                <PasswordStrengthIndicator password={newUserData.password} />
+              )}
             </div>
             <div className="space-y-2">
               <Label>Confirmar Senha *</Label>
@@ -572,7 +585,7 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
                   type={showPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                 />
                 <Button
                   type="button"
@@ -584,6 +597,9 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
+              {newPassword && (
+                <PasswordStrengthIndicator password={newPassword} />
+              )}
             </div>
             <div className="space-y-2">
               <Label>Confirmar Senha</Label>
