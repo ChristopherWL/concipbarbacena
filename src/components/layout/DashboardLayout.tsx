@@ -1278,12 +1278,24 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Desktop Sidebar - below header */}
       <aside className={cn(
-        "hidden lg:fixed lg:bottom-0 lg:left-0 lg:flex lg:flex-col transition-all duration-200 ease-out z-30 print:!hidden",
+        "hidden lg:fixed lg:bottom-0 lg:left-0 lg:flex lg:flex-col transition-all duration-200 ease-out z-30 print:!hidden overflow-hidden",
         isCollapsed ? "lg:w-16" : "lg:w-64",
         // When collapsed, sidebar starts below the logo area
         isCollapsed ? (isAtTop ? "lg:top-[5rem]" : "lg:top-[4.5rem]") : "lg:top-2"
       )}>
-        <div className="flex flex-col flex-1 bg-transparent">
+        {/* Decorative floating elements */}
+        {!isCollapsed && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-1/4 left-1/2 w-32 h-32 rounded-full opacity-10 animate-float-slow"
+                 style={{ background: `radial-gradient(circle, hsl(var(--sidebar-accent)), transparent)` }} />
+            <div className="absolute bottom-1/3 right-0 w-24 h-24 rounded-full opacity-10 animate-float-slower"
+                 style={{ background: `radial-gradient(circle, hsl(var(--sidebar-border)), transparent)` }} />
+            <div className="absolute top-1/2 left-4 w-2 h-2 rounded-full bg-white/10 animate-pulse-slow" />
+            <div className="absolute bottom-1/4 right-8 w-1.5 h-1.5 rounded-full bg-white/10 animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
+          </div>
+        )}
+        
+        <div className="flex flex-col flex-1 bg-transparent relative z-10">
           {/* Logo - show only when NOT collapsed */}
           {!isCollapsed && (
             <div className="flex flex-col items-center px-4 pb-2">
@@ -1494,10 +1506,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Mobile Bottom Navigation */}
       <nav className={cn(
-        "lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-sidebar border-t border-sidebar-border transition-transform duration-200 print:hidden",
+        "lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-sidebar-border/50 transition-transform duration-200 print:hidden overflow-hidden",
         !showMobileNav && "translate-y-[calc(100%+2rem)]"
       )}>
-        <div className="flex items-center h-16 px-2 relative">
+        {/* Animated gradient background */}
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            background: `linear-gradient(90deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-accent) / 0.8) 50%, hsl(var(--sidebar-background)) 100%)`,
+          }}
+        />
+        
+        {/* Subtle mesh overlay */}
+        <div className="absolute inset-0 opacity-20" style={{
+          background: `radial-gradient(ellipse at 50% 0%, hsl(var(--sidebar-accent)) 0%, transparent 70%)`
+        }} />
+
+        <div className="flex items-center h-16 px-2 relative z-10">
           {/* Left side items */}
           <div className="flex-1 flex items-center justify-evenly">
             {/* Home - always show if has dashboard permission */}
@@ -1633,7 +1658,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               {/* Fan panel from bottom-right */}
               <div 
                 className={cn(
-                  "fixed right-0 bottom-0 top-0 w-72 bg-sidebar border-l border-sidebar-border shadow-2xl z-[70] flex flex-col",
+                  "fixed right-0 bottom-0 top-0 w-72 border-l border-sidebar-border/50 shadow-2xl z-[70] flex flex-col overflow-hidden",
                   !moreExpanded && "pointer-events-none"
                 )}
                 style={{
@@ -1643,12 +1668,48 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   transition: 'clip-path 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
+                {/* Animated gradient background */}
+                <div 
+                  className="absolute inset-0 animate-gradient-shift"
+                  style={{ 
+                    background: `linear-gradient(135deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-accent)) 50%, hsl(var(--sidebar-background)) 100%)`,
+                    backgroundSize: '200% 200%',
+                  }}
+                />
+                
+                {/* Mesh overlay */}
+                <div className="absolute inset-0 opacity-30" style={{
+                  background: `radial-gradient(ellipse at 20% 20%, hsl(var(--sidebar-accent)) 0%, transparent 50%),
+                               radial-gradient(ellipse at 80% 80%, hsl(var(--sidebar-border)) 0%, transparent 40%)`
+                }} />
+
+                {/* Grid pattern */}
+                <div className="absolute inset-0 opacity-[0.03]" style={{
+                  backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                                   linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                  backgroundSize: '40px 40px'
+                }} />
+
+                {/* Floating decorative elements */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <div className="absolute top-20 right-8 w-24 h-24 rounded-full opacity-20 animate-float-slow"
+                       style={{ background: `radial-gradient(circle, hsl(var(--sidebar-accent)), transparent)` }} />
+                  <div className="absolute bottom-40 left-4 w-16 h-16 rounded-full opacity-15 animate-float-slower"
+                       style={{ background: `radial-gradient(circle, hsl(var(--sidebar-border)), transparent)` }} />
+                  <div className="absolute top-1/3 left-2 w-2 h-2 rounded-full bg-white/20 animate-pulse-slow" />
+                  <div className="absolute top-2/3 right-6 w-3 h-3 rounded-full bg-white/15 animate-pulse-slow" style={{ animationDelay: '1s' }} />
+                </div>
+
                 {/* Header - Fixed */}
-                <div className="flex-shrink-0 bg-sidebar border-b border-sidebar-border p-4 flex items-center justify-center relative">
-                  <span className="text-sidebar-foreground font-semibold text-lg">System</span>
+                <div className="flex-shrink-0 relative z-10 border-b border-sidebar-border/30 p-4 flex items-center justify-center backdrop-blur-sm bg-sidebar/30">
+                  {currentLogo ? (
+                    <img src={currentLogo} alt={tenant?.name || 'Logo'} className="h-8" />
+                  ) : (
+                    <span className="text-sidebar-foreground font-bold text-lg">{tenant?.name || 'Sistema'}</span>
+                  )}
                   <button 
                     onClick={() => setMoreExpanded(false)}
-                    className="absolute right-4 text-sidebar-foreground/50 hover:text-sidebar-foreground"
+                    className="absolute right-4 text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -1656,7 +1717,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
                 {/* Matriz Branch Selector */}
                 {isMatriz && (
-                  <div className="flex-shrink-0 px-4 py-3 border-b border-sidebar-border/30">
+                  <div className="flex-shrink-0 relative z-10 px-4 py-3 border-b border-sidebar-border/30 backdrop-blur-sm bg-sidebar/20">
                     <MatrizBranchSelector 
                       selectedBranchId={selectedBranchId} 
                       onSelectBranch={setSelectedBranchId}
@@ -1666,7 +1727,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 )}
 
                 {/* Full Navigation - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-1 pb-20">
+                <div className="flex-1 relative z-10 overflow-y-auto p-3 space-y-1 pb-20">
                   {currentNavigation.map((item, index) => (
                     <div key={item.name}>
                       {item.children ? (
