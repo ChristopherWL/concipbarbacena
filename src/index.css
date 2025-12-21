@@ -340,16 +340,18 @@
     background-color: hsl(var(--sidebar-background));
   }
 
-  /* Mesh overlay layer for menu shell */
+  /* Mesh overlay layer for menu shell - with subtle animation */
   .menu-shell-bg::before {
     content: '';
     position: absolute;
     inset: 0;
-    opacity: 0.3;
+    opacity: 0.4;
     background: 
-      radial-gradient(ellipse at 20% 20%, hsl(var(--sidebar-accent) / 0.4) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, hsl(var(--sidebar-border) / 0.25) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 20%, hsl(var(--sidebar-accent) / 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, hsl(var(--sidebar-border) / 0.35) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, hsl(var(--sidebar-accent) / 0.25) 0%, transparent 70%);
     pointer-events: none;
+    animation: meshFloat 20s ease-in-out infinite;
   }
 
   /* Grid pattern layer */
@@ -357,7 +359,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    opacity: 0.02;
+    opacity: 0.03;
     background-image: 
       linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
@@ -367,6 +369,17 @@
 
   .dark .menu-shell-bg {
     background-color: hsl(var(--sidebar-background));
+  }
+
+  @keyframes meshFloat {
+    0%, 100% {
+      background-position: 0% 0%;
+      opacity: 0.4;
+    }
+    50% {
+      background-position: 5% 5%;
+      opacity: 0.5;
+    }
   }
 
   /* Header and sidebar become transparent so they look like one continuous piece */
