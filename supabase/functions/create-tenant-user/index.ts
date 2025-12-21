@@ -173,16 +173,19 @@ serve(async (req) => {
 
     console.log('User created:', newUser.user.id);
 
-    // Update the user's profile with tenant_id, email, full_name, and branch_id
+    // Upsert the user's profile (trigger might fail; don't rely on it)
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
-      .update({ 
-        tenant_id: tenant_id, 
-        email: email,
-        full_name: full_name,
-        selected_branch_id: branch_id || null
-      })
-      .eq('id', newUser.user.id);
+      .upsert(
+        {
+          id: newUser.user.id,
+          tenant_id,
+          email,
+          full_name,
+          selected_branch_id: branch_id || null,
+        },
+        { onConflict: 'id' }
+      );
 
     if (profileError) {
       console.error('Error updating profile:', profileError);
