@@ -534,54 +534,51 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
 
   return (
     <>
-      <Card className="futuristic-card rounded-xl h-fit">
-        <CardHeader className="pb-1 pt-3 px-3">
+      <Card className="futuristic-card rounded-lg h-fit">
+        <CardHeader className="pb-0.5 pt-2 px-2">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-sm font-semibold capitalize text-primary">
-                {showAgenda ? 'Agenda' : format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+              <CardTitle className="text-xs font-semibold capitalize text-primary">
+                {showAgenda ? 'Agenda' : format(currentMonth, 'MMM yyyy', { locale: ptBR })}
               </CardTitle>
-              <CardDescription className="text-[10px]">
-                {showAgenda ? SECTOR_LABELS[sector] : 'Clique em um dia'}
-              </CardDescription>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {!showAgenda && (
                 <>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-5 w-5"
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
                   >
-                    <span className="text-sm">‹</span>
+                    <span className="text-xs">‹</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-5 w-5"
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
                   >
-                    <span className="text-sm">›</span>
+                    <span className="text-xs">›</span>
                   </Button>
                 </>
               )}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="h-5 w-5"
                 onClick={() => setShowAgenda(!showAgenda)}
               >
                 {showAgenda ? (
-                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                  <CalendarDays className="h-3 w-3 text-muted-foreground" />
                 ) : (
-                  <List className="h-4 w-4 text-muted-foreground" />
+                  <List className="h-3 w-3 text-muted-foreground" />
                 )}
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0 px-3 pb-3">
+        <CardContent className="pt-0 px-2 pb-2">
           {showAgenda ? (
             // Agenda View
             <div className="space-y-2 max-h-[200px] overflow-y-auto">
@@ -633,17 +630,17 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
             </div>
           ) : (
             // Calendar View
-            <div className="space-y-1">
+            <div className="space-y-0">
               {/* Days of week header */}
-              <div className="grid grid-cols-7 gap-0.5 text-center">
+              <div className="grid grid-cols-7 text-center">
                 {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((day, i) => (
-                  <div key={i} className="text-[10px] font-medium text-muted-foreground py-1">
+                  <div key={i} className="text-[8px] font-medium text-muted-foreground py-0.5">
                     {day}
                   </div>
                 ))}
               </div>
               {/* Calendar days */}
-              <div className="grid grid-cols-7 gap-0.5">
+              <div className="grid grid-cols-7">
                 {/* Empty cells for days before month starts */}
                 {Array.from({ length: startDayOfWeek }).map((_, i) => (
                   <div key={`empty-${i}`} className="aspect-square" />
@@ -660,7 +657,7 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
                       key={day.toISOString()}
                       onClick={() => handleDayClick(day)}
                       className={cn(
-                        'aspect-square flex flex-col items-center justify-center rounded text-[10px] cursor-pointer transition-colors relative',
+                        'aspect-square flex flex-col items-center justify-center rounded text-[8px] cursor-pointer transition-colors relative',
                         isToday(day)
                           ? 'bg-primary text-primary-foreground font-bold'
                           : 'hover:bg-muted/50'
@@ -701,10 +698,10 @@ export function DashboardCalendar({ sector = 'overview' }: DashboardCalendarProp
               
               {/* Legend - compact */}
               {legendItems.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-border/30">
-                  {legendItems.slice(0, 4).map((item) => (
-                    <div key={item.label} className="flex items-center gap-1 text-[9px] text-muted-foreground">
-                      <div className={cn('w-1.5 h-1.5 rounded-full', item.color)} />
+                <div className="flex flex-wrap gap-1.5 mt-1 pt-1 border-t border-border/30">
+                  {legendItems.slice(0, 3).map((item) => (
+                    <div key={item.label} className="flex items-center gap-0.5 text-[7px] text-muted-foreground">
+                      <div className={cn('w-1 h-1 rounded-full', item.color)} />
                       <span>{item.label}</span>
                     </div>
                   ))}
