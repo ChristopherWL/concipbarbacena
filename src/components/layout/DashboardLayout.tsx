@@ -1557,8 +1557,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Large Logo when collapsed - positioned near page curl */}
       {isCollapsed && (
         <div className={cn(
-          "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out",
-          isAtTop ? "-top-1 left-0" : "top-10 left-0 w-16"
+          "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out w-16 left-0",
+          isAtTop ? "-top-1" : "top-10"
         )}>
           {currentLogo ? (
             <img 
