@@ -5,7 +5,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { PageLoading } from '@/components/ui/page-loading';
 import { supabase } from '@/integrations/supabase/client';
-import { LayoutDashboard } from 'lucide-react';
+
 
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { DashboardVendas } from '@/components/dashboard/DashboardVendas';
@@ -133,7 +133,6 @@ export default function Dashboard() {
         <PageHeader
           title={`Bem-vindo, ${profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Usuário'}!`}
           description={tenant ? `Visão geral de ${tenant.name}` : 'Entre em contato com o administrador'}
-          icon={<LayoutDashboard className="h-5 w-5" />}
         />
 
         {renderDashboard()}
