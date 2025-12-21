@@ -341,7 +341,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     // Special handling for /configuracoes - only admins can access
+    // Important: wait for roles to be loaded to avoid redirecting admins during initial hydration.
     if (path.startsWith('/configuracoes')) {
+      if (!user) return;
+      if (roles.length === 0) return;
       if (!isAdmin()) {
         toast.error('Apenas administradores podem acessar as configurações');
         navigate('/dashboard', { replace: true });
@@ -356,7 +359,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         return;
       }
     }
-  }, [location.pathname, features, permissions, navigate, isAdmin]);
+  }, [location.pathname, features, permissions, navigate, isAdmin, user, roles]);
 
   // FAB quick actions - Operational pages only (filtered by features AND user permissions)
   const fabActions = [
