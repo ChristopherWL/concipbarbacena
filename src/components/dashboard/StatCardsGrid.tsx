@@ -42,58 +42,52 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
       key={stat.label} 
       onClick={() => stat.href && navigate(stat.href)}
       className={cn(
-        'futuristic-card glow-accent rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg',
+        'futuristic-card glow-accent rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:shadow-lg min-w-[140px]',
         stat.href && 'cursor-pointer'
       )}
     >
-      <CardContent className="p-4 relative z-10">
-        {/* Content row: Icon + Info */}
-        <div className="flex items-center gap-3">
-          {/* Icon container */}
+      <CardContent className="p-3 relative z-10">
+        <div className="flex items-center gap-2.5">
           <div className={cn(
-            'flex items-center justify-center w-11 h-11 rounded-xl shrink-0',
+            'flex items-center justify-center w-9 h-9 rounded-lg shrink-0',
             getIconClass(stat.gradient)
           )}>
-            <stat.icon className={cn('h-5 w-5', stat.iconColor)} />
+            <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
           </div>
           
-          {/* Info */}
           <div className="flex-1 min-w-0">
-            {/* Value */}
             {stat.value !== null && !isLoading ? (
-              <p className="text-xl font-bold text-foreground data-value leading-tight">
+              <p className="text-lg font-bold text-foreground data-value leading-tight">
                 {stat.value}
               </p>
             ) : (
-              <Skeleton className="h-6 w-14 mb-1" />
+              <Skeleton className="h-5 w-12 mb-0.5" />
             )}
             
-            {/* Label */}
-            <p className="text-[11px] font-medium text-muted-foreground leading-tight truncate">
+            <p className="text-[10px] font-medium text-muted-foreground leading-tight truncate">
               {stat.label}
             </p>
           </div>
         </div>
         
-        {/* Sub info */}
         {(stat.subValue || stat.subtitle || stat.change) && (
-          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
+          <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-border/40">
             {stat.subValue && (
-              <span className={cn('text-[10px] font-medium', stat.subColor || 'text-muted-foreground')}>
+              <span className={cn('text-[9px] font-medium', stat.subColor || 'text-muted-foreground')}>
                 {stat.subValue}
               </span>
             )}
             {stat.subtitle && (
-              <span className="text-[10px] text-muted-foreground">{stat.subtitle}</span>
+              <span className="text-[9px] text-muted-foreground">{stat.subtitle}</span>
             )}
             {stat.change && (
               <div className={cn(
-                'flex items-center gap-0.5 text-[10px] font-medium ml-auto',
+                'flex items-center gap-0.5 text-[9px] font-medium ml-auto',
                 stat.changeType === 'positive' ? 'text-success' : 
                 stat.changeType === 'negative' ? 'text-destructive' : 'text-muted-foreground'
               )}>
-                {stat.changeType === 'positive' && <ArrowUpRight className="h-3 w-3" />}
-                {stat.changeType === 'negative' && <ArrowDownRight className="h-3 w-3" />}
+                {stat.changeType === 'positive' && <ArrowUpRight className="h-2.5 w-2.5" />}
+                {stat.changeType === 'negative' && <ArrowDownRight className="h-2.5 w-2.5" />}
                 <span>{stat.change}</span>
               </div>
             )}
@@ -104,8 +98,12 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
   );
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-      {cards.map((stat, index) => renderCard(stat, index))}
+    <div className="flex flex-wrap gap-2.5">
+      {cards.map((stat, index) => (
+        <div key={stat.label} className="flex-1 min-w-[140px] max-w-[200px]">
+          {renderCard(stat, index)}
+        </div>
+      ))}
     </div>
   );
 }
