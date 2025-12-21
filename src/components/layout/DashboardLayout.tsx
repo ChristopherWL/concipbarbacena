@@ -158,7 +158,7 @@ const getActiveParentMenu = (pathname: string): string | null => {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, profile, tenant, roles, signOut, isSuperAdmin, selectedBranch: authSelectedBranch } = useAuthContext();
+  const { user, profile, tenant, roles, signOut, isSuperAdmin, isAdmin, selectedBranch: authSelectedBranch } = useAuthContext();
   const { isDirector, selectedBranch: directorSelectedBranch, isReadOnly } = useDirectorBranch();
   const { features } = useTenantFeatures();
   const { permissions } = useUserPermissions();
@@ -333,13 +333,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       '/notas-fiscais': 'page_invoices',
       '/emissao-nf': 'page_invoices',
       '/relatorios': 'page_reports',
-      '/configuracoes': 'page_settings',
       '/fechamento': 'page_fechamento',
       '/rh': 'page_hr',
       '/obras': 'page_obras',
       '/diario-obras': 'page_diario_obras',
       '/fornecedores': 'page_suppliers',
     };
+
+    // Special handling for /configuracoes - only admins can access
+    if (path.startsWith('/configuracoes')) {
+      if (!isAdmin()) {
+        toast.error('Apenas administradores podem acessar as configurações');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+    }
 
     for (const [route, permKey] of Object.entries(permissionRoutes)) {
       if (path.startsWith(route) && !permissions[permKey]) {
@@ -348,7 +356,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         return;
       }
     }
-  }, [location.pathname, features, permissions, navigate]);
+  }, [location.pathname, features, permissions, navigate, isAdmin]);
 
   // FAB quick actions - Operational pages only (filtered by features AND user permissions)
   const fabActions = [
@@ -365,7 +373,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     ...(permissions.page_fechamento ? [{ icon: FileCheck, label: 'Fechamento', href: '/fechamento', color: 'bg-pink-500' }] : []),
     ...(features.show_suppliers && permissions.page_suppliers ? [{ icon: Building2, label: 'Fornecedores', href: '/fornecedores', color: 'bg-violet-500' }] : []),
     ...(features.enable_customers && permissions.page_customers ? [{ icon: Users, label: 'Clientes', href: '/clientes', color: 'bg-sky-500' }] : []),
-    ...(permissions.page_settings ? [{ icon: Settings, label: 'Config', href: '/configuracoes', color: 'bg-slate-500' }] : []),
+    ...(isAdmin() ? [{ icon: Settings, label: 'Config', href: '/configuracoes', color: 'bg-slate-500' }] : []),
   ];
 
   // Update clock every second
@@ -1307,7 +1315,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {isDark ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
                 {isDark ? 'Modo Claro' : 'Modo Escuro'}
               </DropdownMenuItem>
-              {permissions.page_settings && (
+              {isAdmin() && (
                 <DropdownMenuItem onClick={() => navigate('/configuracoes')} className="cursor-pointer" data-tour="settings">
                   <Settings className="mr-2 h-4 w-4" />
                   Configurações
@@ -1526,7 +1534,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                   )}
                 </div>
-                {permissions.page_settings && (
+                {isAdmin() && (
                   <DropdownMenuItem onClick={() => navigate('/configuracoes')} className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
                     Configurações
@@ -1898,7 +1906,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   ))}
 
                   {/* Configurações */}
-                  {permissions.page_settings && (
+                  {isAdmin() && (
                     <div className="border-t border-sidebar-border mt-4 pt-4">
                       <button
                         onClick={() => {
