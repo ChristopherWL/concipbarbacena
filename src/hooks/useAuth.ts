@@ -230,13 +230,15 @@ export function useAuth() {
         applyThemeColors(tenant as Tenant | null);
       }
 
-      // Fetch selected branch if user has one
+      // Fetch user's assigned branch (branch_id) - this is the user's fixed branch
+      // If not set, fall back to selected_branch_id for backwards compatibility
       let selectedBranch = null;
-      if (profile?.selected_branch_id) {
+      const branchIdToUse = profile?.branch_id || profile?.selected_branch_id;
+      if (branchIdToUse) {
         const { data: branchData } = await supabase
           .from('branches')
           .select('*')
-          .eq('id', profile.selected_branch_id)
+          .eq('id', branchIdToUse)
           .maybeSingle();
         selectedBranch = branchData;
       }

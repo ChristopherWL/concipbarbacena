@@ -2825,6 +2825,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          branch_id: string | null
           created_at: string | null
           email: string | null
           full_name: string | null
@@ -2837,6 +2838,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          branch_id?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -2849,6 +2851,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          branch_id?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -2860,6 +2863,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_selected_branch_id_fkey"
             columns: ["selected_branch_id"]
