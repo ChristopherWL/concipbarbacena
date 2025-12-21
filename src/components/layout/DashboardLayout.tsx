@@ -297,6 +297,29 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [user, roles, isSuperAdmin, navigate]);
 
+  // Check if user has incomplete setup (no branch and not superadmin/admin)
+  const hasIncompleteBranchSetup = useMemo(() => {
+    // Wait for data to load
+    if (!user || !profile || roles.length === 0) return false;
+    
+    // Superadmins can access without branch
+    if (isSuperAdmin()) return false;
+    
+    // Admins/managers at tenant level (directors) can access without specific branch
+    if (isAdmin() && !profile.selected_branch_id && !profile.branch_id) {
+      // This is ok - they are directors
+      return false;
+    }
+    
+    // Regular users must have a branch assigned
+    const hasBranch = !!(profile.selected_branch_id || profile.branch_id || authSelectedBranch);
+    if (!hasBranch && !isAdmin()) {
+      return true;
+    }
+    
+    return false;
+  }, [user, profile, roles, isSuperAdmin, isAdmin, authSelectedBranch]);
+
   // Route protection based on features AND user permissions - redirect if accessing disabled module or no permission
   useEffect(() => {
     const path = location.pathname;
@@ -1207,6 +1230,35 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </TooltipProvider>
     );
   };
+
+  // Show access denied screen if user has incomplete setup
+  if (hasIncompleteBranchSetup) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-6 p-8 max-w-md">
+          <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+            <Shield className="h-8 w-8 text-destructive" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">Acesso Negado</h1>
+          <p className="text-muted-foreground">
+            Sua conta ainda não está configurada corretamente. 
+            Você precisa ter uma filial atribuída para acessar o sistema.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Entre em contato com o administrador do sistema para configurar seu acesso.
+          </p>
+          <Button 
+            variant="outline" 
+            onClick={handleSignOut}
+            className="mt-4"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Sair
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col menu-shell print:block">
