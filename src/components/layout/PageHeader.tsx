@@ -12,14 +12,6 @@ interface PageHeaderProps {
 export function PageHeader({ title, description, children, className, icon }: PageHeaderProps) {
   return (
     <div className={cn("relative flex flex-col items-center gap-3 py-2", className)}>
-      {/* Decorative background glow */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[100px] rounded-full opacity-20 blur-3xl"
-          style={{ background: 'hsl(var(--primary))' }}
-        />
-      </div>
-
       {/* Title with decorative elements */}
       <div className="flex items-center gap-3">
         {/* Left decorative line */}
