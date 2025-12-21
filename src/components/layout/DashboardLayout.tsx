@@ -1561,7 +1561,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Large Logo when collapsed - positioned at top of sidebar */}
       {isCollapsed && (
         <div className={cn(
-          "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out w-16 top-0",
+          "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out w-16 -top-4",
           isAtTop ? "left-3" : "left-1"
         )}>
           {currentLogo ? (
