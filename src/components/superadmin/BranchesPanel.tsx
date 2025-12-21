@@ -60,7 +60,7 @@ export function BranchesPanel() {
   const [adminDialogOpen, setAdminDialogOpen] = useState(false);
   const [selectedBranchForAdmin, setSelectedBranchForAdmin] = useState<(Branch & { tenant_name?: string }) | null>(null);
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
-  const [adminForm, setAdminForm] = useState({ email: '', password: '', full_name: '' });
+  const [adminForm, setAdminForm] = useState({ email: '', password: '', full_name: '', role: 'admin' as 'admin' | 'manager' });
   
   // Director access state
   const [directorDialogOpen, setDirectorDialogOpen] = useState(false);
@@ -217,7 +217,7 @@ export function BranchesPanel() {
 
   const handleOpenAdminDialog = (branch: Branch & { tenant_name?: string }) => {
     setSelectedBranchForAdmin(branch);
-    setAdminForm({ email: '', password: '', full_name: '' });
+    setAdminForm({ email: '', password: '', full_name: '', role: 'admin' });
     setAdminDialogOpen(true);
   };
 
@@ -226,7 +226,7 @@ export function BranchesPanel() {
     if (adminForm.password.length < 6) { toast.error('Senha deve ter no mínimo 6 caracteres'); return; }
     setIsCreatingAdmin(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-tenant-admin', { body: { email: adminForm.email, password: adminForm.password, full_name: adminForm.full_name, tenant_id: selectedBranchForAdmin.tenant_id, branch_id: selectedBranchForAdmin.id } });
+      const { data, error } = await supabase.functions.invoke('create-tenant-admin', { body: { email: adminForm.email, password: adminForm.password, full_name: adminForm.full_name, role: adminForm.role, tenant_id: selectedBranchForAdmin.tenant_id, branch_id: selectedBranchForAdmin.id } });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       toast.success('Admin criado!');
@@ -334,7 +334,21 @@ export function BranchesPanel() {
 
       <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
         <DialogContent><DialogHeader><DialogTitle>Criar Admin da Filial</DialogTitle><DialogDescription>{selectedBranchForAdmin?.name}</DialogDescription></DialogHeader>
-          <div className="grid gap-4 py-4"><div className="space-y-2"><Label>Nome *</Label><Input value={adminForm.full_name} onChange={(e) => setAdminForm(p => ({ ...p, full_name: e.target.value }))} /></div><div className="space-y-2"><Label>E-mail *</Label><Input value={adminForm.email} onChange={(e) => setAdminForm(p => ({ ...p, email: e.target.value }))} /></div><div className="space-y-2"><Label>Senha *</Label><Input type="password" value={adminForm.password} onChange={(e) => setAdminForm(p => ({ ...p, password: e.target.value }))} /></div></div>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label>Cargo</Label>
+              <Select value={adminForm.role} onValueChange={(v: 'admin' | 'manager') => setAdminForm(p => ({ ...p, role: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Administrador</SelectItem>
+                  <SelectItem value="manager">Gerente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2"><Label>Nome *</Label><Input value={adminForm.full_name} onChange={(e) => setAdminForm(p => ({ ...p, full_name: e.target.value }))} /></div>
+            <div className="space-y-2"><Label>E-mail *</Label><Input value={adminForm.email} onChange={(e) => setAdminForm(p => ({ ...p, email: e.target.value }))} /></div>
+            <div className="space-y-2"><Label>Senha *</Label><Input type="password" value={adminForm.password} onChange={(e) => setAdminForm(p => ({ ...p, password: e.target.value }))} /></div>
+          </div>
           <DialogFooter><Button variant="outline" onClick={() => setAdminDialogOpen(false)}>Cancelar</Button><Button onClick={handleCreateAdmin} disabled={isCreatingAdmin}>{isCreatingAdmin ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Criar'}</Button></DialogFooter>
         </DialogContent>
       </Dialog>

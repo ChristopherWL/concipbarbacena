@@ -191,14 +191,19 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
 
   console.log('User created:', newUser.user.id);
 
-  // Update the user's profile with tenant_id and selected_branch_id (null for director access)
+  // Upsert the user's profile (trigger might fail; don't rely on it)
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
-    .update({ 
-      tenant_id, 
-      selected_branch_id: branch_id || null 
-    })
-    .eq('id', newUser.user.id);
+    .upsert(
+      {
+        id: newUser.user.id,
+        tenant_id,
+        email,
+        full_name,
+        selected_branch_id: branch_id || null,
+      },
+      { onConflict: 'id' }
+    );
 
   if (profileError) {
     console.error('Error updating profile:', profileError);
@@ -346,14 +351,19 @@ async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
 
   console.log('User created:', newUser.user.id);
 
-  // Update the user's profile with tenant_id and selected_branch_id
+  // Upsert the user's profile (trigger might fail; don't rely on it)
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
-    .update({ 
-      tenant_id: newTenant.id,
-      selected_branch_id: mainBranch?.id || null
-    })
-    .eq('id', newUser.user.id);
+    .upsert(
+      {
+        id: newUser.user.id,
+        tenant_id: newTenant.id,
+        email: admin.email,
+        full_name: admin.full_name,
+        selected_branch_id: mainBranch?.id || null,
+      },
+      { onConflict: 'id' }
+    );
 
   if (profileError) {
     console.error('Error updating profile:', profileError);
