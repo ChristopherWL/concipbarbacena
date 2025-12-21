@@ -1037,7 +1037,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                               )}
                               onClick={() => handleNavigation(child.href)}
                             >
-                              <span className="text-xs font-medium">{child.name}</span>
+                              <div className="flex items-center gap-2">
+                                <child.icon className={cn(
+                                  "h-3.5 w-3.5",
+                                  isActive(child.href) ? "text-primary" : "text-sidebar-foreground/50"
+                                )} />
+                                <span className="text-xs font-medium">{child.name}</span>
+                              </div>
                               <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
                             </Button>
                           ))}
