@@ -28,7 +28,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { MAINTENANCE_STATUS_LABELS, MAINTENANCE_TYPE_LABELS, MaintenanceStatus, MaintenanceType, Vehicle, Maintenance, FuelLog } from '@/types/fleet';
-import { Loader2, Truck, Plus, Wrench, AlertTriangle, CheckCircle, Clock, Trash2, Fuel, TrendingUp, Printer, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Truck, Plus, Wrench, AlertTriangle, CheckCircle, Clock, Trash2, Fuel, TrendingUp, Printer, Pencil } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { toast } from 'sonner';
 import { FuelOrderReport } from '@/components/fleet/FuelOrderReport';
@@ -903,59 +903,55 @@ export default function Frota() {
                     }
                     
                     return (
-                      <div className="space-y-4">
+                      <div className="flex flex-col md:flex-row gap-4">
+                        {/* Lista de abastecimentos */}
+                        <div className="md:w-1/3 space-y-2">
+                          <p className="text-sm text-muted-foreground font-medium">Selecione um abastecimento:</p>
+                          <div className="max-h-48 md:max-h-[400px] overflow-y-auto border rounded-lg divide-y bg-background">
+                            {vehicleFuelLogs.map((log) => (
+                              <div 
+                                key={log.id} 
+                                className={`p-3 cursor-pointer hover:bg-muted/50 transition-colors flex justify-between items-center gap-2 ${selectedFuelLogForPrint?.id === log.id ? 'bg-primary/10 border-l-4 border-l-primary' : ''}`}
+                                onClick={() => setSelectedFuelLogForPrint(log)}
+                              >
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-medium text-sm">{new Date(log.date).toLocaleDateString('pt-BR')}</p>
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    {log.liters.toFixed(2)}L • R$ {log.total_cost.toFixed(2)}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {log.km_at_fill.toLocaleString()} km
+                                  </p>
+                                </div>
+                                <Badge variant={selectedFuelLogForPrint?.id === log.id ? 'default' : 'outline'} className="flex-shrink-0">
+                                  #{getFuelLogOrderNumber(log)}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
                         {/* Preview do documento */}
-                        {selectedFuelLogForPrint ? (
-                          <div className="border rounded-lg overflow-hidden">
-                            <div className="bg-muted/50 px-3 py-2 border-b flex items-center justify-between">
-                              <p className="text-sm font-medium">
-                                Ordem #{getFuelLogOrderNumber(selectedFuelLogForPrint)} - {new Date(selectedFuelLogForPrint.date).toLocaleDateString('pt-BR')}
-                              </p>
-                              <div className="flex items-center gap-2">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => {
-                                    const currentIndex = vehicleFuelLogs.findIndex(l => l.id === selectedFuelLogForPrint.id);
-                                    const prevLog = vehicleFuelLogs[currentIndex + 1];
-                                    if (prevLog) setSelectedFuelLogForPrint(prevLog);
-                                  }}
-                                  disabled={vehicleFuelLogs.findIndex(l => l.id === selectedFuelLogForPrint.id) === vehicleFuelLogs.length - 1}
-                                >
-                                  <ChevronLeft className="h-4 w-4" />
-                                  Anterior
-                                </Button>
-                                <span className="text-xs text-muted-foreground">
-                                  {vehicleFuelLogs.findIndex(l => l.id === selectedFuelLogForPrint.id) + 1} de {vehicleFuelLogs.length}
-                                </span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => {
-                                    const currentIndex = vehicleFuelLogs.findIndex(l => l.id === selectedFuelLogForPrint.id);
-                                    const nextLog = vehicleFuelLogs[currentIndex - 1];
-                                    if (nextLog) setSelectedFuelLogForPrint(nextLog);
-                                  }}
-                                  disabled={vehicleFuelLogs.findIndex(l => l.id === selectedFuelLogForPrint.id) === 0}
-                                >
-                                  Próximo
-                                  <ChevronRight className="h-4 w-4" />
-                                </Button>
+                        <div className="md:w-2/3">
+                          {selectedFuelLogForPrint ? (
+                            <div className="border rounded-lg overflow-hidden">
+                              <div className="bg-muted/50 px-3 py-2 border-b">
+                                <p className="text-sm font-medium">Pré-visualização</p>
+                              </div>
+                              <div ref={vehiclePrintRef} className="max-h-[400px] overflow-y-auto">
+                                <FuelOrderReport
+                                  vehicle={vehicleToPrint}
+                                  fuelLog={selectedFuelLogForPrint}
+                                  orderNumber={getFuelLogOrderNumber(selectedFuelLogForPrint)}
+                                />
                               </div>
                             </div>
-                            <div ref={vehiclePrintRef} className="max-h-[60vh] overflow-y-auto">
-                              <FuelOrderReport
-                                vehicle={vehicleToPrint}
-                                fuelLog={selectedFuelLogForPrint}
-                                orderNumber={getFuelLogOrderNumber(selectedFuelLogForPrint)}
-                              />
+                          ) : (
+                            <div className="border rounded-lg p-8 text-center text-muted-foreground bg-muted/20 h-full min-h-[200px] flex items-center justify-center">
+                              <p>Selecione um abastecimento ao lado para visualizar</p>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="border rounded-lg p-8 text-center text-muted-foreground bg-muted/20 min-h-[200px] flex items-center justify-center">
-                            <p>Nenhum abastecimento selecionado</p>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     );
                   })()}
