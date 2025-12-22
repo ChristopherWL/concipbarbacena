@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, Building2, Mail, Lock, Sparkles, MapPin, ArrowRight, Menu, X, Play } from 'lucide-react';
+import { Loader2, Building2, Mail, Lock, Sparkles, MapPin, ArrowRight, ArrowLeft, Menu, X, Play } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import {
   Select,
@@ -357,9 +357,18 @@ export default function Auth() {
         className="relative z-50 bg-transparent"
       >
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            {/* Mobile: Back button */}
+            <Link 
+              to="/" 
+              className="lg:hidden flex items-center gap-2 text-white hover:text-white/80 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="text-sm font-medium">Voltar</span>
+            </Link>
+
+            {/* Desktop: Logo */}
+            <Link to="/" className="hidden lg:flex items-center gap-3">
               {branding?.logo_url ? (
                 <img src={branding.logo_url} alt={branding.name} className="h-12 w-auto" />
               ) : (
@@ -373,45 +382,23 @@ export default function Auth() {
                   >
                     <Building2 className="w-6 h-6" />
                   </div>
-                  <span className="text-xl font-bold text-white hidden sm:block">{branding?.name || 'Sistema'}</span>
+                  <span className="text-xl font-bold text-white">{branding?.name || 'Sistema'}</span>
                 </>
               )}
             </Link>
 
-            {/* Mobile Menu Button */}
-            <button 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-white rounded-lg hover:bg-white/10 transition-colors"
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            {/* Empty div for spacing on mobile */}
+            <div className="lg:hidden" />
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-slate-900/98 backdrop-blur-xl border-b border-white/10 mobile-menu-enter">
-            <div className="container mx-auto px-4 py-6">
-              <Link to="/">
-                <Button 
-                  className="w-full"
-                  variant="outline"
-                  style={{ borderColor: `${primaryColor}50`, color: 'white' }}
-                >
-                  Voltar ao Início
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Hero Section with Login Form */}
-      <section className="relative min-h-screen flex items-start justify-center pt-8 lg:pt-12 pb-12 z-10">
+      <section className="relative min-h-[calc(100vh-4rem)] lg:min-h-screen flex items-start lg:items-center justify-center pt-4 lg:pt-12 pb-8 lg:pb-12 z-10">
         <div className="container mx-auto px-4 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-start max-w-6xl mx-auto">
-            {/* Left side - Welcome text */}
-            <div className="text-center lg:text-left lg:mt-8">
+            {/* Left side - Welcome text (hidden on mobile) */}
+            <div className="hidden lg:block text-left lg:mt-8">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-white/80 text-sm mb-8 animate-fade-in-up">
                 <Sparkles className="w-4 h-4 text-yellow-400" />
