@@ -38,6 +38,9 @@ export function ScannerDialog({
   const streamRef = useRef<MediaStream | null>(null);
   const scanningRef = useRef(false);
   const detectorRef = useRef<any>(null);
+  const scanCooldownUntilRef = useRef(0);
+  const lastScanValueRef = useRef<string | null>(null);
+  const noBarcodeFramesRef = useRef(0);
 
   const stopCamera = useCallback(() => {
     scanningRef.current = false;
@@ -151,31 +154,64 @@ export function ScannerDialog({
     }
   }, [stopCamera]);
 
+  const handleClose = useCallback(() => {
+    stopCamera();
+    setManualInput('');
+    setCameraError(null);
+    setFlashOn(false);
+    onOpenChange(false);
+  }, [stopCamera, onOpenChange]);
+
   const detectBarcodes = useCallback(async () => {
     if (!scanningRef.current || !videoRef.current || !detectorRef.current) return;
-    
+
     try {
+      const now = Date.now();
+
+      // Cooldown to avoid getting stuck reading the same barcode repeatedly
+      if (now < scanCooldownUntilRef.current) {
+        if (scanningRef.current) requestAnimationFrame(detectBarcodes);
+        return;
+      }
+
       const barcodes = await detectorRef.current.detect(videoRef.current);
-      
+
       if (barcodes.length > 0) {
-        const scannedValue = barcodes[0].rawValue;
+        noBarcodeFramesRef.current = 0;
+
+        const scannedValue = barcodes[0]?.rawValue as string | undefined;
         if (scannedValue) {
-          onScan(scannedValue);
-          toast.success(`Código detectado: ${scannedValue}`);
-          if (!continuousMode) {
-            handleClose();
-            return;
+          // Avoid duplicates while the same code is still in view
+          if (scannedValue === lastScanValueRef.current) {
+            scanCooldownUntilRef.current = now + 600;
+          } else {
+            lastScanValueRef.current = scannedValue;
+            scanCooldownUntilRef.current = now + (continuousMode ? 900 : 300);
+
+            onScan(scannedValue);
+            toast.success(`Código detectado: ${scannedValue}`);
+
+            if (!continuousMode) {
+              handleClose();
+              return;
+            }
           }
+        }
+      } else {
+        // After a few empty frames, allow re-scanning the same value
+        noBarcodeFramesRef.current += 1;
+        if (noBarcodeFramesRef.current > 10) {
+          lastScanValueRef.current = null;
         }
       }
     } catch (err) {
       // Continue scanning silently
     }
-    
+
     if (scanningRef.current) {
       requestAnimationFrame(detectBarcodes);
     }
-  }, [onScan, continuousMode]);
+  }, [onScan, continuousMode, handleClose]);
 
   const toggleFlash = async () => {
     if (!streamRef.current) return;
@@ -201,13 +237,6 @@ export function ScannerDialog({
     }
   };
 
-  const handleClose = useCallback(() => {
-    stopCamera();
-    setManualInput('');
-    setCameraError(null);
-    setFlashOn(false);
-    onOpenChange(false);
-  }, [stopCamera, onOpenChange]);
 
   // Auto-start camera when dialog opens
   useEffect(() => {
