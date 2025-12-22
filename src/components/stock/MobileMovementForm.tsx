@@ -188,14 +188,17 @@ export function MobileMovementForm({
       (sn: any) => sn.serial_number === scannedValue
     );
     if (matchingSerial && !selectedSerialIds.includes(matchingSerial.id)) {
-      onToggleSerial(matchingSerial.id);
-      toast.success(`Serial ${scannedValue} adicionado!`);
+      // Add the serial to selected list
+      const newSelectedIds = [...selectedSerialIds, matchingSerial.id];
+      setSelectedSerialIds(newSelectedIds);
+      // Update quantity automatically
+      setQuantity(newSelectedIds.length);
     } else if (!matchingSerial) {
       toast.error(`Serial ${scannedValue} não encontrado`);
     } else {
       toast.info(`Serial ${scannedValue} já selecionado`);
     }
-  }, [availableSerials, selectedSerialIds, onToggleSerial]);
+  }, [availableSerials, selectedSerialIds, setSelectedSerialIds, setQuantity]);
 
   // Step 1: Entry = NF data, Exit = Responsible
   const step1Content = isEntrada ? (
@@ -439,6 +442,11 @@ export function MobileMovementForm({
                 Escanear
               </Button>
             </div>
+            {selectedSerialIds.length > 0 && (
+              <div className="text-sm text-primary font-medium">
+                {selectedSerialIds.length} serial(is) selecionado(s)
+              </div>
+            )}
             {availableSerials.length === 0 ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <AlertCircle className="h-4 w-4" />
