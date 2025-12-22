@@ -15,20 +15,20 @@ export function PageHeader({ title, description, children, className, icon }: Pa
       {/* Title with decorative elements */}
       <div className="flex items-center gap-3">
         {/* Left decorative line */}
-        <div className="hidden sm:flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-primary" />
-          <div className="w-10 h-0.5 bg-primary rounded-full" />
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary" />
+          <div className="w-6 sm:w-10 h-0.5 bg-primary rounded-full" />
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
           {title}
         </h1>
 
         {/* Right decorative line */}
-        <div className="hidden sm:flex items-center gap-1.5">
-          <div className="w-10 h-0.5 bg-primary rounded-full" />
-          <div className="w-2 h-2 rounded-full bg-primary" />
+        <div className="flex items-center gap-1.5">
+          <div className="w-6 sm:w-10 h-0.5 bg-primary rounded-full" />
+          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary" />
         </div>
       </div>
 
