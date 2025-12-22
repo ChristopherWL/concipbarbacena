@@ -19,55 +19,55 @@ export function FuelOrderReport({ vehicle, fuelLog, orderNumber }: FuelOrderRepo
   };
 
   return (
-    <div className="report-container bg-white text-black p-8 w-[210mm] min-h-[297mm] mx-auto">
+    <div className="report-container bg-white text-black p-4 sm:p-6 md:p-8 w-full max-w-[210mm] mx-auto print:w-[210mm] print:min-h-[297mm] print:p-8">
       {/* Header */}
-      <div className="header flex items-start justify-between border-b-2 border-black pb-4 mb-4">
-        <div className="logo-container w-24">
+      <div className="header flex flex-col sm:flex-row items-center sm:items-start justify-between border-b-2 border-black pb-4 mb-4 gap-4">
+        <div className="logo-container w-16 sm:w-20 md:w-24 flex-shrink-0">
           {tenant?.logo_dark_url || tenant?.logo_url ? (
             <img src={tenant?.logo_dark_url || tenant?.logo_url} alt="Logo" className="w-full h-auto" />
           ) : (
-            <div className="logo-placeholder w-20 h-20 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+            <div className="logo-placeholder w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
               Logo
             </div>
           )}
         </div>
-        <div className="company-info text-right">
-          <h1 className="company-name text-xl font-bold uppercase">{tenant?.name || 'EMPRESA'}</h1>
-          <p className="company-cnpj text-sm">CNPJ: {tenant?.cnpj || '00.000.000/0001-00'}</p>
+        <div className="company-info text-center sm:text-right">
+          <h1 className="company-name text-base sm:text-lg md:text-xl font-bold uppercase break-words">{tenant?.name || 'EMPRESA'}</h1>
+          <p className="company-cnpj text-xs sm:text-sm">CNPJ: {tenant?.cnpj || '00.000.000/0001-00'}</p>
         </div>
       </div>
 
       {/* Title */}
-      <div className="title-box bg-gray-200 text-center py-2 mb-6 border border-black">
-        <h2 className="text-lg font-bold">ORDEM DE ABASTECIMENTO Nº {formattedOrderNumber}/{year}</h2>
+      <div className="title-box bg-gray-200 text-center py-2 mb-4 sm:mb-6 border border-black">
+        <h2 className="text-sm sm:text-base md:text-lg font-bold px-2">ORDEM DE ABASTECIMENTO Nº {formattedOrderNumber}/{year}</h2>
       </div>
 
       {/* Driver Info */}
       <div className="mb-4">
-        <div className="field-row flex gap-2 mb-2">
-          <span className="field-label font-semibold text-sm">Nome do Motorista:</span>
-          <span className="field-value border-b border-black flex-1 text-sm">{fuelLog?.notes || ''}</span>
+        <div className="field-row flex flex-col sm:flex-row gap-1 sm:gap-2 mb-2">
+          <span className="field-label font-semibold text-xs sm:text-sm whitespace-nowrap">Nome do Motorista:</span>
+          <span className="field-value border-b border-black flex-1 text-xs sm:text-sm min-w-0">{fuelLog?.notes || ''}</span>
         </div>
       </div>
 
       {/* Vehicle Info */}
       <div className="mb-4">
-        <div className="field-row flex gap-2 mb-2">
-          <span className="field-label font-semibold text-sm">Veículo:</span>
-          <span className="field-value border-b border-black flex-1 text-sm">{vehicle.brand} {vehicle.model}</span>
+        <div className="field-row flex flex-col sm:flex-row gap-1 sm:gap-2 mb-2">
+          <span className="field-label font-semibold text-xs sm:text-sm whitespace-nowrap">Veículo:</span>
+          <span className="field-value border-b border-black flex-1 text-xs sm:text-sm min-w-0">{vehicle.brand} {vehicle.model}</span>
         </div>
-        <div className="vehicle-fields flex gap-8 mt-2">
-          <div className="flex gap-2">
-            <span className="field-label font-semibold text-sm">Frota:</span>
-            <span className="field-value-fixed border-b border-black px-4 text-sm">{vehicle.fleet_number || '___'}</span>
+        <div className="vehicle-fields flex flex-wrap gap-4 sm:gap-6 md:gap-8 mt-2">
+          <div className="flex gap-1 sm:gap-2">
+            <span className="field-label font-semibold text-xs sm:text-sm">Frota:</span>
+            <span className="field-value-fixed border-b border-black px-2 sm:px-4 text-xs sm:text-sm">{vehicle.fleet_number || '___'}</span>
           </div>
-          <div className="flex gap-2">
-            <span className="field-label font-semibold text-sm">Placa:</span>
-            <span className="field-value-fixed border-b border-black px-4 text-sm">{vehicle.plate}</span>
+          <div className="flex gap-1 sm:gap-2">
+            <span className="field-label font-semibold text-xs sm:text-sm">Placa:</span>
+            <span className="field-value-fixed border-b border-black px-2 sm:px-4 text-xs sm:text-sm">{vehicle.plate}</span>
           </div>
-          <div className="flex gap-2">
-            <span className="field-label font-semibold text-sm">KM:</span>
-            <span className="field-value-fixed border-b border-black px-4 text-sm">{fuelLog ? fuelLog.km_at_fill.toLocaleString('pt-BR') : vehicle.current_km.toLocaleString('pt-BR')}</span>
+          <div className="flex gap-1 sm:gap-2">
+            <span className="field-label font-semibold text-xs sm:text-sm">KM:</span>
+            <span className="field-value-fixed border-b border-black px-2 sm:px-4 text-xs sm:text-sm">{fuelLog ? fuelLog.km_at_fill.toLocaleString('pt-BR') : vehicle.current_km.toLocaleString('pt-BR')}</span>
           </div>
         </div>
       </div>
