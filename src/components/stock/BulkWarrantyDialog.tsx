@@ -343,7 +343,11 @@ export function BulkWarrantyDialog({ open, onOpenChange }: BulkWarrantyDialogPro
         onOpenChange={setScannerOpen}
         onScan={handleScan}
         title="Escanear Número de Série"
-        description="Posicione o código de barras do item dentro da área destacada"
+        description="Aponte e vá escaneando: cada item será registrado automaticamente."
+        scannedItems={selectedSerialIds
+          .map((id) => availableSerials.find((s) => s.id === id)?.serial_number)
+          .filter(Boolean) as string[]}
+        continuousMode
       />
     </>,
     document.body

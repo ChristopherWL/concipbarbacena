@@ -321,7 +321,8 @@ export function StockAuditDialog({ open, onOpenChange, defaultProductId }: Stock
         onOpenChange={setScannerOpen}
         onScan={handleScan}
         title="Escanear Número de Série"
-        description="Posicione o código de barras do item dentro da área destacada"
+        description="Aponte e vá escaneando: cada leitura será registrada."
+        continuousMode
       />
     </>,
     document.body
