@@ -313,14 +313,127 @@ export default function Auth() {
   // For gradients, use a darker version if secondary is too light
   const gradientSecondary = getDarkerGradientColor(secondaryColor, primaryColor);
 
+  // Light effect color based on primary
+  const lightEffectColor = primaryColor;
+
   return (
-    <div 
-      className="min-h-screen overflow-x-hidden bg-slate-950"
-      style={{
-        '--primary-color': primaryColor,
-        '--secondary-color': secondaryColor,
-      } as React.CSSProperties}
-    >
+    <div className="min-h-screen text-white overflow-x-hidden relative">
+      <style>{`
+        @keyframes fadeInUp {
+          0% { opacity: 0; transform: translateY(30px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          50% { transform: translateY(-30px) scale(1.05); }
+        }
+        @keyframes lightMove1 {
+          0% { transform: translate(0, 0) scale(1); }
+          25% { transform: translate(15%, -10%) scale(1.1); }
+          50% { transform: translate(-10%, 15%) scale(0.95); }
+          75% { transform: translate(-15%, -5%) scale(1.05); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes lightMove2 {
+          0% { transform: translate(0, 0) scale(1); }
+          25% { transform: translate(-20%, 12%) scale(1.15); }
+          50% { transform: translate(10%, -15%) scale(0.9); }
+          75% { transform: translate(18%, 8%) scale(1.08); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes lightMove3 {
+          0% { transform: translate(0, 0) scale(1); }
+          25% { transform: translate(12%, 18%) scale(1.12); }
+          50% { transform: translate(-18%, -8%) scale(0.92); }
+          75% { transform: translate(-8%, 12%) scale(1.05); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes lightMove4 {
+          0% { transform: translate(0, 0) scale(1); }
+          25% { transform: translate(-15%, -15%) scale(1.08); }
+          50% { transform: translate(15%, 10%) scale(0.95); }
+          75% { transform: translate(8%, -12%) scale(1.1); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes drift {
+          0% { transform: translateX(0) translateY(0); }
+          25% { transform: translateX(20px) translateY(-15px); }
+          50% { transform: translateX(0) translateY(-25px); }
+          75% { transform: translateX(-20px) translateY(-10px); }
+          100% { transform: translateX(0) translateY(0); }
+        }
+        @keyframes slideDown {
+          0% { opacity: 0; transform: translateY(-10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .hero-animate { 
+          animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+        .float { animation: float 6s ease-in-out infinite; }
+        .light-move-1 { 
+          animation: lightMove1 5s linear infinite; 
+          will-change: transform;
+        }
+        .light-move-2 { 
+          animation: lightMove2 6s linear infinite; 
+          will-change: transform;
+        }
+        .light-move-3 { 
+          animation: lightMove3 4s linear infinite; 
+          will-change: transform;
+        }
+        .light-move-4 { 
+          animation: lightMove4 5.5s linear infinite; 
+          will-change: transform;
+        }
+        .drift { animation: drift 3s ease-in-out infinite; }
+        .glass {
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .mobile-menu-enter {
+          animation: slideDown 0.3s ease-out forwards;
+        }
+      `}</style>
+
+      {/* Background Gradient */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{ 
+          background: `linear-gradient(135deg, #020617 0%, #0f172a 100%)` 
+        }}
+      />
+
+      {/* Moving Light Focus Effects */}
+      <div 
+        className="absolute top-[10%] left-[5%] w-[40vw] h-[40vw] sm:w-[35vw] sm:h-[35vw] rounded-full blur-[80px] sm:blur-[120px] light-move-1 z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.25 }}
+      />
+      <div 
+        className="absolute top-[5%] right-[8%] w-[38vw] h-[38vw] sm:w-[32vw] sm:h-[32vw] rounded-full blur-[80px] sm:blur-[120px] light-move-3 z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.2 }}
+      />
+      <div 
+        className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] sm:w-[40vw] sm:h-[40vw] rounded-full blur-[80px] sm:blur-[120px] light-move-2 z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.25 }}
+      />
+      <div 
+        className="absolute top-[50%] left-[40%] w-[50vw] h-[50vw] sm:w-[45vw] sm:h-[45vw] rounded-full blur-[100px] sm:blur-[150px] light-move-3 z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.15 }}
+      />
+      <div 
+        className="absolute top-[30%] right-[20%] w-[35vw] h-[35vw] sm:w-[30vw] sm:h-[30vw] rounded-full blur-[70px] sm:blur-[100px] light-move-4 z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.2 }}
+      />
+
+      {/* Drifting Particles */}
+      <div className="hidden sm:block absolute top-[20%] left-[20%] w-2 h-2 rounded-full bg-white/20 drift z-[2]" />
+      <div className="hidden sm:block absolute top-[30%] right-[25%] w-1.5 h-1.5 rounded-full bg-white/15 drift z-[2]" style={{ animationDelay: '3s' }} />
+      <div className="hidden md:block absolute top-[60%] left-[15%] w-1 h-1 rounded-full bg-white/20 drift z-[2]" style={{ animationDelay: '5s' }} />
+      <div className="hidden md:block absolute top-[70%] right-[20%] w-2 h-2 rounded-full bg-white/10 drift z-[2]" style={{ animationDelay: '7s' }} />
+      <div className="hidden lg:block absolute top-[40%] left-[70%] w-1.5 h-1.5 rounded-full bg-white/15 drift z-[2]" style={{ animationDelay: '10s' }} />
+
       {/* Header */}
       <header 
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
@@ -360,7 +473,7 @@ export default function Auth() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-slate-900/98 backdrop-blur-xl border-b border-white/10 animate-slide-down">
+          <div className="lg:hidden bg-slate-900/98 backdrop-blur-xl border-b border-white/10 mobile-menu-enter">
             <div className="container mx-auto px-4 py-6">
               <Link to="/">
                 <Button 
@@ -377,62 +490,7 @@ export default function Auth() {
       </header>
 
       {/* Hero Section with Login Form */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
-          {branding?.background_url ? (
-            <>
-              <img 
-                src={branding.background_url} 
-                alt="Background" 
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/60 to-slate-950/90" />
-            </>
-          ) : (
-            <>
-              {/* Main gradient */}
-              <div 
-                className="absolute inset-0 animate-gradient-shift"
-                style={{ 
-                  background: `linear-gradient(135deg, ${gradientSecondary} 0%, ${primaryColor} 25%, ${gradientSecondary} 50%, #0f172a 75%, ${gradientSecondary} 100%)`,
-                  backgroundSize: '400% 400%',
-                }}
-              />
-              
-              {/* Mesh gradient overlay */}
-              <div className="absolute inset-0 opacity-60" style={{
-                background: `radial-gradient(ellipse at 20% 20%, ${primaryColor}40 0%, transparent 50%),
-                             radial-gradient(ellipse at 80% 80%, ${gradientSecondary}30 0%, transparent 50%),
-                             radial-gradient(ellipse at 50% 50%, ${primaryColor}20 0%, transparent 70%)`
-              }} />
-
-              {/* Grid pattern */}
-              <div className="absolute inset-0 opacity-[0.03]" style={{
-                backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                                 linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-                backgroundSize: '60px 60px'
-              }} />
-            </>
-          )}
-        </div>
-
-        {/* Floating elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-[10%] w-72 h-72 rounded-full opacity-20 animate-float-slow"
-               style={{ background: `radial-gradient(circle, ${primaryColor}, transparent)` }} />
-          <div className="absolute bottom-1/4 right-[10%] w-96 h-96 rounded-full opacity-15 animate-float-slower"
-               style={{ background: `radial-gradient(circle, ${gradientSecondary}, transparent)` }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-10"
-               style={{ background: `radial-gradient(circle, ${primaryColor}, transparent)` }} />
-          
-          {/* Decorative shapes */}
-          <div className="absolute top-20 right-[20%] w-4 h-4 rounded-full bg-blue-400/40 animate-pulse-slow" />
-          <div className="absolute top-40 left-[15%] w-3 h-3 rounded-full bg-cyan-400/40 animate-pulse-slow" style={{ animationDelay: '1s' }} />
-          <div className="absolute bottom-40 right-[30%] w-2 h-2 rounded-full bg-white/40 animate-pulse-slow" style={{ animationDelay: '2s' }} />
-        </div>
-
-        {/* Content */}
+      <section className="relative min-h-screen flex items-center justify-center pt-20 z-10">
         <div className="container mx-auto px-4 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
             {/* Left side - Welcome text */}
