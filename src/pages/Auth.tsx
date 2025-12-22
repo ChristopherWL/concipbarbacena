@@ -448,16 +448,46 @@ export default function Auth() {
 
             {/* Right side - Login Form */}
             <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up animation-delay-200">
-              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden shadow-2xl relative">
+                {/* Decorative top gradient line */}
+                <div 
+                  className="absolute top-0 left-0 right-0 h-1"
+                  style={{ background: `linear-gradient(90deg, transparent, ${primaryColor}, transparent)` }}
+                />
+                
+                {/* Decorative floating dots */}
+                <div className="absolute top-4 right-4 flex gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-white/20" />
+                  <div className="w-2 h-2 rounded-full bg-white/30" />
+                  <div className="w-2 h-2 rounded-full bg-white/40" />
+                </div>
+                
                 {/* Card Header */}
-                <div className="p-6 sm:p-8 pb-0">
-                  <div className="text-center mb-6">
+                <div className="p-6 sm:p-8 pb-4">
+                  <div className="text-center">
+                    {/* Logo/Icon */}
+                    <div 
+                      className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+                      style={{ 
+                        background: `linear-gradient(135deg, ${primaryColor}30, ${primaryColor}10)`,
+                        border: `1px solid ${primaryColor}40`
+                      }}
+                    >
+                      <Lock className="w-7 h-7 text-white" />
+                    </div>
+                    
                     <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Fazer Login</h2>
-                    <p className="text-sm sm:text-base text-white/60">
-                      Insira seus dados abaixo
+                    <p className="text-sm sm:text-base text-white/60 mb-1">
+                      Insira seus dados para continuar
+                    </p>
+                    <p className="text-xs text-white/40">
+                      Acesso seguro ao sistema
                     </p>
                   </div>
                 </div>
+                
+                {/* Divider */}
+                <div className="mx-6 sm:mx-8 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
                 {/* Form */}
                 <div className="p-6 sm:p-8 pt-4">
