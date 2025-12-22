@@ -50,6 +50,7 @@ import { useSuppliers } from '@/hooks/useSuppliers';
 import { useSerialNumbers } from '@/hooks/useSerialNumbers';
 import { useCreateStockMovement } from '@/hooks/useStockMovements';
 import { useCreateInvoice } from '@/hooks/useInvoices';
+import { useCreateFiscalNote } from '@/hooks/useFiscalNotes';
 import { SignatureCanvas } from '@/components/stock/SignatureCanvas';
 import { SignatureModal } from '@/components/ui/signature-modal';
 import { MovementHistory } from '@/components/stock/MovementHistory';
@@ -102,6 +103,7 @@ export default function Movimentacao() {
   const { data: suppliers = [] } = useSuppliers();
   const createMovement = useCreateStockMovement();
   const createInvoice = useCreateInvoice();
+  const createFiscalNote = useCreateFiscalNote();
 
   const [movementType, setMovementType] = useState<'saida' | 'entrada' | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -375,19 +377,16 @@ export default function Movimentacao() {
       return;
     }
 
-    await createInvoice.mutateAsync({
-      invoice: {
-        supplier_id: supplierId || null,
-        invoice_number: invoiceNumber,
-        invoice_series: invoiceSeries || null,
-        invoice_key: invoiceKey || null,
-        issue_date: issueDate,
-        total_value: 0,
-        discount: 0,
-        freight: 0,
-        taxes: 0,
-        notes: notes || null,
-      },
+    // Get supplier name for the note
+    const supplierName = supplierId 
+      ? suppliers.find(s => s.id === supplierId)?.name || ''
+      : '';
+
+    await createFiscalNote.mutateAsync({
+      note_type: 'nfe',
+      customer_name: supplierName,
+      operation_nature: `Entrada NF ${invoiceNumber}${invoiceSeries ? ` Série ${invoiceSeries}` : ''}`,
+      notes: notes || `NF de entrada: ${invoiceNumber}${invoiceKey ? ` - Chave: ${invoiceKey}` : ''}`,
       items: [],
     });
 
@@ -409,7 +408,7 @@ export default function Movimentacao() {
   if (!user) return null;
 
   const totalValue = items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
-  const isPending = createMovement.isPending || createInvoice.isPending;
+  const isPending = createMovement.isPending || createInvoice.isPending || createFiscalNote.isPending;
 
   return (
     <DashboardLayout>
