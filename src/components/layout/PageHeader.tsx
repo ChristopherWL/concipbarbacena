@@ -20,13 +20,6 @@ export function PageHeader({ title, description, children, className, icon }: Pa
           <div className="w-10 h-0.5 bg-primary rounded-full" />
         </div>
 
-        {/* Icon (optional) */}
-        {icon && (
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary">
-            {icon}
-          </div>
-        )}
-
         {/* Title */}
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
           {title}
