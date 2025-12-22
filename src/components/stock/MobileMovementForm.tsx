@@ -62,6 +62,7 @@ interface MobileMovementFormProps {
   movementType: 'saida' | 'entrada';
   onClose: () => void;
   onSubmit: () => void;
+  onSubmitNFOnly?: () => void;
   isPending: boolean;
   // Entry fields
   invoiceNumber: string;
@@ -118,6 +119,7 @@ export function MobileMovementForm({
   movementType,
   onClose,
   onSubmit,
+  onSubmitNFOnly,
   isPending,
   invoiceNumber,
   setInvoiceNumber,
@@ -628,6 +630,21 @@ export function MobileMovementForm({
             <X className="h-5 w-5" />
           </button>
         </div>
+
+        {/* Quick Action: NF Only button for Entrada */}
+        {isEntrada && onSubmitNFOnly && (
+          <div className="px-4 py-2 border-b bg-muted/30">
+            <Button
+              variant="outline"
+              className="w-full h-10 gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400"
+              onClick={onSubmitNFOnly}
+              disabled={isPending || !invoiceNumber.trim()}
+            >
+              <Package className="h-4 w-4" />
+              Apenas NF (sem itens)
+            </Button>
+          </div>
+        )}
         
         {/* Wizard */}
         <MobileFormWizard
