@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,6 +18,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useAuth } from '@/hooks/useAuth';
 import { useMatrizBranch } from '@/contexts/MatrizBranchContext';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -36,7 +37,7 @@ import { RelatorioInventario } from '@/components/relatorios/RelatorioInventario
 import { RelatorioGarantia } from '@/components/relatorios/RelatorioGarantia';
 
 export default function Relatorios() {
-  const [activeTab, setActiveTab] = useState('obras');
+  const [activeTab, setActiveTab] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [movementTypeFilter, setMovementTypeFilter] = useState<string>('all');
@@ -44,6 +45,38 @@ export default function Relatorios() {
 
   const { tenant, profile, selectedBranch } = useAuth();
   const { selectedBranchId } = useMatrizBranch();
+  const { permissions } = useUserPermissions();
+  
+  // Define report tabs with their required permissions
+  const reportTabs = useMemo(() => {
+    const tabs = [
+      { value: 'obras', label: 'Obras', icon: Building2, permission: 'page_obras' },
+      { value: 'diario', label: 'Diário de Obras', shortLabel: 'Diário', icon: ClipboardList, permission: 'page_diario_obras' },
+      { value: 'inventario', label: 'Inventário', icon: LayoutGrid, permission: 'page_stock' },
+      { value: 'garantia', label: 'Garantia', icon: Shield, permission: 'page_stock' },
+      { value: 'epi', label: 'EPI', icon: HardHat, permission: 'page_stock' },
+      { value: 'epc', label: 'EPC', icon: ShieldCheck, permission: 'page_stock' },
+      { value: 'ferramentas', label: 'Ferramentas', icon: Wrench, permission: 'page_stock' },
+      { value: 'movimentacoes', label: 'Movimentações', icon: ArrowLeftRight, permission: 'page_movimentacao' },
+      { value: 'estoque', label: 'Estoque', icon: Package, permission: 'page_stock' },
+    ];
+    
+    // Filter tabs based on user permissions
+    return tabs.filter(tab => {
+      const permKey = tab.permission as keyof typeof permissions;
+      return permissions[permKey] === true;
+    });
+  }, [permissions]);
+
+  // Set default active tab based on available tabs
+  useEffect(() => {
+    if (reportTabs.length > 0 && !activeTab) {
+      setActiveTab(reportTabs[0].value);
+    } else if (reportTabs.length > 0 && !reportTabs.find(t => t.value === activeTab)) {
+      // If current tab is not in available tabs, switch to first available
+      setActiveTab(reportTabs[0].value);
+    }
+  }, [reportTabs, activeTab]);
   
   // Check if user is from matriz and no branch is selected
   const isMatriz = selectedBranch?.is_main === true;
@@ -309,60 +342,14 @@ export default function Relatorios() {
                 <SelectValue placeholder="Selecione o relatório" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="obras">
-                  <span className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    Obras
-                  </span>
-                </SelectItem>
-                <SelectItem value="diario">
-                  <span className="flex items-center gap-2">
-                    <ClipboardList className="h-4 w-4" />
-                    Diário de Obras
-                  </span>
-                </SelectItem>
-                <SelectItem value="inventario">
-                  <span className="flex items-center gap-2">
-                    <LayoutGrid className="h-4 w-4" />
-                    Inventário
-                  </span>
-                </SelectItem>
-                <SelectItem value="garantia">
-                  <span className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Garantia
-                  </span>
-                </SelectItem>
-                <SelectItem value="epi">
-                  <span className="flex items-center gap-2">
-                    <HardHat className="h-4 w-4" />
-                    EPI
-                  </span>
-                </SelectItem>
-                <SelectItem value="epc">
-                  <span className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4" />
-                    EPC
-                  </span>
-                </SelectItem>
-                <SelectItem value="ferramentas">
-                  <span className="flex items-center gap-2">
-                    <Wrench className="h-4 w-4" />
-                    Ferramentas
-                  </span>
-                </SelectItem>
-                <SelectItem value="movimentacoes">
-                  <span className="flex items-center gap-2">
-                    <ArrowLeftRight className="h-4 w-4" />
-                    Movimentações
-                  </span>
-                </SelectItem>
-                <SelectItem value="estoque">
-                  <span className="flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    Estoque
-                  </span>
-                </SelectItem>
+                {reportTabs.map((tab) => (
+                  <SelectItem key={tab.value} value={tab.value}>
+                    <span className="flex items-center gap-2">
+                      <tab.icon className="h-4 w-4" />
+                      {tab.label}
+                    </span>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -370,44 +357,19 @@ export default function Relatorios() {
           {/* Desktop: Tabs responsivas com quebra de linha */}
           <div className="hidden sm:block">
             <TabsList className="!inline-flex !flex-wrap !h-auto gap-1 p-1.5 bg-muted/50 backdrop-blur-sm border border-border/50 rounded-lg !overflow-visible w-full justify-center">
-              <TabsTrigger value="obras" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Building2 className="h-4 w-4" />
-                Obras
-              </TabsTrigger>
-              <TabsTrigger value="diario" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <ClipboardList className="h-4 w-4" />
-                Diário
-              </TabsTrigger>
-              <TabsTrigger value="inventario" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <LayoutGrid className="h-4 w-4" />
-                Inventário
-              </TabsTrigger>
-              <TabsTrigger value="garantia" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Shield className="h-4 w-4" />
-                Garantia
-              </TabsTrigger>
-              <TabsTrigger value="epi" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <HardHat className="h-4 w-4" />
-                EPI
-              </TabsTrigger>
-              <TabsTrigger value="epc" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <ShieldCheck className="h-4 w-4" />
-                EPC
-              </TabsTrigger>
-              <TabsTrigger value="ferramentas" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Wrench className="h-4 w-4" />
-                Ferramentas
-              </TabsTrigger>
-              <TabsTrigger value="movimentacoes" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <ArrowLeftRight className="h-4 w-4" />
-                Movimentações
-              </TabsTrigger>
-              <TabsTrigger value="estoque" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Package className="h-4 w-4" />
-                Estoque
-              </TabsTrigger>
+              {reportTabs.map((tab) => (
+                <TabsTrigger 
+                  key={tab.value} 
+                  value={tab.value} 
+                  className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                >
+                  <tab.icon className="h-4 w-4" />
+                  {tab.shortLabel || tab.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </div>
+
 
           {/* Obras Tab */}
           <TabsContent value="obras">
