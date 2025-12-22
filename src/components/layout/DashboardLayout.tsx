@@ -1725,18 +1725,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         "lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-sidebar-border/50 transition-transform duration-200 print:hidden",
         !showMobileNav && "translate-y-[calc(100%+2rem)]"
       )}>
-        {/* Animated gradient background */}
+        {/* Solid background */}
         <div 
-          className="absolute inset-0"
-          style={{ 
-            background: `linear-gradient(90deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-accent) / 0.8) 50%, hsl(var(--sidebar-background)) 100%)`,
-          }}
+          className="absolute inset-0 bg-sidebar"
         />
-        
-        {/* Subtle mesh overlay */}
-        <div className="absolute inset-0 opacity-20" style={{
-          background: `radial-gradient(ellipse at 50% 0%, hsl(var(--sidebar-accent)) 0%, transparent 70%)`
-        }} />
 
         <div className="flex items-center h-16 px-2 relative z-10">
           {/* Left side items */}
