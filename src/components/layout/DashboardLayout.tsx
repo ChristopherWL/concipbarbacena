@@ -171,9 +171,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     [isAdmin, permissions.page_settings]
   );
 
-  // Determine the current branch (from auth context or director context)
+  // Determine the current branch (from auth context, director context, or matriz selector)
   const currentBranchId =
     directorSelectedBranch?.id ||
+    selectedBranchId ||
     authSelectedBranch?.id ||
     profile?.branch_id ||
     profile?.selected_branch_id;
