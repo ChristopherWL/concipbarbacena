@@ -411,11 +411,11 @@ export default function Auth() {
       </header>
 
       {/* Hero Section with Login Form */}
-      <section className="relative min-h-screen flex items-start lg:items-center justify-center pt-24 lg:pt-16 pb-12 z-10">
+      <section className="relative min-h-screen flex items-start justify-center pt-28 lg:pt-32 pb-12 z-10">
         <div className="container mx-auto px-4 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-start lg:items-center max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-start max-w-6xl mx-auto">
             {/* Left side - Welcome text */}
-            <div className="text-center lg:text-left pt-4 lg:pt-0">
+            <div className="text-center lg:text-left lg:mt-8">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-white/80 text-sm mb-8 animate-fade-in-up">
                 <Sparkles className="w-4 h-4 text-yellow-400" />
