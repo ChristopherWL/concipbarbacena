@@ -370,25 +370,6 @@ export default function Movimentacao() {
     handleCloseDialog();
   };
 
-  const handleSubmitEntradaSomenteNF = async () => {
-    if (!invoiceNumber.trim()) {
-      toast.error('Informe o número da nota fiscal');
-      return;
-    }
-
-    await createStandaloneInvoice.mutateAsync({
-      invoice_number: invoiceNumber,
-      invoice_series: invoiceSeries || undefined,
-      invoice_key: invoiceKey || undefined,
-      issue_date: issueDate || new Date().toISOString().split('T')[0],
-      supplier_id: supplierId || undefined,
-      total_value: 0,
-      notes: notes || `NF de entrada: ${invoiceNumber}${invoiceKey ? ` - Chave: ${invoiceKey}` : ''}`,
-    });
-
-    handleCloseDialog();
-  };
-
   const handleSubmit = async () => {
     if (movementType === 'saida') {
       await handleSubmitSaida();
@@ -511,7 +492,7 @@ export default function Movimentacao() {
           movementType={movementType}
           onClose={handleCloseDialog}
           onSubmit={handleSubmit}
-          onSubmitNFOnly={movementType === 'entrada' ? handleSubmitEntradaSomenteNF : undefined}
+          
           isPending={isPending}
           invoiceNumber={invoiceNumber}
           setInvoiceNumber={setInvoiceNumber}
@@ -1106,21 +1087,6 @@ export default function Movimentacao() {
               >
                 Cancelar
               </Button>
-              {movementType === 'entrada' && (
-                <Button
-                  variant="outline"
-                  className="flex-1 min-w-[140px] gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400"
-                  onClick={handleSubmitEntradaSomenteNF}
-                  disabled={isPending || !invoiceNumber.trim()}
-                >
-                  {isPending ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <FileText className="h-5 w-5" />
-                  )}
-                  Apenas NF
-                </Button>
-              )}
               <Button
                 className={cn(
                   "flex-1 min-w-[140px] gap-2 text-white",
