@@ -688,10 +688,10 @@ export default function GenericLandingPage() {
         <div className="container mx-auto">
           <div className="text-center mb-10 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
-              Nossos Módulos
+              Nossos Serviços
             </h2>
             <p className="text-sm sm:text-base text-white/60 max-w-2xl mx-auto">
-              Soluções completas para todas as áreas da sua empresa
+              Soluções completas em iluminação pública, telecomunicações e energia solar
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
@@ -716,65 +716,58 @@ export default function GenericLandingPage() {
               })
             ) : (
               <>
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-white/15 transition-all duration-300 group">
-                  <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                  >
-                    <Package className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                {/* Iluminação Pública */}
+                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-amber-500/10 transition-all duration-300 group border border-transparent hover:border-amber-500/30">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-amber-500 to-orange-600">
+                    <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Estoque</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Controle completo de materiais, EPIs, EPCs e ferramentas</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Iluminação Pública</h3>
+                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Instalação, manutenção e modernização de sistemas de iluminação urbana com tecnologia LED</p>
                 </div>
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-white/15 transition-all duration-300 group">
-                  <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                  >
-                    <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                
+                {/* Câmeras de Segurança */}
+                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-blue-500/10 transition-all duration-300 group border border-transparent hover:border-blue-500/30">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-blue-500 to-indigo-600">
+                    <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Frota</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Gestão de veículos, manutenções e abastecimentos</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Videomonitoramento</h3>
+                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Sistemas de câmeras IP para segurança pública e privada com monitoramento 24h</p>
                 </div>
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-white/15 transition-all duration-300 group">
-                  <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                  >
-                    <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                
+                {/* WiFi e Internet */}
+                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-cyan-500/10 transition-all duration-300 group border border-transparent hover:border-cyan-500/30">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-cyan-500 to-teal-600">
+                    <Wifi className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Recursos Humanos</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Gestão de colaboradores, férias e afastamentos</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">WiFi Público</h3>
+                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Infraestrutura de internet sem fio para praças, parques e espaços públicos</p>
                 </div>
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-white/15 transition-all duration-300 group">
-                  <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                  >
-                    <ClipboardList className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                
+                {/* Usina Solar */}
+                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-green-500/10 transition-all duration-300 group border border-transparent hover:border-green-500/30">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-green-500 to-emerald-600">
+                    <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Ordens de Serviço</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Acompanhamento de serviços e obras em andamento</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Usinas Fotovoltaicas</h3>
+                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Projetos e instalação de usinas solares UFV para geração de energia limpa e sustentável</p>
                 </div>
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-white/15 transition-all duration-300 group">
-                  <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                  >
-                    <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                
+                {/* Link Dedicado */}
+                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-purple-500/10 transition-all duration-300 group border border-transparent hover:border-purple-500/30">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-purple-500 to-violet-600">
+                    <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Notas Fiscais</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Emissão e gestão de documentos fiscais</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Link Dedicado</h3>
+                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Conexões de internet dedicadas com alta disponibilidade e velocidade garantida</p>
                 </div>
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-white/15 transition-all duration-300 group">
-                  <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                  >
-                    <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                
+                {/* Infraestrutura Telecom */}
+                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-orange-500/10 transition-all duration-300 group border border-transparent hover:border-orange-500/30">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-orange-500 to-red-600">
+                    <Radio className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Relatórios</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Dashboards e análises para tomada de decisão</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Infraestrutura Telecom</h3>
+                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Redes de fibra óptica, torres e equipamentos de telecomunicações</p>
                 </div>
               </>
             )}
