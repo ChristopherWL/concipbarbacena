@@ -811,44 +811,87 @@ export default function GenericLandingPage() {
       {/* About Section */}
       <section id="about" className="relative z-10 py-16 sm:py-24 px-4">
         <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10 sm:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
                 Sobre Nós
               </h2>
               <p className="text-sm sm:text-base text-white/60 max-w-2xl mx-auto">
-                Conheça nossa história e missão
+                Transformando cidades com tecnologia e sustentabilidade
               </p>
             </div>
             <div className="glass rounded-2xl sm:rounded-3xl p-6 sm:p-10">
               <div className="grid md:grid-cols-2 gap-8 items-center">
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                    <Zap className="w-6 h-6 text-amber-400" />
                     Nossa Missão
                   </h3>
                   <p className="text-sm sm:text-base text-white/70 mb-4 leading-relaxed">
-                    Desenvolvemos soluções tecnológicas que simplificam a gestão empresarial, permitindo que nossos clientes foquem no que realmente importa: o crescimento do seu negócio.
+                    Somos especialistas em <span className="text-amber-400 font-medium">iluminação pública</span>, <span className="text-blue-400 font-medium">telecomunicações</span> e <span className="text-green-400 font-medium">energia solar fotovoltaica</span>. Levamos tecnologia de ponta para cidades e empresas, promovendo eficiência energética e conectividade.
                   </p>
-                  <p className="text-sm sm:text-base text-white/70 leading-relaxed">
-                    Com anos de experiência no mercado, nossa equipe está comprometida em entregar sistemas robustos, seguros e fáceis de usar.
+                  <p className="text-sm sm:text-base text-white/70 mb-6 leading-relaxed">
+                    Com mais de uma década de experiência, já instalamos milhares de pontos de luz LED, sistemas de videomonitoramento, redes WiFi públicas e usinas solares em dezenas de municípios.
                   </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs border border-amber-500/30">Iluminação LED</span>
+                    <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs border border-blue-500/30">CFTV</span>
+                    <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs border border-cyan-500/30">WiFi</span>
+                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs border border-green-500/30">Solar UFV</span>
+                    <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs border border-purple-500/30">Fibra Óptica</span>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="glass rounded-xl p-4 text-center">
-                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1" style={{ color: content.highlightColor }}>+500</div>
-                    <div className="text-xs sm:text-sm text-white/60">Clientes Ativos</div>
+                  <div className="glass rounded-xl p-4 text-center group hover:bg-amber-500/10 transition-colors">
+                    <Lightbulb className="w-6 h-6 mx-auto mb-2 text-amber-400 group-hover:scale-110 transition-transform" />
+                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1">+50K</div>
+                    <div className="text-xs sm:text-sm text-white/60">Pontos de Luz</div>
                   </div>
-                  <div className="glass rounded-xl p-4 text-center">
-                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1" style={{ color: content.highlightColor }}>10+</div>
-                    <div className="text-xs sm:text-sm text-white/60">Anos de Mercado</div>
+                  <div className="glass rounded-xl p-4 text-center group hover:bg-blue-500/10 transition-colors">
+                    <Camera className="w-6 h-6 mx-auto mb-2 text-blue-400 group-hover:scale-110 transition-transform" />
+                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1">+5K</div>
+                    <div className="text-xs sm:text-sm text-white/60">Câmeras</div>
                   </div>
-                  <div className="glass rounded-xl p-4 text-center">
-                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1" style={{ color: content.highlightColor }}>99%</div>
-                    <div className="text-xs sm:text-sm text-white/60">Satisfação</div>
+                  <div className="glass rounded-xl p-4 text-center group hover:bg-green-500/10 transition-colors">
+                    <Sun className="w-6 h-6 mx-auto mb-2 text-green-400 group-hover:scale-110 transition-transform" />
+                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1">+10</div>
+                    <div className="text-xs sm:text-sm text-white/60">Usinas UFV</div>
                   </div>
-                  <div className="glass rounded-xl p-4 text-center">
-                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1" style={{ color: content.highlightColor }}>24/7</div>
-                    <div className="text-xs sm:text-sm text-white/60">Suporte</div>
+                  <div className="glass rounded-xl p-4 text-center group hover:bg-purple-500/10 transition-colors">
+                    <MapPin className="w-6 h-6 mx-auto mb-2 text-purple-400 group-hover:scale-110 transition-transform" />
+                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1">+30</div>
+                    <div className="text-xs sm:text-sm text-white/60">Cidades Atendidas</div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Values */}
+              <div className="grid sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+                    <Award className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-white mb-1">Qualidade</h4>
+                    <p className="text-xs text-white/60">Equipamentos de primeira linha e mão de obra qualificada</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shrink-0">
+                    <Shield className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-white mb-1">Garantia</h4>
+                    <p className="text-xs text-white/60">Suporte técnico e garantia em todos os serviços</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0">
+                    <Clock className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-white mb-1">Agilidade</h4>
+                    <p className="text-xs text-white/60">Atendimento rápido e cumprimento de prazos</p>
                   </div>
                 </div>
               </div>
