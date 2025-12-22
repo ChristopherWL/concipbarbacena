@@ -73,50 +73,52 @@ export function FuelOrderReport({ vehicle, fuelLog, orderNumber }: FuelOrderRepo
       </div>
 
       {/* Items Table */}
-      <table className="w-full border-collapse border border-black mb-8 mt-6">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-black p-2 text-sm text-left">Fornecedor</th>
-            <th className="border border-black p-2 text-sm text-left">Preço Unit. (R$)</th>
-            <th className="border border-black p-2 text-sm text-left">Quantid.</th>
-            <th className="border border-black p-2 text-sm text-left">Unid.</th>
-            <th className="border border-black p-2 text-sm text-left">Descrição</th>
-            <th className="border border-black p-2 text-sm text-right">Total (R$)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {fuelLog ? (
-            <tr>
-              <td className="border border-black p-2 text-sm">{fuelLog.supplier?.name || ''}</td>
-              <td className="border border-black p-2 text-sm">{formatCurrency(fuelLog.price_per_liter)}</td>
-              <td className="border border-black p-2 text-sm">{fuelLog.liters.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-              <td className="border border-black p-2 text-sm">Litros</td>
-              <td className="border border-black p-2 text-sm">{fuelLog.fuel_type || 'Combustível'}</td>
-              <td className="border border-black p-2 text-sm text-right">{formatCurrency(fuelLog.total_cost)}</td>
+      <div className="overflow-x-auto mb-8 mt-6">
+        <table className="w-full border-collapse border border-black min-w-[600px]">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Fornecedor</th>
+              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Preço Unit. (R$)</th>
+              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Quantid.</th>
+              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Unid.</th>
+              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Descrição</th>
+              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-right whitespace-nowrap">Total (R$)</th>
             </tr>
-          ) : (
-            <tr>
-              <td className="border border-black p-2 h-8"></td>
-              <td className="border border-black p-2"></td>
-              <td className="border border-black p-2"></td>
-              <td className="border border-black p-2"></td>
-              <td className="border border-black p-2"></td>
-              <td className="border border-black p-2"></td>
-            </tr>
-          )}
-          {/* Empty rows for additional items */}
-          {[...Array(4)].map((_, i) => (
-            <tr key={i}>
-              <td className="border border-black p-2 h-8"></td>
-              <td className="border border-black p-2"></td>
-              <td className="border border-black p-2"></td>
-              <td className="border border-black p-2"></td>
-              <td className="border border-black p-2"></td>
-              <td className="border border-black p-2"></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {fuelLog ? (
+              <tr>
+                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm">{fuelLog.supplier?.name || ''}</td>
+                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(fuelLog.price_per_liter)}</td>
+                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm whitespace-nowrap">{fuelLog.liters.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm">Litros</td>
+                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm">{fuelLog.fuel_type || 'Combustível'}</td>
+                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-right whitespace-nowrap">{formatCurrency(fuelLog.total_cost)}</td>
+              </tr>
+            ) : (
+              <tr>
+                <td className="border border-black p-1.5 sm:p-2 h-8"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+              </tr>
+            )}
+            {/* Empty rows for additional items */}
+            {[...Array(4)].map((_, i) => (
+              <tr key={i}>
+                <td className="border border-black p-1.5 sm:p-2 h-8"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+                <td className="border border-black p-1.5 sm:p-2"></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Authorization Section */}
       <div className="signature-section mt-12 space-y-8">
