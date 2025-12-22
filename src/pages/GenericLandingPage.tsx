@@ -294,58 +294,10 @@ export default function GenericLandingPage() {
         }}
       />
 
-      {/* Moving Light Focus Effects */}
+      {/* Subtle Light Effect - Minimalist */}
       <div 
-        className="absolute top-[10%] left-[5%] w-[40vw] h-[40vw] sm:w-[35vw] sm:h-[35vw] rounded-full blur-[80px] sm:blur-[120px] light-move-1 z-[1]"
-        style={{ background: content.lightEffectColor, opacity: 0.25 }}
-      />
-      <div 
-        className="absolute top-[5%] right-[8%] w-[38vw] h-[38vw] sm:w-[32vw] sm:h-[32vw] rounded-full blur-[80px] sm:blur-[120px] light-move-3 z-[1]"
-        style={{ background: content.lightEffectColor, opacity: 0.2 }}
-      />
-      <div 
-        className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] sm:w-[40vw] sm:h-[40vw] rounded-full blur-[80px] sm:blur-[120px] light-move-2 z-[1]"
-        style={{ background: content.lightEffectColor, opacity: 0.25 }}
-      />
-      <div 
-        className="absolute top-[50%] left-[40%] w-[50vw] h-[50vw] sm:w-[45vw] sm:h-[45vw] rounded-full blur-[100px] sm:blur-[150px] light-move-3 z-[1]"
-        style={{ background: content.lightEffectColor, opacity: 0.15 }}
-      />
-      <div 
-        className="absolute top-[30%] right-[20%] w-[35vw] h-[35vw] sm:w-[30vw] sm:h-[30vw] rounded-full blur-[70px] sm:blur-[100px] light-move-4 z-[1]"
-        style={{ background: content.lightEffectColor, opacity: 0.2 }}
-      />
-
-      {/* Drifting Particles - Visible on all devices */}
-      <div className="absolute top-[15%] left-[10%] w-2 h-2 rounded-full bg-white/30 drift z-[2]" />
-      <div className="absolute top-[25%] right-[15%] w-1.5 h-1.5 rounded-full bg-white/25 drift z-[2]" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-[45%] left-[8%] w-1 h-1 rounded-full bg-white/30 drift z-[2]" style={{ animationDelay: '2s' }} />
-      <div className="absolute top-[60%] right-[12%] w-2 h-2 rounded-full bg-white/20 drift z-[2]" style={{ animationDelay: '3s' }} />
-      <div className="absolute top-[75%] left-[20%] w-1.5 h-1.5 rounded-full bg-white/25 drift z-[2]" style={{ animationDelay: '4s' }} />
-      <div className="absolute top-[35%] right-[30%] w-1 h-1 rounded-full bg-white/20 drift z-[2]" style={{ animationDelay: '5s' }} />
-      <div className="absolute top-[85%] right-[25%] w-1.5 h-1.5 rounded-full bg-white/15 drift z-[2]" style={{ animationDelay: '6s' }} />
-      <div className="absolute top-[50%] left-[25%] w-2 h-2 rounded-full bg-white/20 drift z-[2]" style={{ animationDelay: '7s' }} />
-      
-      {/* Floating geometric shapes for mobile */}
-      <div 
-        className="absolute top-[20%] right-[8%] w-8 h-8 sm:w-12 sm:h-12 rounded-lg rotate-45 float z-[2] opacity-20"
-        style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, transparent)`, animationDelay: '0s' }}
-      />
-      <div 
-        className="absolute top-[55%] left-[5%] w-6 h-6 sm:w-10 sm:h-10 rounded-full float z-[2] opacity-15"
-        style={{ background: `radial-gradient(circle, ${content.highlightColor}, transparent)`, animationDelay: '2s' }}
-      />
-      <div 
-        className="absolute top-[70%] right-[18%] w-4 h-4 sm:w-8 sm:h-8 rounded-lg rotate-12 float z-[2] opacity-20"
-        style={{ background: `linear-gradient(45deg, ${content.accentColor}, transparent)`, animationDelay: '4s' }}
-      />
-      <div 
-        className="absolute top-[40%] left-[15%] w-3 h-3 sm:w-6 sm:h-6 rounded-full float z-[2] opacity-25"
-        style={{ background: content.lightEffectColor, animationDelay: '1s' }}
-      />
-      <div 
-        className="absolute top-[30%] left-[80%] w-5 h-5 sm:w-8 sm:h-8 rounded-lg rotate-[-20deg] float z-[2] opacity-15"
-        style={{ background: `linear-gradient(135deg, ${content.secondaryButtonColor}, transparent)`, animationDelay: '3s' }}
+        className="absolute top-[20%] left-[30%] w-[50vw] h-[50vw] rounded-full blur-[150px] z-[1]"
+        style={{ background: content.lightEffectColor, opacity: 0.08 }}
       />
 
       {/* Header */}
@@ -476,192 +428,68 @@ export default function GenericLandingPage() {
         )}
       </header>
 
-      {/* Hero Section */}
-      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center pt-16 sm:pt-20 pb-16 sm:pb-32 px-4">
+      {/* Hero Section - Minimalist */}
+      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-20 px-4">
         <div className="container mx-auto text-center relative z-10">
-          <div className="max-w-4xl mx-auto">
-            {/* Decorative Icons - Industry themed */}
-            <Lightbulb className="absolute -top-4 sm:top-0 right-[15%] sm:right-1/4 w-5 h-5 sm:w-6 sm:h-6 float" style={{ color: `${content.accentColor}80` }} />
-            <Sun className="absolute top-16 sm:top-20 left-[10%] sm:left-1/4 w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: '#fbbf24', animationDelay: '1s' }} />
-            <Wifi className="absolute top-8 left-[20%] sm:left-[15%] w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: `${content.primaryButtonColor}60`, animationDelay: '2s' }} />
-            <Camera className="absolute top-24 right-[12%] sm:right-[18%] w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: `${content.highlightColor}50`, animationDelay: '1.5s' }} />
-            <Radio className="absolute top-4 sm:top-8 right-[35%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.accentColor}40`, animationDelay: '3s' }} />
-            <Globe className="absolute top-32 left-[8%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.primaryButtonColor}50`, animationDelay: '2.5s' }} />
-
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full glass text-white/90 text-xs sm:text-sm mb-5 sm:mb-8 hero-animate">
-              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#fbbf24' }} />
-              <span className="line-clamp-1">{content.badge || 'Soluções em Infraestrutura e Energia'}</span>
-            </div>
-
+          <div className="max-w-3xl mx-auto">
             {/* Title */}
             <h1
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-3 sm:mb-6 leading-[1.1] hero-animate text-white"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1] hero-animate text-white tracking-tight"
               style={{ animationDelay: '0.1s' }}
             >
-              {content.heroTitle || 'Iluminando o Futuro'}
-              {(content.heroTitleHighlight || !content.heroTitle) && (
-                <span className="block mt-1 sm:mt-2" style={{ color: content.highlightColor }}>
-                  {content.heroTitleHighlight || 'Conectando Pessoas'}
-                </span>
-              )}
+              {content.heroTitle || 'Iluminação'}
+              <span className="block" style={{ color: content.highlightColor }}>
+                {content.heroTitleHighlight || 'Telecom & Energia'}
+              </span>
             </h1>
 
             {/* Description */}
             <p
-              className="text-sm sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed hero-animate px-2"
+              className="text-base sm:text-lg text-white/60 max-w-xl mx-auto mb-10 leading-relaxed hero-animate"
               style={{ animationDelay: '0.2s' }}
             >
-              {content.heroDescription || 'Especialistas em iluminação pública, telecomunicações e energia solar fotovoltaica. Transformamos cidades com tecnologia e sustentabilidade.'}
+              {content.heroDescription || 'Iluminação pública, videomonitoramento, redes WiFi, link dedicado e usinas solares fotovoltaicas.'}
             </p>
 
-            {/* Quick Features - Industry themed */}
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 hero-animate" style={{ animationDelay: '0.25s' }}>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-amber-500/20 text-white/90 text-xs sm:text-sm hover:bg-amber-500/30 transition-colors cursor-default border border-amber-500/30">
-                <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" />
-                <span>Iluminação Pública</span>
-              </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-500/20 text-white/90 text-xs sm:text-sm hover:bg-blue-500/30 transition-colors cursor-default border border-blue-500/30">
-                <Camera className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
-                <span>Câmeras</span>
-              </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-cyan-500/20 text-white/90 text-xs sm:text-sm hover:bg-cyan-500/30 transition-colors cursor-default border border-cyan-500/30">
-                <Wifi className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-400" />
-                <span>WiFi</span>
-              </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-green-500/20 text-white/90 text-xs sm:text-sm hover:bg-green-500/30 transition-colors cursor-default border border-green-500/30">
-                <Sun className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
-                <span>Usina UFV</span>
-              </div>
-              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 text-white/90 text-sm hover:bg-purple-500/30 transition-colors cursor-default border border-purple-500/30">
-                <Globe className="w-4 h-4 text-purple-400" />
-                <span>Link Dedicado</span>
-              </div>
-              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/20 text-white/90 text-sm hover:bg-orange-500/30 transition-colors cursor-default border border-orange-500/30">
-                <Radio className="w-4 h-4 text-orange-400" />
-                <span>Telecom</span>
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div
-              className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 hero-animate"
-              style={{ animationDelay: '0.3s' }}
-            >
+            {/* CTA Button - Minimalist */}
+            <div className="hero-animate" style={{ animationDelay: '0.3s' }}>
               <Button
                 size="lg"
-                className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-10 py-5 sm:py-7 shadow-2xl hover:scale-105 transition-all duration-300 text-white border-0"
+                className="text-base px-8 py-6 hover:scale-105 transition-all duration-300 text-white border-0"
                 style={{ 
-                  background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`,
-                  boxShadow: `0 10px 40px -10px ${content.primaryButtonColor}80`
+                  background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`
                 }}
                 onClick={() => navigate('/auth')}
               >
-                <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 {content.ctaPrimary}
               </Button>
-              {content.ctaSecondary && (
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-7 text-white hover:scale-105 transition-all duration-300"
-                  style={{ 
-                    background: `${content.secondaryButtonColor}20`,
-                    borderColor: `${content.secondaryButtonColor}40`,
-                    borderWidth: '1px'
-                  }}
-                >
-                  {content.ctaSecondary}
-                  <ChevronDown className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-              )}
             </div>
 
-            {/* Stats Preview - Industry themed */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 sm:mt-12 hero-animate max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
-              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors group">
-                <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-amber-400 group-hover:scale-110 transition-transform" />
-                <div className="text-lg sm:text-xl md:text-2xl font-bold text-white">+50K</div>
-                <div className="text-[9px] sm:text-xs text-white/60 uppercase tracking-wide">Pontos de Luz</div>
+            {/* Simple Service Tags */}
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-16 hero-animate" style={{ animationDelay: '0.4s' }}>
+              <div className="flex items-center gap-2 text-white/50 text-sm">
+                <Lightbulb className="w-4 h-4" />
+                <span>Iluminação</span>
               </div>
-              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors group">
-                <Camera className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-blue-400 group-hover:scale-110 transition-transform" />
-                <div className="text-lg sm:text-xl md:text-2xl font-bold text-white">+5K</div>
-                <div className="text-[9px] sm:text-xs text-white/60 uppercase tracking-wide">Câmeras</div>
+              <div className="flex items-center gap-2 text-white/50 text-sm">
+                <Camera className="w-4 h-4" />
+                <span>Câmeras</span>
               </div>
-              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors group">
-                <Sun className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-green-400 group-hover:scale-110 transition-transform" />
-                <div className="text-lg sm:text-xl md:text-2xl font-bold text-white">+10</div>
-                <div className="text-[9px] sm:text-xs text-white/60 uppercase tracking-wide">Usinas UFV</div>
+              <div className="flex items-center gap-2 text-white/50 text-sm">
+                <Wifi className="w-4 h-4" />
+                <span>WiFi</span>
               </div>
-              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors hidden sm:block group">
-                <MapPin className="w-6 h-6 mx-auto mb-1 text-purple-400 group-hover:scale-110 transition-transform" />
-                <div className="text-xl md:text-2xl font-bold text-white">+30</div>
-                <div className="text-xs text-white/60 uppercase tracking-wide">Cidades</div>
-              </div>
-            </div>
-
-            {/* Trust Badges - Industry themed */}
-            <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 sm:mt-8 hero-animate" style={{ animationDelay: '0.5s' }}>
-              <div className="flex items-center gap-1.5 sm:gap-2 text-white/50 text-xs sm:text-sm">
-                <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400" />
-                <span>ISO 9001</span>
-              </div>
-              <div className="w-px h-3 sm:h-4 bg-white/20" />
-              <div className="flex items-center gap-1.5 sm:gap-2 text-white/50 text-xs sm:text-sm">
-                <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
-                <span>+10 Anos</span>
-              </div>
-              <div className="w-px h-3 sm:h-4 bg-white/20 hidden sm:block" />
-              <div className="hidden sm:flex items-center gap-2 text-white/50 text-sm">
-                <Shield className="w-4 h-4 text-blue-400" />
-                <span>Garantia Total</span>
+              <div className="flex items-center gap-2 text-white/50 text-sm">
+                <Sun className="w-4 h-4" />
+                <span>Solar</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Scroll Indicator */}
-        <div 
-          className="absolute inset-x-0 bottom-4 sm:bottom-12 flex justify-center hero-animate"
-          style={{ animationDelay: '0.6s' }}
-        >
-          <div className="flex flex-col items-center gap-1 sm:gap-2 text-white/40">
-            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.15em] font-medium">Scroll</span>
-            <ChevronDown className="w-5 h-5 sm:w-5 sm:h-5 animate-bounce" />
-          </div>
-        </div>
-
-        {/* Floating Icons Background - Industry themed */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-[3]">
-          <Lightbulb 
-            className="absolute top-[35%] left-[5%] sm:left-[8%] w-6 h-6 sm:w-8 sm:h-8 opacity-15 float" 
-            style={{ color: '#fbbf24', animationDelay: '0s' }} 
-          />
-          <Camera 
-            className="absolute top-[50%] right-[8%] sm:right-[10%] w-5 h-5 sm:w-7 sm:h-7 opacity-10 float" 
-            style={{ color: '#60a5fa', animationDelay: '1.5s' }} 
-          />
-          <Wifi 
-            className="absolute top-[65%] left-[12%] sm:left-[15%] w-5 h-5 sm:w-6 sm:h-6 opacity-10 float" 
-            style={{ color: '#22d3d1', animationDelay: '3s' }} 
-          />
-          <Sun 
-            className="absolute top-[75%] right-[15%] sm:right-[12%] w-6 h-6 sm:w-8 sm:h-8 opacity-15 float" 
-            style={{ color: '#4ade80', animationDelay: '2s' }} 
-          />
-          <Radio 
-            className="absolute top-[40%] right-[5%] sm:right-[6%] w-5 h-5 sm:w-7 sm:h-7 opacity-10 float hidden sm:block" 
-            style={{ color: '#f97316', animationDelay: '4s' }} 
-          />
-          <Globe 
-            className="absolute top-[60%] left-[6%] w-6 h-6 sm:w-8 sm:h-8 opacity-10 float hidden sm:block" 
-            style={{ color: '#a855f7', animationDelay: '5s' }} 
-          />
-          <Wrench 
-            className="absolute top-[25%] right-[25%] w-5 h-5 sm:w-6 sm:h-6 opacity-8 float hidden sm:block" 
-            style={{ color: content.highlightColor, animationDelay: '2.5s' }} 
-          />
+        <div className="absolute inset-x-0 bottom-8 flex justify-center">
+          <ChevronDown className="w-5 h-5 text-white/30 animate-bounce" />
         </div>
       </section>
 
@@ -683,94 +511,49 @@ export default function GenericLandingPage() {
         </section>
       )}
 
-      {/* Modules Section */}
-      <section id="modules" className="relative z-10 py-16 sm:py-24 px-4">
+      {/* Services Section - Minimalist */}
+      <section id="modules" className="relative z-10 py-20 sm:py-32 px-4">
         <div className="container mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
-              Nossos Serviços
-            </h2>
-            <p className="text-sm sm:text-base text-white/60 max-w-2xl mx-auto">
-              Soluções completas em iluminação pública, telecomunicações e energia solar
-            </p>
+          <div className="text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Serviços</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
-            {content.showModules && content.modules.length > 0 ? (
-              content.modules.map((module, index) => {
-                const IconComponent = iconMap[module.icon] || Package;
-                return (
-                  <div 
-                    key={module.id || index} 
-                    className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-white/15 transition-all duration-300 group"
-                  >
-                    <div 
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform"
-                      style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                    >
-                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">{module.title}</h3>
-                    <p className="text-xs sm:text-sm text-white/60 leading-relaxed">{module.description}</p>
-                  </div>
-                );
-              })
-            ) : (
-              <>
-                {/* Iluminação Pública */}
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-amber-500/10 transition-all duration-300 group border border-transparent hover:border-amber-500/30">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-amber-500 to-orange-600">
-                    <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Iluminação Pública</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Instalação, manutenção e modernização de sistemas de iluminação urbana com tecnologia LED</p>
-                </div>
-                
-                {/* Câmeras de Segurança */}
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-blue-500/10 transition-all duration-300 group border border-transparent hover:border-blue-500/30">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-blue-500 to-indigo-600">
-                    <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Videomonitoramento</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Sistemas de câmeras IP para segurança pública e privada com monitoramento 24h</p>
-                </div>
-                
-                {/* WiFi e Internet */}
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-cyan-500/10 transition-all duration-300 group border border-transparent hover:border-cyan-500/30">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-cyan-500 to-teal-600">
-                    <Wifi className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">WiFi Público</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Infraestrutura de internet sem fio para praças, parques e espaços públicos</p>
-                </div>
-                
-                {/* Usina Solar */}
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-green-500/10 transition-all duration-300 group border border-transparent hover:border-green-500/30">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-green-500 to-emerald-600">
-                    <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Usinas Fotovoltaicas</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Projetos e instalação de usinas solares UFV para geração de energia limpa e sustentável</p>
-                </div>
-                
-                {/* Link Dedicado */}
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-purple-500/10 transition-all duration-300 group border border-transparent hover:border-purple-500/30">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-purple-500 to-violet-600">
-                    <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Link Dedicado</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Conexões de internet dedicadas com alta disponibilidade e velocidade garantida</p>
-                </div>
-                
-                {/* Infraestrutura Telecom */}
-                <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 hover:bg-orange-500/10 transition-all duration-300 group border border-transparent hover:border-orange-500/30">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform bg-gradient-to-br from-orange-500 to-red-600">
-                    <Radio className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Infraestrutura Telecom</h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">Redes de fibra óptica, torres e equipamentos de telecomunicações</p>
-                </div>
-              </>
-            )}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 max-w-4xl mx-auto">
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                <Lightbulb className="w-5 h-5 text-white/70" />
+              </div>
+              <p className="text-sm text-white/60">Iluminação</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                <Camera className="w-5 h-5 text-white/70" />
+              </div>
+              <p className="text-sm text-white/60">Câmeras</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                <Wifi className="w-5 h-5 text-white/70" />
+              </div>
+              <p className="text-sm text-white/60">WiFi</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                <Sun className="w-5 h-5 text-white/70" />
+              </div>
+              <p className="text-sm text-white/60">Solar</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                <Globe className="w-5 h-5 text-white/70" />
+              </div>
+              <p className="text-sm text-white/60">Link Dedicado</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                <Radio className="w-5 h-5 text-white/70" />
+              </div>
+              <p className="text-sm text-white/60">Telecom</p>
+            </div>
           </div>
         </div>
       </section>
@@ -808,178 +591,58 @@ export default function GenericLandingPage() {
         </section>
       )}
 
-      {/* About Section */}
-      <section id="about" className="relative z-10 py-16 sm:py-24 px-4">
+      {/* About Section - Minimalist */}
+      <section id="about" className="relative z-10 py-20 sm:py-32 px-4">
         <div className="container mx-auto">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-10 sm:mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
-                Sobre Nós
-              </h2>
-              <p className="text-sm sm:text-base text-white/60 max-w-2xl mx-auto">
-                Transformando cidades com tecnologia e sustentabilidade
-              </p>
-            </div>
-            <div className="glass rounded-2xl sm:rounded-3xl p-6 sm:p-10">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 flex items-center gap-3">
-                    <Zap className="w-6 h-6 text-amber-400" />
-                    Nossa Missão
-                  </h3>
-                  <p className="text-sm sm:text-base text-white/70 mb-4 leading-relaxed">
-                    Somos especialistas em <span className="text-amber-400 font-medium">iluminação pública</span>, <span className="text-blue-400 font-medium">telecomunicações</span> e <span className="text-green-400 font-medium">energia solar fotovoltaica</span>. Levamos tecnologia de ponta para cidades e empresas, promovendo eficiência energética e conectividade.
-                  </p>
-                  <p className="text-sm sm:text-base text-white/70 mb-6 leading-relaxed">
-                    Com mais de uma década de experiência, já instalamos milhares de pontos de luz LED, sistemas de videomonitoramento, redes WiFi públicas e usinas solares em dezenas de municípios.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs border border-amber-500/30">Iluminação LED</span>
-                    <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs border border-blue-500/30">CFTV</span>
-                    <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs border border-cyan-500/30">WiFi</span>
-                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs border border-green-500/30">Solar UFV</span>
-                    <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs border border-purple-500/30">Fibra Óptica</span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="glass rounded-xl p-4 text-center group hover:bg-amber-500/10 transition-colors">
-                    <Lightbulb className="w-6 h-6 mx-auto mb-2 text-amber-400 group-hover:scale-110 transition-transform" />
-                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1">+50K</div>
-                    <div className="text-xs sm:text-sm text-white/60">Pontos de Luz</div>
-                  </div>
-                  <div className="glass rounded-xl p-4 text-center group hover:bg-blue-500/10 transition-colors">
-                    <Camera className="w-6 h-6 mx-auto mb-2 text-blue-400 group-hover:scale-110 transition-transform" />
-                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1">+5K</div>
-                    <div className="text-xs sm:text-sm text-white/60">Câmeras</div>
-                  </div>
-                  <div className="glass rounded-xl p-4 text-center group hover:bg-green-500/10 transition-colors">
-                    <Sun className="w-6 h-6 mx-auto mb-2 text-green-400 group-hover:scale-110 transition-transform" />
-                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1">+10</div>
-                    <div className="text-xs sm:text-sm text-white/60">Usinas UFV</div>
-                  </div>
-                  <div className="glass rounded-xl p-4 text-center group hover:bg-purple-500/10 transition-colors">
-                    <MapPin className="w-6 h-6 mx-auto mb-2 text-purple-400 group-hover:scale-110 transition-transform" />
-                    <div className="text-2xl sm:text-3xl font-bold text-white mb-1">+30</div>
-                    <div className="text-xs sm:text-sm text-white/60">Cidades Atendidas</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Values */}
-              <div className="grid sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
-                    <Award className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-1">Qualidade</h4>
-                    <p className="text-xs text-white/60">Equipamentos de primeira linha e mão de obra qualificada</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shrink-0">
-                    <Shield className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-1">Garantia</h4>
-                    <p className="text-xs text-white/60">Suporte técnico e garantia em todos os serviços</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0">
-                    <Clock className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-1">Agilidade</h4>
-                    <p className="text-xs text-white/60">Atendimento rápido e cumprimento de prazos</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="relative z-10 py-16 sm:py-24 px-4">
-        <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-10 sm:mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
-                Entre em Contato
-              </h2>
-              <p className="text-sm sm:text-base text-white/60 max-w-2xl mx-auto">
-                Estamos prontos para ajudar sua empresa
-              </p>
-            </div>
-            <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
-              <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 text-center hover:bg-white/15 transition-all duration-300">
-                <div 
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4"
-                  style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                >
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-1">E-mail</h3>
-                <p className="text-xs sm:text-sm text-white/60">contato@sistema.com.br</p>
-              </div>
-              <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 text-center hover:bg-white/15 transition-all duration-300">
-                <div 
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4"
-                  style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                >
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-1">Telefone</h3>
-                <p className="text-xs sm:text-sm text-white/60">(31) 9999-9999</p>
-              </div>
-              <div className="glass rounded-xl sm:rounded-2xl p-5 sm:p-6 text-center hover:bg-white/15 transition-all duration-300">
-                <div 
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4"
-                  style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                >
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-1">Endereço</h3>
-                <p className="text-xs sm:text-sm text-white/60">Belo Horizonte, MG</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="relative z-10 py-16 sm:py-24 px-4">
-        <div className="container mx-auto">
-          <div 
-            className="glass rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center max-w-4xl mx-auto"
-            style={{ 
-              background: `linear-gradient(135deg, ${content.primaryButtonColor}20, ${content.highlightColor}10)`,
-              borderColor: `${content.primaryButtonColor}30`
-            }}
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
-              {content.ctaTitle}
-            </h2>
-            <p className="text-sm sm:text-base text-white/70 mb-6 sm:mb-8 max-w-xl mx-auto">
-              {content.ctaDescription}
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6">Sobre</h2>
+            <p className="text-base sm:text-lg text-white/60 leading-relaxed mb-12">
+              Especialistas em iluminação pública, telecomunicações e energia solar. 
+              Com mais de uma década de experiência, transformamos cidades com tecnologia e sustentabilidade.
             </p>
-            <Button
-              size="lg"
-              className="text-base sm:text-lg px-8 sm:px-12 py-5 sm:py-7 shadow-2xl hover:scale-105 transition-all duration-300 text-white border-0"
-              style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-              onClick={() => navigate('/auth')}
-            >
-              <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              {content.ctaPrimary}
-            </Button>
+            
+            {/* Stats - Minimalist */}
+            <div className="grid grid-cols-4 gap-8 max-w-xl mx-auto">
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-white">+50K</div>
+                <div className="text-xs text-white/40 mt-1">Luzes</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-white">+5K</div>
+                <div className="text-xs text-white/40 mt-1">Câmeras</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-white">+10</div>
+                <div className="text-xs text-white/40 mt-1">Usinas</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-white">+30</div>
+                <div className="text-xs text-white/40 mt-1">Cidades</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section - Minimalist */}
+      <section id="contact" className="relative z-10 py-20 sm:py-32 px-4">
+        <div className="container mx-auto">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8">Contato</h2>
+            <div className="space-y-4">
+              <p className="text-white/60">contato@sistema.com.br</p>
+              <p className="text-white/60">(31) 9999-9999</p>
+            </div>
+            <div className="mt-12">
+              <Button
+                size="lg"
+                className="text-base px-8 py-6 hover:scale-105 transition-all duration-300 text-white border-0"
+                style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                onClick={() => navigate('/auth')}
+              >
+                {content.ctaPrimary}
+              </Button>
+            </div>
           </div>
         </div>
       </section>
