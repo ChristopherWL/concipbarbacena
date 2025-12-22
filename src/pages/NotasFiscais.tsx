@@ -64,6 +64,7 @@ export default function NotasFiscais() {
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewInvoiceId, setPreviewInvoiceId] = useState<string | null>(null);
   const [previewObjectUrl, setPreviewObjectUrl] = useState<string | null>(null);
   const [previewMime, setPreviewMime] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -711,7 +712,7 @@ export default function NotasFiscais() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => setPreviewUrl(getProxyUrl(invoice.pdf_url))}
+                          onClick={() => { setPreviewUrl(getProxyUrl(invoice.pdf_url)); setPreviewInvoiceId(invoice.id); }}
                           title="Visualizar"
                         >
                           <Eye className="h-4 w-4" />
@@ -819,7 +820,7 @@ export default function NotasFiscais() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => setPreviewUrl(getProxyUrl(invoice.pdf_url))}
+                                onClick={() => { setPreviewUrl(getProxyUrl(invoice.pdf_url)); setPreviewInvoiceId(invoice.id); }}
                                 title="Visualizar"
                               >
                                 <Eye className="h-4 w-4" />
@@ -890,7 +891,7 @@ export default function NotasFiscais() {
                     </div>
                   )}
 
-                  <div className="flex justify-center py-2">
+                  <div className="flex justify-center gap-2 py-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -900,6 +901,21 @@ export default function NotasFiscais() {
                       <Eye className="h-4 w-4" />
                       Abrir em nova aba
                     </Button>
+                    {previewInvoiceId && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        className="gap-2"
+                        onClick={() => {
+                          setPreviewUrl(null);
+                          setPreviewInvoiceId(null);
+                          setDeletingInvoiceId(previewInvoiceId);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Excluir Nota
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
