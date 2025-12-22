@@ -638,7 +638,7 @@ export function MobileMovementForm({
               variant="outline"
               className="w-full h-10 gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400"
               onClick={onSubmitNFOnly}
-              disabled={isPending || !invoiceNumber.trim()}
+              disabled={isPending}
             >
               <Package className="h-4 w-4" />
               Apenas NF (sem itens)
