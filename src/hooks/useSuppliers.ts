@@ -16,7 +16,10 @@ export function useSuppliers() {
         .from('suppliers')
         .select('*')
         .eq('tenant_id', tenant.id)
+        .eq('is_active', true)
         .order('name');
+      
+      console.log('[useSuppliers] tenant_id:', tenant.id, 'data:', data, 'error:', error);
       
       if (error) throw error;
       return data as Supplier[];
