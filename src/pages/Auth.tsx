@@ -336,14 +336,16 @@ export default function Auth() {
               {branding?.logo_url ? (
                 <img src={branding.logo_url} alt={branding.name} className="h-12 w-auto" />
               ) : (
-                <div 
-                  className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg shadow-blue-500/25"
-                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
-                >
-                  <Building2 className="w-6 h-6" />
-                </div>
+                <>
+                  <div 
+                    className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg shadow-blue-500/25"
+                    style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+                  >
+                    <Building2 className="w-6 h-6" />
+                  </div>
+                  <span className="text-xl font-bold text-white hidden sm:block">{branding?.name || 'Sistema'}</span>
+                </>
               )}
-              <span className="text-xl font-bold text-white hidden sm:block">{branding?.name || 'Sistema'}</span>
             </Link>
 
             {/* Mobile Menu Button */}
