@@ -446,10 +446,8 @@ export default function Frota() {
                                 size="icon"
                                 className="h-8 w-8 text-primary"
                                 onClick={() => {
-                                  const vehicleFuelLogs = fuelLogs.filter(f => f.vehicle_id === v.id);
-                                  const latestFuelLog = vehicleFuelLogs.length > 0 ? vehicleFuelLogs[0] : null;
                                   setVehicleToPrint(v);
-                                  setSelectedFuelLogForPrint(latestFuelLog);
+                                  setSelectedFuelLogForPrint(null);
                                 }}
                               >
                                 <Printer className="h-4 w-4" />
@@ -521,7 +519,7 @@ export default function Frota() {
                               {!isReadOnly && (
                                 <TableCell className="py-2">
                                   <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => { const vehicleFuelLogs = fuelLogs.filter(f => f.vehicle_id === v.id); setVehicleToPrint(v); setSelectedFuelLogForPrint(vehicleFuelLogs[0] || null); }}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => { setVehicleToPrint(v); setSelectedFuelLogForPrint(null); }}>
                                       <Printer className="h-4 w-4" />
                                     </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditVehicle(v)}>
@@ -878,26 +876,77 @@ export default function Frota() {
           </DialogContent>
         </Dialog>
 
-        {/* Print Fuel Order Dialog (from vehicle) */}
+        {/* Print Fuel Order Dialog (from vehicle) - Shows all fuel logs */}
         <Dialog open={!!vehicleToPrint} onOpenChange={(open) => { if (!open) { setVehicleToPrint(null); setSelectedFuelLogForPrint(null); } }}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
             <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
-              <DialogTitle className="text-primary-foreground">Ordem de Abastecimento</DialogTitle>
-              <DialogDescription className="text-primary-foreground/80">Relatório de abastecimento</DialogDescription>
+              <DialogTitle className="text-primary-foreground">Ordens de Abastecimento - {vehicleToPrint?.plate}</DialogTitle>
+              <DialogDescription className="text-primary-foreground/80">
+                {vehicleToPrint ? `${vehicleToPrint.brand} ${vehicleToPrint.model}` : ''}
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               {vehicleToPrint && (
                 <>
-                  <div ref={vehiclePrintRef}>
-                    <FuelOrderReport
-                      vehicle={vehicleToPrint}
-                      fuelLog={selectedFuelLogForPrint || undefined}
-                      orderNumber={selectedFuelLogForPrint ? getFuelLogOrderNumber(selectedFuelLogForPrint) : Date.now()}
-                    />
-                  </div>
+                  {/* List of fuel logs for this vehicle */}
+                  {(() => {
+                    const vehicleFuelLogs = fuelLogs.filter(f => f.vehicle_id === vehicleToPrint.id)
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                    
+                    if (vehicleFuelLogs.length === 0) {
+                      return (
+                        <div className="text-center py-8">
+                          <Fuel className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                          <p className="text-muted-foreground">Nenhum abastecimento registrado para este veículo</p>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">Selecione um abastecimento para visualizar/imprimir:</p>
+                        <div className="max-h-60 overflow-y-auto border rounded-lg divide-y">
+                          {vehicleFuelLogs.map((log) => (
+                            <div 
+                              key={log.id} 
+                              className={`p-3 cursor-pointer hover:bg-muted/50 transition-colors flex justify-between items-center ${selectedFuelLogForPrint?.id === log.id ? 'bg-primary/10' : ''}`}
+                              onClick={() => setSelectedFuelLogForPrint(log)}
+                            >
+                              <div>
+                                <p className="font-medium">{new Date(log.date).toLocaleDateString('pt-BR')}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {log.liters.toFixed(2)}L • R$ {log.total_cost.toFixed(2)} • {log.km_at_fill.toLocaleString()} km
+                                </p>
+                              </div>
+                              <Badge variant={selectedFuelLogForPrint?.id === log.id ? 'default' : 'outline'}>
+                                #{getFuelLogOrderNumber(log)}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                  
+                  {/* Preview the selected fuel log */}
+                  {selectedFuelLogForPrint && (
+                    <div ref={vehiclePrintRef} className="mt-4 border rounded-lg">
+                      <FuelOrderReport
+                        vehicle={vehicleToPrint}
+                        fuelLog={selectedFuelLogForPrint}
+                        orderNumber={getFuelLogOrderNumber(selectedFuelLogForPrint)}
+                      />
+                    </div>
+                  )}
+                  
                   <div className="flex justify-end gap-2 mt-4">
                     <Button variant="outline" onClick={() => { setVehicleToPrint(null); setSelectedFuelLogForPrint(null); }}>Fechar</Button>
-                    <Button onClick={handlePrintFuelOrder}><Printer className="h-4 w-4 mr-2" />Imprimir</Button>
+                    <Button 
+                      onClick={handlePrintFuelOrder} 
+                      disabled={!selectedFuelLogForPrint}
+                    >
+                      <Printer className="h-4 w-4 mr-2" />Imprimir
+                    </Button>
                   </div>
                 </>
               )}
