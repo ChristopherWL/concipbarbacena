@@ -325,83 +325,83 @@ export default function Frota() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {activeTab === 'vehicles' && !selectedVehicle && (
             <>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10"><Truck className="h-5 w-5 text-primary" /></div>
-                <div><p className="text-2xl font-bold">{vehicles.length}</p><p className="text-xs text-muted-foreground">Total Veículos</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-blue"><Truck className="h-5 w-5 text-blue-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{vehicles.length}</p><p className="text-xs text-muted-foreground">Total Veículos</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-success/10"><CheckCircle className="h-5 w-5 text-success" /></div>
-                <div><p className="text-2xl font-bold">{activeVehicles}</p><p className="text-xs text-muted-foreground">Veículos Ativos</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-emerald"><CheckCircle className="h-5 w-5 text-emerald-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{activeVehicles}</p><p className="text-xs text-muted-foreground">Veículos Ativos</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-warning/10"><Clock className="h-5 w-5 text-warning" /></div>
-                <div><p className="text-2xl font-bold">{pendingMaintenances.length}</p><p className="text-xs text-muted-foreground">Manutenções Pendentes</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-amber"><Clock className="h-5 w-5 text-amber-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{pendingMaintenances.length}</p><p className="text-xs text-muted-foreground">Manutenções Pendentes</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-muted"><TrendingUp className="h-5 w-5 text-muted-foreground" /></div>
-                <div><p className="text-2xl font-bold">{avgKm.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Média KM</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-cyan"><TrendingUp className="h-5 w-5 text-cyan-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{avgKm.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Média KM</p></div>
               </CardContent></Card>
             </>
           )}
           {activeTab === 'vehicles' && selectedVehicle && (
             <>
-              <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setSelectedVehicle(null)}>
+              <Card className="futuristic-card rounded-xl cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setSelectedVehicle(null)}>
                 <CardContent className="p-4 flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10"><Truck className="h-5 w-5 text-primary" /></div>
+                  <div className="metric-icon-blue"><Truck className="h-5 w-5 text-blue-500" /></div>
                   <div><p className="text-lg font-bold truncate">{selectedVehicle.plate}</p><p className="text-xs text-muted-foreground">{selectedVehicle.brand} {selectedVehicle.model}</p></div>
                 </CardContent>
               </Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10"><TrendingUp className="h-5 w-5 text-amber-500" /></div>
-                <div><p className="text-2xl font-bold">{selectedVehicleAvg > 0 ? selectedVehicleAvg.toFixed(1) : '-'}</p><p className="text-xs text-muted-foreground">Média km/L</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-amber"><TrendingUp className="h-5 w-5 text-amber-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{selectedVehicleAvg > 0 ? selectedVehicleAvg.toFixed(1) : '-'}</p><p className="text-xs text-muted-foreground">Média km/L</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-emerald-500/10"><Fuel className="h-5 w-5 text-emerald-500" /></div>
-                <div><p className="text-2xl font-bold">{selectedVehicleTotalLiters.toFixed(0)}L</p><p className="text-xs text-muted-foreground">Litros Total</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-emerald"><Fuel className="h-5 w-5 text-emerald-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{selectedVehicleTotalLiters.toFixed(0)}L</p><p className="text-xs text-muted-foreground">Litros Total</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-rose-500/10"><TrendingUp className="h-5 w-5 text-rose-500" /></div>
-                <div><p className="text-2xl font-bold">R$ {selectedVehicleTotalCost.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Gasto Combustível</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-orange"><TrendingUp className="h-5 w-5 text-orange-500" /></div>
+                <div><p className="text-2xl font-bold data-value">R$ {selectedVehicleTotalCost.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Gasto Combustível</p></div>
               </CardContent></Card>
             </>
           )}
           {activeTab === 'fuel' && (
             <>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10"><Fuel className="h-5 w-5 text-primary" /></div>
-                <div><p className="text-2xl font-bold">{fuelLogs.length}</p><p className="text-xs text-muted-foreground">Abastecimentos</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-blue"><Fuel className="h-5 w-5 text-blue-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{fuelLogs.length}</p><p className="text-xs text-muted-foreground">Abastecimentos</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-emerald-500/10"><Fuel className="h-5 w-5 text-emerald-500" /></div>
-                <div><p className="text-2xl font-bold">{totalLiters.toFixed(0)}L</p><p className="text-xs text-muted-foreground">Litros Total</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-emerald"><Fuel className="h-5 w-5 text-emerald-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{totalLiters.toFixed(0)}L</p><p className="text-xs text-muted-foreground">Litros Total</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10"><TrendingUp className="h-5 w-5 text-amber-500" /></div>
-                <div><p className="text-2xl font-bold">R$ {avgPricePerLiter > 0 ? avgPricePerLiter.toFixed(2) : '-'}</p><p className="text-xs text-muted-foreground">Preço Médio/L</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-amber"><TrendingUp className="h-5 w-5 text-amber-500" /></div>
+                <div><p className="text-2xl font-bold data-value">R$ {avgPricePerLiter > 0 ? avgPricePerLiter.toFixed(2) : '-'}</p><p className="text-xs text-muted-foreground">Preço Médio/L</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-rose-500/10"><TrendingUp className="h-5 w-5 text-rose-500" /></div>
-                <div><p className="text-2xl font-bold">R$ {totalFuelCost.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Gasto Total</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-orange"><TrendingUp className="h-5 w-5 text-orange-500" /></div>
+                <div><p className="text-2xl font-bold data-value">R$ {totalFuelCost.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Gasto Total</p></div>
               </CardContent></Card>
             </>
           )}
           {activeTab === 'maintenances' && (
             <>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10"><Wrench className="h-5 w-5 text-primary" /></div>
-                <div><p className="text-2xl font-bold">{maintenances.length}</p><p className="text-xs text-muted-foreground">Total Manutenções</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-blue"><Wrench className="h-5 w-5 text-blue-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{maintenances.length}</p><p className="text-xs text-muted-foreground">Total Manutenções</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-warning/10"><Clock className="h-5 w-5 text-warning" /></div>
-                <div><p className="text-2xl font-bold">{pendingMaintenances.length}</p><p className="text-xs text-muted-foreground">Pendentes</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-amber"><Clock className="h-5 w-5 text-amber-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{pendingMaintenances.length}</p><p className="text-xs text-muted-foreground">Pendentes</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-success/10"><CheckCircle className="h-5 w-5 text-success" /></div>
-                <div><p className="text-2xl font-bold">{completedMaintenances.length}</p><p className="text-xs text-muted-foreground">Concluídas</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-emerald"><CheckCircle className="h-5 w-5 text-emerald-500" /></div>
+                <div><p className="text-2xl font-bold data-value">{completedMaintenances.length}</p><p className="text-xs text-muted-foreground">Concluídas</p></div>
               </CardContent></Card>
-              <Card><CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-rose-500/10"><TrendingUp className="h-5 w-5 text-rose-500" /></div>
-                <div><p className="text-2xl font-bold">R$ {totalMaintenanceCost.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Custo Total</p></div>
+              <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
+                <div className="metric-icon-orange"><TrendingUp className="h-5 w-5 text-orange-500" /></div>
+                <div><p className="text-2xl font-bold data-value">R$ {totalMaintenanceCost.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Custo Total</p></div>
               </CardContent></Card>
             </>
           )}
@@ -415,7 +415,7 @@ export default function Frota() {
           </TabsList>
           
           <TabsContent value="vehicles">
-            <Card>
+            <Card className="futuristic-card rounded-xl">
               <CardHeader className="px-3 sm:px-6"><CardTitle className="text-base sm:text-lg">Veículos Cadastrados</CardTitle></CardHeader>
               <CardContent className="p-0 sm:p-6">
                 {vehiclesLoading ? <Loader2 className="h-8 w-8 animate-spin mx-auto my-8" /> : vehicles.length === 0 ? (
@@ -545,8 +545,8 @@ export default function Frota() {
           </TabsContent>
 
           <TabsContent value="fuel">
-            <Card>
-              <CardHeader><CardTitle>Histórico de Abastecimentos</CardTitle></CardHeader>
+            <Card className="futuristic-card rounded-xl">
+              <CardHeader><CardTitle className="text-base sm:text-lg">Histórico de Abastecimentos</CardTitle></CardHeader>
               <CardContent>
                 {fuelLogsLoading ? <Loader2 className="h-8 w-8 animate-spin mx-auto" /> : fuelLogs.length === 0 ? (
                   <div className="text-center py-8"><Fuel className="h-12 w-12 text-muted-foreground mx-auto mb-4" /><p className="text-muted-foreground">Nenhum abastecimento registrado</p></div>
@@ -596,8 +596,8 @@ export default function Frota() {
           </TabsContent>
 
           <TabsContent value="maintenances">
-            <Card>
-              <CardHeader><CardTitle>Histórico de Manutenções</CardTitle></CardHeader>
+            <Card className="futuristic-card rounded-xl">
+              <CardHeader><CardTitle className="text-base sm:text-lg">Histórico de Manutenções</CardTitle></CardHeader>
               <CardContent>
                 {maintenancesLoading ? <Loader2 className="h-8 w-8 animate-spin mx-auto" /> : maintenances.length === 0 ? (
                   <div className="text-center py-8"><Wrench className="h-12 w-12 text-muted-foreground mx-auto mb-4" /><p className="text-muted-foreground">Nenhuma manutenção registrada</p></div>
