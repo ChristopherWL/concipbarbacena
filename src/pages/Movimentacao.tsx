@@ -369,6 +369,31 @@ export default function Movimentacao() {
     handleCloseDialog();
   };
 
+  const handleSubmitEntradaSomenteNF = async () => {
+    if (!invoiceNumber.trim()) {
+      toast.error('Informe o número da nota fiscal');
+      return;
+    }
+
+    await createInvoice.mutateAsync({
+      invoice: {
+        supplier_id: supplierId || null,
+        invoice_number: invoiceNumber,
+        invoice_series: invoiceSeries || null,
+        invoice_key: invoiceKey || null,
+        issue_date: issueDate,
+        total_value: 0,
+        discount: 0,
+        freight: 0,
+        taxes: 0,
+        notes: notes || null,
+      },
+      items: [],
+    });
+
+    handleCloseDialog();
+  };
+
   const handleSubmit = async () => {
     if (movementType === 'saida') {
       await handleSubmitSaida();
@@ -1077,17 +1102,32 @@ export default function Movimentacao() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 sm:gap-4 pt-4 border-t">
+            <div className="flex flex-wrap gap-3 sm:gap-4 pt-4 border-t">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="flex-1 min-w-[100px]"
                 onClick={handleCloseDialog}
               >
                 Cancelar
               </Button>
+              {movementType === 'entrada' && (
+                <Button
+                  variant="outline"
+                  className="flex-1 min-w-[140px] gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400"
+                  onClick={handleSubmitEntradaSomenteNF}
+                  disabled={isPending || !invoiceNumber.trim()}
+                >
+                  {isPending ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <FileText className="h-5 w-5" />
+                  )}
+                  Apenas NF
+                </Button>
+              )}
               <Button
                 className={cn(
-                  "flex-1 gap-2 text-white",
+                  "flex-1 min-w-[140px] gap-2 text-white",
                   movementType === 'saida' 
                     ? 'bg-destructive hover:bg-destructive/90' 
                     : 'bg-emerald-600 hover:bg-emerald-700'
