@@ -163,6 +163,10 @@ export default function Fechamento() {
   });
 
   const handleCreateCoupon = () => {
+    if (!couponForm.supplier_id) {
+      toast.error('Selecione o fornecedor');
+      return;
+    }
     if (!couponForm.invoice_number || !couponForm.total_value) {
       toast.error('Preencha o número e valor do cupom');
       return;
@@ -625,7 +629,7 @@ export default function Fechamento() {
             </DialogHeader>
             <div className="space-y-4 py-2">
               <div className="space-y-2">
-                <Label>Fornecedor</Label>
+                <Label>Fornecedor *</Label>
                 <Select
                   value={couponForm.supplier_id}
                   onValueChange={(v) => setCouponForm({ ...couponForm, supplier_id: v })}
