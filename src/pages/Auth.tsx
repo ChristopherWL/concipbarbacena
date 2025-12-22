@@ -11,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2, Building2, Mail, Lock, Sparkles, MapPin, ArrowRight, Menu, X, Play } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
-import matrizLogo from '@/assets/matriz-logo.png';
 import {
   Select,
   SelectContent,
@@ -334,12 +333,16 @@ export default function Auth() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
-              <img
-                src={branding?.logo_url || matrizLogo}
-                alt={`Logo da ${branding?.name || 'matriz'}`}
-                className="h-12 w-auto object-contain"
-                loading="eager"
-              />
+              {branding?.logo_url ? (
+                <img src={branding.logo_url} alt={branding.name} className="h-12 w-auto" />
+              ) : (
+                <div 
+                  className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg shadow-blue-500/25"
+                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+                >
+                  <Building2 className="w-6 h-6" />
+                </div>
+              )}
               <span className="text-xl font-bold text-white hidden sm:block">{branding?.name || 'Sistema'}</span>
             </Link>
 

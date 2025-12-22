@@ -26,30 +26,60 @@ Deno.serve(async (req) => {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    const { data, error } = await supabase
+    // Fetch tenant data
+    const { data: tenantData, error: tenantError } = await supabase
       .from('tenants')
-      .select('name, logo_url, logo_dark_url, background_url, primary_color, secondary_color, landing_page_content')
+      .select('id, name, logo_url, logo_dark_url, background_url, primary_color, secondary_color, landing_page_content')
       .eq('status', 'active')
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle()
 
-    if (error) {
-      console.error('Error fetching tenant:', error)
-      throw error
+    if (tenantError) {
+      console.error('Error fetching tenant:', tenantError)
+      throw tenantError
     }
 
-    console.log('Fetched tenant branding:', data ? { name: data.name, hasLogo: !!data.logo_url } : 'no data')
+    // Fetch matriz branch logo (is_main = true)
+    let matrizLogo = null
+    let matrizLogoDark = null
+    
+    if (tenantData?.id) {
+      const { data: matrizData, error: matrizError } = await supabase
+        .from('branches')
+        .select('logo_url, logo_dark_url')
+        .eq('tenant_id', tenantData.id)
+        .eq('is_main', true)
+        .eq('is_active', true)
+        .maybeSingle()
 
-    const branding = data
+      if (matrizError) {
+        console.error('Error fetching matriz branch:', matrizError)
+      } else if (matrizData) {
+        matrizLogo = matrizData.logo_url
+        matrizLogoDark = matrizData.logo_dark_url
+      }
+    }
+
+    console.log('Fetched branding:', { 
+      tenantName: tenantData?.name, 
+      hasTenantLogo: !!tenantData?.logo_url,
+      hasMatrizLogo: !!matrizLogo 
+    })
+
+    // Priority: tenant logo > matriz branch logo
+    const finalLogoUrl = tenantData?.logo_url || matrizLogo || null
+    const finalLogoDarkUrl = tenantData?.logo_dark_url || matrizLogoDark || null
+
+    const branding = tenantData
       ? {
-          name: data.name ?? 'Sistema',
-          logo_url: data.logo_url ?? null,
-          logo_dark_url: data.logo_dark_url ?? null,
-          background_url: data.background_url ?? null,
-          primary_color: data.primary_color ?? null,
-          secondary_color: data.secondary_color ?? null,
-          landing_page_content: data.landing_page_content ?? null,
+          name: tenantData.name ?? 'Sistema',
+          logo_url: finalLogoUrl,
+          logo_dark_url: finalLogoDarkUrl,
+          background_url: tenantData.background_url ?? null,
+          primary_color: tenantData.primary_color ?? null,
+          secondary_color: tenantData.secondary_color ?? null,
+          landing_page_content: tenantData.landing_page_content ?? null,
         }
       : null
 
