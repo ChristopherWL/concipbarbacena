@@ -167,8 +167,8 @@ export default function Fechamento() {
       toast.error('Selecione o fornecedor');
       return;
     }
-    if (!couponForm.invoice_number || !couponForm.total_value) {
-      toast.error('Preencha o número e valor do cupom');
+    if (!couponForm.total_value) {
+      toast.error('Preencha o valor do cupom');
       return;
     }
     if (isMonthClosed) {
@@ -649,7 +649,7 @@ export default function Fechamento() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Número do Cupom *</Label>
+                  <Label>Número do Cupom</Label>
                   <Input
                     placeholder="Ex: 001234"
                     value={couponForm.invoice_number}
