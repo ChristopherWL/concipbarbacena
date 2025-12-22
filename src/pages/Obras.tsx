@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks, Eye } from "lucide-react";
 import { useObras, useDiarioObras, Obra, DiarioObra } from "@/hooks/useObras";
 import { ObraEtapasPanel } from "@/components/obras/ObraEtapasPanel";
 import { ObraFormDialog } from "@/components/obras/ObraFormDialog";
@@ -40,6 +40,9 @@ const Obras = () => {
   const [selectedDiario, setSelectedDiario] = useState<DiarioObra | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSelectingFile, setIsSelectingFile] = useState(false);
+  const [isEditingDiario, setIsEditingDiario] = useState(false);
+  const [editDiarioForm, setEditDiarioForm] = useState({ etapa: '', data: '', responsavel: '', descricao: '' });
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastFilePickerAtRef = useRef<number>(0);
   const allowCloseUpdateDialogRef = useRef<boolean>(false);
@@ -97,7 +100,7 @@ const Obras = () => {
 
   const queryClient = useQueryClient();
   const { obras, isLoading, createObra, updateObra, deleteObra } = useObras();
-  const { diarios, isLoading: isDiariosLoading } = useDiarioObras(selectedObra?.id);
+  const { diarios, isLoading: isDiariosLoading, updateDiario, deleteDiario } = useDiarioObras(selectedObra?.id);
   const { employees } = useEmployees();
   const isMobile = useIsMobile();
 
@@ -753,106 +756,274 @@ const Obras = () => {
         {/* Dialog de Detalhes do Diário */}
         <Dialog open={isDiarioDetailDialogOpen} onOpenChange={(open) => {
           setIsDiarioDetailDialogOpen(open);
-          if (!open) setSelectedDiario(null);
+          if (!open) {
+            setSelectedDiario(null);
+            setIsEditingDiario(false);
+            setEditDiarioForm({ etapa: '', data: '', responsavel: '', descricao: '' });
+          }
         }}>
           <DialogContent className="w-full max-w-2xl max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
             <div className="bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
               <DialogHeader className="bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0">
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="text-primary-foreground hover:bg-primary-foreground/10 -ml-2"
-                    onClick={() => {
-                      setIsDiarioDetailDialogOpen(false);
-                      setIsUpdatesListDialogOpen(true);
-                    }}
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                  </Button>
-                  <DialogTitle className="text-primary-foreground">
-                    Relatório de Atualização
-                  </DialogTitle>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-primary-foreground hover:bg-primary-foreground/10 -ml-2"
+                      onClick={() => {
+                        setIsDiarioDetailDialogOpen(false);
+                        setIsUpdatesListDialogOpen(true);
+                      }}
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <DialogTitle className="text-primary-foreground">
+                      {isEditingDiario ? 'Editar Atualização' : 'Relatório de Atualização'}
+                    </DialogTitle>
+                  </div>
+                  {!isReadOnly && selectedDiario && !isEditingDiario && (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-primary-foreground hover:bg-primary-foreground/10"
+                        onClick={() => {
+                          setIsEditingDiario(true);
+                          setEditDiarioForm({
+                            etapa: selectedDiario.clima_manha || '',
+                            data: selectedDiario.data,
+                            responsavel: selectedDiario.ocorrencias?.replace('Responsável: ', '') || '',
+                            descricao: selectedDiario.atividades_realizadas || '',
+                          });
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-primary-foreground hover:bg-destructive/80"
+                        onClick={async () => {
+                          if (confirm('Tem certeza que deseja excluir esta atualização?')) {
+                            try {
+                              await deleteDiario.mutateAsync(selectedDiario.id);
+                              setIsDiarioDetailDialogOpen(false);
+                              setSelectedDiario(null);
+                            } catch (error) {
+                              console.error('Error deleting diario:', error);
+                            }
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4 min-h-0">
               {selectedDiario && (
                 <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-muted-foreground text-xs">Etapa</Label>
-                      <p className="font-medium">{selectedDiario.clima_manha || '-'}</p>
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground text-xs">Data</Label>
-                      <p className="font-medium">
-                        {new Date(selectedDiario.data).toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                  </div>
-
-                  {selectedDiario.ocorrencias && (
-                    <div>
-                      <Label className="text-muted-foreground text-xs">Responsável</Label>
-                      <p className="font-medium">{selectedDiario.ocorrencias.replace('Responsável: ', '')}</p>
-                    </div>
-                  )}
-
-                  {selectedDiario.atividades_realizadas && (
-                    <div>
-                      <Label className="text-muted-foreground text-xs">Descrição</Label>
-                      <p className="text-sm whitespace-pre-wrap">{selectedDiario.atividades_realizadas}</p>
-                    </div>
-                  )}
-
-                  {selectedDiario.materiais_utilizados && (
-                    <div>
-                      <Label className="text-muted-foreground text-xs">Materiais Utilizados</Label>
-                      <p className="text-sm whitespace-pre-wrap">{selectedDiario.materiais_utilizados}</p>
-                    </div>
-                  )}
-
-                  {selectedDiario.fotos && Array.isArray(selectedDiario.fotos) && selectedDiario.fotos.length > 0 && (
-                    <div>
-                      <Label className="text-muted-foreground text-xs mb-2 block">Imagens</Label>
-                      <div className="space-y-3">
-                        {selectedDiario.fotos.map((foto, index) => {
-                          const fotoUrl = typeof foto === 'string' ? foto : (foto as any)?.url;
-                          const fotoDesc = typeof foto === 'object' ? (foto as any)?.description : null;
-                          return (
-                            <div key={index} className="border rounded-lg p-2 space-y-2">
-                              <a 
-                                href={fotoUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="block"
-                              >
-                                <img 
-                                  src={fotoUrl} 
-                                  alt={fotoDesc || `Imagem ${index + 1}`}
-                                  className="w-full h-32 sm:h-40 object-contain rounded-lg hover:opacity-80 transition-opacity bg-muted/30 border"
-                                  onError={(e) => {
-                                    console.error('Image load error:', fotoUrl);
-                                    (e.target as HTMLImageElement).src = '/placeholder.svg';
-                                  }}
-                                />
-                              </a>
-                              {fotoDesc && (
-                                <p className="text-sm text-muted-foreground px-1">{fotoDesc}</p>
-                              )}
-                            </div>
-                          );
-                        })}
+                  {isEditingDiario ? (
+                    // Edit mode
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="editEtapa">Etapa</Label>
+                          <Input
+                            id="editEtapa"
+                            value={editDiarioForm.etapa}
+                            onChange={(e) => setEditDiarioForm(prev => ({ ...prev, etapa: e.target.value }))}
+                            placeholder="Ex: Fundação"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="editData">Data</Label>
+                          <Input
+                            id="editData"
+                            type="date"
+                            value={editDiarioForm.data}
+                            onChange={(e) => setEditDiarioForm(prev => ({ ...prev, data: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="editResponsavel">Responsável</Label>
+                        <Select
+                          value={editDiarioForm.responsavel}
+                          onValueChange={(v) => setEditDiarioForm(prev => ({ ...prev, responsavel: v }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o responsável" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {employees.filter(e => e.status === 'ativo').map((employee) => (
+                              <SelectItem key={employee.id} value={employee.name}>
+                                {employee.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="editDescricao">Descrição</Label>
+                        <Textarea
+                          id="editDescricao"
+                          value={editDiarioForm.descricao}
+                          onChange={(e) => setEditDiarioForm(prev => ({ ...prev, descricao: e.target.value }))}
+                          rows={4}
+                          placeholder="Descreva as atividades realizadas..."
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2 pt-4 border-t">
+                        <Button variant="outline" onClick={() => setIsEditingDiario(false)}>
+                          Cancelar
+                        </Button>
+                        <Button
+                          onClick={async () => {
+                            try {
+                              await updateDiario.mutateAsync({
+                                id: selectedDiario.id,
+                                clima_manha: editDiarioForm.etapa || null,
+                                data: editDiarioForm.data,
+                                ocorrencias: editDiarioForm.responsavel ? `Responsável: ${editDiarioForm.responsavel}` : null,
+                                atividades_realizadas: editDiarioForm.descricao || null,
+                              });
+                              setIsEditingDiario(false);
+                              // Refresh diario data
+                              queryClient.invalidateQueries({ queryKey: ['diario_obras'] });
+                            } catch (error) {
+                              console.error('Error updating diario:', error);
+                            }
+                          }}
+                          disabled={updateDiario.isPending}
+                        >
+                          {updateDiario.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                          Salvar
+                        </Button>
                       </div>
                     </div>
-                  )}
+                  ) : (
+                    // View mode
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-muted-foreground text-xs">Etapa</Label>
+                          <p className="font-medium">{selectedDiario.clima_manha || '-'}</p>
+                        </div>
+                        <div>
+                          <Label className="text-muted-foreground text-xs">Data</Label>
+                          <p className="font-medium">
+                            {new Date(selectedDiario.data).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                      </div>
 
-                  <div className="text-xs text-muted-foreground pt-4 border-t border-border/20">
-                    Registrado em: {new Date(selectedDiario.created_at).toLocaleString('pt-BR')}
-                  </div>
+                      {selectedDiario.ocorrencias && (
+                        <div>
+                          <Label className="text-muted-foreground text-xs">Responsável</Label>
+                          <p className="font-medium">{selectedDiario.ocorrencias.replace('Responsável: ', '')}</p>
+                        </div>
+                      )}
+
+                      {selectedDiario.atividades_realizadas && (
+                        <div>
+                          <Label className="text-muted-foreground text-xs">Descrição</Label>
+                          <p className="text-sm whitespace-pre-wrap">{selectedDiario.atividades_realizadas}</p>
+                        </div>
+                      )}
+
+                      {selectedDiario.materiais_utilizados && (
+                        <div>
+                          <Label className="text-muted-foreground text-xs">Materiais Utilizados</Label>
+                          <p className="text-sm whitespace-pre-wrap">{selectedDiario.materiais_utilizados}</p>
+                        </div>
+                      )}
+
+                      {selectedDiario.fotos && Array.isArray(selectedDiario.fotos) && selectedDiario.fotos.length > 0 && (
+                        <div>
+                          <Label className="text-muted-foreground text-xs mb-2 block">Imagens</Label>
+                          <div className="space-y-3">
+                            {selectedDiario.fotos.map((foto, index) => {
+                              const fotoUrl = typeof foto === 'string' ? foto : (foto as any)?.url;
+                              const fotoDesc = typeof foto === 'object' ? (foto as any)?.description : null;
+                              return (
+                                <div key={index} className="border rounded-lg p-2 space-y-2">
+                                  <div className="relative group">
+                                    <img 
+                                      src={fotoUrl} 
+                                      alt={fotoDesc || `Imagem ${index + 1}`}
+                                      className="w-full h-32 sm:h-40 object-contain rounded-lg bg-muted/30 border cursor-pointer"
+                                      onClick={() => setFullscreenImage(fotoUrl)}
+                                      onError={(e) => {
+                                        console.error('Image load error:', fotoUrl);
+                                        (e.target as HTMLImageElement).src = '/placeholder.svg';
+                                      }}
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                                      <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => setFullscreenImage(fotoUrl)}
+                                      >
+                                        <Eye className="h-4 w-4 mr-1" />
+                                        Ver
+                                      </Button>
+                                      <a 
+                                        href={fotoUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <Button variant="secondary" size="sm">
+                                          <Upload className="h-4 w-4 mr-1 rotate-180" />
+                                          Baixar
+                                        </Button>
+                                      </a>
+                                    </div>
+                                  </div>
+                                  {fotoDesc && (
+                                    <p className="text-sm text-muted-foreground px-1">{fotoDesc}</p>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="text-xs text-muted-foreground pt-4 border-t border-border/20">
+                        Registrado em: {new Date(selectedDiario.created_at).toLocaleString('pt-BR')}
+                      </div>
+                    </>
+                  )}
                 </>
               )}
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog de Imagem em Tela Cheia */}
+        <Dialog open={!!fullscreenImage} onOpenChange={(open) => !open && setFullscreenImage(null)}>
+          <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-0">
+            <div className="relative w-full h-full flex items-center justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 text-white hover:bg-white/20 z-10"
+                onClick={() => setFullscreenImage(null)}
+              >
+                <X className="h-6 w-6" />
+              </Button>
+              {fullscreenImage && (
+                <img
+                  src={fullscreenImage}
+                  alt="Imagem em tela cheia"
+                  className="max-w-full max-h-[90vh] object-contain"
+                />
+              )}
             </div>
           </DialogContent>
         </Dialog>

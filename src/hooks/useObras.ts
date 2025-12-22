@@ -413,12 +413,15 @@ export const useDiarioObras = (obraId?: string) => {
         .from("diario_obras")
         .update({ 
           clima: updates.clima,
+          data: updates.data,
           hora_inicio: updates.hora_inicio,
           hora_fim: updates.hora_fim,
           equipe_presente: updates.equipe_presente,
           atividades_realizadas: updates.atividades_realizadas,
           materiais_utilizados: updates.materiais_utilizados,
           ocorrencias: updates.ocorrencias,
+          clima_manha: updates.clima_manha,
+          clima_tarde: updates.clima_tarde,
           updated_at: new Date().toISOString() 
         })
         .eq("id", id)
