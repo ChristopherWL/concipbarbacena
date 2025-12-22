@@ -31,18 +31,13 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
       return;
     }
 
-    if (value.length >= quantity) {
-      toast.error(`Quantidade máxima de ${quantity} número(s) de série atingida`);
-      return;
-    }
-
+    // Allow adding more serials than quantity - quantity will auto-update
     const next = [...value, serialToAdd];
     onChange(next);
     setCurrentSerial('');
 
     if (serial) {
       toast.success(`Serial ${serialToAdd} detectado!`);
-      if (next.length >= quantity) setScannerOpen(false);
     }
   };
 
@@ -57,7 +52,7 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
     }
   };
 
-  const remaining = quantity - value.length;
+  const remaining = Math.max(0, quantity - value.length);
 
   return (
     <>
@@ -78,14 +73,14 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
             value={currentSerial}
             onChange={(e) => setCurrentSerial(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={remaining === 0}
+            disabled={false}
           />
           <Button
             type="button"
             variant="outline"
             size="icon"
             onClick={() => setScannerOpen(true)}
-            disabled={remaining === 0}
+            disabled={false}
             className="shrink-0"
             title="Escanear código de barras"
           >
@@ -96,7 +91,7 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
             variant="outline"
             size="icon"
             onClick={() => handleAddSerial()}
-            disabled={remaining === 0}
+            disabled={false}
             className="shrink-0"
           >
             <Plus className="h-4 w-4" />
