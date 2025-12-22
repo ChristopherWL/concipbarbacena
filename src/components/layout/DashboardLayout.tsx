@@ -1562,7 +1562,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {isCollapsed && (
         <div className={cn(
           "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out w-16",
-          isAtTop ? "-top-6 left-3" : "top-6 left-0"
+          isAtTop ? "-top-6 left-3" : "top-10 left-0"
         )}>
           {currentLogo ? (
             <img 
