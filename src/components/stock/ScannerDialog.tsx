@@ -183,10 +183,12 @@ export function ScannerDialog({
         if (scannedValue) {
           // Avoid duplicates while the same code is still in view
           if (scannedValue === lastScanValueRef.current) {
-            scanCooldownUntilRef.current = now + 600;
+            // Same code still in view, just wait
+            scanCooldownUntilRef.current = now + 300;
           } else {
+            // New code detected - register it immediately
             lastScanValueRef.current = scannedValue;
-            scanCooldownUntilRef.current = now + (continuousMode ? 900 : 300);
+            scanCooldownUntilRef.current = now + 500; // Short cooldown before accepting next
 
             onScan(scannedValue);
             toast.success(`Código detectado: ${scannedValue}`);
@@ -195,12 +197,13 @@ export function ScannerDialog({
               handleClose();
               return;
             }
+            // In continuous mode, keep scanning for next code
           }
         }
       } else {
-        // After a few empty frames, allow re-scanning the same value
+        // No barcode detected - after a few empty frames, reset to allow same code again
         noBarcodeFramesRef.current += 1;
-        if (noBarcodeFramesRef.current > 10) {
+        if (noBarcodeFramesRef.current > 5) {
           lastScanValueRef.current = null;
         }
       }
