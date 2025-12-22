@@ -184,11 +184,15 @@ export default function Movimentacao() {
   };
 
   const handleToggleSerial = (serialId: string) => {
-    setSelectedSerialIds(prev => 
-      prev.includes(serialId)
-        ? prev.filter(id => id !== serialId)
-        : [...prev, serialId]
-    );
+    const newSelection = selectedSerialIds.includes(serialId)
+      ? selectedSerialIds.filter(id => id !== serialId)
+      : [...selectedSerialIds, serialId];
+    
+    setSelectedSerialIds(newSelection);
+    // Update quantity automatically when toggling serials
+    if (selectedProduct?.is_serialized && movementType === 'saida') {
+      setQuantity(newSelection.length);
+    }
   };
 
   const handleAddItem = () => {
