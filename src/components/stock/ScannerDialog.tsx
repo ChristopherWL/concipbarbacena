@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, ScanLine, Camera, Flashlight, RotateCcw } from 'lucide-react';
+import { X, ScanLine, Camera, Flashlight, RotateCcw, Check, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -14,6 +14,8 @@ interface ScannerDialogProps {
   onScan: (value: string) => void;
   title?: string;
   description?: string;
+  scannedItems?: string[];
+  continuousMode?: boolean;
 }
 
 export function ScannerDialog({
@@ -22,6 +24,8 @@ export function ScannerDialog({
   onScan,
   title = 'Escanear Código',
   description = 'Posicione o código de barras dentro da área destacada',
+  scannedItems = [],
+  continuousMode = false,
 }: ScannerDialogProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
@@ -144,8 +148,10 @@ export function ScannerDialog({
         if (scannedValue) {
           onScan(scannedValue);
           toast.success(`Código detectado: ${scannedValue}`);
-          handleClose();
-          return;
+          if (!continuousMode) {
+            handleClose();
+            return;
+          }
         }
       }
     } catch (err) {
@@ -155,7 +161,7 @@ export function ScannerDialog({
     if (scanningRef.current) {
       requestAnimationFrame(detectBarcodes);
     }
-  }, [onScan]);
+  }, [onScan, continuousMode]);
 
   const toggleFlash = async () => {
     if (!streamRef.current) return;
@@ -174,7 +180,10 @@ export function ScannerDialog({
   const handleManualSubmit = () => {
     if (manualInput.trim()) {
       onScan(manualInput.trim());
-      handleClose();
+      if (!continuousMode) {
+        handleClose();
+      }
+      setManualInput('');
     }
   };
 
@@ -186,7 +195,7 @@ export function ScannerDialog({
     onOpenChange(false);
   }, [stopCamera, onOpenChange]);
 
-  // Reset state when dialog opens; camera start happens by user gesture (more reliable on mobile Safari/Chrome)
+  // Auto-start camera when dialog opens
   useEffect(() => {
     if (open) {
       setHasStarted(false);
@@ -194,10 +203,16 @@ export function ScannerDialog({
       setFlashOn(false);
       setIsScanning(false);
       scanningRef.current = false;
+      // Auto-start camera with a small delay for better reliability
+      const timer = setTimeout(() => {
+        setHasStarted(true);
+        startCamera();
+      }, 300);
+      return () => clearTimeout(timer);
     } else {
       stopCamera();
     }
-  }, [open, stopCamera]);
+  }, [open, stopCamera, startCamera]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -331,6 +346,26 @@ export function ScannerDialog({
               </div>
             </div>
 
+            {/* Scanned Items List */}
+            {continuousMode && scannedItems.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm flex items-center gap-2">
+                  Itens Escaneados 
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+                    {scannedItems.length}
+                  </span>
+                </Label>
+                <div className="max-h-24 overflow-y-auto border rounded-lg divide-y bg-muted/20">
+                  {scannedItems.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2 px-3 py-2 text-sm">
+                      <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                      <span className="font-mono truncate">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Manual Input */}
             <div className="space-y-2">
               <Label className="text-sm">Ou digite o código manualmente</Label>
@@ -342,10 +377,17 @@ export function ScannerDialog({
                   onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
                 />
                 <Button onClick={handleManualSubmit} disabled={!manualInput.trim()}>
-                  OK
+                  {continuousMode ? <Plus className="h-4 w-4" /> : 'OK'}
                 </Button>
               </div>
             </div>
+
+            {/* Close button for continuous mode */}
+            {continuousMode && (
+              <Button variant="outline" onClick={handleClose} className="w-full">
+                Concluir
+              </Button>
+            )}
 
             {/* Custom scan animation keyframes */}
             <style>{`
