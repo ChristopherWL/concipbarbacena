@@ -304,7 +304,32 @@ export default function Frota() {
   // Maintenance stats
   const totalMaintenanceCost = maintenances.reduce((sum, m) => sum + m.cost, 0);
   const activeVehicles = vehicles.filter(v => v.is_active).length;
-  const avgKm = vehicles.length > 0 ? vehicles.reduce((sum, v) => sum + v.current_km, 0) / vehicles.length : 0;
+  
+  // Calculate average KM traveled between fuel logs (for all vehicles)
+  const calculateAvgKmBetweenFills = () => {
+    let totalKmDiff = 0;
+    let fillCount = 0;
+    
+    // Group logs by vehicle and calculate km differences
+    const vehicleIds = [...new Set(fuelLogs.map(f => f.vehicle_id))];
+    
+    vehicleIds.forEach(vehicleId => {
+      const vehicleLogs = fuelLogs.filter(f => f.vehicle_id === vehicleId);
+      const sortedLogs = [...vehicleLogs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+      for (let i = 1; i < sortedLogs.length; i++) {
+        const kmDiff = sortedLogs[i].km_at_fill - sortedLogs[i-1].km_at_fill;
+        if (kmDiff > 0) {
+          totalKmDiff += kmDiff;
+          fillCount++;
+        }
+      }
+    });
+    
+    return fillCount > 0 ? totalKmDiff / fillCount : 0;
+  };
+  
+  const avgKmBetweenFills = calculateAvgKmBetweenFills();
 
   return (
     <DashboardLayout>
@@ -339,7 +364,7 @@ export default function Frota() {
               </CardContent></Card>
               <Card className="futuristic-card rounded-xl glow-accent"><CardContent className="p-4 flex items-center gap-3">
                 <div className="metric-icon-cyan"><TrendingUp className="h-5 w-5 text-cyan-500" /></div>
-                <div><p className="text-2xl font-bold data-value">{avgKm.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p><p className="text-xs text-muted-foreground">Média KM</p></div>
+                <div><p className="text-2xl font-bold data-value">{avgKmBetweenFills > 0 ? avgKmBetweenFills.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '-'}</p><p className="text-xs text-muted-foreground">Média KM/Abast.</p></div>
               </CardContent></Card>
             </>
           )}
