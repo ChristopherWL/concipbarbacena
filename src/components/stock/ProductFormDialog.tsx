@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -27,6 +27,7 @@ import {
 import { Loader2, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileFormWizard, WizardStep } from '@/components/ui/mobile-form-wizard';
+import { ProductImageUpload } from './ProductImageUpload';
 
 const productSchema = z.object({
   code: z.string().min(1, 'Código é obrigatório').max(50),
@@ -41,6 +42,7 @@ const productSchema = z.object({
   sale_price: z.coerce.number().min(0).optional(),
   location: z.string().max(100).optional(),
   barcode: z.string().max(50).optional(),
+  image_url: z.string().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -62,6 +64,7 @@ export function ProductFormDialog({
   const isEditing = !!product;
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -78,6 +81,7 @@ export function ProductFormDialog({
       sale_price: undefined,
       location: '',
       barcode: '',
+      image_url: '',
     },
   });
 
@@ -96,7 +100,9 @@ export function ProductFormDialog({
         sale_price: product.sale_price || undefined,
         location: product.location || '',
         barcode: product.barcode || '',
+        image_url: product.image_url || '',
       });
+      setImageUrl(product.image_url || null);
     } else {
       form.reset({
         code: '',
@@ -111,27 +117,35 @@ export function ProductFormDialog({
         sale_price: undefined,
         location: '',
         barcode: '',
+        image_url: '',
       });
+      setImageUrl(null);
     }
   }, [product, defaultCategory, form, open]);
 
   const handleSubmit = async (data: ProductFormData) => {
+    const submitData = {
+      ...data,
+      image_url: imageUrl || null,
+    };
+    
     if (isEditing) {
-      await updateProduct.mutateAsync({ id: product.id, ...data });
+      await updateProduct.mutateAsync({ id: product.id, ...submitData });
     } else {
       await createProduct.mutateAsync({
-        code: data.code,
-        name: data.name,
-        description: data.description,
-        category: data.category,
-        unit: data.unit,
-        is_serialized: data.is_serialized,
-        min_stock: data.min_stock,
-        max_stock: data.max_stock,
-        cost_price: data.cost_price,
-        sale_price: data.sale_price,
-        location: data.location,
-        barcode: data.barcode,
+        code: submitData.code,
+        name: submitData.name,
+        description: submitData.description,
+        category: submitData.category,
+        unit: submitData.unit,
+        is_serialized: submitData.is_serialized,
+        min_stock: submitData.min_stock,
+        max_stock: submitData.max_stock,
+        cost_price: submitData.cost_price,
+        sale_price: submitData.sale_price,
+        location: submitData.location,
+        barcode: submitData.barcode,
+        image_url: submitData.image_url,
         is_active: true,
       });
     }
@@ -143,6 +157,12 @@ export function ProductFormDialog({
   // Step 1: Basic info
   const step1Content = (
     <div className="space-y-4">
+      {/* Image Upload */}
+      <ProductImageUpload
+        currentUrl={imageUrl}
+        onUploadComplete={(url) => setImageUrl(url || null)}
+      />
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="code">Código *</Label>
@@ -323,6 +343,12 @@ export function ProductFormDialog({
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          {/* Image Upload */}
+          <ProductImageUpload
+            currentUrl={imageUrl}
+            onUploadComplete={(url) => setImageUrl(url || null)}
+          />
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="code">Código *</Label>
