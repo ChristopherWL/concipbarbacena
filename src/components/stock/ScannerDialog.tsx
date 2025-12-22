@@ -238,7 +238,7 @@ export function ScannerDialog({
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] bg-background">
+    <div className="fixed inset-0 z-[2147483647] isolate bg-background">
       <header className="flex items-center justify-between gap-3 border-b bg-background px-4 py-3">
         <div className="flex items-center gap-2 min-w-0">
           <ScanLine className="h-5 w-5 text-primary" />
