@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Barcode, Plus, X, Camera, ScanLine } from 'lucide-react';
+import { Barcode, Plus, X, Camera } from 'lucide-react';
 import { toast } from 'sonner';
+import { ScannerDialog } from './ScannerDialog';
 
 interface SerialNumberInputProps {
   quantity: number;
@@ -17,13 +17,10 @@ interface SerialNumberInputProps {
 export function SerialNumberInput({ quantity, value, onChange, productName }: SerialNumberInputProps) {
   const [currentSerial, setCurrentSerial] = useState('');
   const [scannerOpen, setScannerOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const isScanningRef = useRef(false);
 
   const handleAddSerial = (serial?: string) => {
     const serialToAdd = serial || currentSerial.trim();
-    
+
     if (!serialToAdd) {
       toast.error('Digite um número de série');
       return;
@@ -39,11 +36,13 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
       return;
     }
 
-    onChange([...value, serialToAdd]);
+    const next = [...value, serialToAdd];
+    onChange(next);
     setCurrentSerial('');
-    
+
     if (serial) {
       toast.success(`Serial ${serialToAdd} detectado!`);
+      if (next.length >= quantity) setScannerOpen(false);
     }
   };
 
@@ -57,86 +56,6 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
       handleAddSerial();
     }
   };
-
-  const startScanner = async () => {
-    try {
-      // Request camera with constraints optimized for mobile
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      });
-      
-      streamRef.current = stream;
-      isScanningRef.current = true;
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        // Wait for video to be ready before playing
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play().catch(console.error);
-        };
-      }
-      
-      // Try to use BarcodeDetector if available
-      if ('BarcodeDetector' in window) {
-        const barcodeDetector = new (window as any).BarcodeDetector({
-          formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'qr_code', 'data_matrix']
-        });
-        
-        const detectBarcodes = async () => {
-          if (!videoRef.current || !isScanningRef.current) return;
-          
-          try {
-            const barcodes = await barcodeDetector.detect(videoRef.current);
-            if (barcodes.length > 0) {
-              const detectedSerial = barcodes[0].rawValue;
-              handleAddSerial(detectedSerial);
-              stopScanner();
-              return;
-            }
-          } catch (err) {
-            // Continue scanning
-          }
-          
-          if (isScanningRef.current) {
-            requestAnimationFrame(detectBarcodes);
-          }
-        };
-        
-        // Small delay to ensure video is playing
-        setTimeout(detectBarcodes, 500);
-      } else {
-        toast.info('Scanner automático não suportado. Use o campo de texto para digitar o serial.');
-      }
-    } catch (err) {
-      console.error('Camera error:', err);
-      toast.error('Não foi possível acessar a câmera. Verifique as permissões.');
-      setScannerOpen(false);
-    }
-  };
-
-  const stopScanner = () => {
-    isScanningRef.current = false;
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setScannerOpen(false);
-  };
-
-  useEffect(() => {
-    if (scannerOpen) {
-      startScanner();
-    }
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [scannerOpen]);
 
   const remaining = quantity - value.length;
 
@@ -215,52 +134,15 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
       </div>
 
       {/* Scanner Dialog */}
-      <Dialog open={scannerOpen} onOpenChange={(open) => !open && stopScanner()}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ScanLine className="h-5 w-5" />
-              Escanear Código de Barras
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-              <video 
-                ref={videoRef} 
-                className="w-full h-full object-cover"
-                playsInline
-                autoPlay
-                muted
-                // @ts-ignore - webkit attribute for iOS
-                webkit-playsinline="true"
-              />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-3/4 h-1/3 border-2 border-primary rounded-lg animate-pulse" />
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground text-center">
-              Posicione o código de barras dentro da área destacada
-            </p>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Ou digite manualmente..."
-                value={currentSerial}
-                onChange={(e) => setCurrentSerial(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddSerial();
-                    stopScanner();
-                  }
-                }}
-              />
-              <Button onClick={() => { handleAddSerial(); stopScanner(); }} disabled={!currentSerial}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ScannerDialog
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+        onScan={(serial) => handleAddSerial(serial)}
+        title={`Escanear Serial - ${productName}`}
+        description="Aponte para o código de barras. Os itens escaneados aparecerão na lista."
+        scannedItems={value}
+        continuousMode
+      />
     </>
   );
 }
