@@ -40,12 +40,15 @@ interface ProductsTableProps {
 
 export function ProductsTable({ products }: ProductsTableProps) {
   const { isAdmin } = useAuthContext();
-  const { isReadOnly } = useUserPermissions();
+  const { permissions, isReadOnly } = useUserPermissions();
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
   const [detailsProduct, setDetailsProduct] = useState<Product | null>(null);
   const deleteProductMutation = useDeleteProduct();
   const { data: serialNumbers = [] } = useSerialNumbers();
+
+  const canEdit = permissions.can_edit || isAdmin();
+  const canDelete = permissions.can_delete || isAdmin();
 
   const handleDelete = () => {
     if (deleteProduct) {
@@ -115,7 +118,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
                     <span className="text-xs text-muted-foreground font-mono">{product.code}</span>
                   </div>
                 </div>
-                {!isReadOnly && (
+                {(canEdit || canDelete) && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
@@ -123,11 +126,13 @@ export function ProductsTable({ products }: ProductsTableProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="bg-popover">
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditProduct(product); }}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Editar
-                      </DropdownMenuItem>
-                      {isAdmin() && (
+                      {canEdit && (
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditProduct(product); }}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Editar
+                        </DropdownMenuItem>
+                      )}
+                      {canDelete && (
                         <DropdownMenuItem 
                           onClick={(e) => { e.stopPropagation(); setDeleteProduct(product); }}
                           className="text-destructive focus:text-destructive"
@@ -180,7 +185,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
               <TableHead className="font-semibold text-center hidden xl:table-cell">Categoria</TableHead>
               <TableHead className="font-semibold text-center hidden lg:table-cell">Status</TableHead>
               <TableHead className="font-semibold text-center hidden xl:table-cell">Custo</TableHead>
-              {!isReadOnly && <TableHead className="w-10"></TableHead>}
+              {(canEdit || canDelete) && <TableHead className="w-10"></TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -226,7 +231,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
                   <TableCell className="text-center hidden xl:table-cell">
                     <span className="font-mono text-sm">R$ {product.cost_price.toFixed(2)}</span>
                   </TableCell>
-                  {!isReadOnly && (
+                  {(canEdit || canDelete) && (
                     <TableCell onClick={(e) => e.stopPropagation()} className="py-2">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -235,11 +240,13 @@ export function ProductsTable({ products }: ProductsTableProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-popover">
-                          <DropdownMenuItem onClick={() => setEditProduct(product)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Editar
-                          </DropdownMenuItem>
-                          {isAdmin() && (
+                          {canEdit && (
+                            <DropdownMenuItem onClick={() => setEditProduct(product)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                          )}
+                          {canDelete && (
                             <DropdownMenuItem 
                               onClick={() => setDeleteProduct(product)}
                               className="text-destructive focus:text-destructive"
