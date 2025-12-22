@@ -182,3 +182,73 @@ export function useCreateStandaloneInvoice() {
     },
   });
 }
+
+// Update invoice
+interface UpdateInvoiceInput {
+  id: string;
+  invoice_number?: string;
+  invoice_series?: string;
+  invoice_key?: string;
+  issue_date?: string;
+  supplier_id?: string | null;
+  total_value?: number;
+  notes?: string;
+  pdf_url?: string;
+}
+
+export function useUpdateInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...input }: UpdateInvoiceInput) => {
+      const { data, error } = await supabase
+        .from('invoices')
+        .update({
+          invoice_number: input.invoice_number,
+          invoice_series: input.invoice_series || null,
+          invoice_key: input.invoice_key || null,
+          issue_date: input.issue_date,
+          supplier_id: input.supplier_id || null,
+          total_value: input.total_value || 0,
+          notes: input.notes || null,
+          pdf_url: input.pdf_url,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      toast.success('Nota fiscal atualizada com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error('Erro ao atualizar: ' + error.message);
+    },
+  });
+}
+
+// Delete invoice
+export function useDeleteInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      toast.success('Nota fiscal excluída com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error('Erro ao excluir: ' + error.message);
+    },
+  });
+}
