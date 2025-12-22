@@ -1061,6 +1061,77 @@ export type Database = {
           },
         ]
       }
+      fiscal_coupons: {
+        Row: {
+          branch_id: string | null
+          coupon_number: string
+          created_at: string
+          created_by: string | null
+          id: string
+          issue_date: string
+          notes: string | null
+          supplier_id: string | null
+          tenant_id: string
+          total_value: number
+          updated_at: string
+        }
+        Insert: {
+          branch_id?: string | null
+          coupon_number: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          supplier_id?: string | null
+          tenant_id: string
+          total_value?: number
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string | null
+          coupon_number?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          supplier_id?: string | null
+          tenant_id?: string
+          total_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_coupons_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_coupons_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_coupons_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_landing_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_coupons_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fiscal_note_items: {
         Row: {
           cfop: string | null

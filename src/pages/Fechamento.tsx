@@ -96,17 +96,17 @@ export default function Fechamento() {
 
   const isMonthClosed = !!closedMonth;
 
-  // Fetch fiscal coupons
+  // Fetch fiscal coupons from fiscal_coupons table (NOT invoices)
   const { data: coupons, isLoading } = useQuery({
     queryKey: ['fiscal_coupons', tenant?.id, selectedMonth, selectedYear],
     queryFn: async () => {
       if (!tenant?.id) return [];
       
       const { data, error } = await supabase
-        .from('invoices')
+        .from('fiscal_coupons')
         .select(`
           id,
-          invoice_number,
+          coupon_number,
           total_value,
           issue_date,
           notes,
@@ -127,17 +127,17 @@ export default function Fechamento() {
     enabled: !!tenant?.id,
   });
 
-  // Create coupon mutation
+  // Create coupon mutation - now uses fiscal_coupons table
   const createCoupon = useMutation({
     mutationFn: async (data: typeof couponForm) => {
       if (!tenant?.id) throw new Error('Tenant não encontrado');
       
       const { error } = await supabase
-        .from('invoices')
+        .from('fiscal_coupons')
         .insert({
           tenant_id: tenant.id,
           supplier_id: data.supplier_id || null,
-          invoice_number: data.invoice_number,
+          coupon_number: data.invoice_number,
           issue_date: data.issue_date,
           total_value: parseFloat(data.total_value) || 0,
           notes: data.notes || null,
@@ -540,7 +540,7 @@ export default function Fechamento() {
                         {selectedSupplierData?.coupons.map((coupon) => (
                           <TableRow key={coupon.id}>
                             <TableCell className="font-medium">
-                              {coupon.invoice_number}
+                              {coupon.coupon_number}
                             </TableCell>
                             <TableCell>
                               {format(new Date(coupon.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
