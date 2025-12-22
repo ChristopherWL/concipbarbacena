@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,25 +19,33 @@ export function SerialNumberInput({ quantity, value, onChange, onQuantityChange,
   const [currentSerial, setCurrentSerial] = useState('');
   const [scannerOpen, setScannerOpen] = useState(false);
 
+  // Avoid losing scans due to stale props during rapid scanning
+  const latestValueRef = useRef<string[]>(value);
+  useEffect(() => {
+    latestValueRef.current = value;
+  }, [value]);
+
   const handleAddSerial = (serial?: string) => {
-    const serialToAdd = serial || currentSerial.trim();
+    const serialToAdd = (serial || currentSerial).trim();
 
     if (!serialToAdd) {
       toast.error('Digite um número de série');
       return;
     }
 
-    if (value.includes(serialToAdd)) {
+    const currentList = latestValueRef.current;
+
+    if (currentList.includes(serialToAdd)) {
       toast.error('Este número de série já foi adicionado');
       return;
     }
 
-    const next = [...value, serialToAdd];
+    const next = [...currentList, serialToAdd];
     onChange(next);
+
     // Auto-update quantity to match scanned serials
-    if (onQuantityChange) {
-      onQuantityChange(next.length);
-    }
+    onQuantityChange?.(next.length);
+
     setCurrentSerial('');
 
     if (serial) {
@@ -46,12 +54,10 @@ export function SerialNumberInput({ quantity, value, onChange, onQuantityChange,
   };
 
   const handleRemoveSerial = (serial: string) => {
-    const next = value.filter(s => s !== serial);
+    const currentList = latestValueRef.current;
+    const next = currentList.filter((s) => s !== serial);
     onChange(next);
-    // Auto-update quantity when removing serials
-    if (onQuantityChange && next.length > 0) {
-      onQuantityChange(next.length);
-    }
+    onQuantityChange?.(next.length);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
