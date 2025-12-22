@@ -877,6 +877,7 @@ export default function Movimentacao() {
                     quantity={quantity}
                     value={newSerialNumbers}
                     onChange={setNewSerialNumbers}
+                    onQuantityChange={setQuantity}
                     productName={selectedProduct.name}
                   />
                 )}

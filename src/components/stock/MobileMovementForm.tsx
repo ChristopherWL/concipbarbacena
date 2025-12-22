@@ -472,6 +472,7 @@ export function MobileMovementForm({
             quantity={quantity}
             value={newSerialNumbers}
             onChange={setNewSerialNumbers}
+            onQuantityChange={setQuantity}
             productName={selectedProduct.name}
           />
         )}
