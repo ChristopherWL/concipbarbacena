@@ -184,8 +184,16 @@ export default function NotasFiscais() {
       try {
         setPreviewLoading(true);
 
-        // Fetch the file and render from a local object URL to avoid embed/CORS blockers
-        const res = await fetch(previewUrl, { signal: controller.signal });
+        // Get session for authorization header
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        // Fetch the file with authorization header
+        const res = await fetch(previewUrl, { 
+          signal: controller.signal,
+          headers: session?.access_token ? {
+            'Authorization': `Bearer ${session.access_token}`
+          } : {}
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const mime = res.headers.get('content-type');
