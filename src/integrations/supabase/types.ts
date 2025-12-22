@@ -1777,6 +1777,92 @@ export type Database = {
           },
         ]
       }
+      obra_etapas: {
+        Row: {
+          created_at: string
+          data_fim_prevista: string | null
+          data_fim_real: string | null
+          data_inicio_prevista: string | null
+          data_inicio_real: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          notas: string | null
+          obra_id: string
+          ordem: number
+          percentual_peso: number
+          responsavel_id: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_fim_prevista?: string | null
+          data_fim_real?: string | null
+          data_inicio_prevista?: string | null
+          data_inicio_real?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          notas?: string | null
+          obra_id: string
+          ordem?: number
+          percentual_peso?: number
+          responsavel_id?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_fim_prevista?: string | null
+          data_fim_real?: string | null
+          data_inicio_prevista?: string | null
+          data_inicio_real?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          notas?: string | null
+          obra_id?: string
+          ordem?: number
+          percentual_peso?: number
+          responsavel_id?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obra_etapas_obra_id_fkey"
+            columns: ["obra_id"]
+            isOneToOne: false
+            referencedRelation: "obras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obra_etapas_responsavel_id_fkey"
+            columns: ["responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obra_etapas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_landing_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obra_etapas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       obras: {
         Row: {
           branch_id: string | null
