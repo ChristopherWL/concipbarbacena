@@ -372,35 +372,25 @@ export default function Movimentacao() {
   };
 
   const handleSubmitEntradaSomenteNF = async () => {
-    console.log('handleSubmitEntradaSomenteNF called', { invoiceNumber, supplierId });
-    
     if (!invoiceNumber.trim()) {
       toast.error('Informe o número da nota fiscal');
       return;
     }
 
-    try {
-      // Get supplier name for the note
-      const supplierName = supplierId 
-        ? suppliers.find(s => s.id === supplierId)?.name || ''
-        : '';
+    // Get supplier name for the note
+    const supplierName = supplierId 
+      ? suppliers.find(s => s.id === supplierId)?.name || ''
+      : '';
 
-      console.log('Creating fiscal note...', { supplierName, invoiceNumber, invoiceSeries });
-      
-      await createFiscalNote.mutateAsync({
-        note_type: 'nfe',
-        customer_name: supplierName,
-        operation_nature: `Entrada NF ${invoiceNumber}${invoiceSeries ? ` Série ${invoiceSeries}` : ''}`,
-        notes: notes || `NF de entrada: ${invoiceNumber}${invoiceKey ? ` - Chave: ${invoiceKey}` : ''}`,
-        items: [],
-      });
+    await createFiscalNote.mutateAsync({
+      note_type: 'nfe',
+      customer_name: supplierName,
+      operation_nature: `Entrada NF ${invoiceNumber}${invoiceSeries ? ` Série ${invoiceSeries}` : ''}`,
+      notes: notes || `NF de entrada: ${invoiceNumber}${invoiceKey ? ` - Chave: ${invoiceKey}` : ''}`,
+      items: [],
+    });
 
-      console.log('Fiscal note created successfully');
-      handleCloseDialog();
-    } catch (error) {
-      console.error('Error creating fiscal note:', error);
-      toast.error('Erro ao registrar nota fiscal');
-    }
+    handleCloseDialog();
   };
 
   const handleSubmit = async () => {
