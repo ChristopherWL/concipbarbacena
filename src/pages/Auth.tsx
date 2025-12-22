@@ -367,28 +367,28 @@ export default function Auth() {
               <span className="text-sm font-medium">Voltar</span>
             </Link>
 
-            {/* Desktop: Logo */}
-            <Link to="/" className="hidden lg:flex items-center gap-3">
+            {/* Logo - visible on all sizes */}
+            <div className="flex items-center gap-3">
               {branding?.logo_url ? (
-                <img src={branding.logo_url} alt={branding.name} className="h-12 w-auto" />
+                <img src={branding.logo_url} alt={branding.name} className="h-10 lg:h-12 w-auto" />
               ) : (
                 <>
                   <div 
-                    className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg"
+                    className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-xl text-white shadow-lg"
                     style={{ 
                       background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
                       boxShadow: `0 4px 14px ${primaryColor}40`
                     }}
                   >
-                    <Building2 className="w-6 h-6" />
+                    <Building2 className="w-5 h-5 lg:w-6 lg:h-6" />
                   </div>
-                  <span className="text-xl font-bold text-white">{branding?.name || 'Sistema'}</span>
+                  <span className="text-lg lg:text-xl font-bold text-white hidden sm:block">{branding?.name || 'Sistema'}</span>
                 </>
               )}
-            </Link>
+            </div>
 
-            {/* Empty div for spacing on mobile */}
-            <div className="lg:hidden" />
+            {/* Desktop: Empty for balance */}
+            <div className="hidden lg:block" />
           </div>
         </div>
       </header>
