@@ -224,7 +224,7 @@ export function ScannerDialog({
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] bg-background/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[99999] bg-background/80">
       <div className="absolute inset-0" onClick={handleClose} />
 
       <div className="relative mx-auto flex h-full w-full max-w-lg items-end sm:items-center justify-center p-3 sm:p-6">
@@ -273,7 +273,7 @@ export function ScannerDialog({
               <div className="relative aspect-video w-full">
                 <video
                   ref={videoRef}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover [transform:translateZ(0)]"
                   playsInline
                   autoPlay
                   muted
