@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import GenericLandingPage from './GenericLandingPage';
-import matrizLogo from '@/assets/matriz-logo.png';
 import { 
   Building2, ArrowRight, Phone, Mail, MapPin, Star, Users, Settings, Shield, 
   Zap, Heart, Check, Clock, Truck, Wrench, Quote, MessageCircle, Headphones, Video,
@@ -205,12 +204,16 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <img
-                src={tenant.logo_url || matrizLogo}
-                alt={`Logo da ${tenant.name}`}
-                className="h-12 w-auto object-contain"
-                loading="lazy"
-              />
+              {tenant.logo_url ? (
+                <img src={tenant.logo_url} alt={tenant.name} className="h-12 w-auto" />
+              ) : (
+                <div 
+                  className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg shadow-blue-500/25"
+                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+                >
+                  <Building2 className="w-6 h-6" />
+                </div>
+              )}
               <span className="text-xl font-bold text-white hidden sm:block">{tenant.name}</span>
             </div>
 

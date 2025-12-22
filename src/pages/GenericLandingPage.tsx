@@ -1,27 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import {
-  Building2,
-  Play,
-  ChevronDown,
-  Sparkles,
-  Star,
-  Menu,
-  X,
-  Package,
-  Truck,
-  Users,
-  ClipboardList,
-  BarChart3,
-  FileText,
-  Shield,
-  Zap,
-  Clock,
+import { 
+  Building2, Play, ChevronDown, Sparkles, Star, Menu, X,
+  Package, Truck, Users, ClipboardList, BarChart3, FileText, Shield, Zap, Clock
 } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import matrizLogo from '@/assets/matriz-logo.png';
 
 interface Stat {
   id?: string;
@@ -343,12 +328,20 @@ export default function GenericLandingPage() {
           <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
             {/* Logo */}
             <div className="flex items-center shrink-0">
-              <img
-                src={content.logoUrl || matrizLogo}
-                alt={`Logo da ${content.companyName}`}
-                className="h-8 sm:h-10 lg:h-12 max-w-[120px] sm:max-w-[150px] lg:max-w-[180px] object-contain"
-                loading="lazy"
-              />
+              {content.logoUrl ? (
+                <img
+                  src={content.logoUrl}
+                  alt="Logo"
+                  className="h-8 sm:h-10 lg:h-12 max-w-[120px] sm:max-w-[150px] lg:max-w-[180px] object-contain"
+                />
+              ) : (
+                <div 
+                  className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl text-white"
+                  style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                >
+                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+              )}
             </div>
 
             {/* Desktop Navigation */}
