@@ -11,10 +11,11 @@ interface SerialNumberInputProps {
   quantity: number;
   value: string[];
   onChange: (serials: string[]) => void;
+  onQuantityChange?: (qty: number) => void;
   productName: string;
 }
 
-export function SerialNumberInput({ quantity, value, onChange, productName }: SerialNumberInputProps) {
+export function SerialNumberInput({ quantity, value, onChange, onQuantityChange, productName }: SerialNumberInputProps) {
   const [currentSerial, setCurrentSerial] = useState('');
   const [scannerOpen, setScannerOpen] = useState(false);
 
@@ -31,9 +32,12 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
       return;
     }
 
-    // Allow adding more serials than quantity - quantity will auto-update
     const next = [...value, serialToAdd];
     onChange(next);
+    // Auto-update quantity to match scanned serials
+    if (onQuantityChange) {
+      onQuantityChange(next.length);
+    }
     setCurrentSerial('');
 
     if (serial) {
@@ -42,7 +46,12 @@ export function SerialNumberInput({ quantity, value, onChange, productName }: Se
   };
 
   const handleRemoveSerial = (serial: string) => {
-    onChange(value.filter(s => s !== serial));
+    const next = value.filter(s => s !== serial);
+    onChange(next);
+    // Auto-update quantity when removing serials
+    if (onQuantityChange && next.length > 0) {
+      onQuantityChange(next.length);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
