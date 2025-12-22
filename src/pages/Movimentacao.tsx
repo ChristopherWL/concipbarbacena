@@ -515,6 +515,7 @@ export default function Movimentacao() {
           movementType={movementType}
           onClose={handleCloseDialog}
           onSubmit={handleSubmit}
+          onSubmitNFOnly={movementType === 'entrada' ? handleSubmitEntradaSomenteNF : undefined}
           isPending={isPending}
           invoiceNumber={invoiceNumber}
           setInvoiceNumber={setInvoiceNumber}
