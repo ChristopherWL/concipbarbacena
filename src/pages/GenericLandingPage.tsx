@@ -489,8 +489,8 @@ export default function GenericLandingPage() {
             <Globe className="absolute top-32 left-[8%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.primaryButtonColor}50`, animationDelay: '2.5s' }} />
 
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full glass text-white/90 text-xs sm:text-sm mb-5 sm:mb-8 hero-animate">
-              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#fbbf24' }} />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-white/90 text-xs mb-4 sm:mb-6 hero-animate">
+              <Zap className="w-3 h-3" style={{ color: '#fbbf24' }} />
               <span className="line-clamp-1">{content.badge || 'Soluções em Infraestrutura e Energia'}</span>
             </div>
 
