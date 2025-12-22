@@ -218,14 +218,23 @@ const Obras = () => {
     obraData: Partial<Obra>, 
     etapas: { nome: string; descricao: string; percentual_peso: number; data_inicio_prevista: string; data_fim_prevista: string }[]
   ) => {
+    if (!tenantId) {
+      toast({
+        title: "Erro",
+        description: "Sessão não encontrada. Por favor, faça login novamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const novaObra = await createObra.mutateAsync(obraData);
       
       // Create etapas for the new obra
-      if (etapas.length > 0 && novaObra?.id && tenantId) {
+      if (etapas.length > 0 && novaObra?.id) {
         for (let i = 0; i < etapas.length; i++) {
           const etapa = etapas[i];
-          await supabase.from("obra_etapas").insert({
+          const { error } = await supabase.from("obra_etapas").insert({
             tenant_id: tenantId,
             obra_id: novaObra.id,
             nome: etapa.nome,
@@ -236,12 +245,16 @@ const Obras = () => {
             ordem: i,
             status: 'pendente',
           });
+          if (error) {
+            console.error('Error creating etapa:', error);
+          }
         }
       }
       
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error creating obra with etapas:', error);
+      throw error;
     }
   };
 

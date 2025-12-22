@@ -86,8 +86,13 @@ export const ObraFormDialog = ({ isOpen, onOpenChange, onSave, isPending }: Obra
   };
 
   const handleSave = async () => {
-    await onSave(formData, etapas);
-    resetForm();
+    try {
+      await onSave(formData, etapas);
+      resetForm();
+    } catch (error) {
+      // Error is handled by parent
+      console.error('Error saving obra:', error);
+    }
   };
 
   const totalPeso = etapas.reduce((acc, e) => acc + e.percentual_peso, 0);
