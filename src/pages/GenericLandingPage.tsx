@@ -479,11 +479,13 @@ export default function GenericLandingPage() {
       <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center pt-16 sm:pt-20 pb-16 sm:pb-32 px-4">
         <div className="container mx-auto text-center relative z-10">
           <div className="max-w-4xl mx-auto">
-            {/* Decorative Sparkles - Now visible on mobile too */}
+            {/* Decorative Sparkles - Visible on all devices */}
             <Sparkles className="absolute -top-4 sm:top-0 right-[15%] sm:right-1/4 w-5 h-5 sm:w-6 sm:h-6 float" style={{ color: `${content.accentColor}80` }} />
             <Star className="absolute top-16 sm:top-20 left-[10%] sm:left-1/4 w-4 h-4 sm:w-4 sm:h-4 float" style={{ color: `${content.highlightColor}70`, animationDelay: '1s' }} />
-            <Zap className="absolute top-8 left-[20%] w-4 h-4 float" style={{ color: `${content.primaryButtonColor}60`, animationDelay: '2s' }} />
-            <Shield className="absolute top-24 right-[12%] w-4 h-4 float" style={{ color: `${content.highlightColor}50`, animationDelay: '1.5s' }} />
+            <Zap className="absolute top-8 left-[20%] sm:left-[15%] w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: `${content.primaryButtonColor}60`, animationDelay: '2s' }} />
+            <Shield className="absolute top-24 right-[12%] sm:right-[18%] w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: `${content.highlightColor}50`, animationDelay: '1.5s' }} />
+            <Package className="absolute top-4 sm:top-8 right-[35%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.accentColor}40`, animationDelay: '3s' }} />
+            <BarChart3 className="absolute top-32 left-[8%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.primaryButtonColor}50`, animationDelay: '2.5s' }} />
 
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full glass text-white/90 text-xs sm:text-sm mb-5 sm:mb-8 hero-animate">
@@ -506,29 +508,37 @@ export default function GenericLandingPage() {
 
             {/* Description */}
             <p
-              className="text-sm sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-6 sm:mb-12 leading-relaxed hero-animate px-2"
+              className="text-sm sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed hero-animate px-2"
               style={{ animationDelay: '0.2s' }}
             >
               {content.heroDescription || 'Sistema completo para gestão de estoque, equipes, frota, obras e muito mais.'}
             </p>
 
-            {/* Mobile Quick Features */}
-            <div className="flex flex-wrap justify-center gap-2 mb-6 sm:hidden hero-animate" style={{ animationDelay: '0.25s' }}>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs">
-                <Package className="w-3 h-3" style={{ color: content.highlightColor }} />
+            {/* Quick Features - Visible on all devices */}
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 hero-animate" style={{ animationDelay: '0.25s' }}>
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm hover:bg-white/15 transition-colors cursor-default">
+                <Package className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
                 <span>Estoque</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs">
-                <Users className="w-3 h-3" style={{ color: content.highlightColor }} />
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm hover:bg-white/15 transition-colors cursor-default">
+                <Users className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
                 <span>Equipes</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs">
-                <Truck className="w-3 h-3" style={{ color: content.highlightColor }} />
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm hover:bg-white/15 transition-colors cursor-default">
+                <Truck className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
                 <span>Frota</span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs">
-                <BarChart3 className="w-3 h-3" style={{ color: content.highlightColor }} />
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm hover:bg-white/15 transition-colors cursor-default">
+                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
                 <span>Relatórios</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/80 text-sm hover:bg-white/15 transition-colors cursor-default">
+                <ClipboardList className="w-4 h-4" style={{ color: content.highlightColor }} />
+                <span>Obras</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/80 text-sm hover:bg-white/15 transition-colors cursor-default">
+                <FileText className="w-4 h-4" style={{ color: content.highlightColor }} />
+                <span>Notas Fiscais</span>
               </div>
             </div>
 
@@ -566,32 +576,41 @@ export default function GenericLandingPage() {
               )}
             </div>
 
-            {/* Mobile Stats Preview */}
-            <div className="grid grid-cols-3 gap-3 mt-8 sm:hidden hero-animate" style={{ animationDelay: '0.4s' }}>
-              <div className="glass rounded-xl p-3 text-center">
-                <div className="text-xl font-bold text-white">+500</div>
-                <div className="text-[10px] text-white/60 uppercase tracking-wide">Usuários</div>
+            {/* Stats Preview - Visible on all devices */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 sm:mt-12 hero-animate max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
+              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">+500</div>
+                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wide">Usuários</div>
               </div>
-              <div className="glass rounded-xl p-3 text-center">
-                <div className="text-xl font-bold text-white">24/7</div>
-                <div className="text-[10px] text-white/60 uppercase tracking-wide">Suporte</div>
+              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">24/7</div>
+                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wide">Suporte</div>
               </div>
-              <div className="glass rounded-xl p-3 text-center">
-                <div className="text-xl font-bold text-white">99%</div>
-                <div className="text-[10px] text-white/60 uppercase tracking-wide">Uptime</div>
+              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">99%</div>
+                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wide">Uptime</div>
+              </div>
+              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors hidden sm:block">
+                <div className="text-2xl md:text-3xl font-bold text-white">+10</div>
+                <div className="text-xs text-white/60 uppercase tracking-wide">Anos</div>
               </div>
             </div>
 
-            {/* Mobile Trust Badges */}
-            <div className="flex items-center justify-center gap-4 mt-6 sm:hidden hero-animate" style={{ animationDelay: '0.5s' }}>
-              <div className="flex items-center gap-1.5 text-white/50 text-xs">
-                <Shield className="w-3.5 h-3.5" style={{ color: content.highlightColor }} />
+            {/* Trust Badges - Visible on all devices */}
+            <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 sm:mt-8 hero-animate" style={{ animationDelay: '0.5s' }}>
+              <div className="flex items-center gap-1.5 sm:gap-2 text-white/50 text-xs sm:text-sm">
+                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
                 <span>Dados Seguros</span>
               </div>
-              <div className="w-px h-3 bg-white/20" />
-              <div className="flex items-center gap-1.5 text-white/50 text-xs">
-                <Clock className="w-3.5 h-3.5" style={{ color: content.highlightColor }} />
+              <div className="w-px h-3 sm:h-4 bg-white/20" />
+              <div className="flex items-center gap-1.5 sm:gap-2 text-white/50 text-xs sm:text-sm">
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
                 <span>Acesso Rápido</span>
+              </div>
+              <div className="w-px h-3 sm:h-4 bg-white/20 hidden sm:block" />
+              <div className="hidden sm:flex items-center gap-2 text-white/50 text-sm">
+                <Zap className="w-4 h-4" style={{ color: content.highlightColor }} />
+                <span>Alta Performance</span>
               </div>
             </div>
           </div>
@@ -608,23 +627,31 @@ export default function GenericLandingPage() {
           </div>
         </div>
 
-        {/* Floating Icons Background - Mobile */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none sm:hidden z-[3]">
+        {/* Floating Icons Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-[3]">
           <Package 
-            className="absolute top-[35%] left-[5%] w-6 h-6 opacity-10 float" 
+            className="absolute top-[35%] left-[5%] sm:left-[8%] w-6 h-6 sm:w-8 sm:h-8 opacity-10 float" 
             style={{ color: content.highlightColor, animationDelay: '0s' }} 
           />
           <FileText 
-            className="absolute top-[50%] right-[8%] w-5 h-5 opacity-10 float" 
+            className="absolute top-[50%] right-[8%] sm:right-[10%] w-5 h-5 sm:w-7 sm:h-7 opacity-10 float" 
             style={{ color: content.primaryButtonColor, animationDelay: '1.5s' }} 
           />
           <ClipboardList 
-            className="absolute top-[65%] left-[12%] w-5 h-5 opacity-10 float" 
+            className="absolute top-[65%] left-[12%] sm:left-[15%] w-5 h-5 sm:w-6 sm:h-6 opacity-10 float" 
             style={{ color: content.accentColor, animationDelay: '3s' }} 
           />
           <BarChart3 
-            className="absolute top-[75%] right-[15%] w-6 h-6 opacity-10 float" 
+            className="absolute top-[75%] right-[15%] sm:right-[12%] w-6 h-6 sm:w-8 sm:h-8 opacity-10 float" 
             style={{ color: content.highlightColor, animationDelay: '2s' }} 
+          />
+          <Users 
+            className="absolute top-[40%] right-[5%] sm:right-[6%] w-5 h-5 sm:w-7 sm:h-7 opacity-10 float hidden sm:block" 
+            style={{ color: content.accentColor, animationDelay: '4s' }} 
+          />
+          <Truck 
+            className="absolute top-[60%] left-[6%] w-6 h-6 sm:w-8 sm:h-8 opacity-10 float hidden sm:block" 
+            style={{ color: content.primaryButtonColor, animationDelay: '5s' }} 
           />
         </div>
       </section>
