@@ -103,7 +103,7 @@ interface MobileMovementFormProps {
   unitPrice: number;
   setUnitPrice: (v: number) => void;
   selectedSerialIds: string[];
-  setSelectedSerialIds: (v: string[]) => void;
+  setSelectedSerialIds: React.Dispatch<React.SetStateAction<string[]>>;
   newSerialNumbers: string[];
   setNewSerialNumbers: (v: string[]) => void;
   onAddItem: () => void;
@@ -187,18 +187,24 @@ export function MobileMovementForm({
     const matchingSerial = availableSerials.find(
       (sn: any) => sn.serial_number === scannedValue
     );
-    if (matchingSerial && !selectedSerialIds.includes(matchingSerial.id)) {
-      // Add the serial to selected list
-      const newSelectedIds = [...selectedSerialIds, matchingSerial.id];
-      setSelectedSerialIds(newSelectedIds);
-      // Update quantity automatically
-      setQuantity(newSelectedIds.length);
-    } else if (!matchingSerial) {
+
+    if (!matchingSerial) {
       toast.error(`Serial ${scannedValue} não encontrado`);
-    } else {
-      toast.info(`Serial ${scannedValue} já selecionado`);
+      return;
     }
-  }, [availableSerials, selectedSerialIds, setSelectedSerialIds, setQuantity]);
+
+    setSelectedSerialIds((prev) => {
+      if (prev.includes(matchingSerial.id)) {
+        toast.info(`Serial ${scannedValue} já selecionado`);
+        return prev;
+      }
+
+      const next = [...prev, matchingSerial.id];
+      setQuantity(next.length);
+      toast.success(`Serial ${scannedValue} adicionado!`);
+      return next;
+    });
+  }, [availableSerials, setSelectedSerialIds, setQuantity]);
 
   // Step 1: Entry = NF data, Exit = Responsible
   const step1Content = isEntrada ? (
