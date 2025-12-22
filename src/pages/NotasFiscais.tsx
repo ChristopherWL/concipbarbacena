@@ -859,11 +859,8 @@ export default function NotasFiscais() {
         <Dialog open={!!previewUrl} onOpenChange={() => setPreviewUrl(null)}>
           <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
             <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
-              <DialogTitle className="flex items-center justify-between text-primary-foreground">
+              <DialogTitle className="text-primary-foreground">
                 Visualização do Anexo
-                <Button variant="ghost" size="icon" onClick={() => setPreviewUrl(null)} className="text-primary-foreground hover:bg-primary-foreground/10">
-                  <X className="h-4 w-4" />
-                </Button>
               </DialogTitle>
             </DialogHeader>
             <div className="flex-1 min-h-[60vh] overflow-hidden flex flex-col">
