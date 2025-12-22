@@ -476,24 +476,24 @@ export default function GenericLandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center pt-16 sm:pt-20 pb-24 sm:pb-32 px-4">
+      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center pt-16 sm:pt-20 pb-16 sm:pb-32 px-4">
         <div className="container mx-auto text-center relative z-10">
           <div className="max-w-4xl mx-auto">
-            {/* Decorative Sparkles - Hidden on mobile */}
-            <Sparkles className="hidden sm:block absolute top-0 right-1/4 w-4 sm:w-6 h-4 sm:h-6 float" style={{ color: `${content.accentColor}60` }} />
-            <Star className="hidden sm:block absolute top-20 left-1/4 w-3 sm:w-4 h-3 sm:h-4 float" style={{ color: `${content.highlightColor}50`, animationDelay: '1s' }} />
+            {/* Decorative Sparkles - Now visible on mobile too */}
+            <Sparkles className="absolute -top-4 sm:top-0 right-[15%] sm:right-1/4 w-5 h-5 sm:w-6 sm:h-6 float" style={{ color: `${content.accentColor}80` }} />
+            <Star className="absolute top-16 sm:top-20 left-[10%] sm:left-1/4 w-4 h-4 sm:w-4 sm:h-4 float" style={{ color: `${content.highlightColor}70`, animationDelay: '1s' }} />
+            <Zap className="absolute top-8 left-[20%] w-4 h-4 float" style={{ color: `${content.primaryButtonColor}60`, animationDelay: '2s' }} />
+            <Shield className="absolute top-24 right-[12%] w-4 h-4 float" style={{ color: `${content.highlightColor}50`, animationDelay: '1.5s' }} />
 
             {/* Badge */}
-            {content.badge && (
-              <div className="inline-flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full glass text-white/90 text-xs sm:text-sm mb-6 sm:mb-8 hero-animate">
-                <span style={{ color: content.accentColor }}>✨</span>
-                <span className="line-clamp-1">{content.badge}</span>
-              </div>
-            )}
+            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full glass text-white/90 text-xs sm:text-sm mb-5 sm:mb-8 hero-animate">
+              <span style={{ color: content.accentColor }}>✨</span>
+              <span className="line-clamp-1">{content.badge || 'Gestão Empresarial Completa'}</span>
+            </div>
 
             {/* Title */}
             <h1
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-[1.1] hero-animate text-white"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-3 sm:mb-6 leading-[1.1] hero-animate text-white"
               style={{ animationDelay: '0.1s' }}
             >
               {content.heroTitle}
@@ -506,11 +506,31 @@ export default function GenericLandingPage() {
 
             {/* Description */}
             <p
-              className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed hero-animate px-2"
+              className="text-sm sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-6 sm:mb-12 leading-relaxed hero-animate px-2"
               style={{ animationDelay: '0.2s' }}
             >
-              {content.heroDescription}
+              {content.heroDescription || 'Sistema completo para gestão de estoque, equipes, frota, obras e muito mais.'}
             </p>
+
+            {/* Mobile Quick Features */}
+            <div className="flex flex-wrap justify-center gap-2 mb-6 sm:hidden hero-animate" style={{ animationDelay: '0.25s' }}>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs">
+                <Package className="w-3 h-3" style={{ color: content.highlightColor }} />
+                <span>Estoque</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs">
+                <Users className="w-3 h-3" style={{ color: content.highlightColor }} />
+                <span>Equipes</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs">
+                <Truck className="w-3 h-3" style={{ color: content.highlightColor }} />
+                <span>Frota</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs">
+                <BarChart3 className="w-3 h-3" style={{ color: content.highlightColor }} />
+                <span>Relatórios</span>
+              </div>
+            </div>
 
             {/* CTA Buttons */}
             <div
@@ -520,7 +540,10 @@ export default function GenericLandingPage() {
               <Button
                 size="lg"
                 className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-10 py-5 sm:py-7 shadow-2xl hover:scale-105 transition-all duration-300 text-white border-0"
-                style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                style={{ 
+                  background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`,
+                  boxShadow: `0 10px 40px -10px ${content.primaryButtonColor}80`
+                }}
                 onClick={() => navigate('/auth')}
               >
                 <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -542,18 +565,67 @@ export default function GenericLandingPage() {
                 </Button>
               )}
             </div>
+
+            {/* Mobile Stats Preview */}
+            <div className="grid grid-cols-3 gap-3 mt-8 sm:hidden hero-animate" style={{ animationDelay: '0.4s' }}>
+              <div className="glass rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-white">+500</div>
+                <div className="text-[10px] text-white/60 uppercase tracking-wide">Usuários</div>
+              </div>
+              <div className="glass rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-white">24/7</div>
+                <div className="text-[10px] text-white/60 uppercase tracking-wide">Suporte</div>
+              </div>
+              <div className="glass rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-white">99%</div>
+                <div className="text-[10px] text-white/60 uppercase tracking-wide">Uptime</div>
+              </div>
+            </div>
+
+            {/* Mobile Trust Badges */}
+            <div className="flex items-center justify-center gap-4 mt-6 sm:hidden hero-animate" style={{ animationDelay: '0.5s' }}>
+              <div className="flex items-center gap-1.5 text-white/50 text-xs">
+                <Shield className="w-3.5 h-3.5" style={{ color: content.highlightColor }} />
+                <span>Dados Seguros</span>
+              </div>
+              <div className="w-px h-3 bg-white/20" />
+              <div className="flex items-center gap-1.5 text-white/50 text-xs">
+                <Clock className="w-3.5 h-3.5" style={{ color: content.highlightColor }} />
+                <span>Acesso Rápido</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Scroll Indicator */}
         <div 
-          className="absolute inset-x-0 bottom-8 sm:bottom-12 flex justify-center hero-animate"
+          className="absolute inset-x-0 bottom-4 sm:bottom-12 flex justify-center hero-animate"
           style={{ animationDelay: '0.6s' }}
         >
-          <div className="flex flex-col items-center gap-1 sm:gap-2 text-white/30">
-            <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-medium">Scroll</span>
-            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
+          <div className="flex flex-col items-center gap-1 sm:gap-2 text-white/40">
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.15em] font-medium">Scroll</span>
+            <ChevronDown className="w-5 h-5 sm:w-5 sm:h-5 animate-bounce" />
           </div>
+        </div>
+
+        {/* Floating Icons Background - Mobile */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none sm:hidden z-[3]">
+          <Package 
+            className="absolute top-[35%] left-[5%] w-6 h-6 opacity-10 float" 
+            style={{ color: content.highlightColor, animationDelay: '0s' }} 
+          />
+          <FileText 
+            className="absolute top-[50%] right-[8%] w-5 h-5 opacity-10 float" 
+            style={{ color: content.primaryButtonColor, animationDelay: '1.5s' }} 
+          />
+          <ClipboardList 
+            className="absolute top-[65%] left-[12%] w-5 h-5 opacity-10 float" 
+            style={{ color: content.accentColor, animationDelay: '3s' }} 
+          />
+          <BarChart3 
+            className="absolute top-[75%] right-[15%] w-6 h-6 opacity-10 float" 
+            style={{ color: content.highlightColor, animationDelay: '2s' }} 
+          />
         </div>
       </section>
 
