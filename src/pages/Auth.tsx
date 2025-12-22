@@ -313,8 +313,11 @@ export default function Auth() {
   // For gradients, use a darker version if secondary is too light
   const gradientSecondary = getDarkerGradientColor(secondaryColor, primaryColor);
 
-  // Light effect color based on primary
-  const lightEffectColor = primaryColor;
+  // Use dark background colors like GenericLandingPage
+  const backgroundGradientFrom = '#020617';
+  const backgroundGradientTo = '#0f172a';
+  // Light effect color - use a purple/violet like the landing page
+  const lightEffectColor = '#8b5cf6';
 
   return (
     <div 
@@ -324,46 +327,36 @@ export default function Auth() {
         '--secondary-color': secondaryColor,
       } as React.CSSProperties}
     >
-      {/* Background - Animated Gradient like Landing Page */}
-      <div className="absolute inset-0">
-        {/* Main gradient */}
-        <div 
-          className="absolute inset-0 animate-gradient-shift"
-          style={{ 
-            background: `linear-gradient(135deg, ${gradientSecondary} 0%, ${primaryColor} 25%, ${gradientSecondary} 50%, #0f172a 75%, ${gradientSecondary} 100%)`,
-            backgroundSize: '400% 400%',
-          }}
-        />
-        
-        {/* Mesh gradient overlay */}
-        <div className="absolute inset-0 opacity-60" style={{
-          background: `radial-gradient(ellipse at 20% 20%, ${primaryColor}40 0%, transparent 50%),
-                       radial-gradient(ellipse at 80% 80%, ${gradientSecondary}30 0%, transparent 50%),
-                       radial-gradient(ellipse at 50% 50%, ${primaryColor}20 0%, transparent 70%)`
-        }} />
+      {/* Background Gradient - Dark like GenericLandingPage */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{ 
+          background: `linear-gradient(135deg, ${backgroundGradientFrom} 0%, ${backgroundGradientTo} 100%)` 
+        }}
+      />
 
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px'
-        }} />
-      </div>
+      {/* Moving Light Focus Effects - Using lightEffectColor */}
+      <div 
+        className="absolute top-[10%] left-[5%] w-[40vw] h-[40vw] sm:w-[35vw] sm:h-[35vw] rounded-full blur-[80px] sm:blur-[120px] animate-float-slow z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.25 }}
+      />
+      <div 
+        className="absolute top-[5%] right-[8%] w-[38vw] h-[38vw] sm:w-[32vw] sm:h-[32vw] rounded-full blur-[80px] sm:blur-[120px] animate-float-slower z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.2 }}
+      />
+      <div 
+        className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] sm:w-[40vw] sm:h-[40vw] rounded-full blur-[80px] sm:blur-[120px] animate-float-slow z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.25 }}
+      />
+      <div 
+        className="absolute top-[50%] left-[40%] w-[50vw] h-[50vw] sm:w-[45vw] sm:h-[45vw] rounded-full blur-[100px] sm:blur-[150px] animate-float-slower z-[1]"
+        style={{ background: lightEffectColor, opacity: 0.15 }}
+      />
 
-      {/* Floating elements like Landing Page */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-[10%] w-72 h-72 rounded-full opacity-20 animate-float-slow"
-             style={{ background: `radial-gradient(circle, ${primaryColor}, transparent)` }} />
-        <div className="absolute bottom-1/4 right-[10%] w-96 h-96 rounded-full opacity-15 animate-float-slower"
-             style={{ background: `radial-gradient(circle, ${gradientSecondary}, transparent)` }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-10"
-             style={{ background: `radial-gradient(circle, ${primaryColor}, transparent)` }} />
-        
-        {/* Decorative shapes */}
-        <div className="absolute top-20 right-[20%] w-4 h-4 rounded-full bg-blue-400/40 animate-pulse-slow" />
-        <div className="absolute top-40 left-[15%] w-3 h-3 rounded-full bg-cyan-400/40 animate-pulse-slow" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-40 right-[30%] w-2 h-2 rounded-full bg-white/40 animate-pulse-slow" style={{ animationDelay: '2s' }} />
-      </div>
+      {/* Drifting Particles */}
+      <div className="hidden sm:block absolute top-[20%] left-[20%] w-2 h-2 rounded-full bg-white/20 animate-pulse-slow z-[2]" />
+      <div className="hidden sm:block absolute top-[30%] right-[25%] w-1.5 h-1.5 rounded-full bg-white/15 animate-pulse-slow z-[2]" style={{ animationDelay: '1s' }} />
+      <div className="hidden md:block absolute top-[60%] left-[15%] w-1 h-1 rounded-full bg-white/20 animate-pulse-slow z-[2]" style={{ animationDelay: '2s' }} />
 
       {/* Header */}
       <header 
@@ -384,7 +377,7 @@ export default function Auth() {
                   <div 
                     className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg"
                     style={{ 
-                      background: `linear-gradient(135deg, ${primaryColor}, ${gradientSecondary})`,
+                      background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
                       boxShadow: `0 4px 14px ${primaryColor}40`
                     }}
                   >
@@ -549,9 +542,9 @@ export default function Auth() {
                     <Button
                       type="submit"
                       disabled={isSubmitting || isLoadingBranches}
-                      className="w-full h-12 text-base font-semibold shadow-lg hover:scale-[1.02] transition-all duration-300 rounded-xl"
+                      className="w-full h-12 text-base font-semibold shadow-lg hover:scale-[1.02] transition-all duration-300 rounded-xl text-white"
                       style={{ 
-                        background: `linear-gradient(135deg, ${primaryColor}, ${gradientSecondary})`,
+                        background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
                         boxShadow: `0 4px 14px ${primaryColor}40`
                       }}
                     >
