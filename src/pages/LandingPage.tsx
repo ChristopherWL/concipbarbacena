@@ -207,14 +207,16 @@ export default function LandingPage() {
               {tenant.logo_url ? (
                 <img src={tenant.logo_url} alt={tenant.name} className="h-12 w-auto" />
               ) : (
-                <div 
-                  className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg shadow-blue-500/25"
-                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
-                >
-                  <Building2 className="w-6 h-6" />
-                </div>
+                <>
+                  <div 
+                    className="flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg shadow-blue-500/25"
+                    style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+                  >
+                    <Building2 className="w-6 h-6" />
+                  </div>
+                  <span className="text-xl font-bold text-white hidden sm:block">{tenant.name}</span>
+                </>
               )}
-              <span className="text-xl font-bold text-white hidden sm:block">{tenant.name}</span>
             </div>
 
             {/* Desktop Navigation */}
