@@ -68,7 +68,9 @@ export function ScannerDialog({
 
       const constraints: MediaStreamConstraints = {
         video: {
-          facingMode: 'environment',
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
         },
         audio: false,
       };
@@ -83,7 +85,7 @@ export function ScannerDialog({
       const v = videoRef.current;
       if (!v) throw new Error('video_not_found');
 
-      // iOS Safari helpers
+      // Mobile Safari / Android WebView helpers
       // @ts-ignore
       v.setAttribute('webkit-playsinline', 'true');
       v.setAttribute('playsinline', 'true');
@@ -91,15 +93,27 @@ export function ScannerDialog({
       v.autoplay = true;
       v.playsInline = true;
 
+      // Force a clean attach
+      v.pause?.();
+      // @ts-ignore
+      v.srcObject = null;
+      // @ts-ignore
       v.srcObject = stream;
 
-      // IMPORTANT: don't block UI waiting for events that sometimes never fire.
-      // We attempt play() and mark scanning as active regardless.
+      // Wait metadata briefly (helps some Android devices render the first frame)
+      await new Promise<void>((resolve) => {
+        const timeout = window.setTimeout(() => resolve(), 800);
+        const onMeta = () => {
+          window.clearTimeout(timeout);
+          v.removeEventListener('loadedmetadata', onMeta);
+          resolve();
+        };
+        v.addEventListener('loadedmetadata', onMeta, { once: true });
+      });
+
       try {
         await v.play();
       } catch (e) {
-        // Some browsers require a user gesture; user already clicked.
-        // We'll keep the stream running and allow manual retry.
         console.warn('video.play() failed:', e);
       }
 
