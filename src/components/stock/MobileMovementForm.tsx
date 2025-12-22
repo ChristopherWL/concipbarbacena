@@ -634,6 +634,11 @@ export function MobileMovementForm({
         onScan={handleSerialScan}
         title="Escanear Número de Série"
         description="Posicione o código de barras do item dentro da área destacada"
+        scannedItems={selectedSerialIds.map(id => {
+          const sn = serialNumbers.find((s: any) => s.id === id);
+          return sn?.serial_number || id;
+        })}
+        continuousMode={true}
       />
     </>,
     document.body
