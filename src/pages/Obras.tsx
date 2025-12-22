@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks } from "lucide-react";
 import { useObras, useDiarioObras, Obra, DiarioObra } from "@/hooks/useObras";
+import { ObraEtapasPanel } from "@/components/obras/ObraEtapasPanel";
 import { useEmployees } from "@/hooks/useEmployees";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { SignatureCanvas } from "@/components/stock/SignatureCanvas";
@@ -758,86 +759,89 @@ const Obras = () => {
           setIsUpdatesListDialogOpen(open);
           if (!open) setSelectedObra(null);
         }}>
-          <DialogContent className="w-full max-w-2xl max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
+          <DialogContent className="w-full max-w-3xl max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
             <div className="bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
               <DialogHeader className="bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0">
                 <DialogTitle className="text-primary-foreground">
-                  Atualizações - {selectedObra?.nome}
+                  {selectedObra?.nome}
                 </DialogTitle>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0">
-              {isDiariosLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : diarios.length === 0 ? (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-                  <p className="text-muted-foreground">Nenhuma atualização registrada.</p>
-                  <Button 
-                    className="mt-4"
-                    onClick={() => {
-                      setIsUpdatesListDialogOpen(false);
-                      if (selectedObra) handleOpenUpdateDialog(selectedObra);
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Registrar Primeira Atualização
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {diarios.map((diario) => (
-                    <Card 
-                      key={diario.id} 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => handleOpenDiarioDetail(diario)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Badge variant="outline">{diario.clima || 'Sem etapa'}</Badge>
-                              <span className="text-sm text-muted-foreground">
-                                {new Date(diario.data).toLocaleDateString('pt-BR')}
-                              </span>
-                            </div>
-                            {diario.atividades_realizadas && (
-                              <p className="text-sm text-muted-foreground truncate">
-                                {diario.atividades_realizadas}
-                              </p>
-                            )}
-                            {diario.ocorrencias && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {diario.ocorrencias}
-                              </p>
-                            )}
-                            {diario.fotos && Array.isArray(diario.fotos) && diario.fotos.length > 0 && (
-                              <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                                <Image className="h-3 w-3" />
-                                <span>{diario.fotos.length} {diario.fotos.length === 1 ? 'imagem' : 'imagens'}</span>
+              <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-6">
+                {/* Etapas e Progresso */}
+                {selectedObra && (
+                  <ObraEtapasPanel 
+                    obraId={selectedObra.id} 
+                    obraProgresso={selectedObra.progresso}
+                    isReadOnly={isReadOnly}
+                  />
+                )}
+
+                {/* Histórico de Atualizações */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Histórico de Atualizações
+                      </h3>
+                      {!isReadOnly && (
+                        <Button 
+                          size="sm"
+                          onClick={() => {
+                            setIsUpdatesListDialogOpen(false);
+                            if (selectedObra) handleOpenUpdateDialog(selectedObra);
+                          }}
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Nova
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {isDiariosLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : diarios.length === 0 ? (
+                      <div className="text-center py-6 text-muted-foreground">
+                        <FileText className="h-10 w-10 mx-auto opacity-50 mb-2" />
+                        <p className="text-sm">Nenhuma atualização registrada.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {diarios.map((diario) => (
+                          <div 
+                            key={diario.id} 
+                            className="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                            onClick={() => handleOpenDiarioDetail(diario)}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="outline" className="text-xs">{diario.clima_manha || 'Sem etapa'}</Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(diario.data).toLocaleDateString('pt-BR')}
+                                </span>
                               </div>
-                            )}
+                              {diario.atividades_realizadas && (
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {diario.atividades_realizadas}
+                                </p>
+                              )}
+                              {diario.fotos && Array.isArray(diario.fotos) && diario.fotos.length > 0 && (
+                                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                                  <Image className="h-3 w-3" />
+                                  <span>{diario.fotos.length} {diario.fotos.length === 1 ? 'imagem' : 'imagens'}</span>
+                                </div>
+                              )}
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           </div>
-                          <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="px-6 pb-6 border-t border-border/20 pt-4 flex-shrink-0">
-              <Button 
-                className="w-full"
-                onClick={() => {
-                  setIsUpdatesListDialogOpen(false);
-                  if (selectedObra) handleOpenUpdateDialog(selectedObra);
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Atualização
-              </Button>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </DialogContent>
