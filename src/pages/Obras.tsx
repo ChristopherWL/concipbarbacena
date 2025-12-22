@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks } from "lucide-react";
 import { useObras, useDiarioObras, Obra, DiarioObra } from "@/hooks/useObras";
 import { ObraEtapasPanel } from "@/components/obras/ObraEtapasPanel";
+import { ObraFormDialog } from "@/components/obras/ObraFormDialog";
+import { useObraEtapas } from "@/hooks/useObraEtapas";
 import { useEmployees } from "@/hooks/useEmployees";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { SignatureCanvas } from "@/components/stock/SignatureCanvas";
@@ -92,18 +94,6 @@ const Obras = () => {
 
   // Legacy: keep for type compatibility, but we no longer depend on it for uploads
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  // Form state
-  const [formData, setFormData] = useState({
-    nome: "",
-    endereco: "",
-    cidade: "",
-    estado: "",
-    descricao: "",
-    notas: "",
-    data_inicio: "",
-    previsao_termino: "",
-    status: "planejada" as Obra['status'],
-  });
 
   const queryClient = useQueryClient();
   const { obras, isLoading, createObra, updateObra, deleteObra } = useObras();
@@ -224,20 +214,35 @@ const Obras = () => {
     return <Badge className={config.className}>{config.label}</Badge>;
   };
 
-  const handleCreateObra = async () => {
-    await createObra.mutateAsync(formData);
-    setFormData({
-      nome: "",
-      endereco: "",
-      cidade: "",
-      estado: "",
-      descricao: "",
-      notas: "",
-      data_inicio: "",
-      previsao_termino: "",
-      status: "planejada",
-    });
-    setIsDialogOpen(false);
+  const handleCreateObraWithEtapas = async (
+    obraData: Partial<Obra>, 
+    etapas: { nome: string; descricao: string; percentual_peso: number; data_inicio_prevista: string; data_fim_prevista: string }[]
+  ) => {
+    try {
+      const novaObra = await createObra.mutateAsync(obraData);
+      
+      // Create etapas for the new obra
+      if (etapas.length > 0 && novaObra?.id && tenantId) {
+        for (let i = 0; i < etapas.length; i++) {
+          const etapa = etapas[i];
+          await supabase.from("obra_etapas").insert({
+            tenant_id: tenantId,
+            obra_id: novaObra.id,
+            nome: etapa.nome,
+            descricao: etapa.descricao || null,
+            percentual_peso: etapa.percentual_peso || 0,
+            data_inicio_prevista: etapa.data_inicio_prevista || null,
+            data_fim_prevista: etapa.data_fim_prevista || null,
+            ordem: i,
+            status: 'pendente',
+          });
+        }
+      }
+      
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating obra with etapas:', error);
+    }
   };
 
   const handleDeleteObra = async (id: string, e: React.MouseEvent) => {
@@ -515,127 +520,12 @@ const Obras = () => {
         
         {!isReadOnly && (
           <div className="flex justify-center">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nova Obra
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="w-full max-w-2xl max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
-                <div className="bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-                  <DialogHeader className="bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0">
-                    <DialogTitle className="text-primary-foreground">Cadastrar Nova Obra</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-4 flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="nome">Nome da Obra *</Label>
-                        <Input 
-                          id="nome" 
-                          placeholder="Ex: Instalação CFTV" 
-                          value={formData.nome}
-                          onChange={(e) => setFormData({...formData, nome: e.target.value})}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select 
-                          value={formData.status} 
-                          onValueChange={(v) => setFormData({...formData, status: v as Obra['status']})}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="planejada">Planejada</SelectItem>
-                            <SelectItem value="em_andamento">Em Andamento</SelectItem>
-                            <SelectItem value="pausada">Pausada</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="endereco">Endereço</Label>
-                      <Input 
-                        id="endereco" 
-                        placeholder="Endereço completo da obra" 
-                        value={formData.endereco}
-                        onChange={(e) => setFormData({...formData, endereco: e.target.value})}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      <div className="space-y-2 col-span-2 sm:col-span-1">
-                        <Label htmlFor="cidade">Cidade</Label>
-                        <Input 
-                          id="cidade" 
-                          placeholder="Cidade" 
-                          value={formData.cidade}
-                          onChange={(e) => setFormData({...formData, cidade: e.target.value})}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="estado">Estado</Label>
-                        <Input 
-                          id="estado" 
-                          placeholder="UF" 
-                          maxLength={2}
-                          value={formData.estado}
-                          onChange={(e) => setFormData({...formData, estado: e.target.value.toUpperCase()})}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="dataInicio">Data de Início</Label>
-                        <Input 
-                          id="dataInicio" 
-                          type="date" 
-                          value={formData.data_inicio}
-                          onChange={(e) => setFormData({...formData, data_inicio: e.target.value})}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="previsaoTermino">Previsão de Término</Label>
-                        <Input 
-                          id="previsaoTermino" 
-                          type="date" 
-                          value={formData.previsao_termino}
-                          onChange={(e) => setFormData({...formData, previsao_termino: e.target.value})}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="descricao">Descrição</Label>
-                      <Textarea 
-                        id="descricao" 
-                        placeholder="Descreva os detalhes da obra" 
-                        rows={3} 
-                        value={formData.descricao}
-                        onChange={(e) => setFormData({...formData, descricao: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="notas">Anotações</Label>
-                      <Textarea 
-                        id="notas" 
-                        placeholder="Observações e anotações adicionais" 
-                        rows={3} 
-                        value={formData.notas}
-                        onChange={(e) => setFormData({...formData, notas: e.target.value})}
-                      />
-                    </div>
-                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
-                      <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">Cancelar</Button>
-                      <Button onClick={handleCreateObra} disabled={!formData.nome || createObra.isPending} className="w-full sm:w-auto">
-                        {createObra.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                        Salvar
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <ObraFormDialog
+              isOpen={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              onSave={handleCreateObraWithEtapas}
+              isPending={createObra.isPending}
+            />
           </div>
         )}
 
