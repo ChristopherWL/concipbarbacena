@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Building2, Play, ChevronDown, Sparkles, Star, Menu, X,
-  Package, Truck, Users, ClipboardList, BarChart3, FileText, Shield, Zap, Clock
+  Package, Truck, Users, ClipboardList, BarChart3, FileText, Shield, Zap, Clock,
+  Lightbulb, Wifi, Camera, Sun, Radio, Globe, Wrench, MapPin, CheckCircle, Award
 } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { useEffect, useState } from 'react';
@@ -479,18 +480,18 @@ export default function GenericLandingPage() {
       <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center pt-16 sm:pt-20 pb-16 sm:pb-32 px-4">
         <div className="container mx-auto text-center relative z-10">
           <div className="max-w-4xl mx-auto">
-            {/* Decorative Sparkles - Visible on all devices */}
-            <Sparkles className="absolute -top-4 sm:top-0 right-[15%] sm:right-1/4 w-5 h-5 sm:w-6 sm:h-6 float" style={{ color: `${content.accentColor}80` }} />
-            <Star className="absolute top-16 sm:top-20 left-[10%] sm:left-1/4 w-4 h-4 sm:w-4 sm:h-4 float" style={{ color: `${content.highlightColor}70`, animationDelay: '1s' }} />
-            <Zap className="absolute top-8 left-[20%] sm:left-[15%] w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: `${content.primaryButtonColor}60`, animationDelay: '2s' }} />
-            <Shield className="absolute top-24 right-[12%] sm:right-[18%] w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: `${content.highlightColor}50`, animationDelay: '1.5s' }} />
-            <Package className="absolute top-4 sm:top-8 right-[35%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.accentColor}40`, animationDelay: '3s' }} />
-            <BarChart3 className="absolute top-32 left-[8%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.primaryButtonColor}50`, animationDelay: '2.5s' }} />
+            {/* Decorative Icons - Industry themed */}
+            <Lightbulb className="absolute -top-4 sm:top-0 right-[15%] sm:right-1/4 w-5 h-5 sm:w-6 sm:h-6 float" style={{ color: `${content.accentColor}80` }} />
+            <Sun className="absolute top-16 sm:top-20 left-[10%] sm:left-1/4 w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: '#fbbf24', animationDelay: '1s' }} />
+            <Wifi className="absolute top-8 left-[20%] sm:left-[15%] w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: `${content.primaryButtonColor}60`, animationDelay: '2s' }} />
+            <Camera className="absolute top-24 right-[12%] sm:right-[18%] w-4 h-4 sm:w-5 sm:h-5 float" style={{ color: `${content.highlightColor}50`, animationDelay: '1.5s' }} />
+            <Radio className="absolute top-4 sm:top-8 right-[35%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.accentColor}40`, animationDelay: '3s' }} />
+            <Globe className="absolute top-32 left-[8%] w-4 h-4 sm:w-5 sm:h-5 float hidden sm:block" style={{ color: `${content.primaryButtonColor}50`, animationDelay: '2.5s' }} />
 
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full glass text-white/90 text-xs sm:text-sm mb-5 sm:mb-8 hero-animate">
-              <span style={{ color: content.accentColor }}>✨</span>
-              <span className="line-clamp-1">{content.badge || 'Gestão Empresarial Completa'}</span>
+              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#fbbf24' }} />
+              <span className="line-clamp-1">{content.badge || 'Soluções em Infraestrutura e Energia'}</span>
             </div>
 
             {/* Title */}
@@ -498,10 +499,10 @@ export default function GenericLandingPage() {
               className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-3 sm:mb-6 leading-[1.1] hero-animate text-white"
               style={{ animationDelay: '0.1s' }}
             >
-              {content.heroTitle}
-              {content.heroTitleHighlight && (
+              {content.heroTitle || 'Iluminando o Futuro'}
+              {(content.heroTitleHighlight || !content.heroTitle) && (
                 <span className="block mt-1 sm:mt-2" style={{ color: content.highlightColor }}>
-                  {content.heroTitleHighlight}
+                  {content.heroTitleHighlight || 'Conectando Pessoas'}
                 </span>
               )}
             </h1>
@@ -511,34 +512,34 @@ export default function GenericLandingPage() {
               className="text-sm sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed hero-animate px-2"
               style={{ animationDelay: '0.2s' }}
             >
-              {content.heroDescription || 'Sistema completo para gestão de estoque, equipes, frota, obras e muito mais.'}
+              {content.heroDescription || 'Especialistas em iluminação pública, telecomunicações e energia solar fotovoltaica. Transformamos cidades com tecnologia e sustentabilidade.'}
             </p>
 
-            {/* Quick Features - Visible on all devices */}
+            {/* Quick Features - Industry themed */}
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 hero-animate" style={{ animationDelay: '0.25s' }}>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm hover:bg-white/15 transition-colors cursor-default">
-                <Package className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
-                <span>Estoque</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-amber-500/20 text-white/90 text-xs sm:text-sm hover:bg-amber-500/30 transition-colors cursor-default border border-amber-500/30">
+                <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" />
+                <span>Iluminação Pública</span>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm hover:bg-white/15 transition-colors cursor-default">
-                <Users className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
-                <span>Equipes</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-500/20 text-white/90 text-xs sm:text-sm hover:bg-blue-500/30 transition-colors cursor-default border border-blue-500/30">
+                <Camera className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
+                <span>Câmeras</span>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm hover:bg-white/15 transition-colors cursor-default">
-                <Truck className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
-                <span>Frota</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-cyan-500/20 text-white/90 text-xs sm:text-sm hover:bg-cyan-500/30 transition-colors cursor-default border border-cyan-500/30">
+                <Wifi className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-400" />
+                <span>WiFi</span>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm hover:bg-white/15 transition-colors cursor-default">
-                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
-                <span>Relatórios</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-green-500/20 text-white/90 text-xs sm:text-sm hover:bg-green-500/30 transition-colors cursor-default border border-green-500/30">
+                <Sun className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
+                <span>Usina UFV</span>
               </div>
-              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/80 text-sm hover:bg-white/15 transition-colors cursor-default">
-                <ClipboardList className="w-4 h-4" style={{ color: content.highlightColor }} />
-                <span>Obras</span>
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 text-white/90 text-sm hover:bg-purple-500/30 transition-colors cursor-default border border-purple-500/30">
+                <Globe className="w-4 h-4 text-purple-400" />
+                <span>Link Dedicado</span>
               </div>
-              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/80 text-sm hover:bg-white/15 transition-colors cursor-default">
-                <FileText className="w-4 h-4" style={{ color: content.highlightColor }} />
-                <span>Notas Fiscais</span>
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/20 text-white/90 text-sm hover:bg-orange-500/30 transition-colors cursor-default border border-orange-500/30">
+                <Radio className="w-4 h-4 text-orange-400" />
+                <span>Telecom</span>
               </div>
             </div>
 
@@ -576,41 +577,45 @@ export default function GenericLandingPage() {
               )}
             </div>
 
-            {/* Stats Preview - Visible on all devices */}
+            {/* Stats Preview - Industry themed */}
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 sm:mt-12 hero-animate max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
-              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">+500</div>
-                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wide">Usuários</div>
+              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors group">
+                <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-amber-400 group-hover:scale-110 transition-transform" />
+                <div className="text-lg sm:text-xl md:text-2xl font-bold text-white">+50K</div>
+                <div className="text-[9px] sm:text-xs text-white/60 uppercase tracking-wide">Pontos de Luz</div>
               </div>
-              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">24/7</div>
-                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wide">Suporte</div>
+              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors group">
+                <Camera className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-blue-400 group-hover:scale-110 transition-transform" />
+                <div className="text-lg sm:text-xl md:text-2xl font-bold text-white">+5K</div>
+                <div className="text-[9px] sm:text-xs text-white/60 uppercase tracking-wide">Câmeras</div>
               </div>
-              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">99%</div>
-                <div className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wide">Uptime</div>
+              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors group">
+                <Sun className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-green-400 group-hover:scale-110 transition-transform" />
+                <div className="text-lg sm:text-xl md:text-2xl font-bold text-white">+10</div>
+                <div className="text-[9px] sm:text-xs text-white/60 uppercase tracking-wide">Usinas UFV</div>
               </div>
-              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors hidden sm:block">
-                <div className="text-2xl md:text-3xl font-bold text-white">+10</div>
-                <div className="text-xs text-white/60 uppercase tracking-wide">Anos</div>
+              <div className="glass rounded-xl p-3 sm:p-4 text-center hover:bg-white/15 transition-colors hidden sm:block group">
+                <MapPin className="w-6 h-6 mx-auto mb-1 text-purple-400 group-hover:scale-110 transition-transform" />
+                <div className="text-xl md:text-2xl font-bold text-white">+30</div>
+                <div className="text-xs text-white/60 uppercase tracking-wide">Cidades</div>
               </div>
             </div>
 
-            {/* Trust Badges - Visible on all devices */}
+            {/* Trust Badges - Industry themed */}
             <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 sm:mt-8 hero-animate" style={{ animationDelay: '0.5s' }}>
               <div className="flex items-center gap-1.5 sm:gap-2 text-white/50 text-xs sm:text-sm">
-                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
-                <span>Dados Seguros</span>
+                <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400" />
+                <span>ISO 9001</span>
               </div>
               <div className="w-px h-3 sm:h-4 bg-white/20" />
               <div className="flex items-center gap-1.5 sm:gap-2 text-white/50 text-xs sm:text-sm">
-                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: content.highlightColor }} />
-                <span>Acesso Rápido</span>
+                <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
+                <span>+10 Anos</span>
               </div>
               <div className="w-px h-3 sm:h-4 bg-white/20 hidden sm:block" />
               <div className="hidden sm:flex items-center gap-2 text-white/50 text-sm">
-                <Zap className="w-4 h-4" style={{ color: content.highlightColor }} />
-                <span>Alta Performance</span>
+                <Shield className="w-4 h-4 text-blue-400" />
+                <span>Garantia Total</span>
               </div>
             </div>
           </div>
@@ -627,31 +632,35 @@ export default function GenericLandingPage() {
           </div>
         </div>
 
-        {/* Floating Icons Background */}
+        {/* Floating Icons Background - Industry themed */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-[3]">
-          <Package 
-            className="absolute top-[35%] left-[5%] sm:left-[8%] w-6 h-6 sm:w-8 sm:h-8 opacity-10 float" 
-            style={{ color: content.highlightColor, animationDelay: '0s' }} 
+          <Lightbulb 
+            className="absolute top-[35%] left-[5%] sm:left-[8%] w-6 h-6 sm:w-8 sm:h-8 opacity-15 float" 
+            style={{ color: '#fbbf24', animationDelay: '0s' }} 
           />
-          <FileText 
+          <Camera 
             className="absolute top-[50%] right-[8%] sm:right-[10%] w-5 h-5 sm:w-7 sm:h-7 opacity-10 float" 
-            style={{ color: content.primaryButtonColor, animationDelay: '1.5s' }} 
+            style={{ color: '#60a5fa', animationDelay: '1.5s' }} 
           />
-          <ClipboardList 
+          <Wifi 
             className="absolute top-[65%] left-[12%] sm:left-[15%] w-5 h-5 sm:w-6 sm:h-6 opacity-10 float" 
-            style={{ color: content.accentColor, animationDelay: '3s' }} 
+            style={{ color: '#22d3d1', animationDelay: '3s' }} 
           />
-          <BarChart3 
-            className="absolute top-[75%] right-[15%] sm:right-[12%] w-6 h-6 sm:w-8 sm:h-8 opacity-10 float" 
-            style={{ color: content.highlightColor, animationDelay: '2s' }} 
+          <Sun 
+            className="absolute top-[75%] right-[15%] sm:right-[12%] w-6 h-6 sm:w-8 sm:h-8 opacity-15 float" 
+            style={{ color: '#4ade80', animationDelay: '2s' }} 
           />
-          <Users 
+          <Radio 
             className="absolute top-[40%] right-[5%] sm:right-[6%] w-5 h-5 sm:w-7 sm:h-7 opacity-10 float hidden sm:block" 
-            style={{ color: content.accentColor, animationDelay: '4s' }} 
+            style={{ color: '#f97316', animationDelay: '4s' }} 
           />
-          <Truck 
+          <Globe 
             className="absolute top-[60%] left-[6%] w-6 h-6 sm:w-8 sm:h-8 opacity-10 float hidden sm:block" 
-            style={{ color: content.primaryButtonColor, animationDelay: '5s' }} 
+            style={{ color: '#a855f7', animationDelay: '5s' }} 
+          />
+          <Wrench 
+            className="absolute top-[25%] right-[25%] w-5 h-5 sm:w-6 sm:h-6 opacity-8 float hidden sm:block" 
+            style={{ color: content.highlightColor, animationDelay: '2.5s' }} 
           />
         </div>
       </section>
