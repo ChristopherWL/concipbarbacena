@@ -26,6 +26,9 @@ export function useOnboardingTour() {
   });
   const [isFirstAccess, setIsFirstAccess] = useState(false);
 
+  // Check if we're on mobile
+  const isMobile = () => window.innerWidth < 1024;
+
   useEffect(() => {
     if (profile?.id) {
       const accessKey = `first-access-${profile.id}`;
@@ -79,6 +82,25 @@ export function useOnboardingTour() {
     await new Promise(resolve => setTimeout(resolve, 650));
     if (elementSelector) {
       await waitForElement(elementSelector, 8000);
+    }
+  };
+
+  // Open mobile "More" menu
+  const openMobileMoreMenu = async () => {
+    // Find and click the "Mais" button in mobile bottom nav using data-tour attribute
+    const moreButton = document.querySelector('[data-tour="mobile-more-btn"]') as HTMLElement | null;
+    if (moreButton) {
+      moreButton.click();
+      await new Promise(resolve => setTimeout(resolve, 400));
+    }
+  };
+
+  // Close mobile "More" menu
+  const closeMobileMoreMenu = async () => {
+    const closeButton = document.querySelector('[data-tour="mobile-more-panel"] button:has(.lucide-x)') as HTMLElement | null;
+    if (closeButton) {
+      closeButton.click();
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
   };
 
@@ -576,6 +598,167 @@ export function useOnboardingTour() {
     return steps;
   }, [permissions, profile?.full_name, getUserRole, navigate, location.pathname]);
 
+  // Mobile-specific tour steps
+  const buildMobileTourSteps = useCallback((): DriveStep[] => {
+    const steps: DriveStep[] = [];
+    const role = getUserRole();
+    const firstName = profile?.full_name?.split(' ')[0] || '';
+
+    // Step 1: Welcome Modal
+    steps.push({
+      popover: {
+        title: `Olá${firstName ? `, ${firstName}` : ''}! 👋`,
+        description: `
+          <div style="margin-top: 8px;">
+            <p>Bem-vindo ao sistema! Vou te mostrar as principais funcionalidades.</p>
+            <div class="tour-tip-box" style="margin-top: 16px;">
+              Toque em "Próximo" para continuar
+            </div>
+          </div>
+        `,
+        side: 'over',
+        align: 'center',
+        popoverClass: 'getninjas-tour tour-welcome-modal',
+        onNextClick: async () => {
+          if (location.pathname !== '/dashboard') {
+            await navigateAndWait('/dashboard');
+          }
+          driverRef.current?.moveNext();
+        }
+      }
+    });
+
+    // Step 2: Dashboard Content (the main area - visible on mobile)
+    if (permissions.page_dashboard) {
+      steps.push({
+        element: '[data-tour="dashboard-content"]',
+        popover: {
+          title: '📊 Dashboard',
+          description: 'Sua central de informações! Veja métricas e indicadores em tempo real.',
+          side: 'bottom',
+          align: 'center',
+          popoverClass: 'getninjas-tour',
+        }
+      });
+    }
+
+    // Step 3: Mobile Bottom Navigation
+    steps.push({
+      element: '[data-tour="mobile-bottom-nav"]',
+      popover: {
+        title: '📱 Navegação Rápida',
+        description: 'Use a barra inferior para acessar rapidamente as principais áreas do sistema.',
+        side: 'top',
+        align: 'center',
+        popoverClass: 'getninjas-tour',
+      }
+    });
+
+    // Step 4: FAB Button
+    steps.push({
+      element: '[data-tour="mobile-fab"]',
+      popover: {
+        title: '➕ Ações Rápidas',
+        description: 'Toque aqui para acessar ações rápidas como movimentação de estoque, obras e diários.',
+        side: 'top',
+        align: 'center',
+        popoverClass: 'getninjas-tour',
+      }
+    });
+
+    // Step 5: More Menu Button
+    steps.push({
+      element: '[data-tour="mobile-more-btn"]',
+      popover: {
+        title: '☰ Menu Completo',
+        description: 'Acesse todas as funcionalidades do sistema tocando em "Mais".',
+        side: 'top',
+        align: 'end',
+        popoverClass: 'getninjas-tour',
+        onNextClick: async () => {
+          await openMobileMoreMenu();
+          await new Promise(resolve => setTimeout(resolve, 500));
+          driverRef.current?.moveNext();
+        }
+      }
+    });
+
+    // Step 6: More Menu Panel (opened)
+    steps.push({
+      element: '[data-tour="mobile-more-panel"]',
+      popover: {
+        title: '📋 Menu Principal',
+        description: 'Aqui você encontra todas as opções: Estoque, Equipes, RH, O.S., Relatórios e muito mais.',
+        side: 'left',
+        align: 'start',
+        popoverClass: 'getninjas-tour',
+        onNextClick: async () => {
+          await closeMobileMoreMenu();
+          await new Promise(resolve => setTimeout(resolve, 300));
+          driverRef.current?.moveNext();
+        }
+      }
+    });
+
+    // Step 7: User Avatar (mobile header)
+    steps.push({
+      element: '[data-tour="mobile-user-avatar"]',
+      popover: {
+        title: '👤 Seu Perfil',
+        description: 'Toque no seu avatar para acessar configurações, tema, instalar o app e reiniciar este tour.',
+        side: 'bottom',
+        align: 'end',
+        popoverClass: 'getninjas-tour',
+      }
+    });
+
+    // Role-specific tips
+    let roleTip = '';
+    if (role === 'admin' || role === 'superadmin') {
+      roleTip = 'Como administrador, você tem acesso completo. Use o menu para gerenciar usuários e permissões.';
+    } else if (role === 'warehouse') {
+      roleTip = 'Foque no controle de estoque! Use o FAB para movimentações rápidas.';
+    } else if (role === 'technician') {
+      roleTip = 'Registre diários de obra diariamente usando o botão + central!';
+    }
+
+    if (roleTip) {
+      steps.push({
+        popover: {
+          title: '💡 Dica para você',
+          description: roleTip,
+          side: 'over',
+          align: 'center',
+          popoverClass: 'getninjas-tour tour-welcome-modal',
+        }
+      });
+    }
+
+    // Final step
+    steps.push({
+      popover: {
+        title: '🎉 Pronto!',
+        description: `
+          <div>
+            <p>Agora você já conhece o sistema!</p>
+            <p style="margin-top: 12px; color: hsl(var(--muted-foreground));">
+              Para rever este tour, toque no seu avatar e selecione <strong>"Reiniciar Tour"</strong>.
+            </p>
+          </div>
+        `,
+        side: 'over',
+        align: 'center',
+        popoverClass: 'getninjas-tour tour-welcome-modal',
+        onNextClick: async () => {
+          await navigateAndWait('/dashboard');
+          driverRef.current?.destroy();
+        }
+      }
+    });
+
+    return steps;
+  }, [permissions, profile?.full_name, getUserRole, navigate, location.pathname]);
+
   const startTour = useCallback(() => {
     // Navigate to dashboard first
     if (location.pathname !== '/dashboard') {
@@ -583,7 +766,8 @@ export function useOnboardingTour() {
     }
 
     setTimeout(() => {
-      const steps = buildTourSteps();
+      // Use mobile-specific steps if on mobile
+      const steps = isMobile() ? buildMobileTourSteps() : buildTourSteps();
       
       driverRef.current = driver({
         showProgress: true,
@@ -595,9 +779,9 @@ export function useOnboardingTour() {
         progressText: '{{current}} de {{total}}',
         popoverClass: 'getninjas-tour',
         overlayColor: 'rgba(0, 0, 0, 0.65)',
-        stagePadding: 12,
+        stagePadding: isMobile() ? 8 : 12,
         stageRadius: 10,
-        popoverOffset: 20,
+        popoverOffset: isMobile() ? 12 : 20,
         animate: true,
         allowClose: true,
         smoothScroll: true,
@@ -614,7 +798,7 @@ export function useOnboardingTour() {
 
       driverRef.current.drive();
     }, 600);
-  }, [buildTourSteps, location.pathname, navigate]);
+  }, [buildTourSteps, buildMobileTourSteps, location.pathname, navigate]);
 
   const toggleTourEnabled = useCallback(() => {
     const newState = !isTourEnabled;

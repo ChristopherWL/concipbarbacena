@@ -207,11 +207,15 @@
 }
 
 /* Mobile */
-@media (max-width: 640px) {
+@media (max-width: 1023px) {
   .driver-popover.getninjas-tour {
     max-width: calc(100vw - 24px);
     min-width: auto;
     margin: 12px;
+    /* Ensure popover stays within viewport */
+    position: fixed !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
   }
 
   .driver-popover.getninjas-tour .driver-popover-content {
@@ -236,6 +240,19 @@
     top: 12px;
     left: 16px;
     font-size: 0.7rem;
+  }
+
+  /* Better positioning for bottom navigation elements */
+  .driver-popover.getninjas-tour[data-side="top"] {
+    bottom: 100px !important;
+    top: auto !important;
+  }
+
+  /* Welcome modal on mobile - centered */
+  .driver-popover.getninjas-tour.tour-welcome-modal {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
   }
 }
 

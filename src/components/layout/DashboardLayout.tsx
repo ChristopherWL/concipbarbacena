@@ -1638,7 +1638,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* User Avatar with dropdown for settings/superadmin */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="relative">
+                <button data-tour="mobile-user-avatar" className="relative">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
@@ -1721,10 +1721,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <nav className={cn(
-        "lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-sidebar-border/50 transition-transform duration-200 print:hidden",
-        !showMobileNav && "translate-y-[calc(100%+2rem)]"
-      )}>
+      <nav 
+        data-tour="mobile-bottom-nav"
+        className={cn(
+          "lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-sidebar-border/50 transition-transform duration-200 print:hidden",
+          !showMobileNav && "translate-y-[calc(100%+2rem)]"
+        )}
+      >
         {/* Solid background */}
         <div 
           className="absolute inset-0 bg-sidebar"
@@ -1774,7 +1777,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           )}
 
           {/* FAB - Central Button with arc actions */}
-          <div className="absolute left-1/2 -translate-x-1/2 -top-7 z-50">
+          <div data-tour="mobile-fab" className="absolute left-1/2 -translate-x-1/2 -top-7 z-50">
             {/* Arc actions - two rows for better organization */}
             {fabActions.map((action, index) => {
               // Arc layout - closer to button but spread apart
@@ -1850,6 +1853,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="relative">
               {/* More button */}
               <button
+                data-tour="mobile-more-btn"
                 onClick={() => setMoreExpanded(!moreExpanded)}
                 className={cn(
                   "relative z-50 flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-colors",
@@ -1865,6 +1869,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
               {/* Fan panel from bottom-right */}
               <div 
+                data-tour="mobile-more-panel"
                 className={cn(
                   "fixed right-0 bottom-0 top-0 w-72 border-l border-sidebar-border/50 shadow-2xl z-[70] flex flex-col overflow-hidden",
                   !moreExpanded && "pointer-events-none"
