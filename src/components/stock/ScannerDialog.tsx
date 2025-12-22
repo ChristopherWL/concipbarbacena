@@ -238,181 +238,181 @@ export function ScannerDialog({
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] bg-background/80">
-      <div className="absolute inset-0" onClick={handleClose} />
+    <div className="fixed inset-0 z-[99999] bg-background">
+      <header className="flex items-center justify-between gap-3 border-b bg-background px-4 py-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <ScanLine className="h-5 w-5 text-primary" />
+          <h2 className="truncate text-base font-semibold">{title}</h2>
+        </div>
 
-      <div className="relative mx-auto flex h-full w-full max-w-lg items-end sm:items-center justify-center p-3 sm:p-6">
-        <Card className="w-full overflow-hidden shadow-lg">
-          <CardHeader className="py-4">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <ScanLine className="h-5 w-5 text-primary" />
-                <CardTitle className="text-base">{title}</CardTitle>
-              </div>
-              <div className="flex items-center gap-1">
-                {hasFlash && isScanning && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleFlash}
-                    className={cn(flashOn && "bg-accent")}
-                    aria-label="Alternar lanterna"
-                  >
-                    <Flashlight className={cn("h-5 w-5", flashOn && "text-primary")} />
-                  </Button>
-                )}
+        <div className="flex items-center gap-1">
+          {hasFlash && isScanning && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleFlash}
+              className={cn(flashOn && "bg-accent")}
+              aria-label="Alternar lanterna"
+            >
+              <Flashlight className={cn("h-5 w-5", flashOn && "text-primary")} />
+            </Button>
+          )}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setHasStarted(true);
+              startCamera();
+            }}
+            aria-label="Iniciar/Reiniciar câmera"
+          >
+            <RotateCcw className="h-5 w-5" />
+          </Button>
+
+          <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Fechar">
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+      </header>
+
+      <main className="flex h-[calc(100dvh-56px)] flex-col">
+        {/* Preview */}
+        <section className="relative flex-1 bg-muted/30">
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full object-cover bg-muted [transform:translate3d(0,0,0)]"
+            playsInline
+            autoPlay
+            muted
+            // @ts-ignore - iOS Safari
+            webkit-playsinline="true"
+          />
+
+          {/* Instruction pill */}
+          <div className="pointer-events-none absolute left-0 right-0 top-4 mx-auto w-fit max-w-[90%] rounded-full bg-background/70 px-4 py-2 text-center text-sm text-foreground shadow-sm backdrop-blur-sm">
+            {description}
+          </div>
+
+          {/* Start overlay */}
+          {!cameraError && !isScanning && (
+            <div className="absolute inset-0 grid place-items-center bg-background/25">
+              <div className="w-[min(440px,92vw)] rounded-2xl border bg-background/90 p-4 text-center shadow-lg">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
+                  <Camera className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium">Pronto para escanear</p>
+                <p className="mt-1 text-xs text-muted-foreground">Toque para abrir a câmera e apontar para o código.</p>
                 <Button
-                  variant="ghost"
-                  size="icon"
+                  className="mt-3 w-full"
                   onClick={() => {
                     setHasStarted(true);
                     startCamera();
                   }}
-                  aria-label="Iniciar/Reiniciar câmera"
                 >
-                  <RotateCcw className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Fechar">
-                  <X className="h-5 w-5" />
+                  Iniciar câmera
                 </Button>
               </div>
             </div>
-          </CardHeader>
+          )}
 
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">{description}</p>
-
-            {/* Camera Card */}
-            <div className="relative overflow-hidden rounded-xl border bg-muted/30">
-              <div className="relative aspect-video w-full">
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 h-full w-full object-cover [transform:translateZ(0)]"
-                  playsInline
-                  autoPlay
-                  muted
-                  // @ts-ignore - iOS Safari
-                  webkit-playsinline="true"
-                />
-
-                {/* Start overlay */}
-                {!cameraError && !isScanning && (
-                  <div className="absolute inset-0 grid place-items-center bg-background/60">
-                    <div className="flex flex-col items-center gap-3 p-4 text-center">
-                      <Camera className="h-10 w-10 text-muted-foreground" />
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium">Pronto para escanear</p>
-                        <p className="text-xs text-muted-foreground">Toque em “Iniciar câmera” para abrir o scanner.</p>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setHasStarted(true);
-                          startCamera();
-                        }}
-                      >
-                        Iniciar câmera
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Error state */}
-                {cameraError && (
-                  <div className="absolute inset-0 grid place-items-center bg-background/70">
-                    <div className="flex flex-col items-center gap-3 p-4 text-center">
-                      <Camera className="h-10 w-10 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">{cameraError}</p>
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          setHasStarted(true);
-                          startCamera();
-                        }}
-                      >
-                        <RotateCcw className="mr-2 h-4 w-4" />
-                        Tentar novamente
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Reticle */}
-                {isScanning && (
-                  <div className="pointer-events-none absolute inset-0 grid place-items-center">
-                    <div className="relative w-[86%] max-w-[360px] aspect-[2/1]">
-                      <div className="absolute inset-0 rounded-xl border-2 border-primary/80 shadow-sm" />
-                      <div className="absolute -top-0.5 -left-0.5 h-7 w-7 rounded-tl-xl border-l-4 border-t-4 border-primary" />
-                      <div className="absolute -top-0.5 -right-0.5 h-7 w-7 rounded-tr-xl border-r-4 border-t-4 border-primary" />
-                      <div className="absolute -bottom-0.5 -left-0.5 h-7 w-7 rounded-bl-xl border-b-4 border-l-4 border-primary" />
-                      <div className="absolute -bottom-0.5 -right-0.5 h-7 w-7 rounded-br-xl border-b-4 border-r-4 border-primary" />
-                      <div className="absolute left-3 right-3 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent animate-[scan_1.8s_ease-in-out_infinite]" />
-                    </div>
-                  </div>
-                )}
-
-                {/* Status */}
-                {isScanning && (
-                  <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-background/80 px-3 py-1.5">
-                    <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                    <span className="text-xs text-foreground">Câmera ativa</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Scanned Items List */}
-            {continuousMode && scannedItems.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-sm flex items-center gap-2">
-                  Itens Escaneados 
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
-                    {scannedItems.length}
-                  </span>
-                </Label>
-                <div className="max-h-24 overflow-y-auto border rounded-lg divide-y bg-muted/20">
-                  {scannedItems.map((item, index) => (
-                    <div key={index} className="flex items-center gap-2 px-3 py-2 text-sm">
-                      <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                      <span className="font-mono truncate">{item}</span>
-                    </div>
-                  ))}
+          {/* Error state */}
+          {cameraError && (
+            <div className="absolute inset-0 grid place-items-center bg-background/35">
+              <div className="w-[min(440px,92vw)] rounded-2xl border bg-background/90 p-4 text-center shadow-lg">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
+                  <Camera className="h-6 w-6 text-muted-foreground" />
                 </div>
-              </div>
-            )}
-
-            {/* Manual Input */}
-            <div className="space-y-2">
-              <Label className="text-sm">Ou digite o código manualmente</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={manualInput}
-                  onChange={(e) => setManualInput(e.target.value)}
-                  placeholder="Digite o código..."
-                  onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
-                />
-                <Button onClick={handleManualSubmit} disabled={!manualInput.trim()}>
-                  {continuousMode ? <Plus className="h-4 w-4" /> : 'OK'}
+                <p className="text-sm text-muted-foreground">{cameraError}</p>
+                <Button
+                  variant="secondary"
+                  className="mt-3 w-full"
+                  onClick={() => {
+                    setHasStarted(true);
+                    startCamera();
+                  }}
+                >
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Tentar novamente
                 </Button>
               </div>
             </div>
+          )}
 
-            {/* Close button for continuous mode */}
-            {continuousMode && (
-              <Button variant="outline" onClick={handleClose} className="w-full">
-                Concluir
+          {/* Reticle */}
+          {isScanning && (
+            <div className="pointer-events-none absolute inset-0 grid place-items-center">
+              <div className="relative w-[86%] max-w-[420px] aspect-[2/1]">
+                <div className="absolute inset-0 rounded-3xl border-2 border-primary/80 shadow-sm" />
+                <div className="absolute -top-0.5 -left-0.5 h-10 w-10 rounded-tl-3xl border-l-4 border-t-4 border-primary" />
+                <div className="absolute -top-0.5 -right-0.5 h-10 w-10 rounded-tr-3xl border-r-4 border-t-4 border-primary" />
+                <div className="absolute -bottom-0.5 -left-0.5 h-10 w-10 rounded-bl-3xl border-b-4 border-l-4 border-primary" />
+                <div className="absolute -bottom-0.5 -right-0.5 h-10 w-10 rounded-br-3xl border-b-4 border-r-4 border-primary" />
+                <div className="absolute left-6 right-6 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent animate-[scan_1.8s_ease-in-out_infinite]" />
+              </div>
+            </div>
+          )}
+
+          {/* Status */}
+          {isScanning && (
+            <div className="absolute left-4 bottom-4 flex items-center gap-2 rounded-full bg-background/70 px-3 py-1.5 shadow-sm backdrop-blur-sm">
+              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-xs text-foreground">Câmera ativa</span>
+            </div>
+          )}
+        </section>
+
+        {/* Bottom panel */}
+        <section className="border-t bg-background p-4 space-y-3">
+          {continuousMode && scannedItems.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm flex items-center justify-between">
+                <span>Itens escaneados</span>
+                <span className="inline-flex items-center justify-center min-w-6 h-6 rounded-full bg-primary px-2 text-primary-foreground text-xs font-medium">
+                  {scannedItems.length}
+                </span>
+              </Label>
+              <div className="max-h-24 overflow-y-auto border rounded-lg divide-y bg-muted/20">
+                {scannedItems.map((item, index) => (
+                  <div key={index} className="flex items-center gap-2 px-3 py-2 text-sm">
+                    <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                    <span className="font-mono truncate">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label className="text-sm">Digitar código</Label>
+            <div className="flex gap-2">
+              <Input
+                value={manualInput}
+                onChange={(e) => setManualInput(e.target.value)}
+                placeholder="Digite o código..."
+                onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
+              />
+              <Button onClick={handleManualSubmit} disabled={!manualInput.trim()}>
+                {continuousMode ? <Plus className="h-4 w-4" /> : 'OK'}
               </Button>
-            )}
+            </div>
+          </div>
 
-            {/* Custom scan animation keyframes */}
-            <style>{`
-              @keyframes scan {
-                0%, 100% { top: 10%; }
-                50% { top: 85%; }
-              }
-            `}</style>
-          </CardContent>
-        </Card>
-      </div>
+          {continuousMode && (
+            <Button variant="outline" onClick={handleClose} className="w-full">
+              Concluir
+            </Button>
+          )}
+
+          {/* Custom scan animation keyframes */}
+          <style>{`
+            @keyframes scan {
+              0%, 100% { top: 10%; }
+              50% { top: 85%; }
+            }
+          `}</style>
+        </section>
+      </main>
     </div>,
     document.body
   );
