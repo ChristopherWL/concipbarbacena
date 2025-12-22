@@ -281,6 +281,30 @@ export default function Configuracoes() {
         return;
       }
 
+      // If user is in matriz, also update the main branch logos for consistency
+      if (isMatriz && currentBranch?.id && currentBranch.is_main) {
+        const { error: branchError } = await supabase
+          .from('branches')
+          .update({
+            logo_url: companyForm.logo_url || null,
+            logo_dark_url: companyForm.logo_dark_url || null
+          })
+          .eq('id', currentBranch.id);
+
+        if (branchError) {
+          console.error('Error saving main branch logos:', branchError);
+          // Don't fail the whole operation, just log the error
+        } else {
+          // Update local state
+          setBranchLogos({
+            logo_url: companyForm.logo_url || '',
+            logo_dark_url: companyForm.logo_dark_url || ''
+          });
+          // Force refresh of sidebar/top logo
+          await queryClient.invalidateQueries({ queryKey: ['branch-logo', currentBranch.id] });
+        }
+      }
+
       // Save branch logos if user is in a filial (non-main branch)
       if (!isMatriz && currentBranch?.id) {
         const { data: updatedBranch, error: branchError } = await supabase
