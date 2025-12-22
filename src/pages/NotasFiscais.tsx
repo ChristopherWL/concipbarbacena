@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { useInvoices, useCreateStandaloneInvoice } from '@/hooks/useInvoices';
+import { useInvoices, useCreateStandaloneInvoice, useUpdateInvoice, useDeleteInvoice } from '@/hooks/useInvoices';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,23 +31,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Plus, FileText, Download, Eye, Search, X, Upload, Loader2, Trash2, AlertTriangle, Info } from 'lucide-react';
+import { Plus, FileText, Download, Eye, Search, X, Upload, Loader2, Trash2, AlertTriangle, Info, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { PdfInlineViewer } from '@/components/invoices/PdfInlineViewer';
+import { Invoice } from '@/types/stock';
 
 export default function NotasFiscais() {
   const { tenant } = useAuthContext();
   const { data: invoices, isLoading } = useInvoices();
   const { data: suppliers } = useSuppliers();
   const createStandaloneInvoice = useCreateStandaloneInvoice();
+  const updateInvoice = useUpdateInvoice();
+  const deleteInvoice = useDeleteInvoice();
   
   const [search, setSearch] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
+  const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewObjectUrl, setPreviewObjectUrl] = useState<string | null>(null);
   const [previewMime, setPreviewMime] = useState<string | null>(null);
@@ -258,16 +273,32 @@ export default function NotasFiscais() {
         pdfUrl = await uploadFile(selectedFile) || '';
       }
 
-      await createStandaloneInvoice.mutateAsync({
-        invoice_number: formData.invoice_number,
-        invoice_series: formData.invoice_series || undefined,
-        invoice_key: formData.invoice_key || undefined,
-        issue_date: formData.issue_date,
-        supplier_id: formData.supplier_id || undefined,
-        total_value: formData.total_value ? parseFloat(formData.total_value) : undefined,
-        notes: formData.notes || undefined,
-        pdf_url: pdfUrl || undefined,
-      });
+      if (editingInvoice) {
+        // Update existing invoice
+        await updateInvoice.mutateAsync({
+          id: editingInvoice.id,
+          invoice_number: formData.invoice_number,
+          invoice_series: formData.invoice_series || undefined,
+          invoice_key: formData.invoice_key || undefined,
+          issue_date: formData.issue_date,
+          supplier_id: formData.supplier_id || undefined,
+          total_value: formData.total_value ? parseFloat(formData.total_value) : undefined,
+          notes: formData.notes || undefined,
+          pdf_url: pdfUrl || undefined,
+        });
+      } else {
+        // Create new invoice
+        await createStandaloneInvoice.mutateAsync({
+          invoice_number: formData.invoice_number,
+          invoice_series: formData.invoice_series || undefined,
+          invoice_key: formData.invoice_key || undefined,
+          issue_date: formData.issue_date,
+          supplier_id: formData.supplier_id || undefined,
+          total_value: formData.total_value ? parseFloat(formData.total_value) : undefined,
+          notes: formData.notes || undefined,
+          pdf_url: pdfUrl || undefined,
+        });
+      }
       
       setFormData({
         invoice_number: '',
@@ -280,12 +311,57 @@ export default function NotasFiscais() {
         pdf_url: '',
       });
       setSelectedFile(null);
+      setEditingInvoice(null);
       setIsFormOpen(false);
     } catch (error) {
       // Error handled in hook
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleEdit = (invoice: Invoice) => {
+    setEditingInvoice(invoice);
+    setFormData({
+      invoice_number: invoice.invoice_number || '',
+      invoice_series: invoice.invoice_series || '',
+      invoice_key: invoice.invoice_key || '',
+      issue_date: invoice.issue_date || '',
+      supplier_id: invoice.supplier_id || '',
+      total_value: invoice.total_value?.toString() || '',
+      notes: invoice.notes || '',
+      pdf_url: invoice.pdf_url || '',
+    });
+    setIsFormOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingInvoiceId) return;
+    
+    try {
+      await deleteInvoice.mutateAsync(deletingInvoiceId);
+      setDeletingInvoiceId(null);
+    } catch (error) {
+      // Error handled in hook
+    }
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      setFormData({
+        invoice_number: '',
+        invoice_series: '',
+        invoice_key: '',
+        issue_date: '',
+        supplier_id: '',
+        total_value: '',
+        notes: '',
+        pdf_url: '',
+      });
+      setSelectedFile(null);
+      setEditingInvoice(null);
+    }
+    setIsFormOpen(open);
   };
 
   const filteredInvoices = invoices?.filter(invoice =>
@@ -306,7 +382,7 @@ export default function NotasFiscais() {
           </p>
         </div>
         <div className="flex justify-center">
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <Dialog open={isFormOpen} onOpenChange={handleDialogClose}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -315,7 +391,9 @@ export default function NotasFiscais() {
             </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
-                <DialogTitle className="text-primary-foreground">Cadastrar Nota Fiscal Avulsa</DialogTitle>
+                <DialogTitle className="text-primary-foreground">
+                  {editingInvoice ? 'Editar Nota Fiscal' : 'Cadastrar Nota Fiscal Avulsa'}
+                </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -507,12 +585,12 @@ export default function NotasFiscais() {
                 </div>
                 
                 <div className="flex justify-end gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
+                  <Button type="button" variant="outline" onClick={() => handleDialogClose(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={createStandaloneInvoice.isPending || isUploading}>
-                    {(createStandaloneInvoice.isPending || isUploading) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                    {isUploading ? 'Enviando...' : createStandaloneInvoice.isPending ? 'Salvando...' : 'Salvar'}
+                  <Button type="submit" disabled={createStandaloneInvoice.isPending || updateInvoice.isPending || isUploading}>
+                    {(createStandaloneInvoice.isPending || updateInvoice.isPending || isUploading) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {isUploading ? 'Enviando...' : (createStandaloneInvoice.isPending || updateInvoice.isPending) ? 'Salvando...' : editingInvoice ? 'Atualizar' : 'Salvar'}
                   </Button>
                 </div>
               </form>
@@ -610,6 +688,15 @@ export default function NotasFiscais() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleEdit(invoice)}
+                      title="Editar"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                     {invoice.pdf_url && (
                       <>
                         <Button
@@ -617,6 +704,7 @@ export default function NotasFiscais() {
                           size="icon"
                           className="h-8 w-8"
                           onClick={() => setPreviewUrl(getProxyUrl(invoice.pdf_url))}
+                          title="Visualizar"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -632,6 +720,15 @@ export default function NotasFiscais() {
                         </Button>
                       </>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      onClick={() => setDeletingInvoiceId(invoice.id)}
+                      title="Excluir"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </Card>
@@ -701,6 +798,14 @@ export default function NotasFiscais() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(invoice)}
+                            title="Editar"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
                           {invoice.pdf_url && (
                             <>
                               <Button
@@ -723,6 +828,15 @@ export default function NotasFiscais() {
                               </Button>
                             </>
                           )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => setDeletingInvoiceId(invoice.id)}
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -787,6 +901,34 @@ export default function NotasFiscais() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!deletingInvoiceId} onOpenChange={(open) => !open && setDeletingInvoiceId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem certeza que deseja excluir esta nota fiscal? Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleteInvoice.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Excluindo...
+                  </>
+                ) : (
+                  'Excluir'
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );
