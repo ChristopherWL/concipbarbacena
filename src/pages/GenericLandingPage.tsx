@@ -315,12 +315,37 @@ export default function GenericLandingPage() {
         style={{ background: content.lightEffectColor, opacity: 0.2 }}
       />
 
-      {/* Drifting Particles - Hidden on mobile */}
-      <div className="hidden sm:block absolute top-[20%] left-[20%] w-2 h-2 rounded-full bg-white/20 drift z-[2]" />
-      <div className="hidden sm:block absolute top-[30%] right-[25%] w-1.5 h-1.5 rounded-full bg-white/15 drift z-[2]" style={{ animationDelay: '3s' }} />
-      <div className="hidden md:block absolute top-[60%] left-[15%] w-1 h-1 rounded-full bg-white/20 drift z-[2]" style={{ animationDelay: '5s' }} />
-      <div className="hidden md:block absolute top-[70%] right-[20%] w-2 h-2 rounded-full bg-white/10 drift z-[2]" style={{ animationDelay: '7s' }} />
-      <div className="hidden lg:block absolute top-[40%] left-[70%] w-1.5 h-1.5 rounded-full bg-white/15 drift z-[2]" style={{ animationDelay: '10s' }} />
+      {/* Drifting Particles - Visible on all devices */}
+      <div className="absolute top-[15%] left-[10%] w-2 h-2 rounded-full bg-white/30 drift z-[2]" />
+      <div className="absolute top-[25%] right-[15%] w-1.5 h-1.5 rounded-full bg-white/25 drift z-[2]" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-[45%] left-[8%] w-1 h-1 rounded-full bg-white/30 drift z-[2]" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-[60%] right-[12%] w-2 h-2 rounded-full bg-white/20 drift z-[2]" style={{ animationDelay: '3s' }} />
+      <div className="absolute top-[75%] left-[20%] w-1.5 h-1.5 rounded-full bg-white/25 drift z-[2]" style={{ animationDelay: '4s' }} />
+      <div className="absolute top-[35%] right-[30%] w-1 h-1 rounded-full bg-white/20 drift z-[2]" style={{ animationDelay: '5s' }} />
+      <div className="absolute top-[85%] right-[25%] w-1.5 h-1.5 rounded-full bg-white/15 drift z-[2]" style={{ animationDelay: '6s' }} />
+      <div className="absolute top-[50%] left-[25%] w-2 h-2 rounded-full bg-white/20 drift z-[2]" style={{ animationDelay: '7s' }} />
+      
+      {/* Floating geometric shapes for mobile */}
+      <div 
+        className="absolute top-[20%] right-[8%] w-8 h-8 sm:w-12 sm:h-12 rounded-lg rotate-45 float z-[2] opacity-20"
+        style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, transparent)`, animationDelay: '0s' }}
+      />
+      <div 
+        className="absolute top-[55%] left-[5%] w-6 h-6 sm:w-10 sm:h-10 rounded-full float z-[2] opacity-15"
+        style={{ background: `radial-gradient(circle, ${content.highlightColor}, transparent)`, animationDelay: '2s' }}
+      />
+      <div 
+        className="absolute top-[70%] right-[18%] w-4 h-4 sm:w-8 sm:h-8 rounded-lg rotate-12 float z-[2] opacity-20"
+        style={{ background: `linear-gradient(45deg, ${content.accentColor}, transparent)`, animationDelay: '4s' }}
+      />
+      <div 
+        className="absolute top-[40%] left-[15%] w-3 h-3 sm:w-6 sm:h-6 rounded-full float z-[2] opacity-25"
+        style={{ background: content.lightEffectColor, animationDelay: '1s' }}
+      />
+      <div 
+        className="absolute top-[30%] left-[80%] w-5 h-5 sm:w-8 sm:h-8 rounded-lg rotate-[-20deg] float z-[2] opacity-15"
+        style={{ background: `linear-gradient(135deg, ${content.secondaryButtonColor}, transparent)`, animationDelay: '3s' }}
+      />
 
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-[100]">
