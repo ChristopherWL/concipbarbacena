@@ -7,10 +7,11 @@ import { cn } from '@/lib/utils';
 interface SignatureCanvasProps {
   onSignatureChange: (signatureDataUrl: string | null) => void;
   className?: string;
-  inline?: boolean; // When true, renders canvas directly without expand/collapse
+  inline?: boolean; // When true, renders canvas directly in parent (used in MobileFormWizard landscape step)
+  isRotated?: boolean; // When true, coordinates need to be adjusted for CSS rotation
 }
 
-export function SignatureCanvas({ onSignatureChange, className, inline = false }: SignatureCanvasProps) {
+export function SignatureCanvas({ onSignatureChange, className, inline = false, isRotated = false }: SignatureCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -122,7 +123,34 @@ export function SignatureCanvas({ onSignatureChange, className, inline = false }
       return { x: 0, y: 0 };
     }
     
-    // Scale coordinates to match canvas internal resolution
+    // When CSS rotation is applied (90deg), we need to swap and adjust coordinates
+    if (isRotated) {
+      // Get the center of the rotated element
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // Calculate position relative to center
+      const relX = clientX - centerX;
+      const relY = clientY - centerY;
+      
+      // Rotate coordinates back by -90 degrees (counterclockwise)
+      const rotatedX = relY;
+      const rotatedY = -relX;
+      
+      // Convert back to canvas coordinates
+      const canvasX = rotatedX + rect.height / 2;
+      const canvasY = rotatedY + rect.width / 2;
+      
+      const scaleX = canvas.width / rect.height / (window.devicePixelRatio || 1);
+      const scaleY = canvas.height / rect.width / (window.devicePixelRatio || 1);
+      
+      return {
+        x: canvasX * scaleX,
+        y: canvasY * scaleY,
+      };
+    }
+    
+    // Normal coordinates (no rotation)
     const scaleX = canvas.width / rect.width / (window.devicePixelRatio || 1);
     const scaleY = canvas.height / rect.height / (window.devicePixelRatio || 1);
     
@@ -219,12 +247,12 @@ export function SignatureCanvas({ onSignatureChange, className, inline = false }
       <div ref={containerRef} className={cn("flex flex-col h-full w-full", className)}>
         <div 
           className="flex-1 rounded-lg overflow-hidden bg-card border border-border relative"
-          style={{ minHeight: '180px', minWidth: '300px' }}
+          style={{ minHeight: '180px', minWidth: '300px', touchAction: 'none', pointerEvents: 'auto' }}
         >
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full cursor-crosshair bg-white"
-            style={{ touchAction: 'none' }}
+            style={{ touchAction: 'none', pointerEvents: 'auto' }}
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={stopDrawing}

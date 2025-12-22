@@ -116,7 +116,7 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
         "fixed inset-0 z-[9999] bg-background flex flex-col",
         "landscape-locked"
       )}
-      style={rotationStyle}
+      style={{ ...rotationStyle, touchAction: 'none', pointerEvents: 'auto' }}
     >
       {/* Header */}
       <div className="px-4 py-3 border-b border-border/20 flex-shrink-0 bg-background">
@@ -126,10 +126,14 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
       </div>
 
       {/* Signature content */}
-      <div className="flex-1 overflow-hidden p-4 flex flex-col" style={{ minHeight: '200px' }}>
+      <div 
+        className="flex-1 overflow-hidden p-4 flex flex-col" 
+        style={{ minHeight: '200px', touchAction: 'none', pointerEvents: 'auto' }}
+      >
         <SignatureCanvas 
           onSignatureChange={setSignature}
           inline={true}
+          isRotated={needsCssRotation}
           className="flex-1"
         />
       </div>
