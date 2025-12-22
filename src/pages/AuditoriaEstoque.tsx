@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -118,12 +119,10 @@ export default function AuditoriaEstoque() {
     <DashboardLayout>
       <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
         {/* Header */}
-        <div className="flex flex-col items-center text-center gap-2 sm:-mt-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Auditoria de Estoque</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Controle de itens com defeito, furtados e em garantia
-          </p>
-        </div>
+        <PageHeader 
+          title="Auditoria de Estoque" 
+          description="Controle de itens com defeito, furtados e em garantia"
+        />
         
         <div className="flex flex-wrap justify-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setInventoryDialogOpen(true)}>
