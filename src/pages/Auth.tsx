@@ -407,7 +407,7 @@ export default function Auth() {
       </header>
 
       {/* Hero Section with Login Form */}
-      <section className="relative min-h-screen flex items-start justify-center pt-28 lg:pt-32 pb-12 z-10">
+      <section className="relative min-h-screen flex items-start justify-center pt-8 lg:pt-12 pb-12 z-10">
         <div className="container mx-auto px-4 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-start max-w-6xl mx-auto">
             {/* Left side - Welcome text */}
