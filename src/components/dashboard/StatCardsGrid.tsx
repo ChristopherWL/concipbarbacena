@@ -36,6 +36,24 @@ const getIconClass = (gradient: string) => {
 
 export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) {
   const navigate = useNavigate();
+  const cardCount = cards.length;
+
+  // Determine grid columns based on card count for responsive layout
+  const getGridClasses = () => {
+    if (cardCount <= 2) {
+      return 'grid-cols-1 sm:grid-cols-2 max-w-2xl';
+    }
+    if (cardCount <= 3) {
+      return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 max-w-4xl';
+    }
+    if (cardCount <= 4) {
+      return 'grid-cols-2 sm:grid-cols-2 md:grid-cols-4 max-w-5xl';
+    }
+    if (cardCount <= 5) {
+      return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5';
+    }
+    return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6';
+  };
 
   const renderCard = (stat: StatCard, index: number) => (
     <Card 
@@ -104,7 +122,7 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
   );
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className={cn('grid gap-3', getGridClasses())}>
       {cards.map((stat, index) => renderCard(stat, index))}
     </div>
   );
