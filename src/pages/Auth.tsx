@@ -448,10 +448,10 @@ export default function Auth() {
 
             {/* Right side - Login Form */}
             <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up animation-delay-200">
-              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden shadow-2xl relative">
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl relative overflow-visible">
                 {/* Decorative top gradient line */}
                 <div 
-                  className="absolute top-0 left-0 right-0 h-1"
+                  className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
                   style={{ background: `linear-gradient(90deg, transparent, ${primaryColor}, transparent)` }}
                 />
                 
@@ -462,7 +462,7 @@ export default function Auth() {
                   <div className="w-2 h-2 rounded-full bg-white/40" />
                 </div>
                 
-                {/* Card Header */}
+                {/* Card Header - Static, no scroll */}
                 <div className="p-6 sm:p-8 pb-4">
                   <div className="text-center">
                     {/* Logo/Icon */}
