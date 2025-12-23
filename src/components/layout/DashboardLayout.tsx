@@ -1169,58 +1169,56 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               if (item.children && collapsed) {
                 const hasActiveChild = isParentActive(item);
                 return (
-                  <Tooltip key={item.name}>
-                    <DropdownMenu>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            title={item.name}
-                            aria-label={item.name}
-                            className={cn(
-                              'w-full h-11 p-0 justify-center text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-all duration-200 rounded-lg relative group',
-                              hasActiveChild && 'bg-sidebar-accent/50 text-sidebar-foreground'
-                            )}
-                          >
-                            <div className={cn(
-                              "flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200",
-                              hasActiveChild 
-                                ? "bg-primary/20 text-primary" 
-                                : "bg-sidebar-foreground/5 text-sidebar-foreground/60 group-hover:bg-sidebar-foreground/10"
-                            )}>
-                              <item.icon className="h-5 w-5" />
-                            </div>
-                            {(item.badge || 0) > 0 && (
-                              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full animate-pulse ring-2 ring-sidebar-background" />
-                            )}
-                          </Button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="font-medium">
-                        {item.name}
-                      </TooltipContent>
-                      <DropdownMenuContent side="right" align="start" className="w-52 ml-2 bg-popover/95 backdrop-blur-sm border-border/50 shadow-xl z-50">
-                        <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{item.name}</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {item.children.map((child) => (
-                          <DropdownMenuItem 
-                            key={child.href} 
-                            onClick={() => handleNavigation(child.href)}
-                            className={cn(
-                              "cursor-pointer gap-3",
-                              isActive(child.href) && "bg-primary/10 text-primary"
-                            )}
-                          >
-                            <child.icon className="h-4 w-4" />
-                            <span>{child.name}</span>
-                            {(child.badge || 0) > 0 && (
-                              <NotificationBadge count={child.badge || 0} type={child.badgeType} className="ml-auto scale-75" />
-                            )}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </Tooltip>
+                  <DropdownMenu key={item.name}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        title={item.name}
+                        aria-label={item.name}
+                        className={cn(
+                          'w-full h-11 p-0 justify-center text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-all duration-200 rounded-lg relative group',
+                          hasActiveChild && 'bg-sidebar-accent/50 text-sidebar-foreground'
+                        )}
+                      >
+                        <div className={cn(
+                          "flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200",
+                          hasActiveChild 
+                            ? "bg-primary/20 text-primary" 
+                            : "bg-sidebar-foreground/5 text-sidebar-foreground/60 group-hover:bg-sidebar-foreground/10"
+                        )}>
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        {(item.badge || 0) > 0 && (
+                          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full animate-pulse ring-2 ring-sidebar-background" />
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      side="right" 
+                      align="start" 
+                      sideOffset={8}
+                      className="w-52 bg-popover/95 backdrop-blur-sm border-border/50 shadow-xl z-[100]"
+                    >
+                      <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{item.name}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {item.children.map((child) => (
+                        <DropdownMenuItem 
+                          key={child.href} 
+                          onClick={() => handleNavigation(child.href)}
+                          className={cn(
+                            "cursor-pointer gap-3",
+                            isActive(child.href) && "bg-primary/10 text-primary"
+                          )}
+                        >
+                          <child.icon className="h-4 w-4" />
+                          <span>{child.name}</span>
+                          {(child.badge || 0) > 0 && (
+                            <NotificationBadge count={child.badge || 0} type={child.badgeType} className="ml-auto scale-75" />
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 );
               }
 
