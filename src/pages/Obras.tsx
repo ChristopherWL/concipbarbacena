@@ -610,14 +610,14 @@ const Obras = () => {
           setIsUpdatesListDialogOpen(open);
           if (!open) setSelectedObra(null);
         }}>
-          <DialogContent className="w-full max-w-3xl max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
-            <div className="bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-              <DialogHeader className="bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0">
+          <DialogContent className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0" : "w-full max-w-3xl max-h-[90vh] p-0 bg-transparent shadow-none border-0"}>
+            <div className={isMobile ? "bg-background h-full flex flex-col" : "bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"}>
+              <DialogHeader className={isMobile ? "bg-primary px-4 py-4 flex-shrink-0" : "bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0"}>
                 <DialogTitle className="text-primary-foreground">
                   {selectedObra?.nome}
                 </DialogTitle>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-6">
+              <div className={isMobile ? "flex-1 overflow-y-auto px-3 py-4 min-h-0 space-y-4" : "flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-6"}>
                 {/* Etapas e Progresso */}
                 {selectedObra && (
                   <ObraEtapasPanel 
@@ -709,9 +709,9 @@ const Obras = () => {
             setEditDiarioForm({ etapa: '', data: '', responsavel: '', descricao: '' });
           }
         }}>
-          <DialogContent className="w-full max-w-2xl max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
-            <div className="bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-              <DialogHeader className="bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0">
+          <DialogContent className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0" : "w-full max-w-2xl max-h-[90vh] p-0 bg-transparent shadow-none border-0"}>
+            <div className={isMobile ? "bg-background h-full flex flex-col" : "bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"}>
+              <DialogHeader className={isMobile ? "bg-primary px-4 py-4 flex-shrink-0" : "bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0"}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Button 
@@ -769,13 +769,13 @@ const Obras = () => {
                   )}
                 </div>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4 min-h-0">
+              <div className={isMobile ? "flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0" : "flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4 min-h-0"}>
               {selectedDiario && (
                 <>
                   {isEditingDiario ? (
                     // Edit mode
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="editEtapa">Etapa</Label>
                           <Input
@@ -854,7 +854,7 @@ const Obras = () => {
                   ) : (
                     // View mode
                     <>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <Label className="text-muted-foreground text-xs">Etapa</Label>
                           <p className="font-medium">{selectedDiario.clima_manha || '-'}</p>
@@ -954,7 +954,7 @@ const Obras = () => {
 
         {/* Dialog de Imagem em Tela Cheia */}
         <Dialog open={!!fullscreenImage} onOpenChange={(open) => !open && setFullscreenImage(null)}>
-          <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-0">
+          <DialogContent className="w-screen h-screen max-w-none max-h-none p-0 m-0 bg-black/95 border-0 rounded-none inset-0 translate-x-0 translate-y-0">
             <div className="relative w-full h-full flex items-center justify-center">
               <Button
                 variant="ghost"
