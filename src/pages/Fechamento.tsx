@@ -282,7 +282,7 @@ export default function Fechamento() {
     [supplierGroups, selectedSupplier]
   );
 
-  // Paginação para a tabela de fornecedores
+  // Paginação para a tabela de fornecedores (tabela principal)
   const {
     currentPage: suppliersPage,
     setCurrentPage: setSuppliersPage,
@@ -290,6 +290,16 @@ export default function Fechamento() {
     setPageSize: setSuppliersPageSize,
     paginatedItems: paginatedSuppliers,
     totalItems: totalSuppliers,
+  } = usePagination(supplierGroups, 10);
+
+  // Paginação para a lista de fornecedores na sidebar
+  const {
+    currentPage: sidebarSuppliersPage,
+    setCurrentPage: setSidebarSuppliersPage,
+    pageSize: sidebarSuppliersPageSize,
+    setPageSize: setSidebarSuppliersPageSize,
+    paginatedItems: paginatedSidebarSuppliers,
+    totalItems: totalSidebarSuppliers,
   } = usePagination(supplierGroups, 10);
 
   // Paginação para a tabela de cupons do fornecedor selecionado
@@ -516,7 +526,7 @@ export default function Fechamento() {
                         Nenhum fornecedor
                       </p>
                     ) : (
-                      supplierGroups.map((group) => (
+                      paginatedSidebarSuppliers.map((group) => (
                         <button
                           key={group.supplier.id}
                           onClick={() => setSelectedSupplier(group.supplier.id)}
@@ -540,6 +550,22 @@ export default function Fechamento() {
                           </Badge>
                         </button>
                       ))
+                    )}
+                    
+                    {/* Paginação da sidebar */}
+                    {totalSidebarSuppliers > 0 && (
+                      <div className="mt-2 pt-2 border-t">
+                        <TablePagination
+                          currentPage={sidebarSuppliersPage}
+                          totalItems={totalSidebarSuppliers}
+                          pageSize={sidebarSuppliersPageSize}
+                          onPageChange={setSidebarSuppliersPage}
+                          onPageSizeChange={setSidebarSuppliersPageSize}
+                          pageSizeOptions={[5, 10, 20]}
+                          showAllOption={false}
+                          className="py-2 flex-wrap"
+                        />
+                      </div>
                     )}
                   </div>
                 </ScrollArea>
