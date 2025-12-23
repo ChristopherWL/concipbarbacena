@@ -764,116 +764,144 @@ export default function NotasFiscais() {
           )}
         </div>
 
-        {/* Desktop Table View */}
-        <Card className="hidden md:block">
-          <ScrollArea className="h-[500px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Número</TableHead>
-                  <TableHead>Fornecedor</TableHead>
-                  <TableHead>Data Emissão</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Anexo</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      Carregando...
-                    </TableCell>
+        {/* Desktop Table View - Glassmorphism */}
+        <div className="hidden md:block relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-info/5 rounded-xl sm:rounded-2xl blur-xl opacity-50" />
+          <Card className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
+            <ScrollArea className="h-[500px]">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-border/50 bg-muted/30">
+                    <TableHead className="font-semibold text-foreground">Número</TableHead>
+                    <TableHead className="font-semibold text-foreground">Fornecedor</TableHead>
+                    <TableHead className="font-semibold text-foreground hidden lg:table-cell">Data Emissão</TableHead>
+                    <TableHead className="font-semibold text-foreground">Valor</TableHead>
+                    <TableHead className="font-semibold text-foreground">Anexo</TableHead>
+                    <TableHead className="text-right font-semibold text-foreground">Ações</TableHead>
                   </TableRow>
-                ) : filteredInvoices.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      Nenhuma nota fiscal encontrada
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredInvoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          {invoice.invoice_number}
-                          {invoice.invoice_series && (
-                            <Badge variant="outline" className="text-xs">
-                              Série {invoice.invoice_series}
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {(invoice.supplier as any)?.name || '-'}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(invoice.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
-                      </TableCell>
-                      <TableCell>
-                        {formatCurrency(invoice.total_value)}
-                      </TableCell>
-                      <TableCell>
-                        {invoice.pdf_url ? (
-                          <Badge variant="secondary" className="gap-1">
-                            <FileText className="h-3 w-3" />
-                            Anexado
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(invoice)}
-                            title="Editar"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          {invoice.pdf_url && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => { setPreviewUrl(getProxyUrl(invoice.pdf_url)); setPreviewInvoiceId(invoice.id); }}
-                                title="Visualizar"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                asChild
-                                title="Download"
-                              >
-                                <a href={getProxyUrl(invoice.pdf_url, true) || '#'} download>
-                                  <Download className="h-4 w-4" />
-                                </a>
-                              </Button>
-                            </>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => setDeletingInvoiceId(invoice.id)}
-                            title="Excluir"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-12">
+                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Carregando...
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </ScrollArea>
-        </Card>
+                  ) : filteredInvoices.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-12">
+                        <div className="flex flex-col items-center gap-2">
+                          <FileText className="h-8 w-8 text-muted-foreground/50" />
+                          <span className="text-muted-foreground">Nenhuma nota fiscal encontrada</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredInvoices.map((invoice, index) => (
+                      <TableRow 
+                        key={invoice.id} 
+                        className="hover:bg-muted/30 transition-colors border-b border-border/30"
+                        style={{ animationDelay: `${index * 30}ms` }}
+                      >
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-info/20 flex items-center justify-center">
+                              <FileText className="h-4 w-4 text-primary" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="font-semibold">{invoice.invoice_number}</span>
+                              {invoice.invoice_series && (
+                                <Badge variant="outline" className="text-[10px] w-fit mt-0.5 border-primary/30 text-primary">
+                                  Série {invoice.invoice_series}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-medium text-foreground">
+                            {(invoice.supplier as any)?.name || '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <span className="text-muted-foreground">
+                            {format(new Date(invoice.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-semibold text-info">
+                            {formatCurrency(invoice.total_value)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {invoice.pdf_url ? (
+                            <Badge className="gap-1 bg-success/10 text-success border-success/30 hover:bg-success/20">
+                              <FileText className="h-3 w-3" />
+                              Anexado
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-muted-foreground border-border/50">
+                              Sem anexo
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary"
+                              onClick={() => handleEdit(invoice)}
+                              title="Editar"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            {invoice.pdf_url && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-lg hover:bg-info/10 hover:text-info"
+                                  onClick={() => { setPreviewUrl(getProxyUrl(invoice.pdf_url)); setPreviewInvoiceId(invoice.id); }}
+                                  title="Visualizar"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-lg hover:bg-success/10 hover:text-success"
+                                  asChild
+                                  title="Download"
+                                >
+                                  <a href={getProxyUrl(invoice.pdf_url, true) || '#'} download>
+                                    <Download className="h-4 w-4" />
+                                  </a>
+                                </Button>
+                              </>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 rounded-lg hover:bg-destructive/10 text-destructive"
+                              onClick={() => setDeletingInvoiceId(invoice.id)}
+                              title="Excluir"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </Card>
+        </div>
 
         {/* Preview Dialog */}
         <Dialog open={!!previewUrl} onOpenChange={() => setPreviewUrl(null)}>
