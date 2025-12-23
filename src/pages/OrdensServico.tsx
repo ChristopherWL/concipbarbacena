@@ -253,13 +253,6 @@ export default function OrdensServico() {
           description="Gerencie OS e clientes"
           icon={<ClipboardList className="h-5 w-5" />}
         />
-        {!isReadOnly && (
-          <Button onClick={() => setOrderDialogOpen(true)} className="hover-lift">
-            <Plus className="h-4 w-4 mr-2" />
-            Nova OS
-          </Button>
-        )}
-
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-stagger">
           <Card variant="stat" onClick={() => setStatusFilter('all')}>
@@ -310,6 +303,12 @@ export default function OrdensServico() {
                   ))}
                 </SelectContent>
               </Select>
+              {!isReadOnly && (
+                <Button onClick={() => setOrderDialogOpen(true)} className="hover-lift">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nova OS
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent className="px-3 sm:px-6">
