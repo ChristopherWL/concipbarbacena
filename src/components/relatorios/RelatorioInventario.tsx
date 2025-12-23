@@ -20,9 +20,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { format, subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatters';
-import { exportRelatorioInventario, exportFichaControleSaidaMaterial, BranchInfo } from '@/lib/exportRelatorioPDF';
+import { 
+  exportRelatorioInventarioFicha, 
+  exportRelatorioEntradasFicha, 
+  exportRelatorioSaidasFicha,
+  BranchInfo 
+} from '@/lib/exportRelatorioPDF';
 import { cn } from '@/lib/utils';
-import jsPDF from 'jspdf';
 
 type ReportType = 'total' | 'entradas' | 'saidas';
 type DateRange = 'today' | 'week' | 'month' | 'custom';
@@ -200,150 +204,17 @@ export function RelatorioInventario() {
   };
 
   // Export functions
-  const exportTotalPDF = () => {
-    exportRelatorioInventario(getCompanyInfo(), filteredProducts, formatCurrency);
+  const exportTotalPDF = async () => {
+    await exportRelatorioInventarioFicha(getCompanyInfo(), getBranchInfo(), filteredProducts, formatCurrency);
   };
 
-  const exportMovementsPDF = (type: 'entradas' | 'saidas') => {
+  const exportMovementsPDF = async (type: 'entradas' | 'saidas') => {
     const data = type === 'entradas' ? entradas : saidas;
-    const title = type === 'entradas' ? 'Relatório de Entradas' : 'Relatório de Saídas';
-    
-    const doc = new jsPDF('landscape');
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 15;
-
-    // Header
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(30, 58, 95);
-    doc.text(tenant?.name || 'Empresa', pageWidth / 2, y, { align: 'center' });
-    y += 8;
-
-    doc.setFontSize(14);
-    doc.text(title, pageWidth / 2, y, { align: 'center' });
-    y += 6;
-
-    // Period
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 100, 100);
-    const periodText = `Período: ${format(dateInterval.start, 'dd/MM/yyyy')} a ${format(dateInterval.end, 'dd/MM/yyyy')}`;
-    doc.text(periodText, pageWidth / 2, y, { align: 'center' });
-    y += 5;
-
-    doc.setFontSize(9);
-    doc.text(`Gerado em: ${format(new Date(), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}`, pageWidth / 2, y, { align: 'center' });
-    y += 8;
-
-    // Separator
-    doc.setDrawColor(200, 200, 200);
-    doc.line(15, y, pageWidth - 15, y);
-    y += 8;
-
-    // Summary
-    doc.setFontSize(10);
-    doc.setTextColor(30, 58, 95);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Resumo:', 15, y);
-    y += 6;
-    
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(60, 60, 60);
-    const totalQty = data.reduce((acc, m) => acc + m.quantity, 0);
-    const totalVal = data.reduce((acc, m) => acc + (m.quantity * (m.product?.cost_price || 0)), 0);
-    doc.text(`Total de movimentações: ${data.length}`, 15, y);
-    doc.text(`Quantidade total: ${totalQty} itens`, 100, y);
-    doc.text(`Valor total: ${formatCurrency(totalVal)}`, 200, y);
-    y += 10;
-
-    // Table header
-    const columns = [
-      { header: 'Data/Hora', width: 35 },
-      { header: 'Produto', width: 60 },
-      { header: 'Código', width: 25 },
-      { header: 'Categoria', width: 25 },
-      { header: 'Tipo', width: 25 },
-      { header: 'Quantidade', width: 25, align: 'center' as const },
-      { header: 'Motivo', width: 50 },
-      { header: 'Valor', width: 25, align: 'right' as const },
-    ];
-
-    doc.setFillColor(30, 58, 95);
-    doc.rect(15, y, pageWidth - 30, 8, 'F');
-    
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(255, 255, 255);
-    
-    let x = 17;
-    columns.forEach(col => {
-      doc.text(col.header, x, y + 5.5);
-      x += col.width;
-    });
-    y += 10;
-
-    // Table rows
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(60, 60, 60);
-    doc.setFontSize(7);
-
-    const pageHeight = doc.internal.pageSize.getHeight();
-    
-    data.forEach((mov, index) => {
-      if (y > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
-        
-        doc.setFillColor(30, 58, 95);
-        doc.rect(15, y, pageWidth - 30, 8, 'F');
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(255, 255, 255);
-        
-        x = 17;
-        columns.forEach(col => {
-          doc.text(col.header, x, y + 5.5);
-          x += col.width;
-        });
-        y += 10;
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(60, 60, 60);
-        doc.setFontSize(7);
-      }
-
-      if (index % 2 === 0) {
-        doc.setFillColor(248, 250, 252);
-        doc.rect(15, y - 1, pageWidth - 30, 6, 'F');
-      }
-
-      x = 17;
-      const rowData = [
-        format(parseISO(mov.created_at), 'dd/MM/yy HH:mm'),
-        (mov.product?.name || '-').substring(0, 28),
-        (mov.product?.code || '-').substring(0, 10),
-        getCategoryLabel(mov.product?.category || ''),
-        mov.movement_type,
-        mov.quantity.toString(),
-        (mov.reason || '-').substring(0, 25),
-        formatCurrency(mov.quantity * (mov.product?.cost_price || 0)),
-      ];
-
-      rowData.forEach((text, colIndex) => {
-        const col = columns[colIndex];
-        if (col.align === 'right') {
-          doc.text(text, x + col.width - 2, y + 3, { align: 'right' });
-        } else if (col.align === 'center') {
-          doc.text(text, x + col.width / 2, y + 3, { align: 'center' });
-        } else {
-          doc.text(text, x, y + 3);
-        }
-        x += col.width;
-      });
-
-      y += 6;
-    });
-
-    doc.save(`relatorio_${type}_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    if (type === 'entradas') {
+      await exportRelatorioEntradasFicha(getCompanyInfo(), getBranchInfo(), data, formatCurrency, dateInterval);
+    } else {
+      await exportRelatorioSaidasFicha(getCompanyInfo(), getBranchInfo(), data, formatCurrency, dateInterval);
+    }
   };
 
   const exportToCSV = (type: ReportType) => {

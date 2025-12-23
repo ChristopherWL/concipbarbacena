@@ -1571,7 +1571,712 @@ export async function exportFichaControleSaidaMaterial(
   doc.save(filename);
 }
 
-// Relatório de Inventário
+// Relatório de Inventário - Formato Ficha (igual ao modelo)
+export async function exportRelatorioInventarioFicha(
+  company: CompanyInfo,
+  branch: BranchInfo | null,
+  products: any[],
+  formatCurrency: (value: number) => string
+): Promise<void> {
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const marginLeft = 10;
+  const marginRight = 10;
+  const tableWidth = pageWidth - marginLeft - marginRight;
+  let y = 8;
+
+  // Header box with logo and company/branch info
+  const headerHeight = 28;
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(marginLeft, y, tableWidth, headerHeight, 'S');
+
+  // Logo area (left side)
+  const logoWidth = 40;
+  doc.setLineWidth(0.3);
+  doc.line(marginLeft + logoWidth, y, marginLeft + logoWidth, y + headerHeight);
+
+  // Try to add logo
+  const logoUrl = branch?.logo_url || company.logoUrl;
+  if (logoUrl) {
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              const dataUrl = canvas.toDataURL('image/png');
+              const maxWidth = 35;
+              const maxHeight = 22;
+              let imgWidth = img.width;
+              let imgHeight = img.height;
+              const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+              imgWidth *= ratio;
+              imgHeight *= ratio;
+              const imgX = marginLeft + (logoWidth - imgWidth) / 2;
+              const imgY = y + (headerHeight - imgHeight) / 2;
+              doc.addImage(dataUrl, 'PNG', imgX, imgY, imgWidth, imgHeight);
+            }
+            resolve();
+          } catch {
+            resolve();
+          }
+        };
+        img.onerror = () => resolve();
+        img.src = logoUrl;
+      });
+    } catch {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      const lines = doc.splitTextToSize(company.name || 'Empresa', logoWidth - 4);
+      doc.text(lines, marginLeft + logoWidth / 2, y + headerHeight / 2, { align: 'center' });
+    }
+  } else {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    const lines = doc.splitTextToSize(company.name || 'Empresa', logoWidth - 4);
+    doc.text(lines, marginLeft + logoWidth / 2, y + headerHeight / 2, { align: 'center' });
+  }
+
+  // Title area (center)
+  const titleStartX = marginLeft + logoWidth;
+  const titleWidth = tableWidth - logoWidth - 50;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('RELATÓRIO DE INVENTÁRIO - ESTOQUE TOTAL', titleStartX + titleWidth / 2, y + 10, { align: 'center' });
+
+  // Branch info below title
+  const branchOrCompany = branch || company;
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(60, 60, 60);
+
+  let infoY = y + 15;
+  if (branchOrCompany.cnpj) {
+    doc.text(`CNPJ: ${branchOrCompany.cnpj}`, titleStartX + titleWidth / 2, infoY, { align: 'center' });
+    infoY += 4;
+  }
+
+  const cityState = [branch?.city || company.city, branch?.state || company.state].filter(Boolean).join(' - ');
+  if (cityState) {
+    doc.text(cityState, titleStartX + titleWidth / 2, infoY, { align: 'center' });
+  }
+
+  // Date area (right side)
+  doc.setLineWidth(0.3);
+  doc.line(pageWidth - marginRight - 50, y, pageWidth - marginRight - 50, y + headerHeight);
+  
+  const dateAreaCenterY = y + headerHeight / 2;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('Data:', pageWidth - marginRight - 45, dateAreaCenterY - 3);
+  doc.setFont('helvetica', 'normal');
+  doc.text(format(new Date(), 'dd/MM/yyyy'), pageWidth - marginRight - 45, dateAreaCenterY + 2);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Hora:', pageWidth - marginRight - 45, dateAreaCenterY + 8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(format(new Date(), 'HH:mm'), pageWidth - marginRight - 45, dateAreaCenterY + 13);
+
+  y += headerHeight + 3;
+
+  // Table header
+  const columns = [
+    { header: 'ITEM', width: 12 },
+    { header: 'CÓDIGO', width: 25 },
+    { header: 'PRODUTO', width: 70 },
+    { header: 'CATEGORIA', width: 28 },
+    { header: 'UN', width: 15 },
+    { header: 'ESTOQUE', width: 22 },
+    { header: 'MÍN.', width: 18 },
+    { header: 'STATUS', width: 22 },
+    { header: 'VALOR UNIT.', width: 30 },
+    { header: 'VALOR TOTAL', width: 35 },
+  ];
+
+  const rowHeight = 7;
+  const tableRowHeaderHeight = 8;
+
+  // Draw header row
+  doc.setFillColor(240, 240, 240);
+  doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'F');
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.3);
+  doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
+
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+
+  let x = marginLeft;
+  columns.forEach((col) => {
+    doc.line(x, y, x, y + tableRowHeaderHeight);
+    doc.text(col.header, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
+    x += col.width;
+  });
+  doc.line(x, y, x, y + tableRowHeaderHeight);
+
+  y += tableRowHeaderHeight;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
+
+  const getCategoryLabel = (cat: string) => {
+    const labels: Record<string, string> = { epi: 'EPI', epc: 'EPC', ferramentas: 'Ferramentas', materiais: 'Materiais', equipamentos: 'Equipamentos' };
+    return labels[cat] || cat?.toUpperCase() || '-';
+  };
+
+  const getStatus = (stock: number, min: number) => {
+    if (stock === 0) return 'Zerado';
+    if (stock <= min) return 'Crítico';
+    if (stock <= min * 1.5) return 'Baixo';
+    return 'OK';
+  };
+
+  for (let i = 0; i < products.length; i++) {
+    if (y + rowHeight > pageHeight - 15) {
+      doc.addPage();
+      y = 12;
+
+      doc.setFillColor(240, 240, 240);
+      doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'F');
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.3);
+      doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
+
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'bold');
+
+      x = marginLeft;
+      columns.forEach((col) => {
+        doc.line(x, y, x, y + tableRowHeaderHeight);
+        doc.text(col.header, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
+        x += col.width;
+      });
+      doc.line(x, y, x, y + tableRowHeaderHeight);
+
+      y += tableRowHeaderHeight;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6);
+    }
+
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.2);
+    doc.rect(marginLeft, y, tableWidth, rowHeight, 'S');
+
+    x = marginLeft;
+    const p = products[i];
+    const stock = p.current_stock || 0;
+    const minStock = p.min_stock || 0;
+
+    const rowData = [
+      (i + 1).toString(),
+      p.code || '-',
+      p.name || '-',
+      getCategoryLabel(p.category),
+      p.unit || 'UN',
+      stock.toString(),
+      minStock.toString(),
+      getStatus(stock, minStock),
+      formatCurrency(p.cost_price || 0),
+      formatCurrency(stock * (p.cost_price || 0)),
+    ];
+
+    rowData.forEach((value, colIndex) => {
+      doc.line(x, y, x, y + rowHeight);
+      const col = columns[colIndex];
+      const text = value.length > Math.floor(col.width / 2) ? value.substring(0, Math.floor(col.width / 2) - 1) + '..' : value;
+      
+      if (colIndex === 0 || colIndex === 4 || colIndex === 5 || colIndex === 6 || colIndex === 7) {
+        doc.text(text, x + col.width / 2, y + 4.5, { align: 'center', maxWidth: col.width - 2 });
+      } else if (colIndex === 8 || colIndex === 9) {
+        doc.text(text, x + col.width - 2, y + 4.5, { align: 'right', maxWidth: col.width - 2 });
+      } else {
+        doc.text(text, x + 1.5, y + 4.5, { maxWidth: col.width - 3 });
+      }
+      x += col.width;
+    });
+    doc.line(x, y, x, y + rowHeight);
+
+    y += rowHeight;
+  }
+
+  addFooter(doc);
+
+  const filename = `relatorio_estoque_total_${format(new Date(), 'yyyy-MM-dd_HHmm')}.pdf`;
+  doc.save(filename);
+}
+
+// Relatório de Entradas - Formato Ficha
+export async function exportRelatorioEntradasFicha(
+  company: CompanyInfo,
+  branch: BranchInfo | null,
+  movements: any[],
+  formatCurrency: (value: number) => string,
+  period: { start: Date; end: Date }
+): Promise<void> {
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const marginLeft = 10;
+  const marginRight = 10;
+  const tableWidth = pageWidth - marginLeft - marginRight;
+  let y = 8;
+
+  // Header
+  const headerHeight = 28;
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(marginLeft, y, tableWidth, headerHeight, 'S');
+
+  const logoWidth = 40;
+  doc.setLineWidth(0.3);
+  doc.line(marginLeft + logoWidth, y, marginLeft + logoWidth, y + headerHeight);
+
+  const logoUrl = branch?.logo_url || company.logoUrl;
+  if (logoUrl) {
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              const dataUrl = canvas.toDataURL('image/png');
+              const maxWidth = 35;
+              const maxHeight = 22;
+              let imgWidth = img.width;
+              let imgHeight = img.height;
+              const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+              imgWidth *= ratio;
+              imgHeight *= ratio;
+              const imgX = marginLeft + (logoWidth - imgWidth) / 2;
+              const imgY = y + (headerHeight - imgHeight) / 2;
+              doc.addImage(dataUrl, 'PNG', imgX, imgY, imgWidth, imgHeight);
+            }
+            resolve();
+          } catch { resolve(); }
+        };
+        img.onerror = () => resolve();
+        img.src = logoUrl;
+      });
+    } catch {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      const lines = doc.splitTextToSize(company.name || 'Empresa', logoWidth - 4);
+      doc.text(lines, marginLeft + logoWidth / 2, y + headerHeight / 2, { align: 'center' });
+    }
+  } else {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    const lines = doc.splitTextToSize(company.name || 'Empresa', logoWidth - 4);
+    doc.text(lines, marginLeft + logoWidth / 2, y + headerHeight / 2, { align: 'center' });
+  }
+
+  const titleStartX = marginLeft + logoWidth;
+  const titleWidth = tableWidth - logoWidth - 50;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('RELATÓRIO DE ENTRADAS NO ESTOQUE', titleStartX + titleWidth / 2, y + 10, { align: 'center' });
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(60, 60, 60);
+  doc.text(`Período: ${format(period.start, 'dd/MM/yyyy')} a ${format(period.end, 'dd/MM/yyyy')}`, titleStartX + titleWidth / 2, y + 17, { align: 'center' });
+
+  const cityState = [branch?.city || company.city, branch?.state || company.state].filter(Boolean).join(' - ');
+  if (cityState) {
+    doc.setFontSize(7);
+    doc.text(cityState, titleStartX + titleWidth / 2, y + 22, { align: 'center' });
+  }
+
+  doc.setLineWidth(0.3);
+  doc.line(pageWidth - marginRight - 50, y, pageWidth - marginRight - 50, y + headerHeight);
+  
+  const dateAreaCenterY = y + headerHeight / 2;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('Data:', pageWidth - marginRight - 45, dateAreaCenterY - 3);
+  doc.setFont('helvetica', 'normal');
+  doc.text(format(new Date(), 'dd/MM/yyyy'), pageWidth - marginRight - 45, dateAreaCenterY + 2);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Hora:', pageWidth - marginRight - 45, dateAreaCenterY + 8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(format(new Date(), 'HH:mm'), pageWidth - marginRight - 45, dateAreaCenterY + 13);
+
+  y += headerHeight + 3;
+
+  const columns = [
+    { header: 'ITEM', width: 12 },
+    { header: 'DATA/HORA', width: 32 },
+    { header: 'CÓDIGO', width: 25 },
+    { header: 'PRODUTO', width: 70 },
+    { header: 'CATEGORIA', width: 28 },
+    { header: 'TIPO', width: 25 },
+    { header: 'QTD', width: 18 },
+    { header: 'MOTIVO', width: 50 },
+    { header: 'VALOR', width: 28 },
+  ];
+
+  const rowHeight = 7;
+  const tableRowHeaderHeight = 8;
+
+  doc.setFillColor(240, 240, 240);
+  doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'F');
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.3);
+  doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
+
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+
+  let x = marginLeft;
+  columns.forEach((col) => {
+    doc.line(x, y, x, y + tableRowHeaderHeight);
+    doc.text(col.header, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
+    x += col.width;
+  });
+  doc.line(x, y, x, y + tableRowHeaderHeight);
+
+  y += tableRowHeaderHeight;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
+
+  const getCategoryLabel = (cat: string) => {
+    const labels: Record<string, string> = { epi: 'EPI', epc: 'EPC', ferramentas: 'Ferramentas', materiais: 'Materiais', equipamentos: 'Equipamentos' };
+    return labels[cat] || cat?.toUpperCase() || '-';
+  };
+
+  const getTypeLabel = (type: string) => {
+    const labels: Record<string, string> = { entrada: 'Entrada', devolucao: 'Devolução' };
+    return labels[type] || type;
+  };
+
+  for (let i = 0; i < movements.length; i++) {
+    if (y + rowHeight > pageHeight - 15) {
+      doc.addPage();
+      y = 12;
+
+      doc.setFillColor(240, 240, 240);
+      doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'F');
+      doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
+
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'bold');
+
+      x = marginLeft;
+      columns.forEach((col) => {
+        doc.line(x, y, x, y + tableRowHeaderHeight);
+        doc.text(col.header, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
+        x += col.width;
+      });
+      doc.line(x, y, x, y + tableRowHeaderHeight);
+
+      y += tableRowHeaderHeight;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6);
+    }
+
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.2);
+    doc.rect(marginLeft, y, tableWidth, rowHeight, 'S');
+
+    x = marginLeft;
+    const m = movements[i];
+
+    const rowData = [
+      (i + 1).toString(),
+      format(new Date(m.created_at), 'dd/MM/yy HH:mm'),
+      m.product?.code || '-',
+      m.product?.name || '-',
+      getCategoryLabel(m.product?.category),
+      getTypeLabel(m.movement_type),
+      m.quantity.toString(),
+      m.reason || '-',
+      formatCurrency(m.quantity * (m.product?.cost_price || 0)),
+    ];
+
+    rowData.forEach((value, colIndex) => {
+      doc.line(x, y, x, y + rowHeight);
+      const col = columns[colIndex];
+      const text = value.length > Math.floor(col.width / 2) ? value.substring(0, Math.floor(col.width / 2) - 1) + '..' : value;
+      
+      if (colIndex === 0 || colIndex === 6) {
+        doc.text(text, x + col.width / 2, y + 4.5, { align: 'center' });
+      } else if (colIndex === 8) {
+        doc.text(text, x + col.width - 2, y + 4.5, { align: 'right' });
+      } else {
+        doc.text(text, x + 1.5, y + 4.5, { maxWidth: col.width - 3 });
+      }
+      x += col.width;
+    });
+    doc.line(x, y, x, y + rowHeight);
+
+    y += rowHeight;
+  }
+
+  addFooter(doc);
+
+  const filename = `relatorio_entradas_${format(new Date(), 'yyyy-MM-dd_HHmm')}.pdf`;
+  doc.save(filename);
+}
+
+// Relatório de Saídas - Formato Ficha
+export async function exportRelatorioSaidasFicha(
+  company: CompanyInfo,
+  branch: BranchInfo | null,
+  movements: any[],
+  formatCurrency: (value: number) => string,
+  period: { start: Date; end: Date }
+): Promise<void> {
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const marginLeft = 10;
+  const marginRight = 10;
+  const tableWidth = pageWidth - marginLeft - marginRight;
+  let y = 8;
+
+  // Header
+  const headerHeight = 28;
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(marginLeft, y, tableWidth, headerHeight, 'S');
+
+  const logoWidth = 40;
+  doc.setLineWidth(0.3);
+  doc.line(marginLeft + logoWidth, y, marginLeft + logoWidth, y + headerHeight);
+
+  const logoUrl = branch?.logo_url || company.logoUrl;
+  if (logoUrl) {
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              const dataUrl = canvas.toDataURL('image/png');
+              const maxWidth = 35;
+              const maxHeight = 22;
+              let imgWidth = img.width;
+              let imgHeight = img.height;
+              const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+              imgWidth *= ratio;
+              imgHeight *= ratio;
+              const imgX = marginLeft + (logoWidth - imgWidth) / 2;
+              const imgY = y + (headerHeight - imgHeight) / 2;
+              doc.addImage(dataUrl, 'PNG', imgX, imgY, imgWidth, imgHeight);
+            }
+            resolve();
+          } catch { resolve(); }
+        };
+        img.onerror = () => resolve();
+        img.src = logoUrl;
+      });
+    } catch {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      const lines = doc.splitTextToSize(company.name || 'Empresa', logoWidth - 4);
+      doc.text(lines, marginLeft + logoWidth / 2, y + headerHeight / 2, { align: 'center' });
+    }
+  } else {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    const lines = doc.splitTextToSize(company.name || 'Empresa', logoWidth - 4);
+    doc.text(lines, marginLeft + logoWidth / 2, y + headerHeight / 2, { align: 'center' });
+  }
+
+  const titleStartX = marginLeft + logoWidth;
+  const titleWidth = tableWidth - logoWidth - 50;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('RELATÓRIO DE SAÍDAS DO ESTOQUE', titleStartX + titleWidth / 2, y + 10, { align: 'center' });
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(60, 60, 60);
+  doc.text(`Período: ${format(period.start, 'dd/MM/yyyy')} a ${format(period.end, 'dd/MM/yyyy')}`, titleStartX + titleWidth / 2, y + 17, { align: 'center' });
+
+  const cityState = [branch?.city || company.city, branch?.state || company.state].filter(Boolean).join(' - ');
+  if (cityState) {
+    doc.setFontSize(7);
+    doc.text(cityState, titleStartX + titleWidth / 2, y + 22, { align: 'center' });
+  }
+
+  doc.setLineWidth(0.3);
+  doc.line(pageWidth - marginRight - 50, y, pageWidth - marginRight - 50, y + headerHeight);
+  
+  const dateAreaCenterY = y + headerHeight / 2;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('Data:', pageWidth - marginRight - 45, dateAreaCenterY - 3);
+  doc.setFont('helvetica', 'normal');
+  doc.text(format(new Date(), 'dd/MM/yyyy'), pageWidth - marginRight - 45, dateAreaCenterY + 2);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Hora:', pageWidth - marginRight - 45, dateAreaCenterY + 8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(format(new Date(), 'HH:mm'), pageWidth - marginRight - 45, dateAreaCenterY + 13);
+
+  y += headerHeight + 3;
+
+  const columns = [
+    { header: 'ITEM', width: 12 },
+    { header: 'DATA/HORA', width: 32 },
+    { header: 'CÓDIGO', width: 25 },
+    { header: 'PRODUTO', width: 70 },
+    { header: 'CATEGORIA', width: 28 },
+    { header: 'TIPO', width: 25 },
+    { header: 'QTD', width: 18 },
+    { header: 'MOTIVO', width: 50 },
+    { header: 'VALOR', width: 28 },
+  ];
+
+  const rowHeight = 7;
+  const tableRowHeaderHeight = 8;
+
+  doc.setFillColor(240, 240, 240);
+  doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'F');
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.3);
+  doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
+
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+
+  let x = marginLeft;
+  columns.forEach((col) => {
+    doc.line(x, y, x, y + tableRowHeaderHeight);
+    doc.text(col.header, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
+    x += col.width;
+  });
+  doc.line(x, y, x, y + tableRowHeaderHeight);
+
+  y += tableRowHeaderHeight;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
+
+  const getCategoryLabel = (cat: string) => {
+    const labels: Record<string, string> = { epi: 'EPI', epc: 'EPC', ferramentas: 'Ferramentas', materiais: 'Materiais', equipamentos: 'Equipamentos' };
+    return labels[cat] || cat?.toUpperCase() || '-';
+  };
+
+  const getTypeLabel = (type: string) => {
+    const labels: Record<string, string> = { saida: 'Saída', transferencia: 'Transferência' };
+    return labels[type] || type;
+  };
+
+  for (let i = 0; i < movements.length; i++) {
+    if (y + rowHeight > pageHeight - 15) {
+      doc.addPage();
+      y = 12;
+
+      doc.setFillColor(240, 240, 240);
+      doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'F');
+      doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
+
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'bold');
+
+      x = marginLeft;
+      columns.forEach((col) => {
+        doc.line(x, y, x, y + tableRowHeaderHeight);
+        doc.text(col.header, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
+        x += col.width;
+      });
+      doc.line(x, y, x, y + tableRowHeaderHeight);
+
+      y += tableRowHeaderHeight;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6);
+    }
+
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.2);
+    doc.rect(marginLeft, y, tableWidth, rowHeight, 'S');
+
+    x = marginLeft;
+    const m = movements[i];
+
+    const rowData = [
+      (i + 1).toString(),
+      format(new Date(m.created_at), 'dd/MM/yy HH:mm'),
+      m.product?.code || '-',
+      m.product?.name || '-',
+      getCategoryLabel(m.product?.category),
+      getTypeLabel(m.movement_type),
+      m.quantity.toString(),
+      m.reason || '-',
+      formatCurrency(m.quantity * (m.product?.cost_price || 0)),
+    ];
+
+    rowData.forEach((value, colIndex) => {
+      doc.line(x, y, x, y + rowHeight);
+      const col = columns[colIndex];
+      const text = value.length > Math.floor(col.width / 2) ? value.substring(0, Math.floor(col.width / 2) - 1) + '..' : value;
+      
+      if (colIndex === 0 || colIndex === 6) {
+        doc.text(text, x + col.width / 2, y + 4.5, { align: 'center' });
+      } else if (colIndex === 8) {
+        doc.text(text, x + col.width - 2, y + 4.5, { align: 'right' });
+      } else {
+        doc.text(text, x + 1.5, y + 4.5, { maxWidth: col.width - 3 });
+      }
+      x += col.width;
+    });
+    doc.line(x, y, x, y + rowHeight);
+
+    y += rowHeight;
+  }
+
+  addFooter(doc);
+
+  const filename = `relatorio_saidas_${format(new Date(), 'yyyy-MM-dd_HHmm')}.pdf`;
+  doc.save(filename);
+}
+
+// Relatório de Inventário (mantido para compatibilidade)
 export function exportRelatorioInventario(
   company: CompanyInfo,
   products: any[],
