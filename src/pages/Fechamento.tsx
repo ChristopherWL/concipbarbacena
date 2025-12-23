@@ -574,55 +574,55 @@ export default function Fechamento() {
                             </Badge>
                           </button>
                         ))}
-                        
-                        {/* Paginação inline - estilo com botões */}
-                        {totalSidebarSuppliers > 10 && (
-                          <div className="flex items-center justify-center gap-1 pt-3 mt-2 border-t">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => setSidebarSuppliersPage(1)}
-                              disabled={sidebarSuppliersPage <= 1}
-                            >
-                              <ChevronsLeft className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => setSidebarSuppliersPage(Math.max(1, sidebarSuppliersPage - 1))}
-                              disabled={sidebarSuppliersPage <= 1}
-                            >
-                              <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <span className="text-sm text-muted-foreground px-2">
-                              {sidebarSuppliersPage} / {Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => setSidebarSuppliersPage(Math.min(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize), sidebarSuppliersPage + 1))}
-                              disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => setSidebarSuppliersPage(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize))}
-                              disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
-                            >
-                              <ChevronsRight className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
                       </>
                     )}
                   </div>
                 </ScrollArea>
+                
+                {/* Paginação fixa no final do card */}
+                {totalSidebarSuppliers > 0 && (
+                  <div className="flex items-center justify-center gap-1 p-3 border-t bg-background">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setSidebarSuppliersPage(1)}
+                      disabled={sidebarSuppliersPage <= 1}
+                    >
+                      <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setSidebarSuppliersPage(Math.max(1, sidebarSuppliersPage - 1))}
+                      disabled={sidebarSuppliersPage <= 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm text-muted-foreground px-2">
+                      {sidebarSuppliersPage} / {Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize) || 1}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setSidebarSuppliersPage(Math.min(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize), sidebarSuppliersPage + 1))}
+                      disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setSidebarSuppliersPage(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize))}
+                      disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
+                    >
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
