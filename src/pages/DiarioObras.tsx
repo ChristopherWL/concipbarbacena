@@ -243,10 +243,12 @@ const DiarioObras = () => {
           title="Diário de Obras" 
           description="Registros diários de acompanhamento"
         >
-          <Button onClick={() => setIsFormOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Registro
-          </Button>
+          {!isMobile && (
+            <Button onClick={() => setIsFormOpen(true)} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Registro
+            </Button>
+          )}
         </PageHeader>
 
         {/* Mobile Cards View */}
@@ -269,6 +271,13 @@ const DiarioObras = () => {
                 onClick={() => setShowFilters(!showFilters)}
               >
                 <Filter className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={() => setIsFormOpen(true)}
+                size="icon"
+                className="h-9 w-9 shrink-0"
+              >
+                <Plus className="h-4 w-4" />
               </Button>
             </div>
 
