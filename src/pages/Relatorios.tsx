@@ -72,32 +72,32 @@ function ReportCard({ title, description, icon: Icon, color, stats, onClick, isA
         <div className="absolute inset-0 bg-primary/5" />
       )}
       
-      <CardContent className="relative p-5">
-        <div className="flex items-start justify-between mb-4">
+      <CardContent className="relative p-4 sm:p-5">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
           <div className={cn(
-            "flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300",
+            "flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl transition-all duration-300",
             isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" : "bg-muted group-hover:bg-primary/10"
           )}>
             <Icon className={cn(
-              "h-6 w-6 transition-colors",
+              "h-5 w-5 sm:h-6 sm:w-6 transition-colors",
               isActive ? "" : "text-muted-foreground group-hover:text-primary"
             )} />
           </div>
           <ChevronRight className={cn(
-            "h-5 w-5 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-1",
+            "h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-1",
             isActive && "text-primary"
           )} />
         </div>
         
-        <h3 className="font-semibold text-base mb-1 group-hover:text-primary transition-colors">{title}</h3>
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{description}</p>
+        <h3 className="font-semibold text-sm sm:text-base mb-1 group-hover:text-primary transition-colors">{title}</h3>
+        <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-2 mb-2 sm:mb-3">{description}</p>
         
         {stats && stats.length > 0 && (
-          <div className="flex gap-4 pt-3 border-t border-border/50">
+          <div className="flex gap-3 sm:gap-4 pt-2 sm:pt-3 border-t border-border/50">
             {stats.map((stat, i) => (
               <div key={i} className="text-center">
-                <p className="text-lg font-bold text-foreground">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{stat.label}</p>
+                <p className="text-base sm:text-lg font-bold text-foreground">{stat.value}</p>
+                <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -504,14 +504,14 @@ export default function Relatorios() {
   return (
     <DashboardLayout>
       <div className="min-h-screen relative">
-        {/* Futuristic Background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Futuristic Background - Hidden on mobile for performance */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-info/5 rounded-full blur-3xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-primary/5 rounded-full opacity-30" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto space-y-6 p-4 sm:p-6" data-tour="reports-content">
+        <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-6 px-3 py-4 sm:p-6" data-tour="reports-content">
           <PageHeader 
             title="Central de Relatórios" 
             description="Acesse todos os relatórios do sistema em um só lugar"
@@ -531,7 +531,7 @@ export default function Relatorios() {
           {!activeReport ? (
             <>
               {/* Stats Overview */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                 {[
                   { icon: Package, label: 'Produtos', value: products.length, color: 'text-blue-500 bg-blue-500/10' },
                   { icon: ArrowLeftRight, label: 'Movimentações', value: movements.length, color: 'text-emerald-500 bg-emerald-500/10' },
@@ -539,13 +539,13 @@ export default function Relatorios() {
                   { icon: FileText, label: 'Relatórios', value: reports.length, color: 'text-violet-500 bg-violet-500/10' },
                 ].map((stat, i) => (
                   <Card key={i} className="border-0 bg-card/50 backdrop-blur-sm">
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className={cn("p-3 rounded-xl", stat.color)}>
-                        <stat.icon className="h-5 w-5" />
+                    <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-4">
+                      <div className={cn("p-2 sm:p-3 rounded-xl", stat.color)}>
+                        <stat.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div>
-                        <p className="text-2xl font-bold">{stat.value}</p>
-                        <p className="text-xs text-muted-foreground">{stat.label}</p>
+                        <p className="text-lg sm:text-2xl font-bold">{stat.value}</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -554,11 +554,11 @@ export default function Relatorios() {
 
               {/* Reports Grid */}
               <div>
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-primary" />
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Selecione um relatório
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {reports.map((report) => (
                     <ReportCard
                       key={report.id}
@@ -575,9 +575,9 @@ export default function Relatorios() {
               </div>
             </>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Back button and title */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4">
                 <Button 
                   variant="ghost" 
                   size="sm"
@@ -588,13 +588,13 @@ export default function Relatorios() {
                     setMovementTypeFilter('all');
                     setEmployeeFilter('all');
                   }}
-                  className="gap-2"
+                  className="gap-1 sm:gap-2 px-2 sm:px-3"
                 >
                   <ChevronRight className="h-4 w-4 rotate-180" />
-                  Voltar
+                  <span className="hidden xs:inline">Voltar</span>
                 </Button>
-                <div className="h-6 w-px bg-border" />
-                <h2 className="font-semibold">
+                <div className="h-6 w-px bg-border hidden xs:block" />
+                <h2 className="font-semibold text-sm sm:text-base truncate">
                   {reports.find(r => r.id === activeReport)?.title}
                 </h2>
               </div>
@@ -716,7 +716,7 @@ function EstoqueReport({ products, loading, searchTerm, setSearchTerm, stockChar
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
           {[
             { label: 'EPI', count: productsByCategory.epi?.length || 0, color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
             { label: 'EPC', count: productsByCategory.epc?.length || 0, color: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
@@ -724,9 +724,9 @@ function EstoqueReport({ products, loading, searchTerm, setSearchTerm, stockChar
             { label: 'Materiais', count: productsByCategory.materiais?.length || 0, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
             { label: 'Equipamentos', count: productsByCategory.equipamentos?.length || 0, color: 'bg-rose-500/10 text-rose-600 border-rose-500/20' },
           ].map((cat) => (
-            <div key={cat.label} className={`p-3 rounded-lg border ${cat.color}`}>
-              <p className="text-2xl font-bold">{cat.count}</p>
-              <p className="text-xs font-medium">{cat.label}</p>
+            <div key={cat.label} className={`p-2 sm:p-3 rounded-lg border ${cat.color}`}>
+              <p className="text-lg sm:text-2xl font-bold">{cat.count}</p>
+              <p className="text-[10px] sm:text-xs font-medium truncate">{cat.label}</p>
             </div>
           ))}
         </div>
@@ -830,22 +830,25 @@ interface EPIReportProps {
 
 function EPIReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, employeesWithAssignments, onExport }: EPIReportProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
       <Card className="lg:col-span-1">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2"><Users className="h-5 w-5" />Colaboradores com EPI</CardTitle>
-          <CardDescription>Exporte fichas individuais</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2"><Users className="h-4 w-4 sm:h-5 sm:w-5" />Colaboradores com EPI</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Exporte fichas individuais</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[300px]">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <ScrollArea className="h-[250px] sm:h-[300px]">
             <div className="space-y-2">
               {employeesWithAssignments.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">Nenhum colaborador com EPI atribuído</p>
               ) : (
                 employeesWithAssignments.map((employee) => (
                   <div key={employee.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                    <div><p className="font-medium text-sm">{employee.name}</p><p className="text-xs text-muted-foreground">{employee.position || 'Sem cargo'}</p></div>
-                    <Button variant="ghost" size="sm" onClick={() => onExport(employee.id)}><FileSpreadsheet className="h-4 w-4" /></Button>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm truncate">{employee.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{employee.position || 'Sem cargo'}</p>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => onExport(employee.id)} className="shrink-0 ml-2"><FileSpreadsheet className="h-4 w-4" /></Button>
                   </div>
                 ))
               )}
@@ -855,18 +858,18 @@ function EPIReport({ assignments, loading, searchTerm, setSearchTerm, employeeFi
       </Card>
 
       <Card className="lg:col-span-2">
-        <CardHeader>
-          <CardTitle className="text-lg">Fichas de EPI</CardTitle>
-          <CardDescription>Registro de EPIs entregues aos colaboradores</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg">Fichas de EPI</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Registro de EPIs entregues aos colaboradores</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
             </div>
             <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-              <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Colaborador" /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Colaborador" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 {employees.map(emp => (<SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>))}
@@ -876,21 +879,30 @@ function EPIReport({ assignments, loading, searchTerm, setSearchTerm, employeeFi
           {loading ? (
             <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
           ) : (
-            <ScrollArea className="h-[300px]">
+            <ScrollArea className="h-[250px] sm:h-[300px]">
               <Table>
-                <TableHeader><TableRow><TableHead>Colaborador</TableHead><TableHead>EPI</TableHead><TableHead className="hidden sm:table-cell">CA</TableHead><TableHead className="text-center">Qtd</TableHead><TableHead>Entrega</TableHead><TableHead className="hidden sm:table-cell">Devolução</TableHead></TableRow></TableHeader>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Colaborador</TableHead>
+                    <TableHead className="text-xs">EPI</TableHead>
+                    <TableHead className="hidden md:table-cell text-xs">CA</TableHead>
+                    <TableHead className="text-center text-xs">Qtd</TableHead>
+                    <TableHead className="text-xs">Entrega</TableHead>
+                    <TableHead className="hidden sm:table-cell text-xs">Devolução</TableHead>
+                  </TableRow>
+                </TableHeader>
                 <TableBody>
                   {assignments.length === 0 ? (
                     <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhum registro de EPI</TableCell></TableRow>
                   ) : (
                     assignments.map((a) => (
                       <TableRow key={a.id}>
-                        <TableCell className="font-medium">{a.employee?.name}</TableCell>
-                        <TableCell>{a.description}</TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground">{a.ca_number || '-'}</TableCell>
-                        <TableCell className="text-center">{a.quantity}</TableCell>
-                        <TableCell>{format(new Date(a.delivery_date), 'dd/MM/yy', { locale: ptBR })}</TableCell>
-                        <TableCell className="hidden sm:table-cell">{a.return_date ? format(new Date(a.return_date), 'dd/MM/yy', { locale: ptBR }) : '-'}</TableCell>
+                        <TableCell className="font-medium text-xs sm:text-sm max-w-[100px] truncate">{a.employee?.name}</TableCell>
+                        <TableCell className="text-xs sm:text-sm max-w-[120px] truncate">{a.description}</TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground text-xs">{a.ca_number || '-'}</TableCell>
+                        <TableCell className="text-center text-xs sm:text-sm">{a.quantity}</TableCell>
+                        <TableCell className="text-xs sm:text-sm whitespace-nowrap">{format(new Date(a.delivery_date), 'dd/MM/yy', { locale: ptBR })}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-xs">{a.return_date ? format(new Date(a.return_date), 'dd/MM/yy', { locale: ptBR }) : '-'}</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -980,22 +992,25 @@ interface FerramentasReportProps {
 
 function FerramentasReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, employeesWithAssignments, onExport }: FerramentasReportProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
       <Card className="lg:col-span-1">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2"><Users className="h-5 w-5" />Colaboradores com Ferramentas</CardTitle>
-          <CardDescription>Exporte fichas individuais</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2"><Users className="h-4 w-4 sm:h-5 sm:w-5" />Colaboradores com Ferramentas</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Exporte fichas individuais</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[300px]">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <ScrollArea className="h-[250px] sm:h-[300px]">
             <div className="space-y-2">
               {employeesWithAssignments.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">Nenhum colaborador com ferramentas</p>
               ) : (
                 employeesWithAssignments.map((employee) => (
                   <div key={employee.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                    <div><p className="font-medium text-sm">{employee.name}</p><p className="text-xs text-muted-foreground">{employee.position || 'Sem cargo'}</p></div>
-                    <Button variant="ghost" size="sm" onClick={() => onExport(employee.id)}><FileSpreadsheet className="h-4 w-4" /></Button>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm truncate">{employee.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{employee.position || 'Sem cargo'}</p>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => onExport(employee.id)} className="shrink-0 ml-2"><FileSpreadsheet className="h-4 w-4" /></Button>
                   </div>
                 ))
               )}
@@ -1005,18 +1020,18 @@ function FerramentasReport({ assignments, loading, searchTerm, setSearchTerm, em
       </Card>
 
       <Card className="lg:col-span-2">
-        <CardHeader>
-          <CardTitle className="text-lg">Fichas de Ferramentas</CardTitle>
-          <CardDescription>Registro de ferramentas entregues aos colaboradores</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg">Fichas de Ferramentas</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Registro de ferramentas entregues aos colaboradores</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
             </div>
             <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-              <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Colaborador" /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Colaborador" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 {employees.map(emp => (<SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>))}
