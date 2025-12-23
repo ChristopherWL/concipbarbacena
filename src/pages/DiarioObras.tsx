@@ -18,6 +18,7 @@ import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { exportDiarioObraPDF } from "@/lib/exportDiarioObraPDF";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TablePagination } from "@/components/ui/table-pagination";
 import { Separator } from "@/components/ui/separator";
 import { MobileDiarioForm } from "@/components/diario/MobileDiarioForm";
 import { SignatureModal } from "@/components/ui/signature-modal";
@@ -614,69 +615,19 @@ const DiarioObras = () => {
 
         {/* Pagination */}
         {totalItems > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems}</span>
-              <Select 
-                value={itemsPerPage.toString()} 
-                onValueChange={(value) => {
-                  setItemsPerPage(Number(value));
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="w-[70px] h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5">5</SelectItem>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>por página</span>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-              >
-                Primeira
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="px-3 text-sm font-medium">
-                {currentPage} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-              >
-                Última
-              </Button>
-            </div>
-          </div>
+          <TablePagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            pageSize={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(size) => {
+              setItemsPerPage(size);
+              setCurrentPage(1);
+            }}
+            pageSizeOptions={[5, 10, 20, 50]}
+            showAllOption={false}
+            className="px-4"
+          />
         )}
 
         {/* Mobile Form Wizard */}
