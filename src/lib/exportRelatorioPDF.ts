@@ -1281,6 +1281,7 @@ export interface BranchInfo {
   phone?: string;
   email?: string;
   logo_url?: string;
+  logo_dark_url?: string;
 }
 
 export async function exportFichaControleSaidaMaterial(
@@ -1313,7 +1314,7 @@ export async function exportFichaControleSaidaMaterial(
   doc.setLineWidth(0.3);
   doc.line(marginLeft + logoWidth, y, marginLeft + logoWidth, y + headerHeight);
 
-  // Try to add logo
+  // Try to add logo - usar logo_url (fundo claro) da filial
   const logoUrl = branch?.logo_url || company.logoUrl;
   if (logoUrl) {
     try {
@@ -1409,19 +1410,21 @@ export async function exportFichaControleSaidaMaterial(
     doc.text(contact, titleStartX + titleWidth / 2, infoY, { align: 'center' });
   }
 
-  // Date area (right side)
+  // Date area (right side) - centralizar verticalmente
   doc.setLineWidth(0.3);
   doc.line(pageWidth - marginRight - 50, y, pageWidth - marginRight - 50, y + headerHeight);
+  
+  const dateAreaCenterY = y + headerHeight / 2;
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 0, 0);
-  doc.text('Data:', pageWidth - marginRight - 45, y + 10);
+  doc.text('Data:', pageWidth - marginRight - 45, dateAreaCenterY - 6);
   doc.setFont('helvetica', 'normal');
-  doc.text(format(new Date(), 'dd/MM/yyyy'), pageWidth - marginRight - 45, y + 16);
+  doc.text(format(new Date(), 'dd/MM/yyyy'), pageWidth - marginRight - 45, dateAreaCenterY - 1);
   doc.setFont('helvetica', 'bold');
-  doc.text('Hora:', pageWidth - marginRight - 45, y + 22);
+  doc.text('Hora:', pageWidth - marginRight - 45, dateAreaCenterY + 5);
   doc.setFont('helvetica', 'normal');
-  doc.text(format(new Date(), 'HH:mm'), pageWidth - marginRight - 45, y + 28);
+  doc.text(format(new Date(), 'HH:mm'), pageWidth - marginRight - 45, dateAreaCenterY + 10);
 
   y += headerHeight + 3;
 
