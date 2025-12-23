@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { MovementType, MOVEMENT_TYPE_LABELS } from '@/types/stock';
 import { cn } from '@/lib/utils';
+import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 
 const movementIcons: Record<MovementType, React.ReactNode> = {
   entrada: <ArrowDown className="h-4 w-4 text-emerald-600" />,
@@ -35,10 +36,20 @@ interface MovementHistoryProps {
   limit?: number;
 }
 
-export function MovementHistory({ limit = 20 }: MovementHistoryProps) {
+export function MovementHistory({ limit }: MovementHistoryProps) {
   const { data: movements = [], isLoading } = useStockMovements();
 
-  const displayMovements = limit ? movements.slice(0, limit) : movements;
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    paginatedItems,
+    totalItems,
+  } = usePagination(movements, 10);
+
+  // If limit is provided, use it to slice, otherwise use pagination
+  const displayMovements = limit ? movements.slice(0, limit) : paginatedItems;
 
   if (isLoading) {
     return (
@@ -50,7 +61,7 @@ export function MovementHistory({ limit = 20 }: MovementHistoryProps) {
     );
   }
 
-  if (displayMovements.length === 0) {
+  if (movements.length === 0) {
     return (
       <Card>
         <CardContent className="py-8">
@@ -106,6 +117,16 @@ export function MovementHistory({ limit = 20 }: MovementHistoryProps) {
             </CardContent>
           </Card>
         ))}
+        {!limit && (
+          <TablePagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            className="px-4"
+          />
+        )}
       </div>
 
       {/* Desktop View - Table */}
@@ -161,6 +182,16 @@ export function MovementHistory({ limit = 20 }: MovementHistoryProps) {
               </TableBody>
             </Table>
           </div>
+          {!limit && (
+            <TablePagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              className="px-4"
+            />
+          )}
         </CardContent>
       </Card>
     </>
