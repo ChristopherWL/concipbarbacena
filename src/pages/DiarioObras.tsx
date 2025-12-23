@@ -242,14 +242,7 @@ const DiarioObras = () => {
         <PageHeader 
           title="Diário de Obras" 
           description="Registros diários de acompanhamento"
-        >
-          {!isMobile && (
-            <Button onClick={() => setIsFormOpen(true)} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Registro
-            </Button>
-          )}
-        </PageHeader>
+        />
 
         {/* Mobile Cards View */}
         {isMobile ? (
@@ -463,6 +456,11 @@ const DiarioObras = () => {
                       {[filterStatus !== "all", filterEquipe !== "all", filterDateStart, filterDateEnd].filter(Boolean).length}
                     </Badge>
                   )}
+                </Button>
+                
+                <Button onClick={() => setIsFormOpen(true)} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Registro
                 </Button>
               </div>
               
