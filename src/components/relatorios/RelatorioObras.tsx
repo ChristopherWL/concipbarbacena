@@ -32,7 +32,7 @@ export function RelatorioObras() {
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { label: string; className: string }> = {
-      planejamento: { label: 'Planejamento', className: 'bg-muted text-muted-foreground' },
+      planejada: { label: 'Planejada', className: 'bg-muted text-muted-foreground' },
       em_andamento: { label: 'Em Andamento', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
       pausada: { label: 'Pausada', className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
       concluida: { label: 'Concluída', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
@@ -97,7 +97,7 @@ export function RelatorioObras() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os status</SelectItem>
-              <SelectItem value="planejamento">Planejamento</SelectItem>
+              <SelectItem value="planejada">Planejada</SelectItem>
               <SelectItem value="em_andamento">Em Andamento</SelectItem>
               <SelectItem value="pausada">Pausada</SelectItem>
               <SelectItem value="concluida">Concluída</SelectItem>
