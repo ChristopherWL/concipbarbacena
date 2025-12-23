@@ -48,6 +48,7 @@ export interface DiarioObra {
   tenant_id: string;
   branch_id?: string;
   obra_id: string;
+  etapa_id?: string;
   data: string;
   clima?: string;
   hora_inicio?: string;
@@ -61,6 +62,7 @@ export interface DiarioObra {
   created_at: string;
   updated_at: string;
   obra?: { nome: string };
+  etapa?: { nome: string };
   // Morning shift fields
   equipe_manha?: string;
   veiculo_manha?: string;
@@ -320,7 +322,8 @@ export const useDiarioObras = (obraId?: string) => {
         .from("diario_obras")
         .select(`
           *,
-          obra:obras(nome)
+          obra:obras(nome),
+          etapa:obra_etapas(nome)
         `)
         .eq("tenant_id", tenantId)
         .order("data", { ascending: false });
@@ -350,6 +353,7 @@ export const useDiarioObras = (obraId?: string) => {
         .insert({
           tenant_id: tenantId,
           obra_id: diario.obra_id || null,
+          etapa_id: diario.etapa_id || null,
           branch_id: diario.branch_id ?? (shouldFilter ? branchId : null),
           data: diario.data || new Date().toISOString().split('T')[0],
           clima: diario.clima,

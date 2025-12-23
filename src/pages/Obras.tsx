@@ -74,9 +74,13 @@ const Obras = () => {
     return () => window.removeEventListener("focus", onFocus);
   }, [isSelectingFile]);
   
+  // Selected etapa for adding diário
+  const [selectedEtapaId, setSelectedEtapaId] = useState<string | null>(null);
+  
   // Update form state
   const [updateForm, setUpdateForm] = useState({
     etapa: "",
+    etapaId: null as string | null,
     data: new Date().toISOString().split('T')[0],
     responsavel: "",
     descricao: "",
@@ -278,6 +282,7 @@ const Obras = () => {
     setSelectedObra(obra);
     const freshForm = {
       etapa: "",
+      etapaId: null as string | null,
       data: new Date().toISOString().split('T')[0],
       responsavel: "",
       descricao: "",
