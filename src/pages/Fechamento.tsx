@@ -565,7 +565,7 @@ export default function Fechamento() {
                       onPageSizeChange={setSidebarSuppliersPageSize}
                       pageSizeOptions={[5, 10, 20]}
                       showAllOption={false}
-                      className="py-0 gap-2 justify-center text-xs"
+                      className="py-0 gap-1 flex-col items-center"
                     />
                   </div>
                 )}
