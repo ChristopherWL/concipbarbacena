@@ -254,17 +254,10 @@ export default function OrdensServico() {
           icon={<ClipboardList className="h-5 w-5" />}
         />
         {!isReadOnly && (
-          <div className="flex flex-wrap justify-center gap-2">
-            <Button variant="outline" onClick={() => setCustomerDialogOpen(true)} className="hover-lift">
-              <UserPlus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Novo Cliente</span>
-              <span className="sm:hidden">Cliente</span>
-            </Button>
-            <Button onClick={() => setOrderDialogOpen(true)} className="hover-lift">
-              <Plus className="h-4 w-4 mr-2" />
-              Nova OS
-            </Button>
-          </div>
+          <Button onClick={() => setOrderDialogOpen(true)} className="hover-lift">
+            <Plus className="h-4 w-4 mr-2" />
+            Nova OS
+          </Button>
         )}
 
         {/* Stats */}
