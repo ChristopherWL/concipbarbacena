@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks, Eye, Settings } from "lucide-react";
 import { useObras, useDiarioObras, Obra, DiarioObra } from "@/hooks/useObras";
 import { ObraEtapasPanel } from "@/components/obras/ObraEtapasPanel";
-import { ObraCardProgress } from "@/components/obras/ObraCardProgress";
+import { ObraCard } from "@/components/obras/ObraCard";
 import { ObraFormDialog } from "@/components/obras/ObraFormDialog";
 import { ObraEditDialog } from "@/components/obras/ObraEditDialog";
 import { useObraEtapas } from "@/hooks/useObraEtapas";
@@ -586,106 +586,19 @@ const Obras = () => {
                 Nenhuma obra cadastrada.
               </p>
             ) : (
-              <div className="grid gap-3 sm:gap-4">
+              <div className="grid gap-4 sm:gap-5">
                 {filteredObras.map((obra) => (
-                  <Card 
-                    key={obra.id} 
-                    className="border cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleOpenUpdatesList(obra)}
-                  >
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="flex flex-col gap-3">
-                        {/* Header with name and status */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                          <div className="flex items-start sm:items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold text-base sm:text-lg">{obra.nome}</h3>
-                            {getStatusBadge(obra.status)}
-                          </div>
-                          
-                          {/* Desktop actions - hidden for read-only */}
-                          {!isReadOnly && (
-                            <div className="hidden sm:flex items-center gap-2">
-                              {obra.notas && (
-                                <div className="flex items-center gap-1 text-muted-foreground" title={obra.notas}>
-                                  <FileText className="h-4 w-4" />
-                                </div>
-                              )}
-                              <Button variant="outline" size="icon" onClick={(e) => handleOpenEditObraDialog(obra, e)} title="Editar Obra">
-                                <Settings className="h-4 w-4" />
-                              </Button>
-                              <Button className="px-4 sm:px-6" onClick={(e) => handleOpenUpdateDialog(obra, e)}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Atualizar
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                onClick={(e) => handleDeleteObra(obra.id, e)}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Info grid */}
-                        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 text-sm text-muted-foreground">
-                          {obra.customer?.name && (
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <User className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span className="truncate">{obra.customer.name}</span>
-                            </div>
-                          )}
-                          {obra.endereco && (
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span className="truncate">{obra.endereco}</span>
-                            </div>
-                          )}
-                          {obra.data_inicio && (
-                            <div className="flex items-center gap-1.5">
-                              <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span>{new Date(obra.data_inicio).toLocaleDateString('pt-BR')}</span>
-                            </div>
-                          )}
-                          {obra.previsao_termino && (
-                            <div className="flex items-center gap-1.5">
-                              <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span>Prev: {new Date(obra.previsao_termino).toLocaleDateString('pt-BR')}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Progress and Current Stage */}
-                        {tenantId && <ObraCardProgress obraId={obra.id} tenantId={tenantId} />}
-                        
-                        {/* Mobile actions - hidden for read-only */}
-                        {!isReadOnly && (
-                          <div className="flex sm:hidden items-center gap-2 pt-2 border-t border-border/20">
-                            {obra.notas && (
-                              <div className="flex items-center gap-1 text-muted-foreground" title={obra.notas}>
-                                <FileText className="h-4 w-4" />
-                              </div>
-                            )}
-                            <Button variant="outline" size="sm" onClick={(e) => handleOpenEditObraDialog(obra, e)}>
-                              <Settings className="h-4 w-4" />
-                            </Button>
-                            <Button className="flex-1" size="sm" onClick={(e) => handleOpenUpdateDialog(obra, e)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Atualizar
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={(e) => handleDeleteObra(obra.id, e)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ObraCard
+                    key={obra.id}
+                    obra={obra}
+                    tenantId={tenantId}
+                    isReadOnly={isReadOnly}
+                    onCardClick={handleOpenUpdatesList}
+                    onEdit={handleOpenEditObraDialog}
+                    onUpdate={handleOpenUpdateDialog}
+                    onDelete={handleDeleteObra}
+                    getStatusBadge={getStatusBadge}
+                  />
                 ))}
               </div>
             )}
