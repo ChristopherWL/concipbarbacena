@@ -551,24 +551,24 @@ export default function Fechamento() {
                         </button>
                       ))
                     )}
-                    
-                    {/* Paginação da sidebar */}
-                    {totalSidebarSuppliers > 0 && (
-                      <div className="mt-2 pt-2 border-t">
-                        <TablePagination
-                          currentPage={sidebarSuppliersPage}
-                          totalItems={totalSidebarSuppliers}
-                          pageSize={sidebarSuppliersPageSize}
-                          onPageChange={setSidebarSuppliersPage}
-                          onPageSizeChange={setSidebarSuppliersPageSize}
-                          pageSizeOptions={[5, 10, 20]}
-                          showAllOption={false}
-                          className="py-2 flex-wrap"
-                        />
-                      </div>
-                    )}
                   </div>
                 </ScrollArea>
+                
+                {/* Paginação da sidebar - fora do ScrollArea */}
+                {totalSidebarSuppliers > 0 && (
+                  <div className="p-2 border-t">
+                    <TablePagination
+                      currentPage={sidebarSuppliersPage}
+                      totalItems={totalSidebarSuppliers}
+                      pageSize={sidebarSuppliersPageSize}
+                      onPageChange={setSidebarSuppliersPage}
+                      onPageSizeChange={setSidebarSuppliersPageSize}
+                      pageSizeOptions={[5, 10, 20]}
+                      showAllOption={false}
+                      className="py-1 flex-wrap"
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
