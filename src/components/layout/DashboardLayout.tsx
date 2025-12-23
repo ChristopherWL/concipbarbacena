@@ -72,6 +72,7 @@ import {
   ToggleRight,
 } from 'lucide-react';
 import { Breadcrumb } from './Breadcrumb';
+import { ClockDisplay } from './ClockDisplay';
 import { PageTransition } from './PageTransition';
 import { DirectorBranchDropdown } from '@/components/dashboard/DirectorBranchDropdown';
 import { MatrizBranchSelector } from '@/components/dashboard/MatrizBranchSelector';
@@ -247,7 +248,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     const activeParent = getActiveParentMenu(window.location.pathname);
     return activeParent ? [activeParent] : [];
   });
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [menuTheme, setMenuTheme] = useState('custom');
   // Scroll behavior states
   const [showHeader, setShowHeader] = useState(true);
@@ -468,13 +468,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     ...(canAccessSettings ? [{ icon: Settings, label: 'Config', href: '/configuracoes', color: 'bg-slate-500' }] : []),
   ];
 
-  // Update clock every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   // Scroll behavior - hide header on scroll down, show on scroll up
   useEffect(() => {
@@ -1371,14 +1364,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Date - hide on smaller screens */}
           <div className="hidden xl:flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1 rounded-full text-xs text-sidebar-foreground/90">
             <Calendar className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
-            <span className="capitalize">
-              {currentTime.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            </span>
+            <ClockDisplay format="full-date" className="capitalize" />
           </div>
           {/* Time - always visible on lg+ */}
           <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1 rounded-full text-xs font-mono text-sidebar-foreground/90">
             <Clock className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
-            <span>{currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+            <ClockDisplay format="time" />
           </div>
           {/* Location - hide on smaller screens */}
           {tenant?.city && (
@@ -1394,7 +1385,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* User text - hide on smaller screens */}
           <div className="hidden xl:block text-right">
             <div className="text-sidebar-foreground text-xs">Olá, <span className="font-semibold">{profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}</span></div>
-            <div className="text-sidebar-foreground/60 text-[10px]">Data do último acesso: {currentTime.toLocaleDateString('pt-BR')} {currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+            <div className="text-sidebar-foreground/60 text-[10px]">Data do último acesso: <ClockDisplay format="datetime" /></div>
           </div>
           
           {/* Push Notifications Center */}
@@ -1423,9 +1414,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="xl:hidden px-2 py-2 space-y-1 border-t border-border">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5" />
-                  <span className="capitalize">
-                    {currentTime.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                  </span>
+                  <ClockDisplay format="full-date" className="capitalize" />
                 </div>
                 {tenant?.city && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -1435,7 +1424,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 )}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>Último acesso: {currentTime.toLocaleDateString('pt-BR')} {currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                  <span>Último acesso: <ClockDisplay format="datetime" /></span>
                 </div>
               </div>
               <DropdownMenuSeparator />
