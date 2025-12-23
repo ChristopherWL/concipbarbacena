@@ -6,6 +6,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { ProductFormDialog } from './ProductFormDialog';
 import { ProductDetailsDialog } from './ProductDetailsDialog';
+import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 import {
   Table,
   TableBody,
@@ -46,6 +47,16 @@ export function ProductsTable({ products }: ProductsTableProps) {
   const [detailsProduct, setDetailsProduct] = useState<Product | null>(null);
   const deleteProductMutation = useDeleteProduct();
   const { data: serialNumbers = [] } = useSerialNumbers();
+
+  // Paginação
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    paginatedItems: paginatedProducts,
+    totalItems,
+  } = usePagination(products, 10);
 
   const canEdit = permissions.can_edit || isAdmin();
   const canDelete = permissions.can_delete || isAdmin();
@@ -94,7 +105,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
     <>
       {/* Mobile View - Cards */}
       <div className="sm:hidden space-y-3 p-3">
-        {products.map((product) => {
+        {paginatedProducts.map((product) => {
           const stockStatus = getStockStatus(product);
           const serialCounts = product.is_serialized ? getProductSerialCounts(product.id) : null;
           return (
@@ -189,7 +200,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((product) => {
+            {paginatedProducts.map((product) => {
               const stockStatus = getStockStatus(product);
               return (
                 <TableRow 
@@ -265,6 +276,18 @@ export function ProductsTable({ products }: ProductsTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      {/* Paginação */}
+      {totalItems > 0 && (
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          className="px-4 border-t"
+        />
+      )}
 
       {/* Edit Dialog */}
       <ProductFormDialog
