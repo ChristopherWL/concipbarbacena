@@ -1052,7 +1052,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (count <= 0) return null;
     return (
       <span className={cn(
-        "flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold rounded-full animate-pulse",
+        "flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold rounded-full",
         type === 'danger' && "bg-destructive text-destructive-foreground",
         type === 'warning' && "bg-warning text-warning-foreground",
         className
@@ -1189,7 +1189,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                           <item.icon className="h-5 w-5" />
                         </div>
                         {(item.badge || 0) > 0 && (
-                          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full animate-pulse ring-2 ring-sidebar-background" />
+                          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full ring-2 ring-sidebar-background" />
                         )}
                       </Button>
                     </DropdownMenuTrigger>
@@ -1247,7 +1247,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                           <item.icon className="h-5 w-5" />
                         </div>
                         {(item.badge || 0) > 0 && (
-                          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full animate-pulse ring-2 ring-sidebar-background" />
+                          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full ring-2 ring-sidebar-background" />
                         )}
                       </Button>
                     </TooltipTrigger>
