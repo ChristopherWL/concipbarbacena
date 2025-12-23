@@ -90,9 +90,17 @@ export interface Branch {
   phone?: string;
   email?: string;
   address?: string;
+  number?: string;
+  neighborhood?: string;
+  complement?: string;
   city?: string;
   state?: string;
   zip_code?: string;
+  logo_url?: string;
+  logo_dark_url?: string;
+  razao_social?: string;
+  inscricao_estadual?: string;
+  inscricao_municipal?: string;
   is_active: boolean;
   is_main: boolean;
   created_at: string;

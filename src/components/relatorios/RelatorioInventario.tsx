@@ -84,11 +84,15 @@ export function RelatorioInventario() {
       name: selectedBranch.name,
       cnpj: selectedBranch.cnpj || undefined,
       address: selectedBranch.address || undefined,
+      number: selectedBranch.number || undefined,
+      neighborhood: selectedBranch.neighborhood || undefined,
       city: selectedBranch.city || undefined,
       state: selectedBranch.state || undefined,
       zip_code: selectedBranch.zip_code || undefined,
       phone: selectedBranch.phone || undefined,
       email: selectedBranch.email || undefined,
+      logo_url: selectedBranch.logo_url || undefined,
+      logo_dark_url: selectedBranch.logo_dark_url || undefined,
     };
   };
 
