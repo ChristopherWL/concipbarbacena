@@ -105,6 +105,7 @@ const Obras = () => {
   const queryClient = useQueryClient();
   const { obras, isLoading, createObra, updateObra, deleteObra } = useObras();
   const { diarios, isLoading: isDiariosLoading, updateDiario, deleteDiario } = useDiarioObras(selectedObra?.id);
+  const { etapas: obraEtapas } = useObraEtapas(selectedObra?.id);
   const { employees } = useEmployees();
   const isMobile = useIsMobile();
 
@@ -410,10 +411,10 @@ const Obras = () => {
       return;
     }
 
-    if (!selectedObra || !updateForm.etapa) {
+    if (!selectedObra || !updateForm.etapaId) {
       toast({
         title: "Erro",
-        description: "Preencha a etapa da obra",
+        description: "Selecione a etapa da obra",
         variant: "destructive",
       });
       return;
@@ -479,10 +480,11 @@ const Obras = () => {
       const { error } = await supabase.from("diario_obras").insert({
         tenant_id: tenantId,
         obra_id: selectedObra.id,
+        etapa_id: updateForm.etapaId,
         branch_id: selectedObra.branch_id || null,
         data: updateForm.data,
         atividades_realizadas: updateForm.descricao || null,
-        clima_manha: updateForm.etapa || null, // Using clima_manha to store etapa (no constraint)
+        clima_manha: updateForm.etapa || null, // Keep etapa name for display
         registrado_por: user?.id || null,
         fotos: fotos.length ? fotos : null,
         ocorrencias: updateForm.responsavel ? `Responsável: ${updateForm.responsavel}` : null,
@@ -729,7 +731,9 @@ const Obras = () => {
                           >
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <Badge variant="outline" className="text-xs">{diario.clima_manha || 'Sem etapa'}</Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {diario.etapa?.nome || diario.clima_manha || 'Sem etapa'}
+                                </Badge>
                                 <span className="text-xs text-muted-foreground">
                                   {new Date(diario.data).toLocaleDateString('pt-BR')}
                                 </span>
@@ -1080,12 +1084,31 @@ const Obras = () => {
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <Label htmlFor="etapa">Etapa da Obra *</Label>
-                            <Input 
-                              id="etapa" 
-                              placeholder="Ex: Fundação, Alvenaria, Acabamento" 
-                              value={updateForm.etapa}
-                              onChange={(e) => setUpdateForm((prev) => ({ ...prev, etapa: e.target.value }))}
-                            />
+                            <Select 
+                              value={updateForm.etapaId || ""}
+                              onValueChange={(v) => {
+                                const etapa = obraEtapas.find(e => e.id === v);
+                                setUpdateForm((prev) => ({ 
+                                  ...prev, 
+                                  etapaId: v,
+                                  etapa: etapa?.nome || "" 
+                                }));
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione a etapa" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {obraEtapas.filter(e => e.status === 'em_andamento' || e.status === 'pendente').map((etapa) => (
+                                  <SelectItem key={etapa.id} value={etapa.id}>
+                                    {etapa.nome} {etapa.status === 'em_andamento' && '(Atual)'}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {obraEtapas.length === 0 && (
+                              <p className="text-xs text-muted-foreground">Nenhuma etapa cadastrada. Cadastre etapas primeiro.</p>
+                            )}
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="dataUpdate">Data</Label>
@@ -1224,12 +1247,31 @@ const Obras = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="etapa">Etapa da Obra *</Label>
-                      <Input 
-                        id="etapa" 
-                        placeholder="Ex: Fundação, Alvenaria, Acabamento" 
-                        value={updateForm.etapa}
-                        onChange={(e) => setUpdateForm((prev) => ({ ...prev, etapa: e.target.value }))}
-                      />
+                      <Select 
+                        value={updateForm.etapaId || ""}
+                        onValueChange={(v) => {
+                          const etapa = obraEtapas.find(e => e.id === v);
+                          setUpdateForm((prev) => ({ 
+                            ...prev, 
+                            etapaId: v,
+                            etapa: etapa?.nome || "" 
+                          }));
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a etapa" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {obraEtapas.filter(e => e.status === 'em_andamento' || e.status === 'pendente').map((etapa) => (
+                            <SelectItem key={etapa.id} value={etapa.id}>
+                              {etapa.nome} {etapa.status === 'em_andamento' && '(Atual)'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {obraEtapas.length === 0 && (
+                        <p className="text-xs text-muted-foreground">Nenhuma etapa cadastrada.</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="dataUpdate">Data</Label>
