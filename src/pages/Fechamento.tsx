@@ -556,7 +556,7 @@ export default function Fechamento() {
                 
                 {/* Paginação da sidebar - fora do ScrollArea */}
                 {totalSidebarSuppliers > 0 && (
-                  <div className="p-2 border-t">
+                  <div className="px-3 py-2 border-t">
                     <TablePagination
                       currentPage={sidebarSuppliersPage}
                       totalItems={totalSidebarSuppliers}
@@ -565,7 +565,7 @@ export default function Fechamento() {
                       onPageSizeChange={setSidebarSuppliersPageSize}
                       pageSizeOptions={[5, 10, 20]}
                       showAllOption={false}
-                      className="py-1 flex-wrap"
+                      className="py-0 gap-2 justify-center text-xs"
                     />
                   </div>
                 )}
