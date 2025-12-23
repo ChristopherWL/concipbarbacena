@@ -329,10 +329,10 @@ export const ObraEtapasPanel = ({ obraId, obraProgresso, isReadOnly, onAddDiario
         {/* Active Etapa Highlight */}
         {activeEtapa && (
           <div className="p-3 rounded-lg border-2 border-blue-500 bg-blue-50 dark:bg-blue-950">
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Etapa Atual</p>
-                <h4 className="font-semibold">{activeEtapa.nome}</h4>
+                <h4 className="font-semibold truncate">{activeEtapa.nome}</h4>
                 {activeEtapa.diarios_count !== undefined && (
                   <p className="text-xs text-muted-foreground mt-1">
                     <FileText className="h-3 w-3 inline mr-1" />
@@ -341,11 +341,11 @@ export const ObraEtapasPanel = ({ obraId, obraProgresso, isReadOnly, onAddDiario
                 )}
               </div>
               {!isReadOnly && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-shrink-0">
                   {onAddDiario && (
                     <Button size="sm" variant="outline" onClick={() => onAddDiario(activeEtapa.id)}>
-                      <Plus className="h-4 w-4 mr-1" />
-                      Diário
+                      <Plus className="h-4 w-4 sm:mr-1" />
+                      <span className="hidden sm:inline">Diário</span>
                     </Button>
                   )}
                   <Button 
@@ -354,11 +354,12 @@ export const ObraEtapasPanel = ({ obraId, obraProgresso, isReadOnly, onAddDiario
                     disabled={completeAndStartNext.isPending}
                   >
                     {completeAndStartNext.isPending ? (
-                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      <Loader2 className="h-4 w-4 sm:mr-1 animate-spin" />
                     ) : (
-                      <ArrowRight className="h-4 w-4 mr-1" />
+                      <ArrowRight className="h-4 w-4 sm:mr-1" />
                     )}
-                    Concluir e Próxima
+                    <span className="hidden sm:inline">Concluir e Próxima</span>
+                    <span className="sm:hidden">Próxima</span>
                   </Button>
                 </div>
               )}
@@ -399,24 +400,26 @@ export const ObraEtapasPanel = ({ obraId, obraProgresso, isReadOnly, onAddDiario
                           <span className="text-xs text-muted-foreground w-4">{index + 1}</span>
                         </div>
                         
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                             <h4 className="font-medium truncate">{etapa.nome}</h4>
-                            <Badge className={statusConfig[etapa.status].color}>
-                              <StatusIcon className="h-3 w-3 mr-1" />
-                              {statusConfig[etapa.status].label}
-                            </Badge>
-                            {etapa.percentual_peso > 0 && (
-                              <span className="text-xs text-muted-foreground">
-                                ({etapa.percentual_peso}%)
-                              </span>
-                            )}
-                            {etapa.diarios_count !== undefined && etapa.diarios_count > 0 && (
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <FileText className="h-3 w-3" />
-                                {etapa.diarios_count}
-                              </span>
-                            )}
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge className={`${statusConfig[etapa.status].color} text-xs`}>
+                                <StatusIcon className="h-3 w-3 mr-1" />
+                                {statusConfig[etapa.status].label}
+                              </Badge>
+                              {etapa.percentual_peso > 0 && (
+                                <span className="text-xs text-muted-foreground">
+                                  ({etapa.percentual_peso}%)
+                                </span>
+                              )}
+                              {etapa.diarios_count !== undefined && etapa.diarios_count > 0 && (
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <FileText className="h-3 w-3" />
+                                  {etapa.diarios_count}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           {etapa.descricao && (
                             <p className="text-sm text-muted-foreground line-clamp-1">{etapa.descricao}</p>
@@ -435,7 +438,7 @@ export const ObraEtapasPanel = ({ obraId, obraProgresso, isReadOnly, onAddDiario
                         </div>
 
                         {!isReadOnly && (
-                          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                          <div className="hidden sm:flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                             {/* Quick status buttons */}
                             {etapa.status !== 'concluida' && (
                               <Button
@@ -482,6 +485,50 @@ export const ObraEtapasPanel = ({ obraId, obraProgresso, isReadOnly, onAddDiario
                     
                     <CollapsibleContent>
                       <div className="px-3 pb-3 border-t">
+                        {/* Mobile action buttons */}
+                        {!isReadOnly && (
+                          <div className="flex sm:hidden items-center gap-2 py-2 border-b mb-2">
+                            {etapa.status !== 'concluida' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-green-600 border-green-200 hover:bg-green-50"
+                                onClick={() => handleQuickStatusChange(etapa, 'concluida')}
+                              >
+                                <CheckCircle2 className="h-4 w-4 mr-1" />
+                                Concluir
+                              </Button>
+                            )}
+                            {etapa.status === 'pendente' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                                onClick={() => handleQuickStatusChange(etapa, 'em_andamento')}
+                              >
+                                <PlayCircle className="h-4 w-4 mr-1" />
+                                Iniciar
+                              </Button>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleOpenDialog(etapa)}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Editar
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-destructive border-destructive/20 hover:bg-destructive/10"
+                              onClick={() => handleDelete(etapa.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                        
                         <div className="flex items-center justify-between pt-2 mb-2">
                           <h5 className="text-sm font-medium flex items-center gap-1">
                             <FileText className="h-3.5 w-3.5" />
