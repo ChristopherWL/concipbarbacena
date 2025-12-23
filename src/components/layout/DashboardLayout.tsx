@@ -1190,7 +1190,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       side="right" 
                       align="start" 
                       sideOffset={16}
-                      className="w-60 p-0 bg-gradient-to-br from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl border border-primary/20 shadow-[0_0_40px_-10px] shadow-primary/30 rounded-2xl z-[100] animate-in fade-in-0 zoom-in-95 slide-in-from-left-3 duration-200 overflow-hidden"
+                      className="w-60 p-0 bg-sidebar backdrop-blur-xl border border-primary/20 shadow-[0_0_40px_-10px] shadow-primary/30 rounded-2xl z-[100] animate-in fade-in-0 zoom-in-95 slide-in-from-left-3 duration-200 overflow-hidden"
                     >
                       {/* Glow effect at top */}
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
@@ -1203,7 +1203,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                             <div className="absolute inset-0 rounded-xl bg-primary/10 blur-sm" />
                           </div>
                           <div>
-                            <span className="text-sm font-bold text-white tracking-wide">{item.name}</span>
+                            <span className="text-sm font-bold text-sidebar-foreground tracking-wide">{item.name}</span>
                             <p className="text-[10px] text-primary/70 font-medium uppercase tracking-widest">Menu</p>
                           </div>
                         </div>
@@ -1219,7 +1219,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                               "cursor-pointer gap-3 px-3 py-3 rounded-xl transition-all duration-200 group/item border border-transparent",
                               isActive(child.href) 
                                 ? "bg-gradient-to-r from-primary/25 via-primary/15 to-primary/5 text-primary border-primary/30 shadow-lg shadow-primary/10" 
-                                : "hover:bg-white/5 hover:border-white/10"
+                                : "hover:bg-sidebar-accent/50 hover:border-sidebar-foreground/10"
                             )}
                             style={{ animationDelay: `${idx * 50}ms` }}
                           >
@@ -1227,11 +1227,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                               "relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
                               isActive(child.href) 
                                 ? "bg-primary/30 shadow-md shadow-primary/30" 
-                                : "bg-white/5 group-hover/item:bg-white/10"
+                                : "bg-sidebar-foreground/5 group-hover/item:bg-sidebar-foreground/10"
                             )}>
                               <child.icon className={cn(
                                 "h-4 w-4 transition-colors",
-                                isActive(child.href) ? "text-primary" : "text-slate-400 group-hover/item:text-white"
+                                isActive(child.href) ? "text-primary" : "text-sidebar-foreground/60 group-hover/item:text-sidebar-foreground"
                               )} />
                               {isActive(child.href) && (
                                 <div className="absolute inset-0 rounded-lg bg-primary/20 blur-md" />
@@ -1239,7 +1239,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                             </div>
                             <span className={cn(
                               "flex-1 text-sm font-medium transition-colors",
-                              isActive(child.href) ? "text-primary" : "text-slate-300 group-hover/item:text-white"
+                              isActive(child.href) ? "text-primary" : "text-sidebar-foreground/80 group-hover/item:text-sidebar-foreground"
                             )}>{child.name}</span>
                             {(child.badge || 0) > 0 && (
                               <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
