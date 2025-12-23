@@ -506,15 +506,15 @@ export default function Fechamento() {
           <div className="lg:w-64 shrink-0">
             <Card className="overflow-hidden">
               <CardContent className="p-0">
-                <div className="p-3 border-b bg-muted/50 space-y-2">
+                <div className="p-3 border-b bg-muted/50 flex items-center justify-between gap-2">
                   <p className="text-sm font-medium text-muted-foreground">Fornecedores</p>
                   <div className="relative">
-                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
                     <Input
-                      placeholder="Pesquisar..."
+                      placeholder="Pesquisar"
                       value={supplierSearch}
                       onChange={(e) => setSupplierSearch(e.target.value)}
-                      className="h-8 pl-7 text-xs"
+                      className="h-6 w-24 pl-6 text-xs"
                     />
                   </div>
                 </div>
