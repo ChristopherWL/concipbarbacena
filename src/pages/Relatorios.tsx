@@ -25,7 +25,7 @@ import {
   Package, ArrowLeftRight, HardHat, Wrench, FileSpreadsheet, 
   Search, Loader2, Users, ShieldCheck, Building2, ClipboardList, 
   LayoutGrid, Shield, ChevronRight, BarChart3, TrendingUp,
-  FileText, Calendar, AlertTriangle
+  FileText, Calendar, AlertTriangle, Hash
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -51,6 +51,7 @@ const RelatorioObras = lazy(() => import('@/components/relatorios/RelatorioObras
 const RelatorioDiarioObras = lazy(() => import('@/components/relatorios/RelatorioDiarioObras').then(m => ({ default: m.RelatorioDiarioObras })));
 const RelatorioInventario = lazy(() => import('@/components/relatorios/RelatorioInventario').then(m => ({ default: m.RelatorioInventario })));
 const RelatorioGarantia = lazy(() => import('@/components/relatorios/RelatorioGarantia').then(m => ({ default: m.RelatorioGarantia })));
+const RelatorioItensInventario = lazy(() => import('@/components/relatorios/RelatorioItensInventario').then(m => ({ default: m.RelatorioItensInventario })));
 
 // Report card component for the grid view
 interface ReportCardProps {
@@ -388,6 +389,15 @@ export default function Relatorios() {
         stats: []
       },
       { 
+        id: 'itens-inventario', 
+        title: 'Itens do Inventário', 
+        description: 'Controle individual de itens com número de série',
+        icon: Hash, 
+        color: 'bg-gradient-to-br from-slate-500/10 to-slate-600/5',
+        permission: 'page_stock',
+        stats: []
+      },
+      { 
         id: 'garantia', 
         title: 'Garantia', 
         description: 'Controle de produtos em garantia e devoluções',
@@ -491,6 +501,12 @@ export default function Relatorios() {
         return (
           <Suspense fallback={<ReportSkeleton />}>
             <RelatorioInventario />
+          </Suspense>
+        );
+      case 'itens-inventario':
+        return (
+          <Suspense fallback={<ReportSkeleton />}>
+            <RelatorioItensInventario />
           </Suspense>
         );
       case 'garantia':
