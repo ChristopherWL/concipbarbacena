@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
@@ -15,6 +15,29 @@ export function PdfInlineViewer({ fileUrl, className }: Props) {
   const [numPages, setNumPages] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const [rotate, setRotate] = useState<number>(0);
+  const [isReady, setIsReady] = useState(false);
+  const mountedRef = useRef(true);
+
+  // Reset state when fileUrl changes
+  useEffect(() => {
+    mountedRef.current = true;
+    setIsReady(false);
+    setNumPages(0);
+    setPage(1);
+    setRotate(0);
+
+    // Small delay to ensure previous document is cleaned up
+    const timer = setTimeout(() => {
+      if (mountedRef.current) {
+        setIsReady(true);
+      }
+    }, 100);
+
+    return () => {
+      mountedRef.current = false;
+      clearTimeout(timer);
+    };
+  }, [fileUrl]);
 
   const canPrev = page > 1;
   const canNext = numPages > 0 && page < numPages;
@@ -23,6 +46,25 @@ export function PdfInlineViewer({ fileUrl, className }: Props) {
     if (!numPages) return "—";
     return `${page} / ${numPages}`;
   }, [page, numPages]);
+
+  const handleLoadSuccess = (info: { numPages: number }) => {
+    if (mountedRef.current) {
+      setNumPages(info.numPages);
+      setPage((p) => Math.min(Math.max(1, p), info.numPages));
+    }
+  };
+
+  if (!isReady) {
+    return (
+      <div className={"flex flex-col gap-3 " + (className ?? "")}>
+        <div className="flex-1 overflow-auto rounded-lg border bg-muted/30">
+          <div className="min-h-[55vh] w-full flex items-center justify-center p-3">
+            <div className="text-sm text-muted-foreground">Carregando PDF...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={"flex flex-col gap-3 " + (className ?? "")}>
@@ -66,14 +108,12 @@ export function PdfInlineViewer({ fileUrl, className }: Props) {
       <div className="flex-1 overflow-auto rounded-lg border bg-muted/30">
         <div className="min-h-[55vh] w-full flex items-center justify-center p-3">
           <Document
+            key={fileUrl}
             file={fileUrl}
             options={{
               wasmUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/wasm/`,
             }}
-            onLoadSuccess={(info) => {
-              setNumPages(info.numPages);
-              setPage((p) => Math.min(Math.max(1, p), info.numPages));
-            }}
+            onLoadSuccess={handleLoadSuccess}
             loading={<div className="text-sm text-muted-foreground">Carregando PDF...</div>}
             error={<div className="text-sm text-destructive">Não foi possível abrir o PDF.</div>}
             noData={<div className="text-sm text-muted-foreground">Nenhum PDF selecionado.</div>}
