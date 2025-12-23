@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,7 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Undo2, FileText, Search, Truck, Package, Barcode } from 'lucide-react';
+import { Plus, Undo2, FileText, Search, Truck, Package, Barcode, Loader2 } from 'lucide-react';
 import { useAssetAssignments, useAssetAssignmentHistory, useCreateAssetAssignment, useReturnAsset } from '@/hooks/useAssetAssignments';
 import { useTechnicians } from '@/hooks/useTeams';
 import { useVehicles } from '@/hooks/useFleet';
@@ -38,7 +39,6 @@ import { useProducts } from '@/hooks/useProducts';
 import { useSerialNumbers } from '@/hooks/useSerialNumbers';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Loader2 } from 'lucide-react';
 
 export default function Cautelas() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -134,16 +134,10 @@ export default function Cautelas() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Page Header */}
-        <div className="flex flex-col items-center text-center gap-2 sm:-mt-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-            Cautelas
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Controle de atribuição de ativos aos colaboradores
-          </p>
-        </div>
-        <div className="flex justify-center">
+        <PageHeader 
+          title="Cautelas" 
+          description="Controle de atribuição de ativos aos colaboradores"
+        >
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -284,7 +278,7 @@ export default function Cautelas() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
+        </PageHeader>
 
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

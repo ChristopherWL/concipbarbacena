@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -418,15 +419,10 @@ export default function Configuracoes() {
   return (
     <DashboardLayout>
       <div className="space-y-4 sm:space-y-6 animate-fade-in" data-tour="settings-content">
-        {/* Page Header */}
-        <div className="flex flex-col items-center text-center gap-1 sm:gap-2 sm:-mt-6">
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">
-            Configurações
-          </h1>
-          <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-            Gerencie os dados da empresa
-          </p>
-        </div>
+        <PageHeader 
+          title="Configurações" 
+          description="Gerencie os dados da empresa"
+        />
 
         {isMatriz ? (
           <Tabs defaultValue="empresa" className="w-full">

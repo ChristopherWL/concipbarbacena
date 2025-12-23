@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -674,10 +675,10 @@ const EmissaoNotasFiscais = () => {
   return (
     <DashboardLayout>
       <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col items-center text-center gap-2 sm:-mt-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Emissão de Notas Fiscais</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Emita NF-e, NFC-e e NFS-e</p>
-        </div>
+        <PageHeader 
+          title="Emissão de Notas Fiscais" 
+          description="Emita NF-e, NFC-e e NFS-e"
+        />
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FiscalNoteType)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-4">
