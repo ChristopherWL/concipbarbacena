@@ -7,19 +7,23 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Search, Download, FileText } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Search, Download, FileText, MoreHorizontal } from 'lucide-react';
 import { useObras } from '@/hooks/useObras';
+import { useObraEtapas } from '@/hooks/useObraEtapas';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatters';
-import { exportRelatorioObras } from '@/lib/exportRelatorioPDF';
+import { exportRelatorioObras, exportRelatorioObraIndividual } from '@/lib/exportRelatorioPDF';
 
 export function RelatorioObras() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedObraId, setSelectedObraId] = useState<string | null>(null);
   const { obras, isLoading } = useObras();
   const { tenant } = useAuth();
+  const { etapas } = useObraEtapas(selectedObraId || '');
 
   const filteredObras = useMemo(() => {
     return obras.filter(obra => {
@@ -48,17 +52,31 @@ export function RelatorioObras() {
     );
   };
 
+  const getCompanyInfo = () => ({
+    name: tenant?.name || 'Empresa',
+    cnpj: tenant?.cnpj,
+    address: tenant?.address,
+    city: tenant?.city,
+    state: tenant?.state,
+    phone: tenant?.phone,
+    email: tenant?.email,
+  });
+
   const handleExportPDF = () => {
-    const company = {
-      name: tenant?.name || 'Empresa',
-      cnpj: tenant?.cnpj,
-      address: tenant?.address,
-      city: tenant?.city,
-      state: tenant?.state,
-      phone: tenant?.phone,
-      email: tenant?.email,
-    };
-    exportRelatorioObras(company, filteredObras, formatCurrency);
+    exportRelatorioObras(getCompanyInfo(), filteredObras, formatCurrency);
+  };
+
+  const handleExportIndividual = async (obra: any) => {
+    setSelectedObraId(obra.id);
+    // Need to fetch etapas for this specific obra
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data: obraEtapas } = await supabase
+      .from('obra_etapas')
+      .select('*')
+      .eq('obra_id', obra.id)
+      .order('ordem');
+    
+    exportRelatorioObraIndividual(getCompanyInfo(), obra, obraEtapas || [], formatCurrency);
   };
 
   const exportToCSV = () => {
@@ -145,12 +163,13 @@ export function RelatorioObras() {
                       <TableHead className="min-w-[90px]">Previsão</TableHead>
                       <TableHead className="min-w-[100px]">Cidade</TableHead>
                       <TableHead className="text-right min-w-[120px]">Valor</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredObras.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                           Nenhuma obra encontrada
                         </TableCell>
                       </TableRow>
@@ -180,6 +199,21 @@ export function RelatorioObras() {
                           </TableCell>
                           <TableCell className="text-right whitespace-nowrap">
                             {obra.valor_contrato ? formatCurrency(obra.valor_contrato) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleExportIndividual(obra)}>
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  Exportar PDF
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
                       ))
