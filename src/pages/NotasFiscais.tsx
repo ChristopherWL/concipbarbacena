@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useInvoices, useCreateStandaloneInvoice, useUpdateInvoice, useDeleteInvoice } from '@/hooks/useInvoices';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -381,15 +382,10 @@ export default function NotasFiscais() {
   return (
     <DashboardLayout>
       <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-        {/* Page Header */}
-        <div className="flex flex-col items-center text-center gap-2 sm:-mt-6">
-          <h1 className="text-lg sm:text-2xl font-bold text-foreground">
-            Notas Fiscais
-          </h1>
-          <p className="text-xs sm:text-base text-muted-foreground">
-            Gerencie todas as notas fiscais de entrada
-          </p>
-        </div>
+        <PageHeader 
+          title="Notas Fiscais" 
+          description="Gerencie todas as notas fiscais de entrada"
+        />
         
         {/* Action Button and Search - Mobile Stacked, Desktop Inline */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

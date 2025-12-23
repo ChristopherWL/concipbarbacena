@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -425,15 +426,10 @@ export default function Movimentacao() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6 lg:space-y-8 animate-fade-in px-2 sm:px-4" data-tour="movement-content">
-        {/* Page Header */}
-        <div className="flex flex-col items-center text-center gap-2 sm:-mt-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-            Movimentação de Estoque
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Escolha o tipo de movimentação
-          </p>
-        </div>
+        <PageHeader 
+          title="Movimentação de Estoque" 
+          description="Escolha o tipo de movimentação"
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {/* Saída Card */}

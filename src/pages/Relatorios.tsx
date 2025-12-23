@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -317,12 +318,10 @@ export default function Relatorios() {
   return (
     <DashboardLayout>
       <div className="space-y-6" data-tour="reports-content">
-        <div className="flex flex-col items-center text-center gap-2 sm:-mt-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Relatórios</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Movimentações, estoque e fichas de colaboradores
-          </p>
-        </div>
+        <PageHeader 
+          title="Relatórios" 
+          description="Movimentações, estoque e fichas de colaboradores"
+        />
 
         {showBranchWarning && (
           <Alert className="border-blue-500/50 bg-blue-500/10">
