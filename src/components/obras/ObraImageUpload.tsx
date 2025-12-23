@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Loader2, X, Image as ImageIcon, ImagePlus } from 'lucide-react';
+import { Loader2, X, Image as ImageIcon, Camera, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthContext } from '@/contexts/AuthContext';
 
@@ -18,7 +18,8 @@ export function ObraImageUpload({
   const { tenant } = useAuthContext();
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setPreviewUrl(currentUrl || null);
@@ -61,9 +62,8 @@ export function ObraImageUpload({
       toast.error('Erro ao enviar imagem');
     } finally {
       setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (cameraInputRef.current) cameraInputRef.current.value = '';
+      if (galleryInputRef.current) galleryInputRef.current.value = '';
     }
   };
 
@@ -100,29 +100,53 @@ export function ObraImageUpload({
         </div>
 
         <div className="flex flex-col gap-1">
+          {/* Camera input */}
           <input
-            ref={fileInputRef}
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          {/* Gallery input */}
+          <input
+            ref={galleryInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileSelect}
             className="hidden"
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-1" />
-            ) : (
-              <ImagePlus className="h-4 w-4 mr-1" />
-            )}
-            {uploading ? 'Enviando...' : 'Adicionar Foto'}
-          </Button>
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => cameraInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => galleryInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ImagePlus className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
           <span className="text-[10px] text-muted-foreground">
-            PNG, JPG até 5MB
+            Câmera ou Galeria (até 5MB)
           </span>
         </div>
       </div>
