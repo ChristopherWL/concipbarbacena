@@ -433,8 +433,8 @@ const DiarioObras = () => {
           /* Desktop Table View */
           <Card>
             <CardHeader className="pb-3 space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1 max-w-sm">
+              <div className="flex items-center gap-2 justify-between">
+                <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Buscar..."
@@ -444,24 +444,26 @@ const DiarioObras = () => {
                   />
                 </div>
                 
-                <Button
-                  variant={showFilters ? "default" : "outline"}
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="gap-2"
-                >
-                  <Filter className="h-4 w-4" />
-                  Filtros
-                  {hasActiveFilters && (
-                    <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 justify-center">
-                      {[filterStatus !== "all", filterEquipe !== "all", filterDateStart, filterDateEnd].filter(Boolean).length}
-                    </Badge>
-                  )}
-                </Button>
-                
-                <Button onClick={() => setIsFormOpen(true)} size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Registro
-                </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant={showFilters ? "default" : "outline"}
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="gap-2"
+                  >
+                    <Filter className="h-4 w-4" />
+                    Filtros
+                    {hasActiveFilters && (
+                      <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 justify-center">
+                        {[filterStatus !== "all", filterEquipe !== "all", filterDateStart, filterDateEnd].filter(Boolean).length}
+                      </Badge>
+                    )}
+                  </Button>
+                  
+                  <Button onClick={() => setIsFormOpen(true)} size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Registro
+                  </Button>
+                </div>
               </div>
               
               {showFilters && (
