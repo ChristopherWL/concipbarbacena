@@ -387,6 +387,7 @@ export default function NotasFiscais() {
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-info/10 rounded-full blur-3xl animate-pulse delay-1000" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/5 rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-primary/5 rounded-full" />
         </div>
 
         <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-6 p-3 sm:p-6">
@@ -395,44 +396,47 @@ export default function NotasFiscais() {
           description="Gerencie todas as notas fiscais de entrada"
         />
         
-        {/* Action Button and Search - Mobile Stacked, Desktop Inline */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          {/* Search */}
-          <div className="relative flex-1 max-w-full sm:max-w-md order-2 sm:order-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por número ou fornecedor..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 text-sm"
-            />
-          </div>
+        {/* Search Bar - Glassmorphism */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-info/20 rounded-xl sm:rounded-2xl blur-xl opacity-50 hidden sm:block" />
+          <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+              <div className="relative flex-1 w-full order-2 sm:order-1">
+                <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por número ou fornecedor..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 sm:pl-12 h-10 sm:h-12 text-sm sm:text-base bg-background/50 border-border/50 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
           
-          {/* Add Button */}
-          <div className="order-1 sm:order-2">
-            <Dialog open={isFormOpen} onOpenChange={handleDialogClose}>
-              <DialogTrigger asChild>
-                <Button className="gap-2 w-full sm:w-auto">
-                  <Plus className="h-4 w-4" />
-                  Nova Nota Avulsa
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto mx-2 sm:mx-auto">
-                <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
-                  <DialogTitle className="text-primary-foreground text-base sm:text-lg">
-                    {editingInvoice ? 'Editar Nota Fiscal' : 'Cadastrar Nota Fiscal Avulsa'}
-                  </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="invoice_number" className="text-sm">Número da Nota *</Label>
-                      <Input
-                        id="invoice_number"
-                        value={formData.invoice_number}
-                        onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
-                        placeholder="000123"
-                        required
+              {/* Add Button */}
+              <div className="order-1 sm:order-2">
+                <Dialog open={isFormOpen} onOpenChange={handleDialogClose}>
+                  <DialogTrigger asChild>
+                    <Button className="gap-2 w-full sm:w-auto">
+                      <Plus className="h-4 w-4" />
+                      Nova Nota Avulsa
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto mx-2 sm:mx-auto">
+                    <DialogHeader className="bg-gradient-to-r from-primary to-info rounded-t-xl -mx-6 -mt-6 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
+                      <DialogTitle className="text-white text-base sm:text-lg flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        {editingInvoice ? 'Editar Nota Fiscal' : 'Cadastrar Nota Fiscal Avulsa'}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="invoice_number" className="text-sm">Número da Nota *</Label>
+                          <Input
+                            id="invoice_number"
+                            value={formData.invoice_number}
+                            onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
+                            placeholder="000123"
+                            required
                         className="text-sm"
                       />
                     </div>
@@ -632,39 +636,41 @@ export default function NotasFiscais() {
             </Dialog>
           </div>
         </div>
+      </div>
+    </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Glassmorphism */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          <Card className="p-2 sm:p-0">
+          <Card className="bg-card/80 backdrop-blur-sm border border-border/50 p-2 sm:p-0 hover:shadow-lg hover:shadow-primary/5 transition-all">
             <CardHeader className="pb-1 sm:pb-2 p-2 sm:p-6">
               <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Total de Notas
               </CardTitle>
             </CardHeader>
             <CardContent className="p-2 sm:p-6 pt-0 sm:pt-0">
-              <p className="text-lg sm:text-2xl font-bold">{invoices?.length || 0}</p>
+              <p className="text-lg sm:text-2xl font-bold text-primary">{invoices?.length || 0}</p>
             </CardContent>
           </Card>
-          <Card className="p-2 sm:p-0">
+          <Card className="bg-card/80 backdrop-blur-sm border border-border/50 p-2 sm:p-0 hover:shadow-lg hover:shadow-info/5 transition-all">
             <CardHeader className="pb-1 sm:pb-2 p-2 sm:p-6">
               <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Valor Total
               </CardTitle>
             </CardHeader>
             <CardContent className="p-2 sm:p-6 pt-0 sm:pt-0">
-              <p className="text-sm sm:text-2xl font-bold truncate">
+              <p className="text-sm sm:text-2xl font-bold text-info truncate">
                 {formatCurrency(invoices?.reduce((sum, inv) => sum + (inv.total_value || 0), 0))}
               </p>
             </CardContent>
           </Card>
-          <Card className="p-2 sm:p-0">
+          <Card className="bg-card/80 backdrop-blur-sm border border-border/50 p-2 sm:p-0 hover:shadow-lg hover:shadow-success/5 transition-all">
             <CardHeader className="pb-1 sm:pb-2 p-2 sm:p-6">
               <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Com Anexo
               </CardTitle>
             </CardHeader>
             <CardContent className="p-2 sm:p-6 pt-0 sm:pt-0">
-              <p className="text-lg sm:text-2xl font-bold">
+              <p className="text-lg sm:text-2xl font-bold text-success">
                 {invoices?.filter(inv => inv.pdf_url).length || 0}
               </p>
             </CardContent>
