@@ -615,18 +615,32 @@ const Obras = () => {
         </Card>
 
         {/* Dialog de Lista de Atualizações */}
-        <Dialog open={isUpdatesListDialogOpen} onOpenChange={(open) => {
-          setIsUpdatesListDialogOpen(open);
-          if (!open) setSelectedObra(null);
-        }}>
-          <DialogContent className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "w-full max-w-3xl max-h-[90vh] p-0 bg-transparent shadow-none border-0 overflow-hidden [&>button]:hidden"}>
+        <Dialog
+          open={isUpdatesListDialogOpen}
+          onOpenChange={(open) => {
+            setIsUpdatesListDialogOpen(open);
+            if (!open) setSelectedObra(null);
+          }}
+          modal={false}
+        >
+          <DialogContent className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 inset-0 translate-x-0 translate-y-0" : "w-full max-w-3xl max-h-[90vh] p-0 bg-transparent shadow-none border-0 overflow-hidden"}>
             <div className={isMobile ? "h-full flex flex-col" : "bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"}>
               <DialogHeader className={isMobile ? "bg-primary px-4 py-4 flex-shrink-0" : "bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0"}>
-                <DialogTitle className="text-primary-foreground">
-                  {selectedObra?.nome}
-                </DialogTitle>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-primary-foreground">
+                    {selectedObra?.nome}
+                  </DialogTitle>
+                  <button
+                    type="button"
+                    aria-label="Fechar"
+                    onClick={() => setIsUpdatesListDialogOpen(false)}
+                    className="text-primary-foreground/90 hover:text-primary-foreground transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
               </DialogHeader>
-              <div className={isMobile ? "flex-1 overflow-y-auto px-3 py-4 min-h-0 space-y-4" : "flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-6"}>
+              <div className={isMobile ? "flex-1 overflow-y-auto overscroll-contain touch-pan-y px-3 py-4 min-h-0 space-y-4" : "flex-1 overflow-y-auto overscroll-contain px-6 pt-4 pb-6 min-h-0 space-y-6"}>
                 {/* Etapas e Progresso */}
                 {selectedObra && (
                   <ObraEtapasPanel 
