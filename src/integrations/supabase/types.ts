@@ -2057,6 +2057,7 @@ export type Database = {
           endereco: string | null
           estado: string | null
           id: string
+          image_url: string | null
           nome: string
           notas: string | null
           previsao_termino: string | null
@@ -2080,6 +2081,7 @@ export type Database = {
           endereco?: string | null
           estado?: string | null
           id?: string
+          image_url?: string | null
           nome: string
           notas?: string | null
           previsao_termino?: string | null
@@ -2103,6 +2105,7 @@ export type Database = {
           endereco?: string | null
           estado?: string | null
           id?: string
+          image_url?: string | null
           nome?: string
           notas?: string | null
           previsao_termino?: string | null

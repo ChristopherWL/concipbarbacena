@@ -7,12 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Edit } from "lucide-react";
 import { Obra } from "@/hooks/useObras";
+import { ObraImageUpload } from "./ObraImageUpload";
 
 interface ObraEditDialogProps {
   obra: Obra | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (obra: Partial<Obra> & { id: string }) => void;
+  onSave: (obra: Partial<Obra> & { id: string; image_url?: string | null }) => void;
   isPending: boolean;
 }
 
@@ -28,6 +29,7 @@ export const ObraEditDialog = ({ obra, isOpen, onOpenChange, onSave, isPending }
     previsao_termino: "",
     status: "planejada" as Obra['status'],
     valor_contrato: null as number | null,
+    image_url: null as string | null,
   });
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export const ObraEditDialog = ({ obra, isOpen, onOpenChange, onSave, isPending }
         previsao_termino: obra.previsao_termino || "",
         status: obra.status || "planejada",
         valor_contrato: obra.valor_contrato,
+        image_url: (obra as any).image_url || null,
       });
     }
   }, [obra]);
@@ -182,7 +185,10 @@ export const ObraEditDialog = ({ obra, isOpen, onOpenChange, onSave, isPending }
               />
             </div>
 
-            {/* Actions */}
+            <ObraImageUpload
+              currentUrl={formData.image_url}
+              onUploadComplete={(url) => setFormData({...formData, image_url: url || null})}
+            />
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t">
               <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
                 Cancelar
