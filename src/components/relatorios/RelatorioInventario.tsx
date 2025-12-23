@@ -12,14 +12,14 @@ import { useProducts } from '@/hooks/useProducts';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/formatters';
-import { exportRelatorioInventario, exportFichaControleSaidaMaterial } from '@/lib/exportRelatorioPDF';
+import { exportRelatorioInventario, exportFichaControleSaidaMaterial, BranchInfo } from '@/lib/exportRelatorioPDF';
 
 export function RelatorioInventario() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const { data: products = [], isLoading } = useProducts();
-  const { tenant } = useAuth();
+  const { tenant, selectedBranch } = useAuth();
 
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
@@ -78,13 +78,27 @@ export function RelatorioInventario() {
     email: tenant?.email,
   });
 
+  const getBranchInfo = (): BranchInfo | null => {
+    if (!selectedBranch) return null;
+    return {
+      name: selectedBranch.name,
+      cnpj: selectedBranch.cnpj || undefined,
+      address: selectedBranch.address || undefined,
+      city: selectedBranch.city || undefined,
+      state: selectedBranch.state || undefined,
+      zip_code: selectedBranch.zip_code || undefined,
+      phone: selectedBranch.phone || undefined,
+      email: selectedBranch.email || undefined,
+    };
+  };
+
   const handleExportPDF = () => {
     exportRelatorioInventario(getCompanyInfo(), filteredProducts, formatCurrency);
   };
 
-  const handleExportFichaSaida = () => {
+  const handleExportFichaSaida = async () => {
     // Export empty form for manual filling
-    exportFichaControleSaidaMaterial(getCompanyInfo(), []);
+    await exportFichaControleSaidaMaterial(getCompanyInfo(), getBranchInfo(), []);
   };
 
   const exportToCSV = () => {

@@ -1269,11 +1269,26 @@ export function exportRelatorioEPCIndividual(
 }
 
 // Ficha de Controle de Saída de Material do Almoxarifado
-export function exportFichaControleSaidaMaterial(
+export interface BranchInfo {
+  name: string;
+  cnpj?: string;
+  address?: string;
+  number?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  phone?: string;
+  email?: string;
+  logo_url?: string;
+}
+
+export async function exportFichaControleSaidaMaterial(
   company: CompanyInfo,
+  branch: BranchInfo | null,
   movements: any[],
   title: string = 'FICHA DE CONTROLE DE SAÍDA DE MATERIAL DO ALMOXARIFADO'
-): void {
+): Promise<void> {
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
@@ -1285,24 +1300,130 @@ export function exportFichaControleSaidaMaterial(
   const marginLeft = 10;
   const marginRight = 10;
   const tableWidth = pageWidth - marginLeft - marginRight;
-  let y = 12;
+  let y = 8;
 
-  // Header with company name and title
-  doc.setFillColor(255, 255, 255);
-  doc.rect(0, 0, pageWidth, 25, 'F');
+  // Header box with logo and company/branch info
+  const headerHeight = 28;
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(marginLeft, y, tableWidth, headerHeight, 'S');
 
-  // Company name on the left
+  // Logo area (left side)
+  const logoWidth = 40;
+  doc.setLineWidth(0.3);
+  doc.line(marginLeft + logoWidth, y, marginLeft + logoWidth, y + headerHeight);
+
+  // Try to add logo
+  const logoUrl = branch?.logo_url || company.logoUrl;
+  if (logoUrl) {
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              const dataUrl = canvas.toDataURL('image/png');
+              // Calculate aspect ratio to fit in logo area
+              const maxWidth = 35;
+              const maxHeight = 22;
+              let imgWidth = img.width;
+              let imgHeight = img.height;
+              const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+              imgWidth *= ratio;
+              imgHeight *= ratio;
+              const imgX = marginLeft + (logoWidth - imgWidth) / 2;
+              const imgY = y + (headerHeight - imgHeight) / 2;
+              doc.addImage(dataUrl, 'PNG', imgX, imgY, imgWidth, imgHeight);
+            }
+            resolve();
+          } catch {
+            resolve();
+          }
+        };
+        img.onerror = () => resolve();
+        img.src = logoUrl;
+      });
+    } catch {
+      // If logo fails, just show company name
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text(company.name || 'Empresa', marginLeft + logoWidth / 2, y + headerHeight / 2, { align: 'center' });
+    }
+  } else {
+    // No logo, show company name
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    const companyName = company.name || 'Empresa';
+    const lines = doc.splitTextToSize(companyName, logoWidth - 4);
+    doc.text(lines, marginLeft + logoWidth / 2, y + headerHeight / 2 - (lines.length - 1) * 2, { align: 'center' });
+  }
+
+  // Title area (center)
+  const titleStartX = marginLeft + logoWidth;
+  const titleWidth = tableWidth - logoWidth - 50; // Leave space for branch info
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 0, 0);
-  doc.text(company.name || 'Empresa', marginLeft, y);
+  doc.text(title, titleStartX + titleWidth / 2, y + 10, { align: 'center' });
 
-  // Title centered
-  doc.setFontSize(14);
+  // Branch info below title
+  const branchOrCompany = branch || company;
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(60, 60, 60);
+
+  let infoY = y + 15;
+  if (branchOrCompany.cnpj) {
+    doc.text(`CNPJ: ${branchOrCompany.cnpj}`, titleStartX + titleWidth / 2, infoY, { align: 'center' });
+    infoY += 4;
+  }
+
+  const addressParts = [];
+  if (branch?.address) addressParts.push(branch.address);
+  if (branch?.number) addressParts.push(`Nº ${branch.number}`);
+  if (branch?.neighborhood) addressParts.push(branch.neighborhood);
+  
+  if (addressParts.length > 0 || branchOrCompany.address) {
+    const addressLine = addressParts.length > 0 ? addressParts.join(', ') : branchOrCompany.address;
+    doc.text(addressLine || '', titleStartX + titleWidth / 2, infoY, { align: 'center' });
+    infoY += 4;
+  }
+
+  const cityState = [branch?.city || company.city, branch?.state || company.state].filter(Boolean).join(' - ');
+  const cep = branch?.zip_code ? ` | CEP: ${branch.zip_code}` : '';
+  if (cityState) {
+    doc.text(`${cityState}${cep}`, titleStartX + titleWidth / 2, infoY, { align: 'center' });
+    infoY += 4;
+  }
+
+  const contact = [branch?.phone || company.phone, branch?.email || company.email].filter(Boolean).join(' | ');
+  if (contact) {
+    doc.text(contact, titleStartX + titleWidth / 2, infoY, { align: 'center' });
+  }
+
+  // Date area (right side)
+  doc.setLineWidth(0.3);
+  doc.line(pageWidth - marginRight - 50, y, pageWidth - marginRight - 50, y + headerHeight);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.text(title, pageWidth / 2, y, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  doc.text('Data:', pageWidth - marginRight - 45, y + 10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(format(new Date(), 'dd/MM/yyyy'), pageWidth - marginRight - 45, y + 16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Hora:', pageWidth - marginRight - 45, y + 22);
+  doc.setFont('helvetica', 'normal');
+  doc.text(format(new Date(), 'HH:mm'), pageWidth - marginRight - 45, y + 28);
 
-  y += 8;
+  y += headerHeight + 3;
 
   // Table header
   const columns = [
@@ -1316,14 +1437,14 @@ export function exportFichaControleSaidaMaterial(
   ];
 
   const rowHeight = 8;
-  const headerHeight = 8;
+  const tableRowHeaderHeight = 8;
 
   // Draw header row
   doc.setFillColor(240, 240, 240);
-  doc.rect(marginLeft, y, tableWidth, headerHeight, 'F');
+  doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'F');
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(0.3);
-  doc.rect(marginLeft, y, tableWidth, headerHeight, 'S');
+  doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
 
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
@@ -1332,15 +1453,15 @@ export function exportFichaControleSaidaMaterial(
   let x = marginLeft;
   columns.forEach((col) => {
     // Vertical line
-    doc.line(x, y, x, y + headerHeight);
+    doc.line(x, y, x, y + tableRowHeaderHeight);
     // Header text centered
     doc.text(col.header, x + col.width / 2, y + 5.5, { align: 'center' });
     x += col.width;
   });
   // Last vertical line
-  doc.line(x, y, x, y + headerHeight);
+  doc.line(x, y, x, y + tableRowHeaderHeight);
 
-  y += headerHeight;
+  y += tableRowHeaderHeight;
 
   // Data rows - fill with actual data or empty rows
   doc.setFont('helvetica', 'normal');
@@ -1356,23 +1477,23 @@ export function exportFichaControleSaidaMaterial(
 
       // Redraw header on new page
       doc.setFillColor(240, 240, 240);
-      doc.rect(marginLeft, y, tableWidth, headerHeight, 'F');
+      doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'F');
       doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.3);
-      doc.rect(marginLeft, y, tableWidth, headerHeight, 'S');
+      doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
 
       doc.setFontSize(7);
       doc.setFont('helvetica', 'bold');
 
       x = marginLeft;
       columns.forEach((col) => {
-        doc.line(x, y, x, y + headerHeight);
+        doc.line(x, y, x, y + tableRowHeaderHeight);
         doc.text(col.header, x + col.width / 2, y + 5.5, { align: 'center' });
         x += col.width;
       });
-      doc.line(x, y, x, y + headerHeight);
+      doc.line(x, y, x, y + tableRowHeaderHeight);
 
-      y += headerHeight;
+      y += tableRowHeaderHeight;
       doc.setFont('helvetica', 'normal');
     }
 
