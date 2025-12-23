@@ -4796,6 +4796,10 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      can_edit_invoices: {
+        Args: { _tenant_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_manage_users_in_tenant: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
