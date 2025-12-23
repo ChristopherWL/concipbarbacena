@@ -1189,27 +1189,41 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <DropdownMenuContent 
                       side="right" 
                       align="start" 
-                      sideOffset={8}
-                      className="w-52 bg-popover/95 backdrop-blur-sm border-border/50 shadow-xl z-[100]"
+                      sideOffset={12}
+                      className="w-56 p-2 bg-popover border border-border/40 shadow-2xl rounded-xl z-[100] animate-in fade-in-0 zoom-in-95 slide-in-from-left-2"
                     >
-                      <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{item.name}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {item.children.map((child) => (
-                        <DropdownMenuItem 
-                          key={child.href} 
-                          onClick={() => handleNavigation(child.href)}
-                          className={cn(
-                            "cursor-pointer gap-3",
-                            isActive(child.href) && "bg-primary/10 text-primary"
-                          )}
-                        >
-                          <child.icon className="h-4 w-4" />
-                          <span>{child.name}</span>
-                          {(child.badge || 0) > 0 && (
-                            <NotificationBadge count={child.badge || 0} type={child.badgeType} className="ml-auto scale-75" />
-                          )}
-                        </DropdownMenuItem>
-                      ))}
+                      <div className="flex items-center gap-2 px-2 py-2.5 mb-1">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+                          <item.icon className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">{item.name}</span>
+                      </div>
+                      <DropdownMenuSeparator className="bg-border/50 -mx-2 mb-1" />
+                      <div className="space-y-0.5">
+                        {item.children.map((child) => (
+                          <DropdownMenuItem 
+                            key={child.href} 
+                            onClick={() => handleNavigation(child.href)}
+                            className={cn(
+                              "cursor-pointer gap-3 px-3 py-2.5 rounded-lg transition-all duration-150",
+                              isActive(child.href) 
+                                ? "bg-primary/15 text-primary font-medium" 
+                                : "hover:bg-muted/80"
+                            )}
+                          >
+                            <div className={cn(
+                              "flex items-center justify-center w-7 h-7 rounded-md transition-colors",
+                              isActive(child.href) ? "bg-primary/20" : "bg-muted/50"
+                            )}>
+                              <child.icon className="h-4 w-4" />
+                            </div>
+                            <span className="flex-1 text-sm">{child.name}</span>
+                            {(child.badge || 0) > 0 && (
+                              <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
+                            )}
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );
