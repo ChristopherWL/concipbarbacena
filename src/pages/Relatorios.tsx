@@ -1,18 +1,16 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
-  PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
-  CartesianGrid, Tooltip, Legend 
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip 
 } from 'recharts';
 import { useStockMovements } from '@/hooks/useStockMovements';
 import { useProducts } from '@/hooks/useProducts';
@@ -25,20 +23,102 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Package, ArrowLeftRight, HardHat, Wrench, FileSpreadsheet, 
-  Search, Download, Loader2, Users, ShieldCheck, Box, Boxes,
-  Building2, ClipboardList, LayoutGrid, Shield
+  Search, Loader2, Users, ShieldCheck, Building2, ClipboardList, 
+  LayoutGrid, Shield, ChevronRight, BarChart3, TrendingUp,
+  FileText, Calendar, AlertTriangle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { exportFichaEPI } from '@/lib/exportFichaEPI';
 import { exportFichaFerramentas } from '@/lib/exportFichaFerramentas';
-import { RelatorioObras } from '@/components/relatorios/RelatorioObras';
-import { RelatorioDiarioObras } from '@/components/relatorios/RelatorioDiarioObras';
-import { RelatorioInventario } from '@/components/relatorios/RelatorioInventario';
-import { RelatorioGarantia } from '@/components/relatorios/RelatorioGarantia';
+import { cn } from '@/lib/utils';
+
+// Lazy load report components for better performance
+const RelatorioObras = lazy(() => import('@/components/relatorios/RelatorioObras').then(m => ({ default: m.RelatorioObras })));
+const RelatorioDiarioObras = lazy(() => import('@/components/relatorios/RelatorioDiarioObras').then(m => ({ default: m.RelatorioDiarioObras })));
+const RelatorioInventario = lazy(() => import('@/components/relatorios/RelatorioInventario').then(m => ({ default: m.RelatorioInventario })));
+const RelatorioGarantia = lazy(() => import('@/components/relatorios/RelatorioGarantia').then(m => ({ default: m.RelatorioGarantia })));
+
+// Report card component for the grid view
+interface ReportCardProps {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  color: string;
+  stats?: { label: string; value: string | number }[];
+  onClick: () => void;
+  isActive?: boolean;
+}
+
+function ReportCard({ title, description, icon: Icon, color, stats, onClick, isActive }: ReportCardProps) {
+  return (
+    <Card 
+      onClick={onClick}
+      className={cn(
+        "group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 overflow-hidden relative",
+        isActive 
+          ? "border-primary shadow-lg shadow-primary/20" 
+          : "border-transparent hover:border-primary/30"
+      )}
+    >
+      {/* Gradient overlay */}
+      <div className={cn(
+        "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+        color
+      )} />
+      
+      {/* Glow effect */}
+      {isActive && (
+        <div className="absolute inset-0 bg-primary/5" />
+      )}
+      
+      <CardContent className="relative p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div className={cn(
+            "flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300",
+            isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" : "bg-muted group-hover:bg-primary/10"
+          )}>
+            <Icon className={cn(
+              "h-6 w-6 transition-colors",
+              isActive ? "" : "text-muted-foreground group-hover:text-primary"
+            )} />
+          </div>
+          <ChevronRight className={cn(
+            "h-5 w-5 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-1",
+            isActive && "text-primary"
+          )} />
+        </div>
+        
+        <h3 className="font-semibold text-base mb-1 group-hover:text-primary transition-colors">{title}</h3>
+        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{description}</p>
+        
+        {stats && stats.length > 0 && (
+          <div className="flex gap-4 pt-3 border-t border-border/50">
+            {stats.map((stat, i) => (
+              <div key={i} className="text-center">
+                <p className="text-lg font-bold text-foreground">{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Loading skeleton for lazy components
+function ReportSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-[400px] w-full" />
+    </div>
+  );
+}
 
 export default function Relatorios() {
-  const [activeTab, setActiveTab] = useState('');
+  const [activeReport, setActiveReport] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [movementTypeFilter, setMovementTypeFilter] = useState<string>('all');
@@ -48,40 +128,10 @@ export default function Relatorios() {
   const { selectedBranchId } = useMatrizBranch();
   const { permissions } = useUserPermissions();
   
-  // Define report tabs with their required permissions
-  const reportTabs = useMemo(() => {
-    const tabs = [
-      { value: 'obras', label: 'Obras', icon: Building2, permission: 'page_obras' },
-      { value: 'diario', label: 'Diário de Obras', shortLabel: 'Diário', icon: ClipboardList, permission: 'page_diario_obras' },
-      { value: 'inventario', label: 'Inventário', icon: LayoutGrid, permission: 'page_stock' },
-      { value: 'garantia', label: 'Garantia', icon: Shield, permission: 'page_stock' },
-      { value: 'epi', label: 'EPI', icon: HardHat, permission: 'page_stock' },
-      { value: 'epc', label: 'EPC', icon: ShieldCheck, permission: 'page_stock' },
-      { value: 'ferramentas', label: 'Ferramentas', icon: Wrench, permission: 'page_stock' },
-      { value: 'movimentacoes', label: 'Movimentações', icon: ArrowLeftRight, permission: 'page_movimentacao' },
-      { value: 'estoque', label: 'Estoque', icon: Package, permission: 'page_stock' },
-    ];
-    
-    // Filter tabs based on user permissions
-    return tabs.filter(tab => {
-      const permKey = tab.permission as keyof typeof permissions;
-      return permissions[permKey] === true;
-    });
-  }, [permissions]);
-
-  // Set default active tab based on available tabs
-  useEffect(() => {
-    if (reportTabs.length > 0 && !activeTab) {
-      setActiveTab(reportTabs[0].value);
-    } else if (reportTabs.length > 0 && !reportTabs.find(t => t.value === activeTab)) {
-      // If current tab is not in available tabs, switch to first available
-      setActiveTab(reportTabs[0].value);
-    }
-  }, [reportTabs, activeTab]);
-  
   // Check if user is from matriz and no branch is selected
   const isMatriz = selectedBranch?.is_main === true;
   const showBranchWarning = isMatriz && !selectedBranchId;
+
   const { data: movements = [], isLoading: loadingMovements } = useStockMovements();
   const { data: products = [], isLoading: loadingProducts } = useProducts();
   const { employees, isLoading: loadingEmployees } = useEmployees();
@@ -145,6 +195,16 @@ export default function Relatorios() {
 
   const COLORS = ['hsl(217, 91%, 60%)', 'hsl(38, 92%, 50%)', 'hsl(199, 89%, 48%)', 'hsl(142, 76%, 36%)', 'hsl(0, 84%, 60%)'];
 
+  // Group products by category
+  const productsByCategory = useMemo(() => {
+    const categories = ['epi', 'epc', 'ferramentas', 'materiais', 'equipamentos'];
+    const grouped: Record<string, typeof products> = {};
+    categories.forEach(cat => {
+      grouped[cat] = products.filter(p => p.category === cat);
+    });
+    return grouped;
+  }, [products]);
+
   // Filter movements
   const filteredMovements = useMemo(() => {
     return movements.filter(mov => {
@@ -156,33 +216,18 @@ export default function Relatorios() {
     });
   }, [movements, searchTerm, movementTypeFilter]);
 
-  // Group products by category
-  const productsByCategory = useMemo(() => {
-    const categories = ['epi', 'epc', 'ferramentas', 'materiais', 'equipamentos'];
-    const grouped: Record<string, typeof products> = {};
-    
-    categories.forEach(cat => {
-      grouped[cat] = products.filter(p => p.category === cat);
-    });
-    
-    return grouped;
-  }, [products]);
-
-  // Filter products by category and search
+  // Filter products
   const filteredProducts = useMemo(() => {
     let filtered = products;
-    
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(p => p.category === categoryFilter);
     }
-    
     if (searchTerm) {
       filtered = filtered.filter(p => 
         p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.code?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
     return filtered;
   }, [products, categoryFilter, searchTerm]);
 
@@ -230,6 +275,17 @@ export default function Relatorios() {
     ].filter(item => item.value > 0);
   }, [productsByCategory]);
 
+  // Get unique employees with assignments
+  const employeesWithEPI = useMemo(() => {
+    const employeeIds = [...new Set(allEPIAssignments.map(a => a.employee_id))];
+    return employees.filter(e => employeeIds.includes(e.id));
+  }, [employees, allEPIAssignments]);
+
+  const employeesWithFerramentas = useMemo(() => {
+    const employeeIds = [...new Set(allFerramentasAssignments.map(a => a.employee_id))];
+    return employees.filter(e => employeeIds.includes(e.id));
+  }, [employees, allFerramentasAssignments]);
+
   // Movement type labels
   const getMovementTypeBadge = (type: string) => {
     const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -243,11 +299,10 @@ export default function Relatorios() {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  // Export EPI ficha for employee
+  // Export functions
   const handleExportEPI = (employeeId: string) => {
     const employee = employees.find(e => e.id === employeeId);
     if (!employee || !tenant) return;
-
     const epiAssignments = allEPIAssignments
       .filter(a => a.employee_id === employeeId)
       .map(a => ({
@@ -259,25 +314,17 @@ export default function Relatorios() {
         return_date: a.return_date,
         return_reason: a.return_reason,
       }));
-
     exportFichaEPI(
       { name: tenant.name, address: tenant.address, city: tenant.city, state: tenant.state },
-      { 
-        name: employee.name, 
-        position: employee.position, 
-        hire_date: employee.hire_date, 
-        termination_date: employee.termination_date 
-      },
+      { name: employee.name, position: employee.position, hire_date: employee.hire_date, termination_date: employee.termination_date },
       epiAssignments,
       { blusa: employee.blusa_numero, calca: employee.calca_numero, calcado: employee.calcado_numero }
     );
   };
 
-  // Export Ferramentas ficha for employee
   const handleExportFerramentas = (employeeId: string) => {
     const employee = employees.find(e => e.id === employeeId);
     if (!employee || !tenant) return;
-
     const ferramentasAssignments = allFerramentasAssignments
       .filter(a => a.employee_id === employeeId)
       .map(a => ({
@@ -290,687 +337,719 @@ export default function Relatorios() {
         condition_delivery: a.condition_delivery,
         condition_return: a.condition_return,
       }));
-
     exportFichaFerramentas(
       { name: tenant.name, address: tenant.address, city: tenant.city, state: tenant.state },
-      { 
-        name: employee.name, 
-        position: employee.position,
-        department: employee.department,
-        hire_date: employee.hire_date, 
-        termination_date: employee.termination_date 
-      },
+      { name: employee.name, position: employee.position, department: employee.department, hire_date: employee.hire_date, termination_date: employee.termination_date },
       ferramentasAssignments
     );
   };
 
-  // Get unique employees with assignments
-  const employeesWithEPI = useMemo(() => {
-    const employeeIds = [...new Set(allEPIAssignments.map(a => a.employee_id))];
-    return employees.filter(e => employeeIds.includes(e.id));
-  }, [employees, allEPIAssignments]);
+  // Define available reports based on permissions
+  const reports = useMemo(() => {
+    const allReports = [
+      { 
+        id: 'obras', 
+        title: 'Obras', 
+        description: 'Acompanhamento de progresso e status das obras',
+        icon: Building2, 
+        color: 'bg-gradient-to-br from-blue-500/10 to-blue-600/5',
+        permission: 'page_obras',
+        stats: []
+      },
+      { 
+        id: 'diario', 
+        title: 'Diário de Obras', 
+        description: 'Registros diários de atividades em obras',
+        icon: ClipboardList, 
+        color: 'bg-gradient-to-br from-indigo-500/10 to-indigo-600/5',
+        permission: 'page_diario_obras',
+        stats: []
+      },
+      { 
+        id: 'inventario', 
+        title: 'Inventário', 
+        description: 'Contagem e controle de estoque físico',
+        icon: LayoutGrid, 
+        color: 'bg-gradient-to-br from-emerald-500/10 to-emerald-600/5',
+        permission: 'page_stock',
+        stats: []
+      },
+      { 
+        id: 'garantia', 
+        title: 'Garantia', 
+        description: 'Controle de produtos em garantia e devoluções',
+        icon: Shield, 
+        color: 'bg-gradient-to-br from-violet-500/10 to-violet-600/5',
+        permission: 'page_stock',
+        stats: []
+      },
+      { 
+        id: 'epi', 
+        title: 'EPI', 
+        description: 'Equipamentos de Proteção Individual',
+        icon: HardHat, 
+        color: 'bg-gradient-to-br from-amber-500/10 to-amber-600/5',
+        permission: 'page_stock',
+        stats: [
+          { label: 'Registros', value: allEPIAssignments.length },
+          { label: 'Colaboradores', value: employeesWithEPI.length }
+        ]
+      },
+      { 
+        id: 'epc', 
+        title: 'EPC', 
+        description: 'Equipamentos de Proteção Coletiva',
+        icon: ShieldCheck, 
+        color: 'bg-gradient-to-br from-cyan-500/10 to-cyan-600/5',
+        permission: 'page_stock',
+        stats: [
+          { label: 'Registros', value: allEPCAssignments.length }
+        ]
+      },
+      { 
+        id: 'ferramentas', 
+        title: 'Ferramentas', 
+        description: 'Controle de ferramentas e equipamentos',
+        icon: Wrench, 
+        color: 'bg-gradient-to-br from-orange-500/10 to-orange-600/5',
+        permission: 'page_stock',
+        stats: [
+          { label: 'Registros', value: allFerramentasAssignments.length },
+          { label: 'Colaboradores', value: employeesWithFerramentas.length }
+        ]
+      },
+      { 
+        id: 'movimentacoes', 
+        title: 'Movimentações', 
+        description: 'Histórico de entradas e saídas de estoque',
+        icon: ArrowLeftRight, 
+        color: 'bg-gradient-to-br from-rose-500/10 to-rose-600/5',
+        permission: 'page_movimentacao',
+        stats: [
+          { label: 'Total', value: movements.length }
+        ]
+      },
+      { 
+        id: 'estoque', 
+        title: 'Estoque', 
+        description: 'Visão geral do estoque por categoria',
+        icon: Package, 
+        color: 'bg-gradient-to-br from-teal-500/10 to-teal-600/5',
+        permission: 'page_stock',
+        stats: [
+          { label: 'Produtos', value: products.length },
+          { label: 'Categorias', value: 5 }
+        ]
+      },
+    ];
 
-  const employeesWithFerramentas = useMemo(() => {
-    const employeeIds = [...new Set(allFerramentasAssignments.map(a => a.employee_id))];
-    return employees.filter(e => employeeIds.includes(e.id));
-  }, [employees, allFerramentasAssignments]);
+    return allReports.filter(report => {
+      const permKey = report.permission as keyof typeof permissions;
+      return permissions[permKey] === true;
+    });
+  }, [permissions, allEPIAssignments, allEPCAssignments, allFerramentasAssignments, employeesWithEPI, employeesWithFerramentas, movements, products]);
+
+  // Render active report content
+  const renderReportContent = () => {
+    if (!activeReport) return null;
+
+    const commonProps = {
+      searchTerm,
+      setSearchTerm,
+      employeeFilter,
+      setEmployeeFilter,
+      employees,
+    };
+
+    switch (activeReport) {
+      case 'obras':
+        return (
+          <Suspense fallback={<ReportSkeleton />}>
+            <RelatorioObras />
+          </Suspense>
+        );
+      case 'diario':
+        return (
+          <Suspense fallback={<ReportSkeleton />}>
+            <RelatorioDiarioObras />
+          </Suspense>
+        );
+      case 'inventario':
+        return (
+          <Suspense fallback={<ReportSkeleton />}>
+            <RelatorioInventario />
+          </Suspense>
+        );
+      case 'garantia':
+        return (
+          <Suspense fallback={<ReportSkeleton />}>
+            <RelatorioGarantia />
+          </Suspense>
+        );
+      case 'movimentacoes':
+        return <MovimentacoesReport {...commonProps} movements={filteredMovements} loading={loadingMovements} movementTypeFilter={movementTypeFilter} setMovementTypeFilter={setMovementTypeFilter} getMovementTypeBadge={getMovementTypeBadge} />;
+      case 'estoque':
+        return <EstoqueReport {...commonProps} products={filteredProducts} loading={loadingProducts} stockChartData={stockChartData} COLORS={COLORS} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} productsByCategory={productsByCategory} />;
+      case 'epi':
+        return <EPIReport {...commonProps} assignments={filteredEPIAssignments} loading={loadingEPI} employeesWithAssignments={employeesWithEPI} onExport={handleExportEPI} />;
+      case 'epc':
+        return <EPCReport {...commonProps} assignments={filteredEPCAssignments} loading={loadingEPC} />;
+      case 'ferramentas':
+        return <FerramentasReport {...commonProps} assignments={filteredFerramentasAssignments} loading={loadingFerramentas} employeesWithAssignments={employeesWithFerramentas} onExport={handleExportFerramentas} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <DashboardLayout>
       <div className="min-h-screen relative">
         {/* Futuristic Background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-info/10 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/5 rounded-full" />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-info/5 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-primary/5 rounded-full opacity-30" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-6 p-3 sm:p-6" data-tour="reports-content">
-        <PageHeader 
-          title="Relatórios" 
-          description="Movimentações, estoque e fichas de colaboradores"
-        />
+        <div className="relative max-w-7xl mx-auto space-y-6 p-4 sm:p-6" data-tour="reports-content">
+          <PageHeader 
+            title="Central de Relatórios" 
+            description="Acesse todos os relatórios do sistema em um só lugar"
+          />
 
-        {showBranchWarning && (
-          <Alert className="border-blue-500/50 bg-blue-500/10">
-            <Building2 className="h-4 w-4 text-blue-500" />
-            <AlertDescription className="text-sm">
-              <span className="font-medium">Você está visualizando dados de todas as filiais.</span>{' '}
-              Para ver dados de uma filial específica, selecione-a no menu superior.
-            </AlertDescription>
-          </Alert>
-        )}
+          {showBranchWarning && (
+            <Alert className="border-blue-500/50 bg-blue-500/10">
+              <Building2 className="h-4 w-4 text-blue-500" />
+              <AlertDescription className="text-sm">
+                <span className="font-medium">Visualizando dados de todas as filiais.</span>{' '}
+                Selecione uma filial específica no menu superior para filtrar.
+              </AlertDescription>
+            </Alert>
+          )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          {/* Mobile: Dropdown selector */}
-          <div className="sm:hidden">
-            <Select value={activeTab} onValueChange={setActiveTab}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecione o relatório" />
-              </SelectTrigger>
-              <SelectContent>
-                {reportTabs.map((tab) => (
-                  <SelectItem key={tab.value} value={tab.value}>
-                    <span className="flex items-center gap-2">
-                      <tab.icon className="h-4 w-4" />
-                      {tab.label}
-                    </span>
-                  </SelectItem>
+          {/* Report Selection or Content */}
+          {!activeReport ? (
+            <>
+              {/* Stats Overview */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { icon: Package, label: 'Produtos', value: products.length, color: 'text-blue-500 bg-blue-500/10' },
+                  { icon: ArrowLeftRight, label: 'Movimentações', value: movements.length, color: 'text-emerald-500 bg-emerald-500/10' },
+                  { icon: Users, label: 'Colaboradores', value: employees.length, color: 'text-amber-500 bg-amber-500/10' },
+                  { icon: FileText, label: 'Relatórios', value: reports.length, color: 'text-violet-500 bg-violet-500/10' },
+                ].map((stat, i) => (
+                  <Card key={i} className="border-0 bg-card/50 backdrop-blur-sm">
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <div className={cn("p-3 rounded-xl", stat.color)}>
+                        <stat.icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">{stat.value}</p>
+                        <p className="text-xs text-muted-foreground">{stat.label}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
+              </div>
 
-          {/* Desktop: Tabs responsivas com quebra de linha */}
-          <div className="hidden sm:block">
-            <TabsList className="!inline-flex !flex-wrap !h-auto gap-1 p-1.5 bg-muted/50 backdrop-blur-sm border border-border/50 rounded-lg !overflow-visible w-full justify-center">
-              {reportTabs.map((tab) => (
-                <TabsTrigger 
-                  key={tab.value} 
-                  value={tab.value} 
-                  className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                >
-                  <tab.icon className="h-4 w-4" />
-                  {tab.shortLabel || tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-
-
-          {/* Obras Tab */}
-          <TabsContent value="obras">
-            <RelatorioObras />
-          </TabsContent>
-
-          {/* Diário de Obras Tab */}
-          <TabsContent value="diario">
-            <RelatorioDiarioObras />
-          </TabsContent>
-
-          {/* Inventário Tab */}
-          <TabsContent value="inventario">
-            <RelatorioInventario />
-          </TabsContent>
-
-          {/* Garantia Tab */}
-          <TabsContent value="garantia">
-            <RelatorioGarantia />
-          </TabsContent>
-
-          {/* Movimentações Tab */}
-          <TabsContent value="movimentacoes" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Histórico de Movimentações</CardTitle>
-                <CardDescription>Todas as entradas e saídas de estoque</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Buscar por produto ou motivo..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+              {/* Reports Grid */}
+              <div>
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  Selecione um relatório
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {reports.map((report) => (
+                    <ReportCard
+                      key={report.id}
+                      title={report.title}
+                      description={report.description}
+                      icon={report.icon}
+                      color={report.color}
+                      stats={report.stats}
+                      onClick={() => setActiveReport(report.id)}
+                      isActive={activeReport === report.id}
                     />
-                  </div>
-                  <Select value={movementTypeFilter} onValueChange={setMovementTypeFilter}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                      <SelectValue placeholder="Tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos os tipos</SelectItem>
-                      <SelectItem value="entrada">Entrada</SelectItem>
-                      <SelectItem value="saida">Saída</SelectItem>
-                      <SelectItem value="devolucao">Devolução</SelectItem>
-                      <SelectItem value="ajuste">Ajuste</SelectItem>
-                      <SelectItem value="transferencia">Transferência</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {loadingMovements ? (
-                  <div className="space-y-2">
-                    {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-12 w-full" />)}
-                  </div>
-                ) : (
-                  <ScrollArea className="h-[400px]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Data</TableHead>
-                          <TableHead>Produto</TableHead>
-                          <TableHead>Tipo</TableHead>
-                          <TableHead className="text-right">Qtd</TableHead>
-                          <TableHead className="hidden sm:table-cell">Estoque Anterior</TableHead>
-                          <TableHead className="hidden sm:table-cell">Estoque Atual</TableHead>
-                          <TableHead className="hidden md:table-cell">Motivo</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredMovements.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                              Nenhuma movimentação encontrada
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          filteredMovements.map((mov) => (
-                            <TableRow key={mov.id}>
-                              <TableCell className="whitespace-nowrap">
-                                {format(new Date(mov.created_at), 'dd/MM/yy HH:mm', { locale: ptBR })}
-                              </TableCell>
-                              <TableCell className="font-medium">{mov.product?.name || '-'}</TableCell>
-                              <TableCell>{getMovementTypeBadge(mov.movement_type)}</TableCell>
-                              <TableCell className="text-right font-medium">{mov.quantity}</TableCell>
-                              <TableCell className="hidden sm:table-cell text-muted-foreground">
-                                {mov.previous_stock}
-                              </TableCell>
-                              <TableCell className="hidden sm:table-cell">{mov.new_stock}</TableCell>
-                              <TableCell className="hidden md:table-cell text-muted-foreground max-w-[200px] truncate">
-                                {mov.reason || '-'}
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </ScrollArea>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Estoque Tab */}
-          <TabsContent value="estoque" className="space-y-4">
-            <Card>
-              <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Package className="h-5 w-5 text-primary" />
-                      Relatório de Estoque
-                    </CardTitle>
-                    <CardDescription>Visão geral de todos os produtos por categoria</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Summary Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                  {[
-                    { label: 'EPI', count: productsByCategory.epi?.length || 0, color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
-                    { label: 'EPC', count: productsByCategory.epc?.length || 0, color: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
-                    { label: 'Ferramentas', count: productsByCategory.ferramentas?.length || 0, color: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20' },
-                    { label: 'Materiais', count: productsByCategory.materiais?.length || 0, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
-                    { label: 'Equipamentos', count: productsByCategory.equipamentos?.length || 0, color: 'bg-rose-500/10 text-rose-600 border-rose-500/20' },
-                  ].map((cat) => (
-                    <div key={cat.label} className={`p-3 rounded-lg border ${cat.color}`}>
-                      <p className="text-2xl font-bold">{cat.count}</p>
-                      <p className="text-xs font-medium">{cat.label}</p>
-                    </div>
                   ))}
                 </div>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-4">
+              {/* Back button and title */}
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    setActiveReport(null);
+                    setSearchTerm('');
+                    setCategoryFilter('all');
+                    setMovementTypeFilter('all');
+                    setEmployeeFilter('all');
+                  }}
+                  className="gap-2"
+                >
+                  <ChevronRight className="h-4 w-4 rotate-180" />
+                  Voltar
+                </Button>
+                <div className="h-6 w-px bg-border" />
+                <h2 className="font-semibold">
+                  {reports.find(r => r.id === activeReport)?.title}
+                </h2>
+              </div>
 
-                {/* Chart and Table */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-1">
-                    <div className="bg-muted/30 rounded-lg p-4">
-                      <h4 className="text-sm font-medium mb-4">Distribuição por Categoria</h4>
-                      {loadingProducts ? (
-                        <div className="flex items-center justify-center h-48">
-                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                        </div>
-                      ) : stockChartData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={200}>
-                          <PieChart>
-                            <Pie
-                              data={stockChartData}
-                              cx="50%"
-                              cy="50%"
-                              labelLine={false}
-                              label={({ name, value }) => `${name}: ${value}`}
-                              outerRadius={70}
-                              dataKey="value"
-                            >
-                              {stockChartData.map((_, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                              ))}
-                            </Pie>
-                            <Tooltip />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      ) : (
-                        <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">
-                          Sem dados disponíveis
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-2">
-                    <div className="space-y-4">
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <div className="relative flex-1">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Buscar produto..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10"
-                          />
-                        </div>
-                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                          <SelectTrigger className="w-full sm:w-[180px]">
-                            <SelectValue placeholder="Categoria" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Todas</SelectItem>
-                            <SelectItem value="epi">EPI</SelectItem>
-                            <SelectItem value="epc">EPC</SelectItem>
-                            <SelectItem value="ferramentas">Ferramentas</SelectItem>
-                            <SelectItem value="materiais">Materiais</SelectItem>
-                            <SelectItem value="equipamentos">Equipamentos</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {loadingProducts ? (
-                        <div className="space-y-2">
-                          {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-10 w-full" />)}
-                        </div>
-                      ) : (
-                        <ScrollArea className="h-[350px] rounded-md border">
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="bg-muted/50">
-                                <TableHead>Código</TableHead>
-                                <TableHead>Produto</TableHead>
-                                <TableHead>Categoria</TableHead>
-                                <TableHead className="text-right">Estoque</TableHead>
-                                <TableHead className="text-right">Mínimo</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {filteredProducts.length === 0 ? (
-                                <TableRow>
-                                  <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
-                                    <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                    Nenhum produto encontrado
-                                  </TableCell>
-                                </TableRow>
-                              ) : (
-                                filteredProducts.map((product) => (
-                                  <TableRow key={product.id} className="hover:bg-muted/30">
-                                    <TableCell className="font-mono text-xs text-muted-foreground">{product.code || '-'}</TableCell>
-                                    <TableCell className="font-medium">{product.name}</TableCell>
-                                    <TableCell>
-                                      <Badge variant="outline" className="capitalize text-xs">
-                                        {product.category}
-                                      </Badge>
-                                    </TableCell>
-                                    <TableCell className={`text-right font-semibold ${
-                                      (product.current_stock || 0) <= (product.min_stock || 0) ? 'text-destructive' : 'text-foreground'
-                                    }`}>
-                                      {product.current_stock || 0}
-                                    </TableCell>
-                                    <TableCell className="text-right text-muted-foreground">
-                                      {product.min_stock || 0}
-                                    </TableCell>
-                                  </TableRow>
-                                ))
-                              )}
-                            </TableBody>
-                          </Table>
-                        </ScrollArea>
-                      )}
-                      
-                      <div className="flex items-center justify-between text-sm text-muted-foreground pt-2 border-t">
-                        <span>Total: {filteredProducts.length} produtos</span>
-                        <span>Estoque total: {filteredProducts.reduce((acc, p) => acc + (p.current_stock || 0), 0)} unidades</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* EPI Tab */}
-          <TabsContent value="epi" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <Card className="lg:col-span-1">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Colaboradores com EPI
-                  </CardTitle>
-                  <CardDescription>Exporte fichas individuais</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[300px]">
-                    <div className="space-y-2">
-                      {employeesWithEPI.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">
-                          Nenhum colaborador com EPI atribuído
-                        </p>
-                      ) : (
-                        employeesWithEPI.map((employee) => (
-                          <div key={employee.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                            <div>
-                              <p className="font-medium text-sm">{employee.name}</p>
-                              <p className="text-xs text-muted-foreground">{employee.position || 'Sem cargo'}</p>
-                            </div>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleExportEPI(employee.id)}
-                            >
-                              <FileSpreadsheet className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-lg">Fichas de EPI</CardTitle>
-                  <CardDescription>Registro de EPIs entregues aos colaboradores</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Buscar..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-                      <SelectTrigger className="w-full sm:w-[200px]">
-                        <SelectValue placeholder="Colaborador" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos</SelectItem>
-                        {employees.map(emp => (
-                          <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {loadingEPI ? (
-                    <div className="space-y-2">
-                      {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}
-                    </div>
-                  ) : (
-                    <ScrollArea className="h-[300px]">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Colaborador</TableHead>
-                            <TableHead>EPI</TableHead>
-                            <TableHead className="hidden sm:table-cell">CA</TableHead>
-                            <TableHead className="text-center">Qtd</TableHead>
-                            <TableHead>Entrega</TableHead>
-                            <TableHead className="hidden sm:table-cell">Devolução</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredEPIAssignments.length === 0 ? (
-                            <TableRow>
-                              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                                Nenhum registro de EPI
-                              </TableCell>
-                            </TableRow>
-                          ) : (
-                            filteredEPIAssignments.map((assignment) => (
-                              <TableRow key={assignment.id}>
-                                <TableCell className="font-medium">{assignment.employee?.name}</TableCell>
-                                <TableCell>{assignment.description}</TableCell>
-                                <TableCell className="hidden sm:table-cell text-muted-foreground">
-                                  {assignment.ca_number || '-'}
-                                </TableCell>
-                                <TableCell className="text-center">{assignment.quantity}</TableCell>
-                                <TableCell>
-                                  {format(new Date(assignment.delivery_date), 'dd/MM/yy', { locale: ptBR })}
-                                </TableCell>
-                                <TableCell className="hidden sm:table-cell">
-                                  {assignment.return_date 
-                                    ? format(new Date(assignment.return_date), 'dd/MM/yy', { locale: ptBR })
-                                    : '-'}
-                                </TableCell>
-                              </TableRow>
-                            ))
-                          )}
-                        </TableBody>
-                      </Table>
-                    </ScrollArea>
-                  )}
-                </CardContent>
-              </Card>
+              {/* Report Content */}
+              {renderReportContent()}
             </div>
-          </TabsContent>
-
-          {/* Ferramentas Tab */}
-          <TabsContent value="ferramentas" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <Card className="lg:col-span-1">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Colaboradores com Ferramentas
-                  </CardTitle>
-                  <CardDescription>Exporte fichas individuais</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[300px]">
-                    <div className="space-y-2">
-                      {employeesWithFerramentas.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">
-                          Nenhum colaborador com ferramentas atribuídas
-                        </p>
-                      ) : (
-                        employeesWithFerramentas.map((employee) => (
-                          <div key={employee.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                            <div>
-                              <p className="font-medium text-sm">{employee.name}</p>
-                              <p className="text-xs text-muted-foreground">{employee.position || 'Sem cargo'}</p>
-                            </div>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleExportFerramentas(employee.id)}
-                            >
-                              <FileSpreadsheet className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-lg">Fichas de Ferramentas</CardTitle>
-                  <CardDescription>Registro de ferramentas entregues aos colaboradores</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Buscar..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-                      <SelectTrigger className="w-full sm:w-[200px]">
-                        <SelectValue placeholder="Colaborador" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos</SelectItem>
-                        {employees.map(emp => (
-                          <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {loadingFerramentas ? (
-                    <div className="space-y-2">
-                      {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}
-                    </div>
-                  ) : (
-                    <ScrollArea className="h-[300px]">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Colaborador</TableHead>
-                            <TableHead>Ferramenta</TableHead>
-                            <TableHead className="hidden sm:table-cell">Nº Série</TableHead>
-                            <TableHead className="text-center">Qtd</TableHead>
-                            <TableHead>Entrega</TableHead>
-                            <TableHead className="hidden sm:table-cell">Devolução</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredFerramentasAssignments.length === 0 ? (
-                            <TableRow>
-                              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                                Nenhum registro de ferramentas
-                              </TableCell>
-                            </TableRow>
-                          ) : (
-                            filteredFerramentasAssignments.map((assignment) => (
-                              <TableRow key={assignment.id}>
-                                <TableCell className="font-medium">{assignment.employee?.name}</TableCell>
-                                <TableCell>{assignment.description}</TableCell>
-                                <TableCell className="hidden sm:table-cell text-muted-foreground">
-                                  {assignment.serial_number || '-'}
-                                </TableCell>
-                                <TableCell className="text-center">{assignment.quantity}</TableCell>
-                                <TableCell>
-                                  {format(new Date(assignment.delivery_date), 'dd/MM/yy', { locale: ptBR })}
-                                </TableCell>
-                                <TableCell className="hidden sm:table-cell">
-                                  {assignment.return_date 
-                                    ? format(new Date(assignment.return_date), 'dd/MM/yy', { locale: ptBR })
-                                    : '-'}
-                                </TableCell>
-                              </TableRow>
-                            ))
-                          )}
-                        </TableBody>
-                      </Table>
-                    </ScrollArea>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* EPC Tab */}
-          <TabsContent value="epc" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Fichas de EPC</CardTitle>
-                <CardDescription>Registro de EPCs (Equipamento de Proteção Coletiva) entregues</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Buscar..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-                    <SelectTrigger className="w-full sm:w-[200px]">
-                      <SelectValue placeholder="Colaborador" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      {employees.map(emp => (
-                        <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {loadingEPC ? (
-                  <div className="space-y-2">
-                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}
-                  </div>
-                ) : (
-                  <ScrollArea className="h-[400px]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Colaborador</TableHead>
-                          <TableHead>EPC</TableHead>
-                          <TableHead className="hidden sm:table-cell">Nº Série</TableHead>
-                          <TableHead className="hidden sm:table-cell">Local</TableHead>
-                          <TableHead className="text-center">Qtd</TableHead>
-                          <TableHead>Entrega</TableHead>
-                          <TableHead className="hidden md:table-cell">Devolução</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredEPCAssignments.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                              Nenhum registro de EPC
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          filteredEPCAssignments.map((assignment) => (
-                            <TableRow key={assignment.id}>
-                              <TableCell className="font-medium">{assignment.employee?.name}</TableCell>
-                              <TableCell>{assignment.description}</TableCell>
-                              <TableCell className="hidden sm:table-cell text-muted-foreground">
-                                {assignment.serial_number || '-'}
-                              </TableCell>
-                              <TableCell className="hidden sm:table-cell text-muted-foreground">
-                                {assignment.location || '-'}
-                              </TableCell>
-                              <TableCell className="text-center">{assignment.quantity}</TableCell>
-                              <TableCell>
-                                {format(new Date(assignment.delivery_date), 'dd/MM/yy', { locale: ptBR })}
-                              </TableCell>
-                              <TableCell className="hidden md:table-cell">
-                                {assignment.return_date 
-                                  ? format(new Date(assignment.return_date), 'dd/MM/yy', { locale: ptBR })
-                                  : '-'}
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </ScrollArea>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          )}
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+// Sub-components for each report type
+interface MovimentacoesReportProps {
+  movements: any[];
+  loading: boolean;
+  searchTerm: string;
+  setSearchTerm: (v: string) => void;
+  movementTypeFilter: string;
+  setMovementTypeFilter: (v: string) => void;
+  getMovementTypeBadge: (type: string) => JSX.Element;
+}
+
+function MovimentacoesReport({ movements, loading, searchTerm, setSearchTerm, movementTypeFilter, setMovementTypeFilter, getMovementTypeBadge }: MovimentacoesReportProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <ArrowLeftRight className="h-5 w-5 text-primary" />
+          Histórico de Movimentações
+        </CardTitle>
+        <CardDescription>Todas as entradas e saídas de estoque</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Buscar por produto ou motivo..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+          </div>
+          <Select value={movementTypeFilter} onValueChange={setMovementTypeFilter}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os tipos</SelectItem>
+              <SelectItem value="entrada">Entrada</SelectItem>
+              <SelectItem value="saida">Saída</SelectItem>
+              <SelectItem value="devolucao">Devolução</SelectItem>
+              <SelectItem value="ajuste">Ajuste</SelectItem>
+              <SelectItem value="transferencia">Transferência</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {loading ? (
+          <div className="space-y-2">{[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
+        ) : (
+          <ScrollArea className="h-[400px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Produto</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Qtd</TableHead>
+                  <TableHead className="hidden sm:table-cell">Anterior</TableHead>
+                  <TableHead className="hidden sm:table-cell">Atual</TableHead>
+                  <TableHead className="hidden md:table-cell">Motivo</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {movements.length === 0 ? (
+                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">Nenhuma movimentação encontrada</TableCell></TableRow>
+                ) : (
+                  movements.map((mov) => (
+                    <TableRow key={mov.id}>
+                      <TableCell className="whitespace-nowrap">{format(new Date(mov.created_at), 'dd/MM/yy HH:mm', { locale: ptBR })}</TableCell>
+                      <TableCell className="font-medium">{mov.product?.name || '-'}</TableCell>
+                      <TableCell>{getMovementTypeBadge(mov.movement_type)}</TableCell>
+                      <TableCell className="text-right font-medium">{mov.quantity}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground">{mov.previous_stock}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{mov.new_stock}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground max-w-[200px] truncate">{mov.reason || '-'}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+interface EstoqueReportProps {
+  products: any[];
+  loading: boolean;
+  searchTerm: string;
+  setSearchTerm: (v: string) => void;
+  stockChartData: any[];
+  COLORS: string[];
+  categoryFilter: string;
+  setCategoryFilter: (v: string) => void;
+  productsByCategory: Record<string, any[]>;
+}
+
+function EstoqueReport({ products, loading, searchTerm, setSearchTerm, stockChartData, COLORS, categoryFilter, setCategoryFilter, productsByCategory }: EstoqueReportProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Package className="h-5 w-5 text-primary" />
+          Relatório de Estoque
+        </CardTitle>
+        <CardDescription>Visão geral de todos os produtos por categoria</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {[
+            { label: 'EPI', count: productsByCategory.epi?.length || 0, color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
+            { label: 'EPC', count: productsByCategory.epc?.length || 0, color: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+            { label: 'Ferramentas', count: productsByCategory.ferramentas?.length || 0, color: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20' },
+            { label: 'Materiais', count: productsByCategory.materiais?.length || 0, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+            { label: 'Equipamentos', count: productsByCategory.equipamentos?.length || 0, color: 'bg-rose-500/10 text-rose-600 border-rose-500/20' },
+          ].map((cat) => (
+            <div key={cat.label} className={`p-3 rounded-lg border ${cat.color}`}>
+              <p className="text-2xl font-bold">{cat.count}</p>
+              <p className="text-xs font-medium">{cat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <div className="bg-muted/30 rounded-lg p-4">
+              <h4 className="text-sm font-medium mb-4">Distribuição por Categoria</h4>
+              {loading ? (
+                <div className="flex items-center justify-center h-48"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+              ) : stockChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie data={stockChartData} cx="50%" cy="50%" labelLine={false} label={({ name, value }) => `${name}: ${value}`} outerRadius={70} dataKey="value">
+                      {stockChartData.map((_, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">Sem dados disponíveis</div>
+              )}
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Buscar produto..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+              </div>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="epi">EPI</SelectItem>
+                  <SelectItem value="epc">EPC</SelectItem>
+                  <SelectItem value="ferramentas">Ferramentas</SelectItem>
+                  <SelectItem value="materiais">Materiais</SelectItem>
+                  <SelectItem value="equipamentos">Equipamentos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {loading ? (
+              <div className="space-y-2">{[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-10 w-full" />)}</div>
+            ) : (
+              <ScrollArea className="h-[350px] rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead>Código</TableHead>
+                      <TableHead>Produto</TableHead>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead className="text-right">Estoque</TableHead>
+                      <TableHead className="text-right">Mínimo</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {products.length === 0 ? (
+                      <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-12"><Package className="h-8 w-8 mx-auto mb-2 opacity-50" />Nenhum produto encontrado</TableCell></TableRow>
+                    ) : (
+                      products.map((product) => (
+                        <TableRow key={product.id} className="hover:bg-muted/30">
+                          <TableCell className="font-mono text-xs text-muted-foreground">{product.code || '-'}</TableCell>
+                          <TableCell className="font-medium">{product.name}</TableCell>
+                          <TableCell><Badge variant="outline" className="capitalize text-xs">{product.category}</Badge></TableCell>
+                          <TableCell className={`text-right font-semibold ${(product.current_stock || 0) <= (product.min_stock || 0) ? 'text-destructive' : ''}`}>{product.current_stock || 0}</TableCell>
+                          <TableCell className="text-right text-muted-foreground">{product.min_stock || 0}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            )}
+            <div className="flex items-center justify-between text-sm text-muted-foreground pt-2 border-t">
+              <span>Total: {products.length} produtos</span>
+              <span>Estoque: {products.reduce((acc, p) => acc + (p.current_stock || 0), 0)} un</span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface EPIReportProps {
+  assignments: any[];
+  loading: boolean;
+  searchTerm: string;
+  setSearchTerm: (v: string) => void;
+  employeeFilter: string;
+  setEmployeeFilter: (v: string) => void;
+  employees: any[];
+  employeesWithAssignments: any[];
+  onExport: (id: string) => void;
+}
+
+function EPIReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, employeesWithAssignments, onExport }: EPIReportProps) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <Card className="lg:col-span-1">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2"><Users className="h-5 w-5" />Colaboradores com EPI</CardTitle>
+          <CardDescription>Exporte fichas individuais</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[300px]">
+            <div className="space-y-2">
+              {employeesWithAssignments.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Nenhum colaborador com EPI atribuído</p>
+              ) : (
+                employeesWithAssignments.map((employee) => (
+                  <div key={employee.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                    <div><p className="font-medium text-sm">{employee.name}</p><p className="text-xs text-muted-foreground">{employee.position || 'Sem cargo'}</p></div>
+                    <Button variant="ghost" size="sm" onClick={() => onExport(employee.id)}><FileSpreadsheet className="h-4 w-4" /></Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="text-lg">Fichas de EPI</CardTitle>
+          <CardDescription>Registro de EPIs entregues aos colaboradores</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+            </div>
+            <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
+              <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Colaborador" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {employees.map(emp => (<SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          {loading ? (
+            <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
+          ) : (
+            <ScrollArea className="h-[300px]">
+              <Table>
+                <TableHeader><TableRow><TableHead>Colaborador</TableHead><TableHead>EPI</TableHead><TableHead className="hidden sm:table-cell">CA</TableHead><TableHead className="text-center">Qtd</TableHead><TableHead>Entrega</TableHead><TableHead className="hidden sm:table-cell">Devolução</TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {assignments.length === 0 ? (
+                    <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhum registro de EPI</TableCell></TableRow>
+                  ) : (
+                    assignments.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="font-medium">{a.employee?.name}</TableCell>
+                        <TableCell>{a.description}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-muted-foreground">{a.ca_number || '-'}</TableCell>
+                        <TableCell className="text-center">{a.quantity}</TableCell>
+                        <TableCell>{format(new Date(a.delivery_date), 'dd/MM/yy', { locale: ptBR })}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{a.return_date ? format(new Date(a.return_date), 'dd/MM/yy', { locale: ptBR }) : '-'}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+interface EPCReportProps {
+  assignments: any[];
+  loading: boolean;
+  searchTerm: string;
+  setSearchTerm: (v: string) => void;
+  employeeFilter: string;
+  setEmployeeFilter: (v: string) => void;
+  employees: any[];
+}
+
+function EPCReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees }: EPCReportProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-primary" />Fichas de EPC</CardTitle>
+        <CardDescription>Registro de EPCs (Equipamento de Proteção Coletiva) entregues</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+          </div>
+          <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
+            <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Colaborador" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {employees.map(emp => (<SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>))}
+            </SelectContent>
+          </Select>
+        </div>
+        {loading ? (
+          <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
+        ) : (
+          <ScrollArea className="h-[400px]">
+            <Table>
+              <TableHeader><TableRow><TableHead>Colaborador</TableHead><TableHead>EPC</TableHead><TableHead className="hidden sm:table-cell">Nº Série</TableHead><TableHead className="hidden sm:table-cell">Local</TableHead><TableHead className="text-center">Qtd</TableHead><TableHead>Entrega</TableHead><TableHead className="hidden md:table-cell">Devolução</TableHead></TableRow></TableHeader>
+              <TableBody>
+                {assignments.length === 0 ? (
+                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">Nenhum registro de EPC</TableCell></TableRow>
+                ) : (
+                  assignments.map((a) => (
+                    <TableRow key={a.id}>
+                      <TableCell className="font-medium">{a.employee?.name}</TableCell>
+                      <TableCell>{a.description}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground">{a.serial_number || '-'}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground">{a.location || '-'}</TableCell>
+                      <TableCell className="text-center">{a.quantity}</TableCell>
+                      <TableCell>{format(new Date(a.delivery_date), 'dd/MM/yy', { locale: ptBR })}</TableCell>
+                      <TableCell className="hidden md:table-cell">{a.return_date ? format(new Date(a.return_date), 'dd/MM/yy', { locale: ptBR }) : '-'}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+interface FerramentasReportProps {
+  assignments: any[];
+  loading: boolean;
+  searchTerm: string;
+  setSearchTerm: (v: string) => void;
+  employeeFilter: string;
+  setEmployeeFilter: (v: string) => void;
+  employees: any[];
+  employeesWithAssignments: any[];
+  onExport: (id: string) => void;
+}
+
+function FerramentasReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, employeesWithAssignments, onExport }: FerramentasReportProps) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <Card className="lg:col-span-1">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2"><Users className="h-5 w-5" />Colaboradores com Ferramentas</CardTitle>
+          <CardDescription>Exporte fichas individuais</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[300px]">
+            <div className="space-y-2">
+              {employeesWithAssignments.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Nenhum colaborador com ferramentas</p>
+              ) : (
+                employeesWithAssignments.map((employee) => (
+                  <div key={employee.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                    <div><p className="font-medium text-sm">{employee.name}</p><p className="text-xs text-muted-foreground">{employee.position || 'Sem cargo'}</p></div>
+                    <Button variant="ghost" size="sm" onClick={() => onExport(employee.id)}><FileSpreadsheet className="h-4 w-4" /></Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="text-lg">Fichas de Ferramentas</CardTitle>
+          <CardDescription>Registro de ferramentas entregues aos colaboradores</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+            </div>
+            <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
+              <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Colaborador" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {employees.map(emp => (<SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          {loading ? (
+            <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
+          ) : (
+            <ScrollArea className="h-[300px]">
+              <Table>
+                <TableHeader><TableRow><TableHead>Colaborador</TableHead><TableHead>Ferramenta</TableHead><TableHead className="hidden sm:table-cell">Nº Série</TableHead><TableHead className="text-center">Qtd</TableHead><TableHead>Entrega</TableHead><TableHead className="hidden sm:table-cell">Devolução</TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {assignments.length === 0 ? (
+                    <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhum registro de ferramentas</TableCell></TableRow>
+                  ) : (
+                    assignments.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="font-medium">{a.employee?.name}</TableCell>
+                        <TableCell>{a.description}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-muted-foreground">{a.serial_number || '-'}</TableCell>
+                        <TableCell className="text-center">{a.quantity}</TableCell>
+                        <TableCell>{format(new Date(a.delivery_date), 'dd/MM/yy', { locale: ptBR })}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{a.return_date ? format(new Date(a.return_date), 'dd/MM/yy', { locale: ptBR }) : '-'}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
