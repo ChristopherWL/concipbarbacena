@@ -528,60 +528,64 @@ export default function Fechamento() {
                         Nenhum fornecedor
                       </p>
                     ) : (
-                      paginatedSidebarSuppliers.map((group) => (
-                        <button
-                          key={group.supplier.id}
-                          onClick={() => setSelectedSupplier(group.supplier.id)}
-                          className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between ${
-                            selectedSupplier === group.supplier.id 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'hover:bg-muted'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Building2 className="h-4 w-4 shrink-0" />
-                            <span className="text-sm font-medium truncate">
-                              {group.supplier.name}
-                            </span>
-                          </div>
-                          <Badge 
-                            variant={selectedSupplier === group.supplier.id ? "secondary" : "outline"} 
-                            className="ml-2 shrink-0"
+                      <>
+                        {paginatedSidebarSuppliers.map((group) => (
+                          <button
+                            key={group.supplier.id}
+                            onClick={() => setSelectedSupplier(group.supplier.id)}
+                            className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between ${
+                              selectedSupplier === group.supplier.id 
+                                ? 'bg-primary text-primary-foreground' 
+                                : 'hover:bg-muted'
+                            }`}
                           >
-                            {group.coupons.length}
-                          </Badge>
-                        </button>
-                      ))
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Building2 className="h-4 w-4 shrink-0" />
+                              <span className="text-sm font-medium truncate">
+                                {group.supplier.name}
+                              </span>
+                            </div>
+                            <Badge 
+                              variant={selectedSupplier === group.supplier.id ? "secondary" : "outline"} 
+                              className="ml-2 shrink-0"
+                            >
+                              {group.coupons.length}
+                            </Badge>
+                          </button>
+                        ))}
+                        
+                        {/* Paginação inline */}
+                        {totalSidebarSuppliers > 10 && (
+                          <div className="flex items-center justify-center gap-2 pt-2 mt-2 border-t">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => setSidebarSuppliersPage(Math.max(1, sidebarSuppliersPage - 1))}
+                              disabled={sidebarSuppliersPage <= 1}
+                            >
+                              <ChevronLeft className="h-3 w-3 mr-1" />
+                              Anterior
+                            </Button>
+                            <span className="text-xs text-muted-foreground">
+                              {sidebarSuppliersPage}/{Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => setSidebarSuppliersPage(Math.min(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize), sidebarSuppliersPage + 1))}
+                              disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
+                            >
+                              Próxima
+                              <ChevronRight className="h-3 w-3 ml-1" />
+                            </Button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </ScrollArea>
-                
-                {/* Paginação da sidebar - apenas botões */}
-                {totalSidebarSuppliers > 10 && (
-                  <div className="px-3 py-2 border-t flex items-center justify-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => setSidebarSuppliersPage(Math.max(1, sidebarSuppliersPage - 1))}
-                      disabled={sidebarSuppliersPage <= 1}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="text-xs text-muted-foreground">
-                      {sidebarSuppliersPage} / {Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => setSidebarSuppliersPage(Math.min(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize), sidebarSuppliersPage + 1))}
-                      disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
