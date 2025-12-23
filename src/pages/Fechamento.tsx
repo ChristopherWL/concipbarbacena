@@ -49,6 +49,8 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -554,19 +556,30 @@ export default function Fechamento() {
                   </div>
                 </ScrollArea>
                 
-                {/* Paginação da sidebar - fora do ScrollArea */}
-                {totalSidebarSuppliers > 0 && (
-                  <div className="px-3 py-2 border-t">
-                    <TablePagination
-                      currentPage={sidebarSuppliersPage}
-                      totalItems={totalSidebarSuppliers}
-                      pageSize={sidebarSuppliersPageSize}
-                      onPageChange={setSidebarSuppliersPage}
-                      onPageSizeChange={setSidebarSuppliersPageSize}
-                      pageSizeOptions={[5, 10, 20]}
-                      showAllOption={false}
-                      className="py-0 gap-1 flex-col items-center"
-                    />
+                {/* Paginação da sidebar - apenas botões */}
+                {totalSidebarSuppliers > 10 && (
+                  <div className="px-3 py-2 border-t flex items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => setSidebarSuppliersPage(Math.max(1, sidebarSuppliersPage - 1))}
+                      disabled={sidebarSuppliersPage <= 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      {sidebarSuppliersPage} / {Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => setSidebarSuppliersPage(Math.min(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize), sidebarSuppliersPage + 1))}
+                      disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 )}
               </CardContent>
