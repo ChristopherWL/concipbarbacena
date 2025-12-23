@@ -201,18 +201,37 @@ export function useUpdateInvoice() {
 
   return useMutation({
     mutationFn: async ({ id, ...input }: UpdateInvoiceInput) => {
+      // Build update object only with provided fields
+      const updateData: Record<string, unknown> = {};
+      
+      if (input.invoice_number !== undefined) {
+        updateData.invoice_number = input.invoice_number;
+      }
+      if (input.invoice_series !== undefined) {
+        updateData.invoice_series = input.invoice_series || null;
+      }
+      if (input.invoice_key !== undefined) {
+        updateData.invoice_key = input.invoice_key || null;
+      }
+      if (input.issue_date !== undefined) {
+        updateData.issue_date = input.issue_date;
+      }
+      if (input.supplier_id !== undefined) {
+        updateData.supplier_id = input.supplier_id || null;
+      }
+      if (input.total_value !== undefined) {
+        updateData.total_value = input.total_value || 0;
+      }
+      if (input.notes !== undefined) {
+        updateData.notes = input.notes || null;
+      }
+      if (input.pdf_url !== undefined) {
+        updateData.pdf_url = input.pdf_url || null;
+      }
+
       const { data, error } = await supabase
         .from('invoices')
-        .update({
-          invoice_number: input.invoice_number,
-          invoice_series: input.invoice_series || null,
-          invoice_key: input.invoice_key || null,
-          issue_date: input.issue_date,
-          supplier_id: input.supplier_id || null,
-          total_value: input.total_value || 0,
-          notes: input.notes || null,
-          pdf_url: input.pdf_url,
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
@@ -225,6 +244,7 @@ export function useUpdateInvoice() {
       toast.success('Nota fiscal atualizada com sucesso!');
     },
     onError: (error: Error) => {
+      console.error('Error updating invoice:', error);
       toast.error('Erro ao atualizar: ' + error.message);
     },
   });
