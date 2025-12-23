@@ -253,7 +253,7 @@ export default function OrdensServico() {
           description="Gerencie OS e clientes"
           icon={<ClipboardList className="h-5 w-5" />}
         />
-        {!isReadOnly && !isTechnician && (
+        {!isReadOnly && (
           <div className="flex flex-wrap justify-center gap-2">
             <Button variant="outline" onClick={() => setCustomerDialogOpen(true)} className="hover-lift">
               <UserPlus className="h-4 w-4 mr-2" />
