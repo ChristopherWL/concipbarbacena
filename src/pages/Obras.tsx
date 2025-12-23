@@ -48,6 +48,7 @@ const Obras = () => {
   const [editDiarioForm, setEditDiarioForm] = useState({ etapa: '', data: '', responsavel: '', descricao: '' });
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const lastFilePickerAtRef = useRef<number>(0);
   const allowCloseUpdateDialogRef = useRef<boolean>(false);
 
@@ -384,6 +385,12 @@ const Obras = () => {
     markFilePickerActivity();
     setIsSelectingFile(true);
     fileInputRef.current?.click();
+  };
+
+  const handleGalleryInputClick = () => {
+    markFilePickerActivity();
+    setIsSelectingFile(true);
+    galleryInputRef.current?.click();
   };
 
   const removeImage = (index: number) => {
@@ -1103,6 +1110,7 @@ const Obras = () => {
                       title: "Imagens",
                       content: (
                         <div className="space-y-4">
+                          {/* Camera input */}
                           <input
                             ref={fileInputRef}
                             type="file"
@@ -1112,16 +1120,37 @@ const Obras = () => {
                             className="hidden"
                             onChange={handleImageSelect}
                           />
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            className="w-full h-24 border-dashed"
-                            onClick={handleFileInputClick}
-                            disabled={isUploadingImages || isSubmitting}
-                          >
-                            <Upload className="h-6 w-6 mr-2" />
-                            {isUploadingImages ? "Salvando imagem..." : "Adicionar Imagens"}
-                          </Button>
+                          {/* Gallery input */}
+                          <input
+                            ref={galleryInputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handleImageSelect}
+                          />
+                          <div className="flex gap-2">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              className="flex-1 h-20 border-dashed flex-col gap-1"
+                              onClick={handleFileInputClick}
+                              disabled={isUploadingImages || isSubmitting}
+                            >
+                              <Image className="h-6 w-6" />
+                              <span className="text-xs">{isUploadingImages ? "Salvando..." : "Câmera"}</span>
+                            </Button>
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              className="flex-1 h-20 border-dashed flex-col gap-1"
+                              onClick={handleGalleryInputClick}
+                              disabled={isUploadingImages || isSubmitting}
+                            >
+                              <Upload className="h-6 w-6" />
+                              <span className="text-xs">{isUploadingImages ? "Salvando..." : "Galeria"}</span>
+                            </Button>
+                          </div>
                           
                           {imagePreviewUrls.length > 0 && (
                             <div className="space-y-4">
@@ -1259,6 +1288,7 @@ const Obras = () => {
                   <div className="space-y-2">
                     <Label>Imagens</Label>
                     <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-4">
+                      {/* Camera input */}
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -1268,15 +1298,35 @@ const Obras = () => {
                         className="hidden"
                         onChange={handleImageSelect}
                       />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        className="w-full"
-                        onClick={handleFileInputClick}
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Adicionar Imagens
-                      </Button>
+                      {/* Gallery input */}
+                      <input
+                        ref={galleryInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handleImageSelect}
+                      />
+                      <div className="flex gap-2">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={handleFileInputClick}
+                        >
+                          <Image className="h-4 w-4 mr-2" />
+                          Câmera
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={handleGalleryInputClick}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Galeria
+                        </Button>
+                      </div>
                       
                       {imagePreviewUrls.length > 0 && (
                         <div className="space-y-3 mt-4">
