@@ -1115,7 +1115,7 @@ export default function Movimentacao() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 sm:gap-4 pt-4 border-t">
+            <div className="flex flex-wrap gap-3 sm:gap-4 pt-4 pb-2 border-t">
               <Button
                 variant="outline"
                 className="flex-1 min-w-[100px]"
