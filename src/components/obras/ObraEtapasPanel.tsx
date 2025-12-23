@@ -208,17 +208,21 @@ export const ObraEtapasPanel = ({ obraId, obraProgresso, isReadOnly, onAddDiario
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Etapas e Progresso</CardTitle>
           {!isReadOnly && (
-            <Dialog open={isDialogOpen} onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) resetForm();
-            }}>
+            <Dialog 
+              open={isDialogOpen} 
+              onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) resetForm();
+              }}
+              modal={false}
+            >
               <DialogTrigger asChild>
                 <Button size="sm" onClick={() => handleOpenDialog()}>
                   <Plus className="h-4 w-4 mr-1" />
                   Nova Etapa
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
                 <DialogHeader>
                   <DialogTitle>{editingEtapa ? "Editar Etapa" : "Nova Etapa"}</DialogTitle>
                 </DialogHeader>
