@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,7 +95,7 @@ interface MovementItem {
 
 export default function Movimentacao() {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuthContext();
+  const { user, tenant, isLoading: authLoading } = useAuthContext();
   const isMobile = useIsMobile();
   const { data: products = [] } = useProducts();
   const { data: technicians = [] } = useTechnicians();
@@ -325,6 +326,28 @@ export default function Movimentacao() {
     handleCloseDialog();
   };
 
+  const uploadInvoiceFile = async (file: File): Promise<string | null> => {
+    if (!tenant?.id) return null;
+    
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${tenant.id}/invoices/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+    
+    const { data, error } = await supabase.storage
+      .from('tenant-assets')
+      .upload(fileName, file);
+    
+    if (error) {
+      console.error('Upload error:', error);
+      throw new Error('Erro ao fazer upload do arquivo');
+    }
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('tenant-assets')
+      .getPublicUrl(data.path);
+    
+    return publicUrl;
+  };
+
   const handleSubmitEntrada = async () => {
     if (items.length === 0) {
       toast.error('Adicione pelo menos um item');
@@ -345,6 +368,17 @@ export default function Movimentacao() {
 
     const totalValue = items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
 
+    // Upload file if attached
+    let pdfUrl: string | null = null;
+    if (attachedFile) {
+      try {
+        pdfUrl = await uploadInvoiceFile(attachedFile);
+      } catch (error) {
+        toast.error('Erro ao fazer upload do anexo');
+        return;
+      }
+    }
+
     await createInvoice.mutateAsync({
       invoice: {
         supplier_id: supplierId || null,
@@ -357,6 +391,7 @@ export default function Movimentacao() {
         freight: 0,
         taxes: 0,
         notes: notes || null,
+        pdf_url: pdfUrl,
       },
       items: items.map(item => ({
         product_id: item.product_id,
