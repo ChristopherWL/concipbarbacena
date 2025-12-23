@@ -236,18 +236,30 @@ export function useDeleteInvoice() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      console.log('Attempting to delete invoice:', id);
+      
       const { error } = await supabase
         .from('invoices')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete invoice error:', error);
+        throw error;
+      }
+      
+      console.log('Invoice deleted successfully');
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: (deletedId) => {
+      console.log('onSuccess called, invalidating queries for id:', deletedId);
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['fiscal_coupons'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier_coupons_nf'] });
       toast.success('Nota fiscal excluída com sucesso!');
     },
     onError: (error: Error) => {
+      console.error('Delete invoice onError:', error);
       toast.error('Erro ao excluir: ' + error.message);
     },
   });
