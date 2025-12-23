@@ -130,179 +130,6 @@ export default function Clientes() {
           title="Clientes"
           description="Gerenciamento de clientes"
         />
-        {!isReadOnly && (
-          <div className="flex justify-center">
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Cliente
-                </Button>
-              </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-2 sm:mx-auto">
-              <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
-                <DialogTitle className="text-primary-foreground">Novo Cliente</DialogTitle>
-                <DialogDescription className="text-primary-foreground/80">Cadastrar novo cliente no sistema</DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Tipo *</Label>
-                    <Select
-                      value={formData.type}
-                      onValueChange={(v) => setFormData({ ...formData, type: v as 'pf' | 'pj' })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pf">Pessoa Física</SelectItem>
-                        <SelectItem value="pj">Pessoa Jurídica</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{formData.type === 'pf' ? 'CPF' : 'CNPJ'}</Label>
-                    <Input
-                      value={formData.document}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        document: formData.type === 'pf' ? formatCPF(e.target.value) : formatCNPJ(e.target.value) 
-                      })}
-                      placeholder={formData.type === 'pf' ? '000.000.000-00' : '00.000.000/0000-00'}
-                      maxLength={formData.type === 'pf' ? 14 : 18}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>{formData.type === 'pf' ? 'Nome *' : 'Razão Social *'}</Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-
-                {formData.type === 'pj' && (
-                  <div className="space-y-2">
-                    <Label>Nome do Contato</Label>
-                    <Input
-                      value={formData.contact_name}
-                      onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
-                    />
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>E-mail</Label>
-                    <Input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Telefone</Label>
-                    <Input
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })}
-                      placeholder="(00) 00000-0000"
-                      maxLength={15}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Telefone 2</Label>
-                  <Input
-                    value={formData.phone2}
-                    onChange={(e) => setFormData({ ...formData, phone2: formatPhone(e.target.value) })}
-                    placeholder="(00) 00000-0000"
-                    maxLength={15}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="col-span-2 space-y-2">
-                    <Label>Endereço</Label>
-                    <Input
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Número</Label>
-                    <Input
-                      value={formData.number}
-                      onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Complemento</Label>
-                    <Input
-                      value={formData.complement}
-                      onChange={(e) => setFormData({ ...formData, complement: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label>Bairro</Label>
-                    <Input
-                      value={formData.neighborhood}
-                      onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Cidade</Label>
-                    <Input
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Estado</Label>
-                    <Input
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      maxLength={2}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>CEP</Label>
-                  <Input
-                    value={formData.zip_code}
-                    onChange={(e) => setFormData({ ...formData, zip_code: formatCEP(e.target.value) })}
-                    placeholder="00000-000"
-                    maxLength={9}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Observações</Label>
-                  <Textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleSubmit} disabled={!formData.name || createCustomer.isPending}>
-                  {createCustomer.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Salvar
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-          </div>
-        )}
 
         <Card className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]">
           <CardHeader className="border-b bg-muted/30 py-3 px-3 sm:px-6">
@@ -311,14 +138,188 @@ export default function Clientes() {
                 <CardTitle className="text-base">Clientes Cadastrados</CardTitle>
                 <CardDescription className="text-sm">Lista de todos os clientes</CardDescription>
               </div>
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar cliente..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar cliente..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                {!isReadOnly && (
+                  <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" className="shrink-0">
+                        <Plus className="h-4 w-4 mr-2" />
+                        <span className="hidden sm:inline">Novo Cliente</span>
+                        <span className="sm:hidden">Novo</span>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-2 sm:mx-auto">
+                      <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
+                        <DialogTitle className="text-primary-foreground">Novo Cliente</DialogTitle>
+                        <DialogDescription className="text-primary-foreground/80">Cadastrar novo cliente no sistema</DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Tipo *</Label>
+                            <Select
+                              value={formData.type}
+                              onValueChange={(v) => setFormData({ ...formData, type: v as 'pf' | 'pj' })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pf">Pessoa Física</SelectItem>
+                                <SelectItem value="pj">Pessoa Jurídica</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>{formData.type === 'pf' ? 'CPF' : 'CNPJ'}</Label>
+                            <Input
+                              value={formData.document}
+                              onChange={(e) => setFormData({ 
+                                ...formData, 
+                                document: formData.type === 'pf' ? formatCPF(e.target.value) : formatCNPJ(e.target.value) 
+                              })}
+                              placeholder={formData.type === 'pf' ? '000.000.000-00' : '00.000.000/0000-00'}
+                              maxLength={formData.type === 'pf' ? 14 : 18}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>{formData.type === 'pf' ? 'Nome *' : 'Razão Social *'}</Label>
+                          <Input
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          />
+                        </div>
+
+                        {formData.type === 'pj' && (
+                          <div className="space-y-2">
+                            <Label>Nome do Contato</Label>
+                            <Input
+                              value={formData.contact_name}
+                              onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
+                            />
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>E-mail</Label>
+                            <Input
+                              type="email"
+                              value={formData.email}
+                              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Telefone</Label>
+                            <Input
+                              value={formData.phone}
+                              onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })}
+                              placeholder="(00) 00000-0000"
+                              maxLength={15}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Telefone 2</Label>
+                          <Input
+                            value={formData.phone2}
+                            onChange={(e) => setFormData({ ...formData, phone2: formatPhone(e.target.value) })}
+                            placeholder="(00) 00000-0000"
+                            maxLength={15}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          <div className="col-span-2 space-y-2">
+                            <Label>Endereço</Label>
+                            <Input
+                              value={formData.address}
+                              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Número</Label>
+                            <Input
+                              value={formData.number}
+                              onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Complemento</Label>
+                            <Input
+                              value={formData.complement}
+                              onChange={(e) => setFormData({ ...formData, complement: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <Label>Bairro</Label>
+                            <Input
+                              value={formData.neighborhood}
+                              onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Cidade</Label>
+                            <Input
+                              value={formData.city}
+                              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Estado</Label>
+                            <Input
+                              value={formData.state}
+                              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                              maxLength={2}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>CEP</Label>
+                          <Input
+                            value={formData.zip_code}
+                            onChange={(e) => setFormData({ ...formData, zip_code: formatCEP(e.target.value) })}
+                            placeholder="00000-000"
+                            maxLength={9}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Observações</Label>
+                          <Textarea
+                            value={formData.notes}
+                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
+                        <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                          Cancelar
+                        </Button>
+                        <Button onClick={handleSubmit} disabled={!formData.name || createCustomer.isPending}>
+                          {createCustomer.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                          Salvar
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
             </div>
           </CardHeader>
