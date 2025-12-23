@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { 
   Loader2, Search, Plus, Key, Building2, Shield, 
-  UserX, UserCheck, Eye, EyeOff, Users, Link2, X, Mail
+  UserX, UserCheck, Eye, EyeOff, Users, Link2, X, Mail, Pencil, Check
 } from 'lucide-react';
 import { AppRole } from '@/types/database';
 import { Card, CardContent } from '@/components/ui/card';
@@ -79,6 +79,8 @@ export function UserManagementPanel() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
   
   const [newUserData, setNewUserData] = useState({
     email: '',
@@ -292,6 +294,29 @@ export function UserManagementPanel() {
     }
   };
 
+  const handleUpdateName = async () => {
+    if (!selectedUser || !editedName.trim()) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ full_name: editedName.trim() })
+        .eq('id', selectedUser.id);
+      
+      if (error) throw error;
+      
+      toast.success('Nome atualizado!');
+      setIsEditingName(false);
+      setSelectedUser({ ...selectedUser, full_name: editedName.trim() });
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao atualizar nome');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
       user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -427,7 +452,13 @@ export function UserManagementPanel() {
       </TabsContent>
 
       {/* User Details Dialog */}
-      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+      <Dialog open={detailsDialogOpen} onOpenChange={(open) => {
+        setDetailsDialogOpen(open);
+        if (!open) {
+          setIsEditingName(false);
+          setEditedName('');
+        }
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
@@ -435,8 +466,57 @@ export function UserManagementPanel() {
                 <AvatarImage src={selectedUser?.avatar_url} />
                 <AvatarFallback className="bg-primary/20 text-primary">{getInitials(selectedUser?.full_name)}</AvatarFallback>
               </Avatar>
-              <div>
-                <div>{selectedUser?.full_name || 'Sem nome'}</div>
+              <div className="flex-1 min-w-0">
+                {isEditingName ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      className="h-8 text-base font-semibold"
+                      placeholder="Nome do usuário"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleUpdateName();
+                        if (e.key === 'Escape') {
+                          setIsEditingName(false);
+                          setEditedName('');
+                        }
+                      }}
+                    />
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-8 w-8 shrink-0"
+                      onClick={handleUpdateName}
+                      disabled={isSaving || !editedName.trim()}
+                    >
+                      {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 text-green-500" />}
+                    </Button>
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-8 w-8 shrink-0"
+                      onClick={() => { setIsEditingName(false); setEditedName(''); }}
+                    >
+                      <X className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 group">
+                    <span className="truncate">{selectedUser?.full_name || 'Sem nome'}</span>
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => {
+                        setEditedName(selectedUser?.full_name || '');
+                        setIsEditingName(true);
+                      }}
+                    >
+                      <Pencil className="h-3 w-3 text-muted-foreground" />
+                    </Button>
+                  </div>
+                )}
                 <div className="text-sm font-normal text-muted-foreground">{selectedUser?.email}</div>
               </div>
             </DialogTitle>
