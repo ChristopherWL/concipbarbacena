@@ -174,6 +174,7 @@ serve(async (req) => {
     console.log('User created:', newUser.user.id);
 
     // Upsert the user's profile (trigger might fail; don't rely on it)
+    // Set both branch_id and selected_branch_id to ensure proper filtering
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
       .upsert(
@@ -182,6 +183,7 @@ serve(async (req) => {
           tenant_id,
           email,
           full_name,
+          branch_id: branch_id || null,
           selected_branch_id: branch_id || null,
         },
         { onConflict: 'id' }
