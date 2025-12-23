@@ -172,38 +172,38 @@ export default function Fornecedores() {
   return (
     <DashboardLayout>
       <div className="min-h-screen relative">
-        {/* Futuristic Background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Futuristic Background - hidden on mobile for performance */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-info/10 rounded-full blur-3xl animate-pulse delay-1000" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/5 rounded-full" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-primary/5 rounded-full" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto space-y-8 p-4 sm:p-6">
+        <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-8 p-3 sm:p-6">
           {/* Hero Header */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-info p-8 sm:p-12 text-white">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-info p-4 sm:p-8 lg:p-12 text-white">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
+            <div className="absolute top-0 right-0 w-32 sm:w-64 h-32 sm:h-64 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-24 sm:w-48 h-24 sm:h-48 bg-white/5 rounded-full blur-2xl" />
             
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl">
-                    <Building2 className="h-8 w-8" />
-                  </div>
-                  <div>
-                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Fornecedores</h1>
-                    <p className="text-white/70 mt-1">Gerencie sua rede de parceiros</p>
-                  </div>
+            <div className="relative z-10 flex flex-col gap-4 sm:gap-6">
+              {/* Title Row */}
+              <div className="flex items-center gap-3">
+                <div className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl">
+                  <Building2 className="h-6 w-6 sm:h-8 sm:w-8" />
+                </div>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Fornecedores</h1>
+                  <p className="text-white/70 text-sm sm:text-base mt-0.5 sm:mt-1">Gerencie sua rede de parceiros</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
-                <div className="text-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-2xl">
-                  <p className="text-3xl font-bold">{activeSuppliers.length}</p>
-                  <p className="text-xs text-white/70 uppercase tracking-wider">Total</p>
+              {/* Stats and Action Row */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="text-center px-4 sm:px-6 py-2 sm:py-3 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl">
+                  <p className="text-2xl sm:text-3xl font-bold">{activeSuppliers.length}</p>
+                  <p className="text-[10px] sm:text-xs text-white/70 uppercase tracking-wider">Total</p>
                 </div>
                 {!isReadOnly && (
                   <Button 
@@ -211,10 +211,10 @@ export default function Fornecedores() {
                       setEditingSupplier(null);
                       setShowForm(true);
                     }}
-                    className="gap-2 bg-white text-primary hover:bg-white/90 shadow-lg shadow-black/20 h-12 px-6 rounded-xl font-semibold"
+                    className="gap-2 bg-white text-primary hover:bg-white/90 shadow-lg shadow-black/20 h-10 sm:h-12 px-4 sm:px-6 rounded-xl font-semibold text-sm sm:text-base"
                   >
-                    <Plus className="h-5 w-5" />
-                    Novo Fornecedor
+                    <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden xs:inline">Novo</span> Fornecedor
                   </Button>
                 )}
               </div>
@@ -223,20 +223,20 @@ export default function Fornecedores() {
 
           {/* Search Bar - Glassmorphism */}
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-info/20 rounded-2xl blur-xl opacity-50" />
-            <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-4 shadow-xl">
-              <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-info/20 rounded-xl sm:rounded-2xl blur-xl opacity-50 hidden sm:block" />
+            <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xl">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
                 <div className="relative flex-1 w-full">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                   <Input
-                    placeholder="Buscar por nome, CNPJ ou contato..."
+                    placeholder="Buscar fornecedor..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 h-12 text-base bg-background/50 border-border/50 rounded-xl focus:ring-2 focus:ring-primary/20"
+                    className="pl-10 sm:pl-12 h-10 sm:h-12 text-sm sm:text-base bg-background/50 border-border/50 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Zap className="h-4 w-4 text-warning" />
+                <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-warning" />
                   <span>{filteredSuppliers.length} resultado(s)</span>
                 </div>
               </div>
@@ -269,29 +269,29 @@ export default function Fornecedores() {
           ) : (
             <>
               {/* Supplier Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
                 {paginatedSuppliers.map((supplier, index) => (
                   <div 
                     key={supplier.id} 
-                    className="group relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-6 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1"
+                    className="group relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 sm:hover:-translate-y-1"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* Hover Glow Effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-info/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-info/5 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                     
                     <div className="relative">
                       {/* Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-info flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30">
+                      <div className="flex items-start justify-between gap-2 mb-3 sm:mb-4">
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-info flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg shadow-primary/30 shrink-0">
                             {supplier.name.charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors line-clamp-1">
                               {supplier.name}
                             </h3>
                             {supplier.cnpj && (
-                              <Badge variant="secondary" className="font-mono text-xs mt-1 bg-muted/50">
+                              <Badge variant="secondary" className="font-mono text-[10px] sm:text-xs mt-1 bg-muted/50">
                                 {supplier.cnpj}
                               </Badge>
                             )}
@@ -299,64 +299,64 @@ export default function Fornecedores() {
                         </div>
                         
                         {!isReadOnly && (
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary"
+                              className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-primary/10 hover:text-primary"
                               onClick={() => {
                                 setEditingSupplier(supplier);
                                 setShowForm(true);
                               }}
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive"
+                              className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive"
                               onClick={() => setDeleteConfirm(supplier.id)}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             </Button>
                           </div>
                         )}
                       </div>
                       
                       {/* Contact Info */}
-                      <div className="space-y-2 text-sm">
+                      <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                         {supplier.contact_name && (
                           <div className="flex items-center gap-2 text-muted-foreground">
-                            <User className="h-4 w-4 text-primary/60" />
-                            <span>{supplier.contact_name}</span>
+                            <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary/60 shrink-0" />
+                            <span className="truncate">{supplier.contact_name}</span>
                           </div>
                         )}
                         {supplier.phone && (
                           <div className="flex items-center gap-2 text-muted-foreground">
-                            <Phone className="h-4 w-4 text-success/60" />
+                            <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-success/60 shrink-0" />
                             <span>{supplier.phone}</span>
                           </div>
                         )}
                         {supplier.email && (
                           <div className="flex items-center gap-2 text-muted-foreground">
-                            <Mail className="h-4 w-4 text-info/60" />
+                            <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-info/60 shrink-0" />
                             <span className="truncate">{supplier.email}</span>
                           </div>
                         )}
                         {supplier.city && supplier.state && (
                           <div className="flex items-center gap-2 text-muted-foreground">
-                            <MapPin className="h-4 w-4 text-warning/60" />
+                            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-warning/60 shrink-0" />
                             <span>{supplier.city}/{supplier.state}</span>
                           </div>
                         )}
                       </div>
                       
                       {/* Footer */}
-                      <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
+                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50 flex items-center justify-between">
+                        <span className="text-[10px] sm:text-xs text-muted-foreground">
                           Fornecedor ativo
                         </span>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                       </div>
                     </div>
                   </div>
@@ -366,15 +366,15 @@ export default function Fornecedores() {
               {/* Pagination */}
               {totalItems > 0 && (
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-info/5 rounded-2xl blur-xl opacity-50" />
-                  <div className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-info/5 rounded-xl sm:rounded-2xl blur-xl opacity-50 hidden sm:block" />
+                  <div className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl sm:rounded-2xl">
                     <TablePagination
                       currentPage={currentPage}
                       totalItems={totalItems}
                       pageSize={pageSize}
                       onPageChange={setCurrentPage}
                       onPageSizeChange={setPageSize}
-                      className="px-4"
+                      className="px-3 sm:px-4"
                     />
                   </div>
                 </div>
