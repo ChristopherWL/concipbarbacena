@@ -24,6 +24,7 @@ export interface Obra {
   data_conclusao?: string;
   valor_contrato?: number;
   notas?: string;
+  image_url?: string | null;
   created_at: string;
   updated_at: string;
   created_by?: string;
@@ -196,6 +197,7 @@ export const useObras = () => {
           data_conclusao: updates.data_conclusao,
           valor_contrato: updates.valor_contrato,
           notas: updates.notas,
+          image_url: updates.image_url,
           updated_at: new Date().toISOString() 
         })
         .eq("id", id)
