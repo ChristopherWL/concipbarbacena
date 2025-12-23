@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks, Eye } from "lucide-react";
 import { useObras, useDiarioObras, Obra, DiarioObra } from "@/hooks/useObras";
 import { ObraEtapasPanel } from "@/components/obras/ObraEtapasPanel";
+import { ObraCardProgress } from "@/components/obras/ObraCardProgress";
 import { ObraFormDialog } from "@/components/obras/ObraFormDialog";
 import { useObraEtapas } from "@/hooks/useObraEtapas";
 import { useEmployees } from "@/hooks/useEmployees";
@@ -636,6 +637,9 @@ const Obras = () => {
                             </div>
                           )}
                         </div>
+
+                        {/* Progress and Current Stage */}
+                        {tenantId && <ObraCardProgress obraId={obra.id} tenantId={tenantId} />}
                         
                         {/* Mobile actions - hidden for read-only */}
                         {!isReadOnly && (
