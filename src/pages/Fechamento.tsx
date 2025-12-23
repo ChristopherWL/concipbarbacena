@@ -36,6 +36,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
@@ -280,6 +281,27 @@ export default function Fechamento() {
     supplierGroups.find(g => g.supplier.id === selectedSupplier),
     [supplierGroups, selectedSupplier]
   );
+
+  // Paginação para a tabela de fornecedores
+  const {
+    currentPage: suppliersPage,
+    setCurrentPage: setSuppliersPage,
+    pageSize: suppliersPageSize,
+    setPageSize: setSuppliersPageSize,
+    paginatedItems: paginatedSuppliers,
+    totalItems: totalSuppliers,
+  } = usePagination(supplierGroups, 10);
+
+  // Paginação para a tabela de cupons do fornecedor selecionado
+  const selectedSupplierCoupons = selectedSupplierData?.coupons || [];
+  const {
+    currentPage: couponsPage,
+    setCurrentPage: setCouponsPage,
+    pageSize: couponsPageSize,
+    setPageSize: setCouponsPageSize,
+    paginatedItems: paginatedCoupons,
+    totalItems: totalCoupons,
+  } = usePagination(selectedSupplierCoupons, 10);
 
   const formatCurrency = (value: number | null | undefined) => {
     if (!value) return 'R$ 0,00';
@@ -541,7 +563,7 @@ export default function Fechamento() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {selectedSupplierData?.coupons.map((coupon) => (
+                        {paginatedCoupons.map((coupon: any) => (
                           <TableRow key={coupon.id}>
                             <TableCell className="font-medium">
                               {coupon.coupon_number}
@@ -583,11 +605,14 @@ export default function Fechamento() {
                             </TableCell>
                           </TableRow>
                         ) : (
-                          supplierGroups.map((group) => (
+                          paginatedSuppliers.map((group) => (
                             <TableRow 
                               key={group.supplier.id}
                               className="cursor-pointer hover:bg-muted/50 transition-colors"
-                              onClick={() => setSelectedSupplier(group.supplier.id)}
+                              onClick={() => {
+                                setSelectedSupplier(group.supplier.id);
+                                setCouponsPage(1);
+                              }}
                             >
                               <TableCell className="font-medium">
                                 <div className="flex items-center gap-2">
@@ -613,6 +638,31 @@ export default function Fechamento() {
                     </Table>
                   )}
                 </ScrollArea>
+                
+                {/* Paginação */}
+                {selectedSupplier ? (
+                  totalCoupons > 0 && (
+                    <TablePagination
+                      currentPage={couponsPage}
+                      totalItems={totalCoupons}
+                      pageSize={couponsPageSize}
+                      onPageChange={setCouponsPage}
+                      onPageSizeChange={setCouponsPageSize}
+                      className="px-4 border-t"
+                    />
+                  )
+                ) : (
+                  totalSuppliers > 0 && (
+                    <TablePagination
+                      currentPage={suppliersPage}
+                      totalItems={totalSuppliers}
+                      pageSize={suppliersPageSize}
+                      onPageChange={setSuppliersPage}
+                      onPageSizeChange={setSuppliersPageSize}
+                      className="px-4 border-t"
+                    />
+                  )
+                )}
               </CardContent>
             </Card>
           </div>
