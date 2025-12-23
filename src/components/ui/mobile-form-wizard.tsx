@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface WizardStep {
@@ -23,6 +23,8 @@ interface MobileFormWizardProps {
   onStepChange?: (stepIndex: number) => void;
   /** Whether the form can be completed (e.g., all required fields are filled). Defaults to true. */
   canComplete?: boolean;
+  /** Title shown in the header */
+  headerTitle?: string;
 }
 
 export function MobileFormWizard({
@@ -35,6 +37,7 @@ export function MobileFormWizard({
   initialStep = 0,
   onStepChange,
   canComplete = true,
+  headerTitle,
 }: MobileFormWizardProps) {
   const clampStep = React.useCallback(
     (value: number) => Math.min(Math.max(value, 0), Math.max(steps.length - 1, 0)),
@@ -269,10 +272,28 @@ export function MobileFormWizard({
   return (
     <div 
       className={cn(
-        "flex flex-col flex-1 min-h-0",
+        "flex flex-col h-full min-h-0",
         className
       )}
     >
+      {/* Header with title and close button */}
+      {headerTitle && (
+        <div className="bg-primary px-4 py-4 flex items-center justify-between flex-shrink-0">
+          <h2 className="text-lg font-semibold text-primary-foreground">
+            {headerTitle}
+          </h2>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={handleCancel}
+            className="text-primary-foreground hover:bg-primary-foreground/20"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
+
       {/* Progress indicator */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
         <span className="text-sm text-muted-foreground">

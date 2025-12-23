@@ -1174,6 +1174,7 @@ const Obras = () => {
                   }}
                   isSubmitting={isSubmitting}
                   submitLabel="Salvar Atualização"
+                  headerTitle={`Atualização - ${selectedObra?.nome || 'Obra'}`}
                 />
               </>
             ) : (
