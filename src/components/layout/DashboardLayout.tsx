@@ -199,21 +199,68 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   // Determine which logo to show:
   // 1. If branch has its own logo, use it (even for matriz if logo was set)
   // 2. Fallback to tenant logo
-  const currentLogo = useMemo(() => {
-    // If the branch has its own logo, always use it
+  const currentLogoLight = useMemo(() => {
+    // Logo for light backgrounds (dark logo)
     if (branchData?.logo_url) {
       return branchData.logo_url;
     }
-    // Fallback to tenant logo (matriz default)
     return tenant?.logo_url || null;
   }, [branchData, tenant?.logo_url]);
 
   const currentLogoDark = useMemo(() => {
+    // Logo for dark backgrounds (light logo)
     if (branchData?.logo_dark_url) {
       return branchData.logo_dark_url;
     }
     return tenant?.logo_dark_url || null;
   }, [branchData, tenant?.logo_dark_url]);
+
+  // Detect if sidebar/menu background is dark or light based on menu_color
+  const isMenuDark = useMemo(() => {
+    const menuColor = (tenant as any)?.menu_color;
+    if (!menuColor) return true; // Default sidebar is dark
+    
+    // Convert hex to HSL and check lightness
+    const hexToHSL = (hex: string) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if (!result) return { h: 0, s: 0, l: 0 };
+      
+      let r = parseInt(result[1], 16) / 255;
+      let g = parseInt(result[2], 16) / 255;
+      let b = parseInt(result[3], 16) / 255;
+      
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h = 0, s = 0;
+      const l = (max + min) / 2;
+      
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+      
+      return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    };
+    
+    const hsl = hexToHSL(menuColor);
+    return hsl.l < 70; // If lightness < 70%, menu is dark
+  }, [(tenant as any)?.menu_color]);
+
+  // Choose the appropriate logo based on menu background color
+  const currentLogo = useMemo(() => {
+    if (isMenuDark) {
+      // Dark background: use light logo (logo_dark_url) if available, fallback to regular
+      return currentLogoDark || currentLogoLight;
+    } else {
+      // Light background: use dark logo (logo_url) if available, fallback to dark logo
+      return currentLogoLight || currentLogoDark;
+    }
+  }, [isMenuDark, currentLogoLight, currentLogoDark]);
 
   // For backward compatibility with director branch selection
   const selectedBranch = directorSelectedBranch;
