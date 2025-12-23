@@ -50,6 +50,7 @@ import { Plus, FileText, Download, Eye, Search, X, Upload, Loader2, Trash2, Aler
 import { toast } from 'sonner';
 import { PdfInlineViewer } from '@/components/invoices/PdfInlineViewer';
 import { Invoice } from '@/types/stock';
+import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 
 export default function NotasFiscais() {
   const { tenant } = useAuthContext();
@@ -471,10 +472,22 @@ export default function NotasFiscais() {
     setIsFormOpen(open);
   };
 
-  const filteredInvoices = invoices?.filter(invoice =>
-    invoice.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
-    (invoice.supplier as any)?.name?.toLowerCase().includes(search.toLowerCase())
-  ) || [];
+  const filteredInvoices = useMemo(() => {
+    return invoices?.filter(invoice =>
+      invoice.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
+      (invoice.supplier as any)?.name?.toLowerCase().includes(search.toLowerCase())
+    ) || [];
+  }, [invoices, search]);
+
+  // Pagination
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    paginatedItems: paginatedInvoices,
+    totalItems,
+  } = usePagination(filteredInvoices, 10);
 
   return (
     <DashboardLayout>
@@ -778,10 +791,11 @@ export default function NotasFiscais() {
         <div className="md:hidden space-y-3">
           {isLoading ? (
             <div className="text-center py-8 text-muted-foreground">Carregando...</div>
-          ) : filteredInvoices.length === 0 ? (
+          ) : paginatedInvoices.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">Nenhuma nota fiscal encontrada</div>
           ) : (
-            filteredInvoices.map((invoice) => (
+            <>
+            {paginatedInvoices.map((invoice) => (
               <Card key={invoice.id} className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0 space-y-2">
@@ -857,6 +871,15 @@ export default function NotasFiscais() {
                 </div>
               </Card>
             ))
+            }
+            <TablePagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
+            </>
           )}
         </div>
 
@@ -887,7 +910,7 @@ export default function NotasFiscais() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ) : filteredInvoices.length === 0 ? (
+                  ) : paginatedInvoices.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-12">
                         <div className="flex flex-col items-center gap-2">
@@ -897,7 +920,7 @@ export default function NotasFiscais() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredInvoices.map((invoice) => (
+                    paginatedInvoices.map((invoice) => (
                       <TableRow key={invoice.id} className="hover:bg-muted/20 transition-colors">
                         <TableCell>
                           <div className="space-y-1">
@@ -991,6 +1014,13 @@ export default function NotasFiscais() {
                 </TableBody>
               </Table>
             </div>
+            <TablePagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
           </Card>
         </div>
 
