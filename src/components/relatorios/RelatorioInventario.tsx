@@ -7,16 +7,19 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Search, Download, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Download, AlertTriangle, CheckCircle, XCircle, FileText } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
+import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/formatters';
+import { exportRelatorioInventario, exportFichaControleSaidaMaterial } from '@/lib/exportRelatorioPDF';
 
 export function RelatorioInventario() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const { data: products = [], isLoading } = useProducts();
+  const { tenant } = useAuth();
 
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
@@ -65,6 +68,25 @@ export function RelatorioInventario() {
     return labels[category] || category;
   };
 
+  const getCompanyInfo = () => ({
+    name: tenant?.name || 'Empresa',
+    cnpj: tenant?.cnpj,
+    address: tenant?.address,
+    city: tenant?.city,
+    state: tenant?.state,
+    phone: tenant?.phone,
+    email: tenant?.email,
+  });
+
+  const handleExportPDF = () => {
+    exportRelatorioInventario(getCompanyInfo(), filteredProducts, formatCurrency);
+  };
+
+  const handleExportFichaSaida = () => {
+    // Export empty form for manual filling
+    exportFichaControleSaidaMaterial(getCompanyInfo(), []);
+  };
+
   const exportToCSV = () => {
     const headers = ['Código', 'Nome', 'Categoria', 'Quantidade', 'Estoque Mín.', 'Status', 'Valor Unit.', 'Valor Total'];
     const rows = filteredProducts.map(p => [
@@ -97,10 +119,20 @@ export function RelatorioInventario() {
             <CardTitle className="text-lg">Inventário Geral</CardTitle>
             <CardDescription>Situação atual do estoque por produto</CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={exportToCSV}>
-            <Download className="h-4 w-4 mr-2" />
-            Exportar CSV
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={exportToCSV}>
+              <Download className="h-4 w-4 mr-2" />
+              CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPDF}>
+              <FileText className="h-4 w-4 mr-2" />
+              Relatório PDF
+            </Button>
+            <Button size="sm" onClick={handleExportFichaSaida}>
+              <FileText className="h-4 w-4 mr-2" />
+              Ficha de Saída
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

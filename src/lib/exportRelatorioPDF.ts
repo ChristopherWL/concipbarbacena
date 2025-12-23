@@ -1267,3 +1267,262 @@ export function exportRelatorioEPCIndividual(
   const filename = `epc_${assignment.employee?.name?.toLowerCase().replace(/\s+/g, '_') || 'comprovante'}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
   doc.save(filename);
 }
+
+// Ficha de Controle de Saída de Material do Almoxarifado
+export function exportFichaControleSaidaMaterial(
+  company: CompanyInfo,
+  movements: any[],
+  title: string = 'FICHA DE CONTROLE DE SAÍDA DE MATERIAL DO ALMOXARIFADO'
+): void {
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const marginLeft = 10;
+  const marginRight = 10;
+  const tableWidth = pageWidth - marginLeft - marginRight;
+  let y = 12;
+
+  // Header with company name and title
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, pageWidth, 25, 'F');
+
+  // Company name on the left
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text(company.name || 'Empresa', marginLeft, y);
+
+  // Title centered
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text(title, pageWidth / 2, y, { align: 'center' });
+
+  y += 8;
+
+  // Table header
+  const columns = [
+    { header: 'ITEM', width: 12 },
+    { header: 'DATA DE SAÍDA', width: 28 },
+    { header: 'DESCRIÇÃO DO PRODUTO', width: 80 },
+    { header: 'QUANTIDADE', width: 25 },
+    { header: 'APLICAÇÃO', width: 35 },
+    { header: 'NOME DO RESPONSÁVEL', width: 50 },
+    { header: 'ASSINATURA', width: 47 },
+  ];
+
+  const rowHeight = 8;
+  const headerHeight = 8;
+
+  // Draw header row
+  doc.setFillColor(240, 240, 240);
+  doc.rect(marginLeft, y, tableWidth, headerHeight, 'F');
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.3);
+  doc.rect(marginLeft, y, tableWidth, headerHeight, 'S');
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+
+  let x = marginLeft;
+  columns.forEach((col) => {
+    // Vertical line
+    doc.line(x, y, x, y + headerHeight);
+    // Header text centered
+    doc.text(col.header, x + col.width / 2, y + 5.5, { align: 'center' });
+    x += col.width;
+  });
+  // Last vertical line
+  doc.line(x, y, x, y + headerHeight);
+
+  y += headerHeight;
+
+  // Data rows - fill with actual data or empty rows
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+
+  const totalRows = Math.max(movements.length, 20); // Minimum 20 rows
+  
+  for (let i = 0; i < totalRows; i++) {
+    // Check for new page
+    if (y + rowHeight > pageHeight - 15) {
+      doc.addPage();
+      y = 12;
+
+      // Redraw header on new page
+      doc.setFillColor(240, 240, 240);
+      doc.rect(marginLeft, y, tableWidth, headerHeight, 'F');
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.3);
+      doc.rect(marginLeft, y, tableWidth, headerHeight, 'S');
+
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'bold');
+
+      x = marginLeft;
+      columns.forEach((col) => {
+        doc.line(x, y, x, y + headerHeight);
+        doc.text(col.header, x + col.width / 2, y + 5.5, { align: 'center' });
+        x += col.width;
+      });
+      doc.line(x, y, x, y + headerHeight);
+
+      y += headerHeight;
+      doc.setFont('helvetica', 'normal');
+    }
+
+    // Draw row
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.2);
+    doc.rect(marginLeft, y, tableWidth, rowHeight, 'S');
+
+    x = marginLeft;
+    const mov = movements[i];
+
+    columns.forEach((col, colIndex) => {
+      // Vertical line
+      doc.line(x, y, x, y + rowHeight);
+
+      // Cell content
+      let value = '';
+      if (mov) {
+        switch (colIndex) {
+          case 0: // ITEM
+            value = (i + 1).toString();
+            break;
+          case 1: // DATA DE SAÍDA
+            value = mov.date ? format(new Date(mov.date), 'dd/MM/yyyy') : '';
+            break;
+          case 2: // DESCRIÇÃO DO PRODUTO
+            value = mov.product_name || mov.description || '';
+            break;
+          case 3: // QUANTIDADE
+            value = mov.quantity?.toString() || '';
+            break;
+          case 4: // APLICAÇÃO
+            value = mov.application || mov.reason || '';
+            break;
+          case 5: // NOME DO RESPONSÁVEL
+            value = mov.responsible_name || '';
+            break;
+          case 6: // ASSINATURA
+            value = ''; // Empty for signature
+            break;
+        }
+      } else if (colIndex === 0) {
+        value = (i + 1).toString();
+      }
+
+      // Truncate if too long
+      const maxChars = Math.floor(col.width / 1.8);
+      if (value.length > maxChars) {
+        value = value.substring(0, maxChars - 2) + '...';
+      }
+
+      if (colIndex === 0 || colIndex === 3) {
+        // Center align for ITEM and QUANTIDADE
+        doc.text(value, x + col.width / 2, y + 5.5, { align: 'center' });
+      } else {
+        doc.text(value, x + 2, y + 5.5);
+      }
+
+      x += col.width;
+    });
+    // Last vertical line
+    doc.line(x, y, x, y + rowHeight);
+
+    y += rowHeight;
+  }
+
+  // Footer
+  addFooter(doc);
+
+  const filename = `ficha_saida_material_${format(new Date(), 'yyyy-MM-dd_HHmm')}.pdf`;
+  doc.save(filename);
+}
+
+// Relatório de Inventário
+export function exportRelatorioInventario(
+  company: CompanyInfo,
+  products: any[],
+  formatCurrency: (value: number) => string
+): void {
+  const config: ReportConfig = {
+    title: 'Relatório de Inventário',
+    subtitle: 'Situação atual do estoque por produto',
+    orientation: 'landscape',
+    columns: [
+      { header: 'Código', key: 'code', width: 25 },
+      { header: 'Produto', key: 'name', width: 60 },
+      { 
+        header: 'Categoria', 
+        key: 'category', 
+        width: 25,
+        format: (value) => {
+          const labels: Record<string, string> = {
+            epi: 'EPI',
+            epc: 'EPC',
+            ferramentas: 'Ferramentas',
+            materiais: 'Materiais',
+            equipamentos: 'Equipamentos',
+          };
+          return labels[value] || value?.toUpperCase() || '-';
+        }
+      },
+      { header: 'Unidade', key: 'unit', width: 15, align: 'center' },
+      { header: 'Estoque Atual', key: 'current_stock', width: 25, align: 'center' },
+      { header: 'Estoque Mínimo', key: 'min_stock', width: 25, align: 'center' },
+      { 
+        header: 'Status', 
+        key: 'status', 
+        width: 20,
+        align: 'center',
+        format: (_, row) => {
+          const stock = row.current_stock || 0;
+          const minStock = row.min_stock || 0;
+          if (stock === 0) return 'Zerado';
+          if (stock <= minStock) return 'Crítico';
+          if (stock <= minStock * 1.5) return 'Baixo';
+          return 'OK';
+        }
+      },
+      { 
+        header: 'Valor Unit.', 
+        key: 'cost_price', 
+        width: 25, 
+        align: 'right',
+        format: (value) => value ? formatCurrency(value) : '-'
+      },
+      { 
+        header: 'Valor Total', 
+        key: 'total_value', 
+        width: 30, 
+        align: 'right',
+        format: (_, row) => formatCurrency((row.current_stock || 0) * (row.cost_price || 0))
+      },
+    ],
+    data: products,
+    summary: [
+      { label: 'Total de produtos', value: products.length.toString() },
+      { 
+        label: 'Itens em estoque', 
+        value: products.reduce((acc, p) => acc + (p.current_stock || 0), 0).toString() 
+      },
+      { 
+        label: 'Produtos em estado crítico', 
+        value: products.filter(p => (p.current_stock || 0) <= (p.min_stock || 0)).length.toString()
+      },
+      { 
+        label: 'Valor total do estoque', 
+        value: formatCurrency(products.reduce((acc, p) => acc + ((p.current_stock || 0) * (p.cost_price || 0)), 0))
+      },
+    ],
+  };
+
+  exportToPDF(company, config);
+}
