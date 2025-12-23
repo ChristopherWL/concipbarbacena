@@ -500,7 +500,7 @@ export default function NotasFiscais() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-primary/5 rounded-full" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-8 py-3 sm:py-6">
+        <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-6 p-3 sm:p-6">
         <PageHeader 
           title="Notas Fiscais" 
           description="Gerencie todas as notas fiscais de entrada"
@@ -878,6 +878,7 @@ export default function NotasFiscais() {
               pageSize={pageSize}
               onPageChange={setCurrentPage}
               onPageSizeChange={setPageSize}
+              className="px-4"
             />
             </>
           )}
@@ -1020,6 +1021,7 @@ export default function NotasFiscais() {
               pageSize={pageSize}
               onPageChange={setCurrentPage}
               onPageSizeChange={setPageSize}
+              className="px-4"
             />
           </Card>
         </div>
