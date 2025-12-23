@@ -19,7 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const EmissaoNotasFiscais = () => {
+export default function EmissaoNotasFiscais() {
   const [activeTab, setActiveTab] = useState<FiscalNoteType>('nfe');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -848,6 +848,4 @@ const EmissaoNotasFiscais = () => {
       </div>
     </DashboardLayout>
   );
-};
-
-export default EmissaoNotasFiscais;
+}

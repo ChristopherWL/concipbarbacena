@@ -133,7 +133,15 @@ export default function Cautelas() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="min-h-screen relative">
+        {/* Futuristic Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-info/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/5 rounded-full" />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-6 p-3 sm:p-6">
         <PageHeader 
           title="Cautelas" 
           description="Controle de atribuição de ativos aos colaboradores"
@@ -431,6 +439,7 @@ export default function Cautelas() {
             </Card>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </DashboardLayout>
   );
