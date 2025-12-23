@@ -360,6 +360,7 @@ export type Database = {
           equipe_manha: string | null
           equipe_presente: number | null
           equipe_tarde: string | null
+          etapa_id: string | null
           fotos: Json | null
           hora_fim: string | null
           hora_fim_manha: string | null
@@ -407,6 +408,7 @@ export type Database = {
           equipe_manha?: string | null
           equipe_presente?: number | null
           equipe_tarde?: string | null
+          etapa_id?: string | null
           fotos?: Json | null
           hora_fim?: string | null
           hora_fim_manha?: string | null
@@ -454,6 +456,7 @@ export type Database = {
           equipe_manha?: string | null
           equipe_presente?: number | null
           equipe_tarde?: string | null
+          etapa_id?: string | null
           fotos?: Json | null
           hora_fim?: string | null
           hora_fim_manha?: string | null
@@ -494,6 +497,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diario_obras_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "obra_etapas"
             referencedColumns: ["id"]
           },
           {
