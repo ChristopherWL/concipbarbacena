@@ -393,65 +393,6 @@ export function RelatorioInventario() {
 
   return (
     <div className="space-y-4">
-      {/* Header Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="border-0 bg-gradient-to-br from-blue-500/10 to-blue-600/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-blue-500/20">
-                <Package className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.totalStock}</p>
-                <p className="text-xs text-muted-foreground">Itens em Estoque</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 bg-gradient-to-br from-green-500/10 to-green-600/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-green-500/20">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.totalEntradas}</p>
-                <p className="text-xs text-muted-foreground">Entradas ({stats.entradasCount} mov.)</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 bg-gradient-to-br from-red-500/10 to-red-600/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-red-500/20">
-                <TrendingDown className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.totalSaidas}</p>
-                <p className="text-xs text-muted-foreground">Saídas ({stats.saidasCount} mov.)</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 bg-gradient-to-br from-primary/10 to-primary/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-primary/20">
-                <BarChart3 className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-lg font-bold">{formatCurrency(stats.totalValue)}</p>
-                <p className="text-xs text-muted-foreground">Valor Total</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Main Content */}
       <Card>
         <CardHeader className="pb-3">
