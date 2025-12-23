@@ -814,20 +814,20 @@ export default function Configuracoes() {
                       <ImageUpload
                         label="Logo da Filial (Fundo escuro)"
                         description="Para cabeçalhos e menus com fundo escuro"
-                        currentUrl={branchLogos.logo_url}
-                        tenantId={tenant?.id || ''}
-                        folder={`branches/${currentBranch?.id}/logos`}
-                        aspectRatio="square"
-                        onUploadComplete={(url) => setBranchLogos({...branchLogos, logo_url: url})}
-                      />
-                      <ImageUpload
-                        label="Logo da Filial (Fundo claro)"
-                        description="Usada em relatórios PDF da filial"
                         currentUrl={branchLogos.logo_dark_url}
                         tenantId={tenant?.id || ''}
                         folder={`branches/${currentBranch?.id}/logos`}
                         aspectRatio="square"
                         onUploadComplete={(url) => setBranchLogos({...branchLogos, logo_dark_url: url})}
+                      />
+                      <ImageUpload
+                        label="Logo da Filial (Fundo claro)"
+                        description="Usada em relatórios PDF da filial"
+                        currentUrl={branchLogos.logo_url}
+                        tenantId={tenant?.id || ''}
+                        folder={`branches/${currentBranch?.id}/logos`}
+                        aspectRatio="square"
+                        onUploadComplete={(url) => setBranchLogos({...branchLogos, logo_url: url})}
                       />
                     </div>
                   </div>
