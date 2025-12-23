@@ -51,6 +51,7 @@ import {
   ChevronUp,
   ChevronLeft,
   ChevronRight,
+  Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -68,6 +69,7 @@ export default function Fechamento() {
   const [showSupplierDetails, setShowSupplierDetails] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [supplierSearch, setSupplierSearch] = useState('');
   
   const [couponForm, setCouponForm] = useState({
     supplier_id: '',
@@ -294,6 +296,14 @@ export default function Fechamento() {
     totalItems: totalSuppliers,
   } = usePagination(supplierGroups, 10);
 
+  // Filtro de fornecedores por pesquisa
+  const filteredSupplierGroups = useMemo(() => {
+    if (!supplierSearch.trim()) return supplierGroups;
+    return supplierGroups.filter(g => 
+      g.supplier.name.toLowerCase().includes(supplierSearch.toLowerCase())
+    );
+  }, [supplierGroups, supplierSearch]);
+
   // Paginação para a lista de fornecedores na sidebar
   const {
     currentPage: sidebarSuppliersPage,
@@ -302,7 +312,7 @@ export default function Fechamento() {
     setPageSize: setSidebarSuppliersPageSize,
     paginatedItems: paginatedSidebarSuppliers,
     totalItems: totalSidebarSuppliers,
-  } = usePagination(supplierGroups, 10);
+  } = usePagination(filteredSupplierGroups, 10);
 
   // Paginação para a tabela de cupons do fornecedor selecionado
   const selectedSupplierCoupons = selectedSupplierData?.coupons || [];
@@ -496,8 +506,17 @@ export default function Fechamento() {
           <div className="lg:w-64 shrink-0">
             <Card className="overflow-hidden">
               <CardContent className="p-0">
-                <div className="p-3 border-b bg-muted/50">
+                <div className="p-3 border-b bg-muted/50 space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">Fornecedores</p>
+                  <div className="relative">
+                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      placeholder="Pesquisar..."
+                      value={supplierSearch}
+                      onChange={(e) => setSupplierSearch(e.target.value)}
+                      className="h-8 pl-7 text-xs"
+                    />
+                  </div>
                 </div>
                 <ScrollArea className="h-[350px] lg:h-[400px]">
                   <div className="p-2 space-y-1">
