@@ -51,6 +51,8 @@ import {
   ChevronUp,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -573,31 +575,47 @@ export default function Fechamento() {
                           </button>
                         ))}
                         
-                        {/* Paginação inline */}
+                        {/* Paginação inline - estilo com botões */}
                         {totalSidebarSuppliers > 10 && (
-                          <div className="flex items-center justify-center gap-2 pt-2 mt-2 border-t">
+                          <div className="flex items-center justify-center gap-1 pt-3 mt-2 border-t">
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2 text-xs"
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setSidebarSuppliersPage(1)}
+                              disabled={sidebarSuppliersPage <= 1}
+                            >
+                              <ChevronsLeft className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
                               onClick={() => setSidebarSuppliersPage(Math.max(1, sidebarSuppliersPage - 1))}
                               disabled={sidebarSuppliersPage <= 1}
                             >
-                              <ChevronLeft className="h-3 w-3 mr-1" />
-                              Anterior
+                              <ChevronLeft className="h-4 w-4" />
                             </Button>
-                            <span className="text-xs text-muted-foreground">
-                              {sidebarSuppliersPage}/{Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
+                            <span className="text-sm text-muted-foreground px-2">
+                              {sidebarSuppliersPage} / {Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
                             </span>
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2 text-xs"
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
                               onClick={() => setSidebarSuppliersPage(Math.min(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize), sidebarSuppliersPage + 1))}
                               disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
                             >
-                              Próxima
-                              <ChevronRight className="h-3 w-3 ml-1" />
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setSidebarSuppliersPage(Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize))}
+                              disabled={sidebarSuppliersPage >= Math.ceil(totalSidebarSuppliers / sidebarSuppliersPageSize)}
+                            >
+                              <ChevronsRight className="h-4 w-4" />
                             </Button>
                           </div>
                         )}
