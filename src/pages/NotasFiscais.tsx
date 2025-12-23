@@ -42,7 +42,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
@@ -767,9 +766,10 @@ export default function NotasFiscais() {
         {/* Desktop Table View - Glassmorphism */}
         <div className="hidden md:block relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-info/5 rounded-xl sm:rounded-2xl blur-xl opacity-50" />
-          <Card className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
-            <ScrollArea className="h-[500px]">
-              <Table>
+          <Card className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl">
+            {/* overflow-auto suporta scroll horizontal para não cortar os ícones de ações */}
+            <div className="max-h-[500px] overflow-auto">
+              <Table className="min-w-[860px]">
                 <TableHeader>
                   <TableRow className="border-b border-border/50 bg-muted/30">
                     <TableHead className="font-semibold text-foreground">Número</TableHead>
@@ -800,21 +800,14 @@ export default function NotasFiscais() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredInvoices.map((invoice, index) => (
-                      <TableRow 
-                        key={invoice.id} 
-                        className="hover:bg-muted/30 transition-colors border-b border-border/30"
-                        style={{ animationDelay: `${index * 30}ms` }}
-                      >
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-info/20 flex items-center justify-center">
-                              <FileText className="h-4 w-4 text-primary" />
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="font-semibold">{invoice.invoice_number}</span>
+                    filteredInvoices.map((invoice) => (
+                      <TableRow key={invoice.id} className="hover:bg-muted/20 transition-colors">
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-foreground">{invoice.invoice_number}</span>
                               {invoice.invoice_series && (
-                                <Badge variant="outline" className="text-[10px] w-fit mt-0.5 border-primary/30 text-primary">
+                                <Badge variant="outline" className="text-xs border-border/50">
                                   Série {invoice.invoice_series}
                                 </Badge>
                               )}
@@ -849,7 +842,7 @@ export default function NotasFiscais() {
                           )}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
+                          <div className="flex justify-end gap-1 pr-2">
                             <Button
                               variant="ghost"
                               size="icon"
@@ -865,7 +858,10 @@ export default function NotasFiscais() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8 rounded-lg hover:bg-info/10 hover:text-info"
-                                  onClick={() => { setPreviewUrl(getProxyUrl(invoice.pdf_url)); setPreviewInvoiceId(invoice.id); }}
+                                  onClick={() => {
+                                    setPreviewUrl(getProxyUrl(invoice.pdf_url));
+                                    setPreviewInvoiceId(invoice.id);
+                                  }}
                                   title="Visualizar"
                                 >
                                   <Eye className="h-4 w-4" />
@@ -899,9 +895,10 @@ export default function NotasFiscais() {
                   )}
                 </TableBody>
               </Table>
-            </ScrollArea>
+            </div>
           </Card>
         </div>
+
 
         {/* Preview Dialog */}
         <Dialog open={!!previewUrl} onOpenChange={() => setPreviewUrl(null)}>
