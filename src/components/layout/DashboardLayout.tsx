@@ -1189,41 +1189,70 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <DropdownMenuContent 
                       side="right" 
                       align="start" 
-                      sideOffset={12}
-                      className="w-56 p-2 bg-popover border border-border/40 shadow-2xl rounded-xl z-[100] animate-in fade-in-0 zoom-in-95 slide-in-from-left-2"
+                      sideOffset={16}
+                      className="w-60 p-0 bg-gradient-to-br from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl border border-primary/20 shadow-[0_0_40px_-10px] shadow-primary/30 rounded-2xl z-[100] animate-in fade-in-0 zoom-in-95 slide-in-from-left-3 duration-200 overflow-hidden"
                     >
-                      <div className="flex items-center gap-2 px-2 py-2.5 mb-1">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
-                          <item.icon className="h-4 w-4 text-primary" />
+                      {/* Glow effect at top */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+                      
+                      {/* Header */}
+                      <div className="relative px-4 py-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-primary/10">
+                        <div className="flex items-center gap-3">
+                          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 shadow-lg shadow-primary/20">
+                            <item.icon className="h-5 w-5 text-primary" />
+                            <div className="absolute inset-0 rounded-xl bg-primary/10 blur-sm" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-bold text-white tracking-wide">{item.name}</span>
+                            <p className="text-[10px] text-primary/70 font-medium uppercase tracking-widest">Menu</p>
+                          </div>
                         </div>
-                        <span className="text-sm font-semibold text-foreground">{item.name}</span>
                       </div>
-                      <DropdownMenuSeparator className="bg-border/50 -mx-2 mb-1" />
-                      <div className="space-y-0.5">
-                        {item.children.map((child) => (
+                      
+                      {/* Items */}
+                      <div className="p-2 space-y-1">
+                        {item.children.map((child, idx) => (
                           <DropdownMenuItem 
                             key={child.href} 
                             onClick={() => handleNavigation(child.href)}
                             className={cn(
-                              "cursor-pointer gap-3 px-3 py-2.5 rounded-lg transition-all duration-150",
+                              "cursor-pointer gap-3 px-3 py-3 rounded-xl transition-all duration-200 group/item border border-transparent",
                               isActive(child.href) 
-                                ? "bg-primary/15 text-primary font-medium" 
-                                : "hover:bg-muted/80"
+                                ? "bg-gradient-to-r from-primary/25 via-primary/15 to-primary/5 text-primary border-primary/30 shadow-lg shadow-primary/10" 
+                                : "hover:bg-white/5 hover:border-white/10"
                             )}
+                            style={{ animationDelay: `${idx * 50}ms` }}
                           >
                             <div className={cn(
-                              "flex items-center justify-center w-7 h-7 rounded-md transition-colors",
-                              isActive(child.href) ? "bg-primary/20" : "bg-muted/50"
+                              "relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
+                              isActive(child.href) 
+                                ? "bg-primary/30 shadow-md shadow-primary/30" 
+                                : "bg-white/5 group-hover/item:bg-white/10"
                             )}>
-                              <child.icon className="h-4 w-4" />
+                              <child.icon className={cn(
+                                "h-4 w-4 transition-colors",
+                                isActive(child.href) ? "text-primary" : "text-slate-400 group-hover/item:text-white"
+                              )} />
+                              {isActive(child.href) && (
+                                <div className="absolute inset-0 rounded-lg bg-primary/20 blur-md" />
+                              )}
                             </div>
-                            <span className="flex-1 text-sm">{child.name}</span>
+                            <span className={cn(
+                              "flex-1 text-sm font-medium transition-colors",
+                              isActive(child.href) ? "text-primary" : "text-slate-300 group-hover/item:text-white"
+                            )}>{child.name}</span>
                             {(child.badge || 0) > 0 && (
                               <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
+                            )}
+                            {isActive(child.href) && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50 animate-pulse" />
                             )}
                           </DropdownMenuItem>
                         ))}
                       </div>
+                      
+                      {/* Bottom glow */}
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );
