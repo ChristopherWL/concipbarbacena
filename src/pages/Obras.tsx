@@ -610,8 +610,8 @@ const Obras = () => {
           setIsUpdatesListDialogOpen(open);
           if (!open) setSelectedObra(null);
         }}>
-          <DialogContent className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "w-full max-w-3xl max-h-[90vh] p-0 bg-background rounded-xl shadow-2xl border-0 overflow-hidden [&>button]:hidden"}>
-            <div className={isMobile ? "h-full flex flex-col" : "flex flex-col max-h-[90vh]"}>
+          <DialogContent className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "w-full max-w-3xl max-h-[90vh] p-0 bg-transparent shadow-none border-0 overflow-hidden [&>button]:hidden"}>
+            <div className={isMobile ? "h-full flex flex-col" : "bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"}>
               <DialogHeader className={isMobile ? "bg-primary px-4 py-4 flex-shrink-0" : "bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0"}>
                 <DialogTitle className="text-primary-foreground">
                   {selectedObra?.nome}
@@ -709,8 +709,8 @@ const Obras = () => {
             setEditDiarioForm({ etapa: '', data: '', responsavel: '', descricao: '' });
           }
         }}>
-          <DialogContent className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "w-full max-w-2xl max-h-[90vh] p-0 bg-background rounded-xl shadow-2xl border-0 overflow-hidden [&>button]:hidden"}>
-            <div className={isMobile ? "h-full flex flex-col" : "flex flex-col max-h-[90vh]"}>
+          <DialogContent className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "w-full max-w-2xl max-h-[90vh] p-0 bg-transparent shadow-none border-0 overflow-hidden [&>button]:hidden"}>
+            <div className={isMobile ? "h-full flex flex-col" : "bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"}>
               <DialogHeader className={isMobile ? "bg-primary px-4 py-4 flex-shrink-0" : "bg-primary px-6 pt-6 pb-4 flex-shrink-0"}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -992,7 +992,7 @@ const Obras = () => {
           }
         }}>
           <DialogContent
-            className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "max-w-2xl max-h-[90vh] p-0 bg-background rounded-xl shadow-2xl border-0 overflow-hidden [&>button]:hidden"}
+            className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "max-w-2xl max-h-[90vh] p-0 bg-transparent shadow-none border-0 overflow-hidden [&>button]:hidden"}
             onFocusOutside={(e) => {
               const recentlyUsedPicker = Date.now() - lastFilePickerAtRef.current < 600000;
               if (isSelectingFile || recentlyUsedPicker) e.preventDefault();
@@ -1010,7 +1010,7 @@ const Obras = () => {
               if (isSelectingFile || recentlyUsedPicker) e.preventDefault();
             }}
           >
-            <div className={isMobile ? "h-full flex flex-col" : "flex flex-col max-h-[90vh]"}>
+            <div className={isMobile ? "h-full flex flex-col" : "bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"}>
               {isMobile ? (
                 <>
                   <MobileFormWizard
