@@ -1425,15 +1425,15 @@ export async function exportFichaControleSaidaMaterial(
 
   y += headerHeight + 3;
 
-  // Table header
+  // Table header - ajustar larguras para caber no tableWidth (277mm)
   const columns = [
-    { header: 'ITEM', width: 12 },
-    { header: 'DATA DE SAÍDA', width: 28 },
-    { header: 'DESCRIÇÃO DO PRODUTO', width: 80 },
-    { header: 'QUANTIDADE', width: 25 },
-    { header: 'APLICAÇÃO', width: 35 },
-    { header: 'NOME DO RESPONSÁVEL', width: 50 },
-    { header: 'ASSINATURA', width: 47 },
+    { header: 'ITEM', width: 14 },
+    { header: 'DATA SAÍDA', width: 24 },
+    { header: 'DESCRIÇÃO DO PRODUTO', width: 75 },
+    { header: 'QTD', width: 18 },
+    { header: 'APLICAÇÃO', width: 40 },
+    { header: 'RESPONSÁVEL', width: 55 },
+    { header: 'ASSINATURA', width: 51 },
   ];
 
   const rowHeight = 8;
@@ -1446,7 +1446,7 @@ export async function exportFichaControleSaidaMaterial(
   doc.setLineWidth(0.3);
   doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
 
-  doc.setFontSize(7);
+  doc.setFontSize(6);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 0, 0);
 
@@ -1454,8 +1454,9 @@ export async function exportFichaControleSaidaMaterial(
   columns.forEach((col) => {
     // Vertical line
     doc.line(x, y, x, y + tableRowHeaderHeight);
-    // Header text centered
-    doc.text(col.header, x + col.width / 2, y + 5.5, { align: 'center' });
+    // Header text centered with padding
+    const headerText = col.header;
+    doc.text(headerText, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
     x += col.width;
   });
   // Last vertical line
@@ -1482,13 +1483,13 @@ export async function exportFichaControleSaidaMaterial(
       doc.setLineWidth(0.3);
       doc.rect(marginLeft, y, tableWidth, tableRowHeaderHeight, 'S');
 
-      doc.setFontSize(7);
+      doc.setFontSize(6);
       doc.setFont('helvetica', 'bold');
 
       x = marginLeft;
       columns.forEach((col) => {
         doc.line(x, y, x, y + tableRowHeaderHeight);
-        doc.text(col.header, x + col.width / 2, y + 5.5, { align: 'center' });
+        doc.text(col.header, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
         x += col.width;
       });
       doc.line(x, y, x, y + tableRowHeaderHeight);
@@ -1539,17 +1540,17 @@ export async function exportFichaControleSaidaMaterial(
         value = (i + 1).toString();
       }
 
-      // Truncate if too long
-      const maxChars = Math.floor(col.width / 1.8);
+      // Truncate if too long - usar maxWidth para cortar automaticamente
+      const maxChars = Math.floor(col.width / 2);
       if (value.length > maxChars) {
-        value = value.substring(0, maxChars - 2) + '...';
+        value = value.substring(0, maxChars - 1) + '..';
       }
 
       if (colIndex === 0 || colIndex === 3) {
         // Center align for ITEM and QUANTIDADE
-        doc.text(value, x + col.width / 2, y + 5.5, { align: 'center' });
+        doc.text(value, x + col.width / 2, y + 5, { align: 'center', maxWidth: col.width - 2 });
       } else {
-        doc.text(value, x + 2, y + 5.5);
+        doc.text(value, x + 1.5, y + 5, { maxWidth: col.width - 3 });
       }
 
       x += col.width;
