@@ -169,6 +169,104 @@ export default function NotasFiscais() {
     return `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/serve-attachment?path=${encodeURIComponent(filePath)}${downloadParam}`;
   };
 
+  // Handle download with authentication
+  const handleDownload = async (storageUrl: string | null | undefined) => {
+    if (!storageUrl) {
+      toast.error('Arquivo não disponível');
+      return;
+    }
+
+    try {
+      const proxyUrl = getProxyUrl(storageUrl, true);
+      if (!proxyUrl) {
+        toast.error('URL do arquivo inválida');
+        return;
+      }
+
+      // Get session for authorization header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const res = await fetch(proxyUrl, {
+        headers: session?.access_token ? {
+          'Authorization': `Bearer ${session.access_token}`
+        } : {}
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      const contentDisposition = res.headers.get('Content-Disposition');
+      let fileName = 'anexo';
+      
+      // Extract filename from Content-Disposition header
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (match) {
+          fileName = match[1];
+        }
+      } else {
+        // Fallback: extract from URL
+        const urlFileName = storageUrl.split('/').pop();
+        if (urlFileName) {
+          fileName = urlFileName;
+        }
+      }
+
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Erro ao baixar o arquivo');
+    }
+  };
+
+  // Handle view/open attachment (for mobile)
+  const handleViewAttachment = async (storageUrl: string | null | undefined) => {
+    if (!storageUrl) {
+      toast.error('Arquivo não disponível');
+      return;
+    }
+
+    try {
+      const proxyUrl = getProxyUrl(storageUrl, false);
+      if (!proxyUrl) {
+        toast.error('URL do arquivo inválida');
+        return;
+      }
+
+      // Get session for authorization header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const res = await fetch(proxyUrl, {
+        headers: session?.access_token ? {
+          'Authorization': `Bearer ${session.access_token}`
+        } : {}
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      
+      // Open in new tab
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('View error:', error);
+      toast.error('Erro ao abrir o arquivo');
+    }
+  };
+
   useEffect(() => {
     if (!previewUrl) {
       if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
@@ -730,7 +828,7 @@ export default function NotasFiscais() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => { setPreviewUrl(getProxyUrl(invoice.pdf_url)); setPreviewInvoiceId(invoice.id); }}
+                          onClick={() => handleViewAttachment(invoice.pdf_url)}
                           title="Visualizar"
                         >
                           <Eye className="h-4 w-4" />
@@ -739,11 +837,10 @@ export default function NotasFiscais() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          asChild
+                          onClick={() => handleDownload(invoice.pdf_url)}
+                          title="Download"
                         >
-                          <a href={getProxyUrl(invoice.pdf_url, true) || '#'} download>
-                            <Download className="h-4 w-4" />
-                          </a>
+                          <Download className="h-4 w-4" />
                         </Button>
                       </>
                     )}
@@ -870,12 +967,10 @@ export default function NotasFiscais() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8 rounded-lg hover:bg-success/10 hover:text-success"
-                                  asChild
+                                  onClick={() => handleDownload(invoice.pdf_url)}
                                   title="Download"
                                 >
-                                  <a href={getProxyUrl(invoice.pdf_url, true) || '#'} download>
-                                    <Download className="h-4 w-4" />
-                                  </a>
+                                  <Download className="h-4 w-4" />
                                 </Button>
                               </>
                             )}
