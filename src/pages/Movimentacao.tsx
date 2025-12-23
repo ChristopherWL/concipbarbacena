@@ -576,8 +576,8 @@ export default function Movimentacao() {
 
       {/* Desktop Movement Dialog */}
       <Dialog open={!isMobile && dialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 bg-transparent shadow-none border-0 [&>button]:hidden">
-          <div className="bg-background rounded-xl overflow-hidden shadow-2xl">
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden p-0 bg-transparent shadow-none border-0 [&>button]:hidden">
+          <div className="bg-background rounded-xl overflow-y-auto max-h-[90vh] shadow-2xl scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <DialogHeader className={cn(
             "px-6 py-4 text-center",
             movementType === 'saida' 
