@@ -44,6 +44,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Search, Users, Phone, Mail, MapPin, Loader2, Trash2 } from 'lucide-react';
 import { useCustomers, useCreateCustomer, useDeleteCustomer } from '@/hooks/useServiceOrders';
+import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 import { Customer } from '@/types/serviceOrders';
 import { formatCPF, formatCNPJ, formatPhone, formatCEP } from '@/lib/formatters';
 
@@ -111,7 +112,16 @@ export default function Clientes() {
     c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.document?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
+
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    paginatedItems: paginatedCustomers,
+    totalItems,
+  } = usePagination(filteredCustomers, 10);
 
   return (
     <DashboardLayout>
@@ -325,7 +335,7 @@ export default function Clientes() {
               <>
                 {/* Mobile Card View */}
                 <div className="sm:hidden space-y-3 p-3">
-                  {filteredCustomers?.map((customer) => (
+                  {paginatedCustomers.map((customer) => (
                     <div key={customer.id} className="bg-card rounded-lg border p-4 space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
@@ -394,7 +404,7 @@ export default function Clientes() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredCustomers?.map((customer) => (
+                      {paginatedCustomers.map((customer) => (
                         <TableRow key={customer.id}>
                           <TableCell className="py-2">
                             <div>
@@ -438,6 +448,18 @@ export default function Clientes() {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Paginação */}
+                {totalItems > 0 && (
+                  <TablePagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={setPageSize}
+                    className="px-4 border-t"
+                  />
+                )}
               </>
             )}
           </CardContent>

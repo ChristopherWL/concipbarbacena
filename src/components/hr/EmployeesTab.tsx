@@ -33,6 +33,7 @@ import { EmployeeFormDialog } from './EmployeeFormDialog';
 import { EmployeeDetailsDialog } from './EmployeeDetailsDialog';
 import { TerminationDialog } from './TerminationDialog';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 import { format } from 'date-fns';
 
 interface EmployeesTabProps {
@@ -56,6 +57,26 @@ export function EmployeesTab({ isReadOnly = false }: EmployeesTabProps) {
 
   const activeEmployees = filteredEmployees.filter(e => e.status !== 'desligado');
   const terminatedEmployees = filteredEmployees.filter(e => e.status === 'desligado');
+
+  // Paginação para colaboradores ativos
+  const {
+    currentPage: activePage,
+    setCurrentPage: setActivePage,
+    pageSize: activePageSize,
+    setPageSize: setActivePageSize,
+    paginatedItems: paginatedActiveEmployees,
+    totalItems: totalActiveEmployees,
+  } = usePagination(activeEmployees, 10);
+
+  // Paginação para colaboradores desligados
+  const {
+    currentPage: terminatedPage,
+    setCurrentPage: setTerminatedPage,
+    pageSize: terminatedPageSize,
+    setPageSize: setTerminatedPageSize,
+    paginatedItems: paginatedTerminatedEmployees,
+    totalItems: totalTerminatedEmployees,
+  } = usePagination(terminatedEmployees, 10);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -133,7 +154,7 @@ export function EmployeesTab({ isReadOnly = false }: EmployeesTabProps) {
             </CardContent>
           </Card>
         ) : (
-          activeEmployees.map((employee) => (
+          paginatedActiveEmployees.map((employee) => (
             <Card
               key={employee.id}
               className="overflow-hidden"
@@ -227,7 +248,7 @@ export function EmployeesTab({ isReadOnly = false }: EmployeesTabProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {activeEmployees.map((employee) => (
+                {paginatedActiveEmployees.map((employee) => (
                   <TableRow key={employee.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -306,6 +327,16 @@ export function EmployeesTab({ isReadOnly = false }: EmployeesTabProps) {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {totalActiveEmployees > 0 && (
+            <TablePagination
+              currentPage={activePage}
+              totalItems={totalActiveEmployees}
+              pageSize={activePageSize}
+              onPageChange={setActivePage}
+              onPageSizeChange={setActivePageSize}
+              className="px-4 border-t"
+            />
           )}
         </CardContent>
       </Card>

@@ -50,6 +50,7 @@ import {
   User
 } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
+import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 import { Supplier } from '@/types/stock';
 import { formatCNPJ, formatPhone } from '@/lib/formatters';
 
@@ -160,6 +161,15 @@ export default function Fornecedores() {
     supplier.contact_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    paginatedItems: paginatedSuppliers,
+    totalItems,
+  } = usePagination(filteredSuppliers, 10);
+
   if (authLoading) {
     return <PageLoading text="Carregando fornecedores" />;
   }
@@ -220,7 +230,7 @@ export default function Fornecedores() {
               <>
                 {/* Mobile Card View */}
                 <div className="sm:hidden space-y-3 p-3">
-                  {filteredSuppliers.map((supplier) => (
+                  {paginatedSuppliers.map((supplier) => (
                     <div key={supplier.id} className="bg-card rounded-lg border p-4 space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
@@ -300,7 +310,7 @@ export default function Fornecedores() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredSuppliers.map((supplier) => (
+                      {paginatedSuppliers.map((supplier) => (
                         <TableRow key={supplier.id} className="hover:bg-muted/30">
                           <TableCell className="py-2">
                             <div>
@@ -363,6 +373,18 @@ export default function Fornecedores() {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Paginação */}
+                {totalItems > 0 && (
+                  <TablePagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={setPageSize}
+                    className="px-4 border-t"
+                  />
+                )}
               </>
             )}
           </CardContent>
