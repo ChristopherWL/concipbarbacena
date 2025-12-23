@@ -556,28 +556,30 @@ const Obras = () => {
           title="Obras" 
           description="Cadastro e acompanhamento de obras"
         />
-        
-        {!isReadOnly && (
-          <div className="flex justify-center">
-            <ObraFormDialog
-              isOpen={isDialogOpen}
-              onOpenChange={setIsDialogOpen}
-              onSave={handleCreateObraWithEtapas}
-              isPending={createObra.isPending}
-            />
-          </div>
-        )}
 
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <Input
-                placeholder="Buscar por nome, cliente ou endereço..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:max-w-sm"
-              />
+            <div className="flex items-center gap-2 justify-between">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome, cliente ou endereço..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              {!isReadOnly && (
+                <div className="shrink-0">
+                  <ObraFormDialog
+                    isOpen={isDialogOpen}
+                    onOpenChange={setIsDialogOpen}
+                    onSave={handleCreateObraWithEtapas}
+                    isPending={createObra.isPending}
+                  />
+                </div>
+              )}
             </div>
           </CardHeader>
           <CardContent className="px-3 sm:px-6">
