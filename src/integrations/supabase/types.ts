@@ -529,6 +529,105 @@ export type Database = {
           },
         ]
       }
+      diario_service_orders: {
+        Row: {
+          atividades_realizadas: string | null
+          branch_id: string | null
+          created_at: string
+          data: string
+          etapa_id: string | null
+          fotos: Json | null
+          id: string
+          materiais_utilizados: string | null
+          observacao_fiscalizacao: string | null
+          ocorrencias: string | null
+          registrado_por: string | null
+          service_order_id: string
+          status: string
+          supervisor_signature: string | null
+          tenant_id: string
+          updated_at: string
+          validated_at: string | null
+          validated_by: string | null
+        }
+        Insert: {
+          atividades_realizadas?: string | null
+          branch_id?: string | null
+          created_at?: string
+          data?: string
+          etapa_id?: string | null
+          fotos?: Json | null
+          id?: string
+          materiais_utilizados?: string | null
+          observacao_fiscalizacao?: string | null
+          ocorrencias?: string | null
+          registrado_por?: string | null
+          service_order_id: string
+          status?: string
+          supervisor_signature?: string | null
+          tenant_id: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Update: {
+          atividades_realizadas?: string | null
+          branch_id?: string | null
+          created_at?: string
+          data?: string
+          etapa_id?: string | null
+          fotos?: Json | null
+          id?: string
+          materiais_utilizados?: string | null
+          observacao_fiscalizacao?: string | null
+          ocorrencias?: string | null
+          registrado_por?: string | null
+          service_order_id?: string
+          status?: string
+          supervisor_signature?: string | null
+          tenant_id?: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diario_service_orders_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diario_service_orders_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "service_order_etapas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diario_service_orders_service_order_id_fkey"
+            columns: ["service_order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diario_service_orders_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_landing_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diario_service_orders_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_epc_assignments: {
         Row: {
           condition_delivery: string | null
@@ -3240,6 +3339,92 @@ export type Database = {
           },
         ]
       }
+      service_order_etapas: {
+        Row: {
+          created_at: string
+          data_fim_prevista: string | null
+          data_fim_real: string | null
+          data_inicio_prevista: string | null
+          data_inicio_real: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          notas: string | null
+          ordem: number
+          percentual_peso: number
+          responsavel_id: string | null
+          service_order_id: string
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_fim_prevista?: string | null
+          data_fim_real?: string | null
+          data_inicio_prevista?: string | null
+          data_inicio_real?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          notas?: string | null
+          ordem?: number
+          percentual_peso?: number
+          responsavel_id?: string | null
+          service_order_id: string
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_fim_prevista?: string | null
+          data_fim_real?: string | null
+          data_inicio_prevista?: string | null
+          data_inicio_real?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          notas?: string | null
+          ordem?: number
+          percentual_peso?: number
+          responsavel_id?: string | null
+          service_order_id?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_order_etapas_responsavel_id_fkey"
+            columns: ["responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_order_etapas_service_order_id_fkey"
+            columns: ["service_order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_order_etapas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_landing_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_order_etapas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_order_items: {
         Row: {
           created_at: string | null
@@ -3360,6 +3545,7 @@ export type Database = {
           order_number: number
           photos: Json | null
           priority: Database["public"]["Enums"]["priority_level"] | null
+          progresso: number
           scheduled_date: string | null
           scheduled_time: string | null
           signature_url: string | null
@@ -3391,6 +3577,7 @@ export type Database = {
           order_number?: number
           photos?: Json | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
+          progresso?: number
           scheduled_date?: string | null
           scheduled_time?: string | null
           signature_url?: string | null
@@ -3422,6 +3609,7 @@ export type Database = {
           order_number?: number
           photos?: Json | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
+          progresso?: number
           scheduled_date?: string | null
           scheduled_time?: string | null
           signature_url?: string | null

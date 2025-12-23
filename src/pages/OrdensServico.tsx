@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDirectorBranch } from '@/contexts/DirectorBranchContext';
@@ -6,15 +6,15 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useServiceOrders, useCreateServiceOrder, useUpdateServiceOrder, useCustomers, useCreateCustomer, useDeleteServiceOrder } from '@/hooks/useServiceOrders';
 import { useTeams } from '@/hooks/useTeams';
+import { useDiarioServiceOrders, useServiceOrderEtapas } from '@/hooks/useServiceOrderEtapas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,14 +26,22 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { SERVICE_ORDER_STATUS_LABELS, PRIORITY_LABELS, PRIORITY_COLORS, ServiceOrderStatus, PriorityLevel, ServiceOrder } from '@/types/serviceOrders';
-import { Loader2, ClipboardList, Plus, UserPlus, Clock, CheckCircle, AlertTriangle, Search, Trash2 } from 'lucide-react';
+import { Loader2, ClipboardList, Plus, UserPlus, Clock, CheckCircle, AlertTriangle, Search, Trash2, Settings, Edit, Calendar, MapPin, User, FileText, Upload, X, Image } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { toast } from 'sonner';
+import { ServiceOrderEtapasPanel } from '@/components/serviceOrders/ServiceOrderEtapasPanel';
+import { ServiceOrderEditDialog } from '@/components/serviceOrders/ServiceOrderEditDialog';
+import { ServiceOrderCardProgress } from '@/components/serviceOrders/ServiceOrderCardProgress';
+import { SignatureModal } from '@/components/ui/signature-modal';
+import { supabase } from '@/integrations/supabase/client';
+import { useBranchFilter } from '@/hooks/useBranchFilter';
 
 export default function OrdensServico() {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading, isAdmin, hasRole } = useAuthContext();
+  const { user, tenant, isLoading: authLoading, isAdmin, hasRole } = useAuthContext();
   const { isReadOnly } = useDirectorBranch();
+  const { branchId, shouldFilter } = useBranchFilter();
+  const tenantId = tenant?.id;
   const isTechnician = hasRole('technician') && !isAdmin();
   const { data: orders = [], isLoading: ordersLoading } = useServiceOrders();
   const { data: customers = [] } = useCustomers();
@@ -50,6 +58,32 @@ export default function OrdensServico() {
   const [orderToDelete, setOrderToDelete] = useState<ServiceOrder | null>(null);
   const [orderForm, setOrderForm] = useState({ customer_id: '', team_id: '', title: '', description: '', priority: 'media' as PriorityLevel, scheduled_date: '', address: '' });
   const [customerForm, setCustomerForm] = useState({ type: 'pf' as 'pf' | 'pj', name: '', document: '', phone: '', email: '', address: '', city: '', state: '' });
+
+  // Detail dialog states
+  const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [orderToEdit, setOrderToEdit] = useState<ServiceOrder | null>(null);
+
+  // Update (diário) form states
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [updateForm, setUpdateForm] = useState({
+    etapa: "",
+    etapaId: null as string | null,
+    data: new Date().toISOString().split('T')[0],
+    responsavel: "",
+    descricao: "",
+    assinatura: null as string | null,
+  });
+  const [uploadedPhotos, setUploadedPhotos] = useState<{ url: string; path: string; description: string }[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Hooks for selected order
+  const { etapas: orderEtapas } = useServiceOrderEtapas(selectedOrder?.id);
+  const { createDiario } = useDiarioServiceOrders(selectedOrder?.id);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/auth', { replace: true });
@@ -100,6 +134,97 @@ export default function OrdensServico() {
     if (orderToDelete) {
       await deleteOrder.mutateAsync(orderToDelete.id);
       setOrderToDelete(null);
+    }
+  };
+
+  const handleOpenDetail = (order: ServiceOrder) => {
+    setSelectedOrder(order);
+    setIsDetailDialogOpen(true);
+  };
+
+  const handleOpenEditDialog = (order: ServiceOrder, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOrderToEdit(order);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async (data: Partial<ServiceOrder> & { id: string }) => {
+    await updateOrder.mutateAsync(data);
+    setIsEditDialogOpen(false);
+    setOrderToEdit(null);
+  };
+
+  const handleOpenUpdateDialog = (order: ServiceOrder, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setSelectedOrder(order);
+    setUpdateForm({
+      etapa: "",
+      etapaId: null,
+      data: new Date().toISOString().split('T')[0],
+      responsavel: "",
+      descricao: "",
+      assinatura: null,
+    });
+    setUploadedPhotos([]);
+    setIsUpdateDialogOpen(true);
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (files.length === 0 || !tenantId) return;
+
+    setIsUploadingImages(true);
+    try {
+      for (const file of files) {
+        const fileName = `${tenantId}/${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("obras-fotos")
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage.from("obras-fotos").getPublicUrl(fileName);
+        setUploadedPhotos(prev => [...prev, { url: urlData.publicUrl, path: fileName, description: "" }]);
+      }
+    } catch (error) {
+      toast.error("Erro ao fazer upload das imagens");
+    } finally {
+      setIsUploadingImages(false);
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setUploadedPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmitUpdate = async () => {
+    if (!selectedOrder || !tenantId || !updateForm.etapaId || !updateForm.assinatura) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await createDiario.mutateAsync({
+        service_order_id: selectedOrder.id,
+        etapa_id: updateForm.etapaId,
+        tenant_id: tenantId,
+        branch_id: shouldFilter ? branchId : null,
+        data: updateForm.data,
+        registrado_por: updateForm.responsavel,
+        atividades_realizadas: updateForm.descricao,
+        supervisor_signature: updateForm.assinatura,
+        fotos: uploadedPhotos,
+        status: "registrado",
+      });
+
+      setIsUpdateDialogOpen(false);
+      toast.success("Atualização registrada com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao registrar atualização");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -170,49 +295,356 @@ export default function OrdensServico() {
           </Card>
         </div>
 
-        {/* Filter */}
-        <div className="flex justify-center">
-          <Select value={statusFilter} onValueChange={v => setStatusFilter(v as ServiceOrderStatus | 'all')}><SelectTrigger className="w-48"><SelectValue placeholder="Status" /></SelectTrigger><SelectContent><SelectItem value="all">Todos os status</SelectItem>{Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select>
-        </div>
+        {/* Search and Filter */}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <Input
+                placeholder="Buscar por título, cliente ou número..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full sm:max-w-sm"
+              />
+              <Select value={statusFilter} onValueChange={v => setStatusFilter(v as ServiceOrderStatus | 'all')}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([v, l]) => (
+                    <SelectItem key={v} value={v}>{l}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent className="px-3 sm:px-6">
+            {ordersLoading ? (
+              <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+            ) : filteredOrders.length === 0 ? (
+              <div className="text-center py-8">
+                <ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                <p className="text-muted-foreground">Nenhuma OS encontrada</p>
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:gap-4">
+                {filteredOrders.map(order => (
+                  <Card 
+                    key={order.id} 
+                    className="border cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleOpenDetail(order)}
+                  >
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex flex-col gap-3">
+                        {/* Header */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <div className="flex items-start sm:items-center gap-2 flex-wrap">
+                            <span className="font-mono text-sm text-muted-foreground">#{order.order_number.toString().padStart(5, '0')}</span>
+                            <h3 className="font-semibold">{order.title}</h3>
+                            <Badge className={PRIORITY_COLORS[order.priority]}>{PRIORITY_LABELS[order.priority]}</Badge>
+                          </div>
+                          
+                          {/* Desktop actions */}
+                          {!isReadOnly && (
+                            <div className="hidden sm:flex items-center gap-2">
+                              <Button variant="outline" size="icon" onClick={(e) => handleOpenEditDialog(order, e)} title="Editar OS">
+                                <Settings className="h-4 w-4" />
+                              </Button>
+                              <Button onClick={(e) => handleOpenUpdateDialog(order, e)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Atualizar
+                              </Button>
+                              {isAdmin() && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={(e) => { e.stopPropagation(); setOrderToDelete(order); }}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Info grid */}
+                        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 text-sm text-muted-foreground">
+                          {order.customer?.name && (
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <User className="h-3.5 w-3.5 flex-shrink-0" />
+                              <span className="truncate">{order.customer.name}</span>
+                            </div>
+                          )}
+                          {order.address && (
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                              <span className="truncate">{order.address}</span>
+                            </div>
+                          )}
+                          {order.scheduled_date && (
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                              <span>{new Date(order.scheduled_date).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1.5">
+                            {getStatusIcon(order.status)}
+                            <span>{SERVICE_ORDER_STATUS_LABELS[order.status]}</span>
+                          </div>
+                        </div>
 
-        {/* Orders List */}
-        <div className="space-y-3">
-          {ordersLoading ? <Loader2 className="h-8 w-8 animate-spin mx-auto" /> : filteredOrders.length === 0 ? (
-            <Card variant="glass"><CardContent className="py-12 text-center"><ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" /><p className="text-muted-foreground">Nenhuma OS encontrada</p></CardContent></Card>
-          ) : filteredOrders.map(order => (
-            <Card key={order.id} variant="elevated" className="group">
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-mono text-sm text-muted-foreground">#{order.order_number.toString().padStart(5, '0')}</span>
-                      <Badge className={PRIORITY_COLORS[order.priority]}>{PRIORITY_LABELS[order.priority]}</Badge>
-                    </div>
-                    <h3 className="font-semibold">{order.title}</h3>
-                    <p className="text-sm text-muted-foreground">{order.customer?.name}</p>
-                    {order.scheduled_date && <p className="text-xs text-muted-foreground mt-1">Agendado: {new Date(order.scheduled_date).toLocaleDateString('pt-BR')}</p>}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Select value={order.status} onValueChange={v => handleStatusChange(order.id, v as ServiceOrderStatus)}>
-                      <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-                      <SelectContent>{Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([v, l]) => <SelectItem key={v} value={v}><div className="flex items-center gap-2">{getStatusIcon(v as ServiceOrderStatus)}{l}</div></SelectItem>)}</SelectContent>
-                    </Select>
-                    {isAdmin() && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => setOrderToDelete(order)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        {/* Progress */}
+                        {tenantId && <ServiceOrderCardProgress serviceOrderId={order.id} tenantId={tenantId} />}
+                        
+                        {/* Mobile actions */}
+                        {!isReadOnly && (
+                          <div className="flex sm:hidden items-center gap-2 pt-2 border-t border-border/20">
+                            <Button variant="outline" size="sm" onClick={(e) => handleOpenEditDialog(order, e)}>
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                            <Button className="flex-1" size="sm" onClick={(e) => handleOpenUpdateDialog(order, e)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Atualizar
+                            </Button>
+                            {isAdmin() && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={(e) => { e.stopPropagation(); setOrderToDelete(order); }}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Detail Dialog */}
+        <Dialog open={isDetailDialogOpen} onOpenChange={(open) => {
+          setIsDetailDialogOpen(open);
+          if (!open) setSelectedOrder(null);
+        }}>
+          <DialogContent className="w-full max-w-3xl max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
+            <div className="bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+              <DialogHeader className="bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0">
+                <DialogTitle className="text-primary-foreground">
+                  #{selectedOrder?.order_number.toString().padStart(5, '0')} - {selectedOrder?.title}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-6">
+                {selectedOrder && (
+                  <ServiceOrderEtapasPanel 
+                    serviceOrderId={selectedOrder.id} 
+                    isReadOnly={isReadOnly}
+                  />
+                )}
+
+                {/* Order Info */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Informações da OS</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    {selectedOrder?.customer?.name && (
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span>{selectedOrder.customer.name}</span>
+                      </div>
                     )}
+                    {selectedOrder?.address && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span>{selectedOrder.address}</span>
+                      </div>
+                    )}
+                    {selectedOrder?.description && (
+                      <div className="flex items-start gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <span>{selectedOrder.description}</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {!isReadOnly && (
+                  <div className="flex justify-end gap-2">
+                    <Button onClick={() => handleOpenUpdateDialog(selectedOrder!)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Registrar Atualização
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Update (Diário) Dialog */}
+        <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
+          <DialogContent className="w-full max-w-lg max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
+            <div className="bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+              <DialogHeader className="bg-primary px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0">
+                <DialogTitle className="text-primary-foreground">Registrar Atualização</DialogTitle>
+                <DialogDescription className="text-primary-foreground/80">
+                  {selectedOrder?.title}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-4">
+                <div className="space-y-2">
+                  <Label>Etapa *</Label>
+                  {orderEtapas && orderEtapas.length > 0 ? (
+                    <Select
+                      value={updateForm.etapaId || ""}
+                      onValueChange={(v) => {
+                        const etapa = orderEtapas.find(e => e.id === v);
+                        setUpdateForm({ ...updateForm, etapaId: v, etapa: etapa?.nome || "" });
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a etapa" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {orderEtapas.map(etapa => (
+                          <SelectItem key={etapa.id} value={etapa.id}>
+                            {etapa.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Nenhuma etapa cadastrada. Adicione etapas primeiro.</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Data</Label>
+                    <Input
+                      type="date"
+                      value={updateForm.data}
+                      onChange={(e) => setUpdateForm({ ...updateForm, data: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Responsável</Label>
+                    <Input
+                      placeholder="Nome do responsável"
+                      value={updateForm.responsavel}
+                      onChange={(e) => setUpdateForm({ ...updateForm, responsavel: e.target.value })}
+                    />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+
+                <div className="space-y-2">
+                  <Label>Descrição das Atividades</Label>
+                  <Textarea
+                    placeholder="Descreva as atividades realizadas..."
+                    rows={3}
+                    value={updateForm.descricao}
+                    onChange={(e) => setUpdateForm({ ...updateForm, descricao: e.target.value })}
+                  />
+                </div>
+
+                {/* Photos */}
+                <div className="space-y-2">
+                  <Label>Fotos</Label>
+                  <div className="flex gap-2 flex-wrap">
+                    {uploadedPhotos.map((photo, idx) => (
+                      <div key={idx} className="relative w-16 h-16">
+                        <img src={photo.url} className="w-full h-full object-cover rounded" />
+                        <button
+                          type="button"
+                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                          onClick={() => removePhoto(idx)}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="w-16 h-16"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingImages}
+                    >
+                      {isUploadingImages ? <Loader2 className="h-4 w-4 animate-spin" /> : <Image className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageSelect}
+                  />
+                </div>
+
+                {/* Signature */}
+                <div className="space-y-2">
+                  <Label>Assinatura do Responsável *</Label>
+                  {updateForm.assinatura ? (
+                    <div className="border rounded p-2 bg-muted/50">
+                      <img src={updateForm.assinatura} alt="Assinatura" className="h-16 mx-auto" />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={() => setUpdateForm({ ...updateForm, assinatura: null })}
+                      >
+                        Refazer Assinatura
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setShowSignatureModal(true)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Assinar
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setIsUpdateDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleSubmitUpdate}
+                    disabled={isSubmitting || !updateForm.etapaId || !updateForm.assinatura}
+                  >
+                    {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    Salvar Atualização
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Signature Modal */}
+        <SignatureModal
+          open={showSignatureModal}
+          onClose={() => setShowSignatureModal(false)}
+          onSave={(signature) => {
+            setUpdateForm({ ...updateForm, assinatura: signature });
+            setShowSignatureModal(false);
+          }}
+        />
 
         {/* New Order Dialog */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
@@ -334,6 +766,18 @@ export default function OrdensServico() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Edit Order Dialog */}
+        <ServiceOrderEditDialog
+          order={orderToEdit}
+          isOpen={isEditDialogOpen}
+          onOpenChange={(open) => {
+            setIsEditDialogOpen(open);
+            if (!open) setOrderToEdit(null);
+          }}
+          onSave={handleSaveEdit}
+          isPending={updateOrder.isPending}
+        />
 
         {/* Delete Order Confirmation */}
         <AlertDialog open={!!orderToDelete} onOpenChange={(open) => !open && setOrderToDelete(null)}>
