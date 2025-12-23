@@ -112,8 +112,9 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[85vh] w-[95vw] p-0 overflow-hidden">
-        <DialogHeader className="bg-primary px-3 py-2.5 pr-10">
+      <DialogContent className="max-w-md max-h-[85vh] w-[95vw] p-0 overflow-hidden bg-transparent shadow-none border-0 [&>button]:hidden">
+        <div className="bg-background rounded-xl overflow-hidden shadow-2xl">
+        <DialogHeader className="bg-primary px-3 py-2.5">
           <DialogTitle className="flex items-center text-primary-foreground text-sm">
             <Badge variant="outline" className="border-primary-foreground/30 text-primary-foreground text-[10px] px-1.5 flex-shrink-0">{product.code}</Badge>
             <span className="truncate flex-1 text-center">{product.name}</span>
@@ -452,6 +453,7 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
             </Card>
           </TabsContent>
         </Tabs>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
