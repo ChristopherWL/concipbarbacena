@@ -31,7 +31,6 @@ import {
   Loader2, 
   Plus, 
   Search, 
-  Building2, 
   Phone, 
   Mail, 
   MapPin,
@@ -39,9 +38,10 @@ import {
   Trash2,
   User,
   Zap,
-  Globe,
-  ArrowRight,
+  Building2,
+  Package,
 } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { PageLoading } from '@/components/ui/page-loading';
 import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 import { Supplier } from '@/types/stock';
@@ -181,45 +181,24 @@ export default function Fornecedores() {
         </div>
 
         <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-8 p-3 sm:p-6">
-          {/* Hero Header */}
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-info p-4 sm:p-8 lg:p-12 text-white">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-            <div className="absolute top-0 right-0 w-32 sm:w-64 h-32 sm:h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-24 sm:w-48 h-24 sm:h-48 bg-white/5 rounded-full blur-2xl" />
-            
-            <div className="relative z-10 flex flex-col gap-4 sm:gap-6">
-              {/* Title Row */}
-              <div className="flex items-center gap-3">
-                <div className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl">
-                  <Building2 className="h-6 w-6 sm:h-8 sm:w-8" />
-                </div>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Fornecedores</h1>
-                  <p className="text-white/70 text-sm sm:text-base mt-0.5 sm:mt-1">Gerencie sua rede de parceiros</p>
-                </div>
-              </div>
-              
-              {/* Stats and Action Row */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-center px-4 sm:px-6 py-2 sm:py-3 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl">
-                  <p className="text-2xl sm:text-3xl font-bold">{activeSuppliers.length}</p>
-                  <p className="text-[10px] sm:text-xs text-white/70 uppercase tracking-wider">Total</p>
-                </div>
-                {!isReadOnly && (
-                  <Button 
-                    onClick={() => {
-                      setEditingSupplier(null);
-                      setShowForm(true);
-                    }}
-                    className="gap-2 bg-white text-primary hover:bg-white/90 shadow-lg shadow-black/20 h-10 sm:h-12 px-4 sm:px-6 rounded-xl font-semibold text-sm sm:text-base"
-                  >
-                    <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden xs:inline">Novo</span> Fornecedor
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
+          {/* Header */}
+          <PageHeader 
+            title="Fornecedores" 
+            description="Gerencie sua rede de parceiros"
+          >
+            {!isReadOnly && (
+              <Button 
+                onClick={() => {
+                  setEditingSupplier(null);
+                  setShowForm(true);
+                }}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Novo Fornecedor
+              </Button>
+            )}
+          </PageHeader>
 
           {/* Search Bar - Glassmorphism */}
           <div className="relative">
@@ -256,7 +235,7 @@ export default function Fornecedores() {
               <div className="relative inline-block">
                 <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl" />
                 <div className="relative w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-info/20 flex items-center justify-center mb-6">
-                  <Globe className="h-12 w-12 text-primary/50" />
+                  <Package className="h-12 w-12 text-primary/50" />
                 </div>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -352,11 +331,10 @@ export default function Fornecedores() {
                       </div>
                       
                       {/* Footer */}
-                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50 flex items-center justify-between">
+                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50">
                         <span className="text-[10px] sm:text-xs text-muted-foreground">
                           Fornecedor ativo
                         </span>
-                        <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                       </div>
                     </div>
                   </div>
