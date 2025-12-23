@@ -576,9 +576,10 @@ export default function Movimentacao() {
 
       {/* Desktop Movement Dialog */}
       <Dialog open={!isMobile && dialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto p-0">
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 bg-transparent shadow-none border-0 [&>button]:hidden">
+          <div className="bg-background rounded-xl overflow-hidden shadow-2xl">
           <DialogHeader className={cn(
-            "px-6 py-4 rounded-t-lg text-center",
+            "px-6 py-4 text-center",
             movementType === 'saida' 
               ? "bg-destructive text-destructive-foreground" 
               : "bg-emerald-600 text-white"
@@ -1139,6 +1140,7 @@ export default function Movimentacao() {
                 )}
                 {movementType === 'saida' ? 'Confirmar Saída' : 'Confirmar Entrada'}
               </Button>
+            </div>
             </div>
           </div>
         </DialogContent>
