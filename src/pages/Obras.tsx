@@ -11,11 +11,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks, Eye } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks, Eye, Settings } from "lucide-react";
 import { useObras, useDiarioObras, Obra, DiarioObra } from "@/hooks/useObras";
 import { ObraEtapasPanel } from "@/components/obras/ObraEtapasPanel";
 import { ObraCardProgress } from "@/components/obras/ObraCardProgress";
 import { ObraFormDialog } from "@/components/obras/ObraFormDialog";
+import { ObraEditDialog } from "@/components/obras/ObraEditDialog";
 import { useObraEtapas } from "@/hooks/useObraEtapas";
 import { useEmployees } from "@/hooks/useEmployees";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -37,6 +38,8 @@ const Obras = () => {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isUpdatesListDialogOpen, setIsUpdatesListDialogOpen] = useState(false);
   const [isDiarioDetailDialogOpen, setIsDiarioDetailDialogOpen] = useState(false);
+  const [isEditObraDialogOpen, setIsEditObraDialogOpen] = useState(false);
+  const [obraToEdit, setObraToEdit] = useState<Obra | null>(null);
   const [selectedObra, setSelectedObra] = useState<Obra | null>(null);
   const [selectedDiario, setSelectedDiario] = useState<DiarioObra | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -272,6 +275,18 @@ const Obras = () => {
     if (confirm("Tem certeza que deseja excluir esta obra?")) {
       await deleteObra.mutateAsync(id);
     }
+  };
+
+  const handleOpenEditObraDialog = (obra: Obra, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setObraToEdit(obra);
+    setIsEditObraDialogOpen(true);
+  };
+
+  const handleSaveEditObra = async (obraData: Partial<Obra> & { id: string }) => {
+    await updateObra.mutateAsync(obraData);
+    setIsEditObraDialogOpen(false);
+    setObraToEdit(null);
   };
 
   const handleOpenUpdatesList = (obra: Obra) => {
@@ -595,6 +610,9 @@ const Obras = () => {
                                   <FileText className="h-4 w-4" />
                                 </div>
                               )}
+                              <Button variant="outline" size="icon" onClick={(e) => handleOpenEditObraDialog(obra, e)} title="Editar Obra">
+                                <Settings className="h-4 w-4" />
+                              </Button>
                               <Button className="px-4 sm:px-6" onClick={(e) => handleOpenUpdateDialog(obra, e)}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Atualizar
@@ -649,6 +667,9 @@ const Obras = () => {
                                 <FileText className="h-4 w-4" />
                               </div>
                             )}
+                            <Button variant="outline" size="sm" onClick={(e) => handleOpenEditObraDialog(obra, e)}>
+                              <Settings className="h-4 w-4" />
+                            </Button>
                             <Button className="flex-1" size="sm" onClick={(e) => handleOpenUpdateDialog(obra, e)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Atualizar
@@ -1425,6 +1446,18 @@ const Obras = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Dialog de Edição da Obra */}
+        <ObraEditDialog
+          obra={obraToEdit}
+          isOpen={isEditObraDialogOpen}
+          onOpenChange={(open) => {
+            setIsEditObraDialogOpen(open);
+            if (!open) setObraToEdit(null);
+          }}
+          onSave={handleSaveEditObra}
+          isPending={updateObra.isPending}
+        />
       </div>
     </DashboardLayout>
   );
