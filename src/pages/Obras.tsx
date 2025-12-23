@@ -992,7 +992,7 @@ const Obras = () => {
           }
         }}>
           <DialogContent
-            className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "max-w-2xl max-h-[90vh] p-0 bg-transparent shadow-none border-0 overflow-hidden [&>button]:hidden"}
+            className={isMobile ? "w-screen h-screen max-w-none max-h-none p-0 m-0 rounded-none gap-0 bg-background shadow-none border-0 overflow-hidden inset-0 translate-x-0 translate-y-0 [&>button]:hidden" : "max-w-2xl max-h-[90vh] p-0 bg-background rounded-xl shadow-2xl border-0 overflow-hidden [&>button]:hidden"}
             onFocusOutside={(e) => {
               const recentlyUsedPicker = Date.now() - lastFilePickerAtRef.current < 600000;
               if (isSelectingFile || recentlyUsedPicker) e.preventDefault();
@@ -1010,7 +1010,7 @@ const Obras = () => {
               if (isSelectingFile || recentlyUsedPicker) e.preventDefault();
             }}
           >
-            <div className={isMobile ? "bg-background h-full flex flex-col" : "bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"}>
+            <div className={isMobile ? "h-full flex flex-col" : "flex flex-col max-h-[90vh]"}>
               {isMobile ? (
                 <>
                   <MobileFormWizard
