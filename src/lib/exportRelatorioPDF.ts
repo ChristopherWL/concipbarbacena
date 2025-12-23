@@ -630,3 +630,640 @@ export function exportRelatorioEPC(
 
   exportToPDF(company, config);
 }
+
+// Individual report exports - Detailed reports for single items
+
+// Individual Obra Report
+export function exportRelatorioObraIndividual(
+  company: CompanyInfo,
+  obra: any,
+  etapas: any[],
+  formatCurrency: (value: number) => string
+): void {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let y = 15;
+
+  // Company header
+  y = addCompanyHeader(doc, company, y);
+
+  // Report title
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Relatório Individual de Obra', pageWidth / 2, y, { align: 'center' });
+  y += 8;
+
+  // Generation date
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  doc.text(
+    `Gerado em: ${format(new Date(), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}`,
+    pageWidth / 2,
+    y,
+    { align: 'center' }
+  );
+  y += 10;
+
+  // Obra info section
+  doc.setFillColor(245, 247, 250);
+  doc.rect(15, y, pageWidth - 30, 45, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(15, y, pageWidth - 30, 45);
+  y += 6;
+
+  // Obra name
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text(obra.nome || 'Obra sem nome', 20, y);
+  y += 6;
+
+  // Status badge
+  const statusLabels: Record<string, string> = {
+    planejada: 'Planejada',
+    em_andamento: 'Em Andamento',
+    pausada: 'Pausada',
+    concluida: 'Concluída',
+    cancelada: 'Cancelada',
+  };
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(80, 80, 80);
+  doc.text(`Status: ${statusLabels[obra.status] || obra.status}`, 20, y);
+  doc.text(`Progresso: ${obra.progresso || 0}%`, 80, y);
+  y += 5;
+
+  // Details grid
+  doc.setFontSize(8);
+  const leftCol = 20;
+  const rightCol = 110;
+
+  const addField = (label: string, value: string, x: number) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${label}:`, x, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value || '-', x + doc.getTextWidth(`${label}: `), y);
+  };
+
+  addField('Data Início', obra.data_inicio ? format(new Date(obra.data_inicio), 'dd/MM/yyyy') : '-', leftCol);
+  addField('Previsão Término', obra.previsao_termino ? format(new Date(obra.previsao_termino), 'dd/MM/yyyy') : '-', rightCol);
+  y += 5;
+  addField('Cidade', obra.cidade || '-', leftCol);
+  addField('Estado', obra.estado || '-', rightCol);
+  y += 5;
+  addField('Endereço', obra.endereco || '-', leftCol);
+  y += 5;
+  addField('Valor do Contrato', obra.valor_contrato ? formatCurrency(obra.valor_contrato) : '-', leftCol);
+  y += 5;
+
+  // Description
+  if (obra.descricao) {
+    y += 3;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Descrição:', leftCol, y);
+    y += 4;
+    doc.setFont('helvetica', 'normal');
+    const lines = doc.splitTextToSize(obra.descricao, pageWidth - 40);
+    doc.text(lines.slice(0, 2), leftCol, y);
+    y += lines.slice(0, 2).length * 4;
+  }
+
+  y += 12;
+
+  // Etapas section
+  if (etapas && etapas.length > 0) {
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('Etapas da Obra', 15, y);
+    y += 6;
+
+    // Etapas table
+    const etapasConfig: ReportConfig = {
+      title: '',
+      columns: [
+        { header: 'Ordem', key: 'ordem', width: 15, align: 'center' },
+        { header: 'Etapa', key: 'nome', width: 60 },
+        { 
+          header: 'Status', 
+          key: 'status', 
+          width: 25,
+          format: (value) => {
+            const labels: Record<string, string> = {
+              pendente: 'Pendente',
+              em_andamento: 'Em Andamento',
+              concluida: 'Concluída',
+            };
+            return labels[value] || value;
+          }
+        },
+        { header: 'Peso %', key: 'percentual_peso', width: 15, align: 'center', format: (v) => `${v || 0}%` },
+        { header: 'Início Previsto', key: 'data_inicio_prevista', width: 25, format: (v) => v ? format(new Date(v), 'dd/MM/yy') : '-' },
+        { header: 'Fim Previsto', key: 'data_fim_prevista', width: 25, format: (v) => v ? format(new Date(v), 'dd/MM/yy') : '-' },
+      ],
+      data: etapas.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)),
+    };
+
+    y = drawTable(doc, etapasConfig, y);
+  }
+
+  // Summary
+  y += 5;
+  doc.setDrawColor(200, 200, 200);
+  doc.line(15, y, pageWidth - 15, y);
+  y += 6;
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Resumo:', 15, y);
+  y += 5;
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Total de etapas: ${etapas?.length || 0}`, 15, y);
+  y += 4;
+  doc.text(`Etapas concluídas: ${etapas?.filter(e => e.status === 'concluida').length || 0}`, 15, y);
+  y += 4;
+  doc.text(`Etapas em andamento: ${etapas?.filter(e => e.status === 'em_andamento').length || 0}`, 15, y);
+
+  addFooter(doc);
+
+  const filename = `obra_${obra.nome?.toLowerCase().replace(/\s+/g, '_') || 'relatorio'}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+  doc.save(filename);
+}
+
+// Individual Movement Report
+export function exportRelatorioMovimentacaoIndividual(
+  company: CompanyInfo,
+  movement: any
+): void {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let y = 15;
+
+  y = addCompanyHeader(doc, company, y);
+
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Comprovante de Movimentação', pageWidth / 2, y, { align: 'center' });
+  y += 8;
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  doc.text(
+    `Gerado em: ${format(new Date(), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}`,
+    pageWidth / 2,
+    y,
+    { align: 'center' }
+  );
+  y += 12;
+
+  // Movement details
+  doc.setFillColor(245, 247, 250);
+  doc.rect(15, y, pageWidth - 30, 50, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(15, y, pageWidth - 30, 50);
+  y += 8;
+
+  const typeLabels: Record<string, string> = {
+    entrada: 'Entrada',
+    saida: 'Saída',
+    transferencia: 'Transferência',
+    ajuste: 'Ajuste',
+    devolucao: 'Devolução',
+  };
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text(`Tipo: ${typeLabels[movement.movement_type] || movement.movement_type}`, 20, y);
+  y += 8;
+
+  doc.setFontSize(9);
+  doc.setTextColor(50, 50, 50);
+
+  const addDetailRow = (label: string, value: string) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${label}:`, 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value || '-', 70, y);
+    y += 6;
+  };
+
+  addDetailRow('Produto', movement.product?.name || '-');
+  addDetailRow('Quantidade', movement.quantity?.toString() || '0');
+  addDetailRow('Estoque Anterior', movement.previous_stock?.toString() || '0');
+  addDetailRow('Estoque Atual', movement.new_stock?.toString() || '0');
+  addDetailRow('Data/Hora', format(new Date(movement.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }));
+
+  y += 8;
+
+  if (movement.reason) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Motivo:', 15, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    const lines = doc.splitTextToSize(movement.reason, pageWidth - 40);
+    doc.text(lines, 15, y);
+  }
+
+  addFooter(doc);
+
+  const filename = `movimentacao_${format(new Date(movement.created_at), 'yyyy-MM-dd_HHmm')}.pdf`;
+  doc.save(filename);
+}
+
+// Individual Product Report
+export function exportRelatorioProdutoIndividual(
+  company: CompanyInfo,
+  product: any,
+  movements: any[],
+  formatCurrency: (value: number) => string
+): void {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let y = 15;
+
+  y = addCompanyHeader(doc, company, y);
+
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Ficha de Produto', pageWidth / 2, y, { align: 'center' });
+  y += 10;
+
+  // Product info
+  doc.setFillColor(245, 247, 250);
+  doc.rect(15, y, pageWidth - 30, 40, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(15, y, pageWidth - 30, 40);
+  y += 6;
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text(product.name || 'Produto', 20, y);
+  y += 6;
+
+  doc.setFontSize(9);
+  doc.setTextColor(50, 50, 50);
+
+  const addRow = (label: string, value: string, x: number) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${label}:`, x, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value || '-', x + doc.getTextWidth(`${label}: `), y);
+  };
+
+  addRow('Código', product.code || '-', 20);
+  addRow('Categoria', product.category?.toUpperCase() || '-', 100);
+  y += 5;
+  addRow('Estoque Atual', product.current_stock?.toString() || '0', 20);
+  addRow('Estoque Mínimo', product.min_stock?.toString() || '0', 100);
+  y += 5;
+  addRow('Unidade', product.unit || '-', 20);
+  addRow('Valor Unitário', formatCurrency(product.unit_price || 0), 100);
+  y += 5;
+  addRow('Valor em Estoque', formatCurrency((product.current_stock || 0) * (product.unit_price || 0)), 20);
+  y += 10;
+
+  // Recent movements
+  if (movements && movements.length > 0) {
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('Últimas Movimentações', 15, y);
+    y += 6;
+
+    const movConfig: ReportConfig = {
+      title: '',
+      columns: [
+        { header: 'Data', key: 'created_at', width: 30, format: (v) => format(new Date(v), 'dd/MM/yy HH:mm') },
+        { header: 'Tipo', key: 'movement_type', width: 25, format: (v) => {
+          const types: Record<string, string> = { entrada: 'Entrada', saida: 'Saída', ajuste: 'Ajuste', devolucao: 'Devolução' };
+          return types[v] || v;
+        }},
+        { header: 'Qtd', key: 'quantity', width: 20, align: 'center' },
+        { header: 'Anterior', key: 'previous_stock', width: 20, align: 'center' },
+        { header: 'Atual', key: 'new_stock', width: 20, align: 'center' },
+        { header: 'Motivo', key: 'reason', width: 50 },
+      ],
+      data: movements.slice(0, 20),
+    };
+
+    y = drawTable(doc, movConfig, y);
+  }
+
+  addFooter(doc);
+
+  const filename = `produto_${product.code || product.name?.toLowerCase().replace(/\s+/g, '_') || 'ficha'}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+  doc.save(filename);
+}
+
+// Individual EPI Assignment Report
+export function exportRelatorioEPIIndividual(
+  company: CompanyInfo,
+  assignment: any
+): void {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let y = 15;
+
+  y = addCompanyHeader(doc, company, y);
+
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Comprovante de Entrega de EPI', pageWidth / 2, y, { align: 'center' });
+  y += 10;
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  doc.text(
+    `Gerado em: ${format(new Date(), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}`,
+    pageWidth / 2,
+    y,
+    { align: 'center' }
+  );
+  y += 12;
+
+  // Assignment details
+  doc.setFillColor(245, 247, 250);
+  doc.rect(15, y, pageWidth - 30, 55, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(15, y, pageWidth - 30, 55);
+  y += 8;
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Dados do Colaborador', 20, y);
+  y += 6;
+
+  doc.setFontSize(9);
+  doc.setTextColor(50, 50, 50);
+
+  const addRow = (label: string, value: string) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${label}:`, 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value || '-', 70, y);
+    y += 5;
+  };
+
+  addRow('Nome', assignment.employee?.name || '-');
+  addRow('Cargo', assignment.employee?.position || '-');
+  y += 3;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Dados do EPI', 20, y);
+  y += 6;
+  doc.setTextColor(50, 50, 50);
+
+  addRow('Descrição', assignment.description || '-');
+  addRow('Quantidade', assignment.quantity?.toString() || '1');
+  addRow('Tamanho', assignment.size || '-');
+  addRow('Nº CA', assignment.ca_number || '-');
+  addRow('Data Entrega', format(new Date(assignment.delivery_date), 'dd/MM/yyyy'));
+  if (assignment.return_date) {
+    addRow('Data Devolução', format(new Date(assignment.return_date), 'dd/MM/yyyy'));
+  }
+
+  y += 10;
+
+  // Signature area
+  doc.setDrawColor(150, 150, 150);
+  doc.setLineWidth(0.3);
+  doc.line(20, y + 15, 90, y + 15);
+  doc.line(110, y + 15, pageWidth - 20, y + 15);
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Assinatura do Colaborador', 55, y + 20, { align: 'center' });
+  doc.text('Assinatura do Responsável', (110 + pageWidth - 20) / 2, y + 20, { align: 'center' });
+
+  addFooter(doc);
+
+  const filename = `epi_${assignment.employee?.name?.toLowerCase().replace(/\s+/g, '_') || 'comprovante'}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+  doc.save(filename);
+}
+
+// Individual Ferramenta Assignment Report
+export function exportRelatorioFerramentaIndividual(
+  company: CompanyInfo,
+  assignment: any
+): void {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let y = 15;
+
+  y = addCompanyHeader(doc, company, y);
+
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Comprovante de Entrega de Ferramenta', pageWidth / 2, y, { align: 'center' });
+  y += 10;
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  doc.text(
+    `Gerado em: ${format(new Date(), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}`,
+    pageWidth / 2,
+    y,
+    { align: 'center' }
+  );
+  y += 12;
+
+  // Assignment details
+  doc.setFillColor(245, 247, 250);
+  doc.rect(15, y, pageWidth - 30, 60, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(15, y, pageWidth - 30, 60);
+  y += 8;
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Dados do Colaborador', 20, y);
+  y += 6;
+
+  doc.setFontSize(9);
+  doc.setTextColor(50, 50, 50);
+
+  const addRow = (label: string, value: string) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${label}:`, 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value || '-', 70, y);
+    y += 5;
+  };
+
+  addRow('Nome', assignment.employee?.name || '-');
+  addRow('Cargo', assignment.employee?.position || '-');
+  addRow('Departamento', assignment.employee?.department || '-');
+  y += 3;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Dados da Ferramenta', 20, y);
+  y += 6;
+  doc.setTextColor(50, 50, 50);
+
+  addRow('Descrição', assignment.description || '-');
+  addRow('Quantidade', assignment.quantity?.toString() || '1');
+  addRow('Nº Série', assignment.serial_number || '-');
+  addRow('Estado na Entrega', assignment.condition_delivery || '-');
+  addRow('Data Entrega', format(new Date(assignment.delivery_date), 'dd/MM/yyyy'));
+  if (assignment.return_date) {
+    addRow('Data Devolução', format(new Date(assignment.return_date), 'dd/MM/yyyy'));
+    addRow('Estado na Devolução', assignment.condition_return || '-');
+  }
+
+  y += 10;
+
+  // Signature area
+  doc.setDrawColor(150, 150, 150);
+  doc.setLineWidth(0.3);
+  doc.line(20, y + 15, 90, y + 15);
+  doc.line(110, y + 15, pageWidth - 20, y + 15);
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Assinatura do Colaborador', 55, y + 20, { align: 'center' });
+  doc.text('Assinatura do Responsável', (110 + pageWidth - 20) / 2, y + 20, { align: 'center' });
+
+  addFooter(doc);
+
+  const filename = `ferramenta_${assignment.employee?.name?.toLowerCase().replace(/\s+/g, '_') || 'comprovante'}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+  doc.save(filename);
+}
+
+// Individual EPC Assignment Report
+export function exportRelatorioEPCIndividual(
+  company: CompanyInfo,
+  assignment: any
+): void {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let y = 15;
+
+  y = addCompanyHeader(doc, company, y);
+
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Comprovante de Entrega de EPC', pageWidth / 2, y, { align: 'center' });
+  y += 10;
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  doc.text(
+    `Gerado em: ${format(new Date(), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}`,
+    pageWidth / 2,
+    y,
+    { align: 'center' }
+  );
+  y += 12;
+
+  // Assignment details
+  doc.setFillColor(245, 247, 250);
+  doc.rect(15, y, pageWidth - 30, 60, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(15, y, pageWidth - 30, 60);
+  y += 8;
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Dados do Colaborador', 20, y);
+  y += 6;
+
+  doc.setFontSize(9);
+  doc.setTextColor(50, 50, 50);
+
+  const addRow = (label: string, value: string) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${label}:`, 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value || '-', 70, y);
+    y += 5;
+  };
+
+  addRow('Nome', assignment.employee?.name || '-');
+  addRow('Cargo', assignment.employee?.position || '-');
+  y += 3;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 58, 95);
+  doc.text('Dados do EPC', 20, y);
+  y += 6;
+  doc.setTextColor(50, 50, 50);
+
+  addRow('Descrição', assignment.description || '-');
+  addRow('Quantidade', assignment.quantity?.toString() || '1');
+  addRow('Nº Série', assignment.serial_number || '-');
+  addRow('Local', assignment.location || '-');
+  addRow('Estado na Entrega', assignment.condition_delivery || '-');
+  addRow('Data Entrega', format(new Date(assignment.delivery_date), 'dd/MM/yyyy'));
+  if (assignment.return_date) {
+    addRow('Data Devolução', format(new Date(assignment.return_date), 'dd/MM/yyyy'));
+    addRow('Estado na Devolução', assignment.condition_return || '-');
+  }
+
+  y += 10;
+
+  // Signature area
+  doc.setDrawColor(150, 150, 150);
+  doc.setLineWidth(0.3);
+  doc.line(20, y + 15, 90, y + 15);
+  doc.line(110, y + 15, pageWidth - 20, y + 15);
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Assinatura do Colaborador', 55, y + 20, { align: 'center' });
+  doc.text('Assinatura do Responsável', (110 + pageWidth - 20) / 2, y + 20, { align: 'center' });
+
+  addFooter(doc);
+
+  const filename = `epc_${assignment.employee?.name?.toLowerCase().replace(/\s+/g, '_') || 'comprovante'}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+  doc.save(filename);
+}

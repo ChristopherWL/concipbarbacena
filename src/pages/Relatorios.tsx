@@ -36,7 +36,12 @@ import {
   exportRelatorioEstoque, 
   exportRelatorioEPI, 
   exportRelatorioFerramentas,
-  exportRelatorioEPC
+  exportRelatorioEPC,
+  exportRelatorioMovimentacaoIndividual,
+  exportRelatorioProdutoIndividual,
+  exportRelatorioEPIIndividual,
+  exportRelatorioFerramentaIndividual,
+  exportRelatorioEPCIndividual
 } from '@/lib/exportRelatorioPDF';
 import { formatCurrency } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
@@ -697,11 +702,12 @@ function MovimentacoesReport({ movements, loading, searchTerm, setSearchTerm, mo
                   <TableHead className="hidden sm:table-cell">Anterior</TableHead>
                   <TableHead className="hidden sm:table-cell">Atual</TableHead>
                   <TableHead className="hidden md:table-cell">Motivo</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {movements.length === 0 ? (
-                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">Nenhuma movimentação encontrada</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">Nenhuma movimentação encontrada</TableCell></TableRow>
                 ) : (
                   movements.map((mov) => (
                     <TableRow key={mov.id}>
@@ -712,6 +718,16 @@ function MovimentacoesReport({ movements, loading, searchTerm, setSearchTerm, mo
                       <TableCell className="hidden sm:table-cell text-muted-foreground">{mov.previous_stock}</TableCell>
                       <TableCell className="hidden sm:table-cell">{mov.new_stock}</TableCell>
                       <TableCell className="hidden md:table-cell text-muted-foreground max-w-[200px] truncate">{mov.reason || '-'}</TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          onClick={() => exportRelatorioMovimentacaoIndividual({ name: tenant?.name || 'Empresa', cnpj: tenant?.cnpj, address: tenant?.address, city: tenant?.city, state: tenant?.state }, mov)}
+                        >
+                          <FileText className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -837,11 +853,12 @@ function EstoqueReport({ products, loading, searchTerm, setSearchTerm, stockChar
                       <TableHead>Categoria</TableHead>
                       <TableHead className="text-right">Estoque</TableHead>
                       <TableHead className="text-right">Mínimo</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {products.length === 0 ? (
-                      <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-12"><Package className="h-8 w-8 mx-auto mb-2 opacity-50" />Nenhum produto encontrado</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-12"><Package className="h-8 w-8 mx-auto mb-2 opacity-50" />Nenhum produto encontrado</TableCell></TableRow>
                     ) : (
                       products.map((product) => (
                         <TableRow key={product.id} className="hover:bg-muted/30">
@@ -850,6 +867,16 @@ function EstoqueReport({ products, loading, searchTerm, setSearchTerm, stockChar
                           <TableCell><Badge variant="outline" className="capitalize text-xs">{product.category}</Badge></TableCell>
                           <TableCell className={`text-right font-semibold ${(product.current_stock || 0) <= (product.min_stock || 0) ? 'text-destructive' : ''}`}>{product.current_stock || 0}</TableCell>
                           <TableCell className="text-right text-muted-foreground">{product.min_stock || 0}</TableCell>
+                          <TableCell>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={() => exportRelatorioProdutoIndividual({ name: tenant?.name || 'Empresa', cnpj: tenant?.cnpj, address: tenant?.address, city: tenant?.city, state: tenant?.state }, product, [], formatCurrency)}
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
