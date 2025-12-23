@@ -3,21 +3,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Search, Download, Loader2 } from 'lucide-react';
+import { Search, Download, FileText } from 'lucide-react';
 import { useObras } from '@/hooks/useObras';
+import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatters';
+import { exportRelatorioObras } from '@/lib/exportRelatorioPDF';
 
 export function RelatorioObras() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const { obras, isLoading } = useObras();
+  const { tenant } = useAuth();
 
   const filteredObras = useMemo(() => {
     return obras.filter(obra => {
@@ -44,6 +46,19 @@ export function RelatorioObras() {
         {config.label}
       </span>
     );
+  };
+
+  const handleExportPDF = () => {
+    const company = {
+      name: tenant?.name || 'Empresa',
+      cnpj: tenant?.cnpj,
+      address: tenant?.address,
+      city: tenant?.city,
+      state: tenant?.state,
+      phone: tenant?.phone,
+      email: tenant?.email,
+    };
+    exportRelatorioObras(company, filteredObras, formatCurrency);
   };
 
   const exportToCSV = () => {
@@ -74,10 +89,16 @@ export function RelatorioObras() {
             <CardTitle className="text-lg">Relatório de Obras</CardTitle>
             <CardDescription>Visão geral de todas as obras cadastradas</CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={exportToCSV}>
-            <Download className="h-4 w-4 mr-2" />
-            Exportar CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={exportToCSV}>
+              <Download className="h-4 w-4 mr-2" />
+              CSV
+            </Button>
+            <Button size="sm" onClick={handleExportPDF}>
+              <FileText className="h-4 w-4 mr-2" />
+              PDF
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

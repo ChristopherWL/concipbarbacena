@@ -31,6 +31,14 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { exportFichaEPI } from '@/lib/exportFichaEPI';
 import { exportFichaFerramentas } from '@/lib/exportFichaFerramentas';
+import { 
+  exportRelatorioMovimentacoes, 
+  exportRelatorioEstoque, 
+  exportRelatorioEPI, 
+  exportRelatorioFerramentas,
+  exportRelatorioEPC
+} from '@/lib/exportRelatorioPDF';
+import { formatCurrency } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
 
 // Lazy load report components for better performance
@@ -487,15 +495,15 @@ export default function Relatorios() {
           </Suspense>
         );
       case 'movimentacoes':
-        return <MovimentacoesReport {...commonProps} movements={filteredMovements} loading={loadingMovements} movementTypeFilter={movementTypeFilter} setMovementTypeFilter={setMovementTypeFilter} getMovementTypeBadge={getMovementTypeBadge} />;
+        return <MovimentacoesReport {...commonProps} movements={filteredMovements} loading={loadingMovements} movementTypeFilter={movementTypeFilter} setMovementTypeFilter={setMovementTypeFilter} getMovementTypeBadge={getMovementTypeBadge} tenant={tenant} />;
       case 'estoque':
-        return <EstoqueReport {...commonProps} products={filteredProducts} loading={loadingProducts} stockChartData={stockChartData} COLORS={COLORS} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} productsByCategory={productsByCategory} />;
+        return <EstoqueReport {...commonProps} products={filteredProducts} loading={loadingProducts} stockChartData={stockChartData} COLORS={COLORS} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} productsByCategory={productsByCategory} tenant={tenant} />;
       case 'epi':
-        return <EPIReport {...commonProps} assignments={filteredEPIAssignments} loading={loadingEPI} employeesWithAssignments={employeesWithEPI} onExport={handleExportEPI} />;
+        return <EPIReport {...commonProps} assignments={filteredEPIAssignments} loading={loadingEPI} employeesWithAssignments={employeesWithEPI} onExport={handleExportEPI} tenant={tenant} />;
       case 'epc':
-        return <EPCReport {...commonProps} assignments={filteredEPCAssignments} loading={loadingEPC} />;
+        return <EPCReport {...commonProps} assignments={filteredEPCAssignments} loading={loadingEPC} tenant={tenant} />;
       case 'ferramentas':
-        return <FerramentasReport {...commonProps} assignments={filteredFerramentasAssignments} loading={loadingFerramentas} employeesWithAssignments={employeesWithFerramentas} onExport={handleExportFerramentas} />;
+        return <FerramentasReport {...commonProps} assignments={filteredFerramentasAssignments} loading={loadingFerramentas} employeesWithAssignments={employeesWithFerramentas} onExport={handleExportFerramentas} tenant={tenant} />;
       default:
         return null;
     }
@@ -618,17 +626,41 @@ interface MovimentacoesReportProps {
   movementTypeFilter: string;
   setMovementTypeFilter: (v: string) => void;
   getMovementTypeBadge: (type: string) => JSX.Element;
+  tenant: any;
 }
 
-function MovimentacoesReport({ movements, loading, searchTerm, setSearchTerm, movementTypeFilter, setMovementTypeFilter, getMovementTypeBadge }: MovimentacoesReportProps) {
+function MovimentacoesReport({ movements, loading, searchTerm, setSearchTerm, movementTypeFilter, setMovementTypeFilter, getMovementTypeBadge, tenant }: MovimentacoesReportProps) {
+  const handleExportPDF = () => {
+    const company = {
+      name: tenant?.name || 'Empresa',
+      cnpj: tenant?.cnpj,
+      address: tenant?.address,
+      city: tenant?.city,
+      state: tenant?.state,
+    };
+    exportRelatorioMovimentacoes(
+      company, 
+      movements, 
+      (date: string) => format(new Date(date), 'dd/MM/yy HH:mm', { locale: ptBR })
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <ArrowLeftRight className="h-5 w-5 text-primary" />
-          Histórico de Movimentações
-        </CardTitle>
-        <CardDescription>Todas as entradas e saídas de estoque</CardDescription>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <ArrowLeftRight className="h-5 w-5 text-primary" />
+              Histórico de Movimentações
+            </CardTitle>
+            <CardDescription>Todas as entradas e saídas de estoque</CardDescription>
+          </div>
+          <Button size="sm" onClick={handleExportPDF} disabled={movements.length === 0}>
+            <FileText className="h-4 w-4 mr-2" />
+            Exportar PDF
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
@@ -702,17 +734,37 @@ interface EstoqueReportProps {
   categoryFilter: string;
   setCategoryFilter: (v: string) => void;
   productsByCategory: Record<string, any[]>;
+  tenant: any;
 }
 
-function EstoqueReport({ products, loading, searchTerm, setSearchTerm, stockChartData, COLORS, categoryFilter, setCategoryFilter, productsByCategory }: EstoqueReportProps) {
+function EstoqueReport({ products, loading, searchTerm, setSearchTerm, stockChartData, COLORS, categoryFilter, setCategoryFilter, productsByCategory, tenant }: EstoqueReportProps) {
+  const handleExportPDF = () => {
+    const company = {
+      name: tenant?.name || 'Empresa',
+      cnpj: tenant?.cnpj,
+      address: tenant?.address,
+      city: tenant?.city,
+      state: tenant?.state,
+    };
+    exportRelatorioEstoque(company, products, formatCurrency);
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Package className="h-5 w-5 text-primary" />
-          Relatório de Estoque
-        </CardTitle>
-        <CardDescription>Visão geral de todos os produtos por categoria</CardDescription>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              Relatório de Estoque
+            </CardTitle>
+            <CardDescription>Visão geral de todos os produtos por categoria</CardDescription>
+          </div>
+          <Button size="sm" onClick={handleExportPDF} disabled={products.length === 0}>
+            <FileText className="h-4 w-4 mr-2" />
+            Exportar PDF
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Summary Cards */}
@@ -826,9 +878,15 @@ interface EPIReportProps {
   employees: any[];
   employeesWithAssignments: any[];
   onExport: (id: string) => void;
+  tenant: any;
 }
 
-function EPIReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, employeesWithAssignments, onExport }: EPIReportProps) {
+function EPIReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, employeesWithAssignments, onExport, tenant }: EPIReportProps) {
+  const handleExportPDF = () => {
+    const company = { name: tenant?.name || 'Empresa', cnpj: tenant?.cnpj, address: tenant?.address, city: tenant?.city, state: tenant?.state };
+    exportRelatorioEPI(company, assignments, (date: string) => format(new Date(date), 'dd/MM/yy', { locale: ptBR }));
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
       <Card className="lg:col-span-1">
@@ -924,9 +982,15 @@ interface EPCReportProps {
   employeeFilter: string;
   setEmployeeFilter: (v: string) => void;
   employees: any[];
+  tenant: any;
 }
 
-function EPCReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees }: EPCReportProps) {
+function EPCReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, tenant }: EPCReportProps) {
+  const handleExportPDF = () => {
+    const company = { name: tenant?.name || 'Empresa', cnpj: tenant?.cnpj, address: tenant?.address, city: tenant?.city, state: tenant?.state };
+    exportRelatorioEPC(company, assignments, (date: string) => format(new Date(date), 'dd/MM/yy', { locale: ptBR }));
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -988,9 +1052,15 @@ interface FerramentasReportProps {
   employees: any[];
   employeesWithAssignments: any[];
   onExport: (id: string) => void;
+  tenant: any;
 }
 
-function FerramentasReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, employeesWithAssignments, onExport }: FerramentasReportProps) {
+function FerramentasReport({ assignments, loading, searchTerm, setSearchTerm, employeeFilter, setEmployeeFilter, employees, employeesWithAssignments, onExport, tenant }: FerramentasReportProps) {
+  const handleExportPDF = () => {
+    const company = { name: tenant?.name || 'Empresa', cnpj: tenant?.cnpj, address: tenant?.address, city: tenant?.city, state: tenant?.state };
+    exportRelatorioFerramentas(company, assignments, (date: string) => format(new Date(date), 'dd/MM/yy', { locale: ptBR }));
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
       <Card className="lg:col-span-1">
