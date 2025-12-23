@@ -111,59 +111,63 @@ export function RelatorioObras() {
             {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-12 w-full" />)}
           </div>
         ) : (
-          <ScrollArea className="h-[400px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Obra</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden sm:table-cell">Progresso</TableHead>
-                  <TableHead className="hidden md:table-cell">Data Início</TableHead>
-                  <TableHead className="hidden lg:table-cell">Previsão</TableHead>
-                  <TableHead className="hidden lg:table-cell">Cidade</TableHead>
-                  <TableHead className="text-right hidden sm:table-cell">Valor</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredObras.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                      Nenhuma obra encontrada
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredObras.map((obra) => (
-                    <TableRow key={obra.id}>
-                      <TableCell className="font-medium">{obra.nome}</TableCell>
-                      <TableCell>{getStatusBadge(obra.status)}</TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <div className="flex items-center gap-2">
-                          <Progress value={obra.progresso} className="w-16 h-2" />
-                          <span className="text-xs text-muted-foreground">{obra.progresso}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {obra.data_inicio 
-                          ? format(new Date(obra.data_inicio), 'dd/MM/yy', { locale: ptBR })
-                          : '-'}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {obra.previsao_termino 
-                          ? format(new Date(obra.previsao_termino), 'dd/MM/yy', { locale: ptBR })
-                          : '-'}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell text-muted-foreground">
-                        {obra.cidade || '-'}
-                      </TableCell>
-                      <TableCell className="text-right hidden sm:table-cell">
-                        {obra.valor_contrato ? formatCurrency(obra.valor_contrato) : '-'}
-                      </TableCell>
+          <div className="overflow-x-auto -mx-4 sm:-mx-6">
+            <div className="inline-block min-w-full align-middle px-4 sm:px-6">
+              <ScrollArea className="h-[400px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[120px]">Obra</TableHead>
+                      <TableHead className="min-w-[100px]">Status</TableHead>
+                      <TableHead className="min-w-[120px]">Progresso</TableHead>
+                      <TableHead className="min-w-[90px]">Data Início</TableHead>
+                      <TableHead className="min-w-[90px]">Previsão</TableHead>
+                      <TableHead className="min-w-[100px]">Cidade</TableHead>
+                      <TableHead className="text-right min-w-[120px]">Valor</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </ScrollArea>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredObras.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                          Nenhuma obra encontrada
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredObras.map((obra) => (
+                        <TableRow key={obra.id}>
+                          <TableCell className="font-medium whitespace-nowrap">{obra.nome}</TableCell>
+                          <TableCell>{getStatusBadge(obra.status)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Progress value={obra.progresso} className="w-16 h-2" />
+                              <span className="text-xs text-muted-foreground">{obra.progresso}%</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {obra.data_inicio 
+                              ? format(new Date(obra.data_inicio), 'dd/MM/yy', { locale: ptBR })
+                              : '-'}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {obra.previsao_termino 
+                              ? format(new Date(obra.previsao_termino), 'dd/MM/yy', { locale: ptBR })
+                              : '-'}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground whitespace-nowrap">
+                            {obra.cidade || '-'}
+                          </TableCell>
+                          <TableCell className="text-right whitespace-nowrap">
+                            {obra.valor_contrato ? formatCurrency(obra.valor_contrato) : '-'}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </div>
+          </div>
         )}
 
         <div className="flex justify-between text-sm text-muted-foreground pt-2 border-t">
