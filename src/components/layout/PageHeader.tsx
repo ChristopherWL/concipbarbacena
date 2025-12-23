@@ -11,7 +11,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, children, className, icon }: PageHeaderProps) {
   return (
-    <div className={cn("relative flex flex-col items-center gap-2 py-2", className)}>
+    <div className={cn("relative flex flex-col items-center gap-1.5 py-1", className)}>
       {/* Title with decorative elements */}
       <div className="flex items-center gap-3">
         {/* Left decorative line */}
