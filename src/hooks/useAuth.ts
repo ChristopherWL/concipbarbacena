@@ -259,6 +259,10 @@ export function useAuth() {
         selectedBranch = branchData;
       }
 
+      // Debug: Log roles being loaded
+      console.log('[Auth Debug] Roles loaded for user:', userId, roles);
+      console.log('[Auth Debug] Profile loaded:', profile?.full_name, profile?.email);
+
       setState(prev => {
         const next = {
           ...prev,

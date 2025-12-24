@@ -90,7 +90,7 @@ export default function Auth() {
   const [isValidatingLocation, setIsValidatingLocation] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, isLoading: authLoading, signIn, tenant: userTenant, isSuperAdmin, isFieldUser, roles, refetchUserData } = useAuthContext();
+  const { user, isLoading: authLoading, signIn, tenant: userTenant, isSuperAdmin, isAdmin, isManager, isFieldUser, roles, refetchUserData } = useAuthContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [branding, setBranding] = useState<TenantBranding | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -196,23 +196,41 @@ export default function Auth() {
   // Redirect after login (only if not validating location)
   useEffect(() => {
     if (!authLoading && user && roles.length > 0 && !isValidatingLocation) {
-      const isSuperAdminOnly = isSuperAdmin() && roles.length === 1 && roles[0].role === 'superadmin';
-      if (isSuperAdminOnly) {
-        navigate('/superadmin', { replace: true });
+      // Debug: Log role detection
+      console.log('[Auth Redirect] User:', user.email);
+      console.log('[Auth Redirect] Roles:', roles.map(r => r.role));
+      console.log('[Auth Redirect] isSuperAdmin:', isSuperAdmin());
+      console.log('[Auth Redirect] isAdmin:', isAdmin());
+      console.log('[Auth Redirect] isManager:', isManager());
+      console.log('[Auth Redirect] isFieldUser:', isFieldUser());
+
+      // Priority: Role-based routing (NOT device-based)
+      // Super admins, admins, and managers ALWAYS go to full dashboard
+      if (isSuperAdmin() || isAdmin() || isManager()) {
+        // SuperAdmin-only users (no other role) go to superadmin panel
+        const isSuperAdminOnly = isSuperAdmin() && roles.length === 1 && roles[0].role === 'superadmin';
+        if (isSuperAdminOnly) {
+          navigate('/superadmin', { replace: true });
+          return;
+        }
+        
+        // Otherwise go to full dashboard
+        const redirectTo = searchParams.get('redirect') || '/dashboard';
+        navigate(redirectTo, { replace: true });
         return;
       }
       
-      // Field users (technician, warehouse, caixa) go to simplified mobile dashboard
+      // ONLY field users (technician, warehouse, caixa) go to simplified dashboard
       if (isFieldUser()) {
         navigate('/app', { replace: true });
         return;
       }
       
-      // Managers, admins go to full dashboard
+      // Default fallback: go to full dashboard
       const redirectTo = searchParams.get('redirect') || '/dashboard';
       navigate(redirectTo, { replace: true });
     }
-  }, [user, authLoading, navigate, searchParams, isSuperAdmin, isFieldUser, roles, isValidatingLocation]);
+  }, [user, authLoading, navigate, searchParams, isSuperAdmin, isAdmin, isManager, isFieldUser, roles, isValidatingLocation]);
 
   const handleLogin = async (data: LoginFormData) => {
     setIsSubmitting(true);
