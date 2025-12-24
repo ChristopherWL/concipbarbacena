@@ -130,12 +130,13 @@ export function useCreateStockAudit() {
       if (error) throw error;
       return audit;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stock-audits'] });
-      toast.success('Auditoria registrada com sucesso');
+    onSuccess: async () => {
+      // Force immediate refetch instead of just invalidating
+      await queryClient.refetchQueries({ queryKey: ['stock-audits'] });
     },
     onError: (error: any) => {
-      toast.error('Erro ao registrar auditoria: ' + error.message);
+      console.error('Erro ao registrar auditoria:', error);
+      toast.error('Erro ao registrar auditoria: ' + (error?.message || 'Erro desconhecido'));
     },
   });
 }
