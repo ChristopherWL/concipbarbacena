@@ -142,6 +142,7 @@ export function useCreateStockAudit() {
     mutationFn: async (data: CreateStockAuditData) => {
       if (!tenant?.id) throw new Error('Tenant não encontrado');
 
+      // Create the audit record
       const { data: audit, error } = await supabase
         .from('stock_audits')
         .insert({
@@ -160,11 +161,105 @@ export function useCreateStockAudit() {
         .single();
 
       if (error) throw error;
+
+      // For defect/theft audits, subtract from stock
+      if (['defeito', 'furto'].includes(data.audit_type) && data.quantity > 0) {
+        // Get current product stock
+        const { data: product } = await supabase
+          .from('products')
+          .select('current_stock')
+          .eq('id', data.product_id)
+          .single();
+
+        if (product) {
+          const previousStock = product.current_stock || 0;
+          const newStock = Math.max(0, previousStock - data.quantity);
+          
+          // Create a stock movement record
+          await supabase
+            .from('stock_movements')
+            .insert({
+              tenant_id: tenant.id,
+              product_id: data.product_id,
+              serial_number_id: data.serial_number_id || null,
+              movement_type: 'saida',
+              quantity: data.quantity,
+              previous_stock: previousStock,
+              new_stock: newStock,
+              reason: `Auditoria: ${data.audit_type === 'defeito' ? 'Defeito' : 'Furto'} - ${data.description}`,
+              created_by: user?.id,
+            } as any);
+
+          // Update product stock
+          await supabase
+            .from('products')
+            .update({ current_stock: newStock } as any)
+            .eq('id', data.product_id);
+        }
+
+        // If serial number, update its status
+        if (data.serial_number_id) {
+          await supabase
+            .from('serial_numbers')
+            .update({ status: data.audit_type === 'defeito' ? 'em_manutencao' : 'descartado' } as any)
+            .eq('id', data.serial_number_id);
+        }
+      }
+
+      // For resolution audits that return to stock
+      if (data.audit_type === 'resolucao' && data.quantity > 0) {
+        // Get current product stock
+        const { data: product } = await supabase
+          .from('products')
+          .select('current_stock')
+          .eq('id', data.product_id)
+          .single();
+
+        if (product) {
+          const previousStock = product.current_stock || 0;
+          const newStock = previousStock + data.quantity;
+          
+          // Create a stock movement record for return
+          await supabase
+            .from('stock_movements')
+            .insert({
+              tenant_id: tenant.id,
+              product_id: data.product_id,
+              serial_number_id: data.serial_number_id || null,
+              movement_type: 'entrada',
+              quantity: data.quantity,
+              previous_stock: previousStock,
+              new_stock: newStock,
+              reason: `Resolução de auditoria - ${data.description}`,
+              created_by: user?.id,
+            } as any);
+
+          // Update product stock
+          await supabase
+            .from('products')
+            .update({ current_stock: newStock } as any)
+            .eq('id', data.product_id);
+        }
+
+        // If serial number, restore its status
+        if (data.serial_number_id) {
+          await supabase
+            .from('serial_numbers')
+            .update({ status: 'disponivel' } as any)
+            .eq('id', data.serial_number_id);
+        }
+      }
+
       return audit;
     },
     onSuccess: async () => {
-      // Force immediate refetch instead of just invalidating
-      await queryClient.refetchQueries({ queryKey: ['stock-audits'] });
+      // Force immediate refetch of related queries
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['stock-audits'] }),
+        queryClient.refetchQueries({ queryKey: ['products'] }),
+        queryClient.refetchQueries({ queryKey: ['serial-numbers'] }),
+        queryClient.refetchQueries({ queryKey: ['stock-movements'] }),
+      ]);
     },
     onError: (error: any) => {
       console.error('Erro ao registrar auditoria:', error);
