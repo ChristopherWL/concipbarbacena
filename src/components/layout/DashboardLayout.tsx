@@ -159,7 +159,7 @@ const getActiveParentMenu = (pathname: string): string | null => {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, profile, tenant, roles, signOut, isSuperAdmin, isAdmin, selectedBranch: authSelectedBranch } = useAuthContext();
+  const { user, profile, tenant, roles, signOut, isSuperAdmin, isAdmin, isManager, isFieldUser, selectedBranch: authSelectedBranch } = useAuthContext();
   const { isDirector, selectedBranch: directorSelectedBranch, isReadOnly } = useDirectorBranch();
   const { features } = useTenantFeatures();
   const { permissions, isLoading: isPermissionsLoading } = useUserPermissions();
@@ -427,6 +427,47 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     // Wait for auth + permissions to load to avoid brief unauthorized access.
     if (!user) return;
     if (!isSuperAdmin() && isPermissionsLoading) return;
+
+    // Role-based route restrictions
+    // /superadmin - only superadmin can access
+    if (path.startsWith('/superadmin')) {
+      if (roles.length === 0) return; // Wait for roles to load
+      if (!isSuperAdmin()) {
+        toast.error('Acesso restrito ao Super Admin');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+    }
+
+    // /admin - only superadmin can access
+    if (path.startsWith('/admin')) {
+      if (roles.length === 0) return; // Wait for roles to load
+      if (!isSuperAdmin()) {
+        toast.error('Acesso restrito ao Super Admin');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+    }
+
+    // Field users have restricted access - they can only access specific routes
+    if (isFieldUser()) {
+      const fieldUserAllowedRoutes = [
+        '/dashboard',
+        '/app',
+        '/os',
+        '/obras',
+        '/diario-obras',
+        '/equipes',
+        '/cautelas',
+      ];
+      
+      const isAllowed = fieldUserAllowedRoutes.some(route => path === route || path.startsWith(route + '/'));
+      if (!isAllowed) {
+        toast.error('Acesso restrito para usuários operacionais');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+    }
     
     // Feature-based restrictions (modules disabled at tenant level)
     const featureRoutes: Record<string, keyof typeof features> = {
@@ -492,9 +533,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     navigate,
     isAdmin,
     isSuperAdmin,
+    isFieldUser,
     user,
     roles,
     isPermissionsLoading,
+    canAccessSettings,
   ]);
 
   // FAB quick actions - Operational pages only (filtered by features AND user permissions)
@@ -907,16 +950,60 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   // Enable notification pop-up alerts
   useNotificationAlerts(alarms, tenant?.id);
 
-  // Build navigation with badges - filtered by enabled features AND user permissions
+  // Build navigation with badges - filtered by enabled features, user permissions, AND user roles
   const getNavigation = (): NavItem[] => {
     const nav: NavItem[] = [];
 
-    // Dashboard - check permission
+    // Field users have a very restricted menu
+    const fieldUser = isFieldUser();
+
+    // Dashboard - check permission (all users can see if they have permission)
     if (permissions.page_dashboard) {
       nav.push({ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard });
     }
 
+    // Field users only see: Dashboard, Minhas Obras, Solicitações (O.S.)
+    // They should NOT see admin menus, estoque management, RH, etc.
+    if (fieldUser) {
+      // Atendimento for field users - only Obras and O.S.
+      const fieldAtendimentoChildren: NavChild[] = [];
+      if (features.enable_service_orders && permissions.page_service_orders) {
+        fieldAtendimentoChildren.push({ name: 'Minhas O.S.', href: '/os', icon: ClipboardList, badge: notifications?.urgentOS || 0 });
+      }
+      if (permissions.page_obras) {
+        fieldAtendimentoChildren.push({ name: 'Minhas Obras', href: '/obras', icon: Building2 });
+      }
+      if (permissions.page_diario_obras) {
+        fieldAtendimentoChildren.push({ 
+          name: 'Diário de Obras', 
+          href: '/diario-obras', 
+          icon: FileText,
+          badge: notifications?.openDiarios || 0,
+          badgeType: 'warning' as const
+        });
+      }
+
+      if (fieldAtendimentoChildren.length > 0) {
+        nav.push({
+          name: 'Minhas Atividades',
+          icon: ClipboardList,
+          badge: (notifications?.urgentOS || 0) + (notifications?.openDiarios || 0),
+          children: fieldAtendimentoChildren,
+        });
+      }
+
+      // Field users can also see Equipes if they have permission (to see their team)
+      if (features.enable_teams && permissions.page_teams) {
+        nav.push({ name: 'Minha Equipe', href: '/equipes', icon: Users });
+      }
+
+      return nav; // Return early - field users don't see anything else
+    }
+
+    // ========== NON-FIELD USERS (Managers, Admins, SuperAdmins) ==========
+
     // Administrativo submenu - filter children based on features AND permissions
+    // Relatórios is only for managers and above
     const adminChildren: NavChild[] = [];
     if (features.enable_fleet && permissions.page_fleet) {
       adminChildren.push({ name: 'Frota', href: '/frota', icon: Truck, badge: notifications?.pendingMaintenance || 0 });
@@ -931,7 +1018,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       adminChildren.push({ name: 'Entrada de NF', href: '/notas-fiscais', icon: Receipt });
       adminChildren.push({ name: 'Emissão de NF', href: '/emissao-nf', icon: FileText });
     }
-    if (features.enable_reports && permissions.page_reports) {
+    // Relatórios - only for managers and above (Admin, SuperAdmin, Manager)
+    if (features.enable_reports && permissions.page_reports && isManager()) {
       adminChildren.push({ name: 'Relatórios', href: '/relatorios', icon: BarChart3 });
     }
 
@@ -1014,6 +1102,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     // RH - check feature AND permission
     if (features.enable_hr && permissions.page_hr) {
       nav.push({ name: 'Recursos Humanos', href: '/rh', icon: UserPlus });
+    }
+
+    // ========== SUPERADMIN ONLY ITEMS ==========
+    // Admin (Gerenciamento de Filiais, Equipes, Usuários) - only for superadmin
+    if (isSuperAdmin()) {
+      nav.push({ name: 'Admin', href: '/admin', icon: Shield });
+    }
+
+    // Configurações - only for superadmin (already restricted but also add to menu only for superadmin)
+    if (isSuperAdmin() && canAccessSettings) {
+      nav.push({ name: 'Configurações', href: '/configuracoes', icon: Settings });
     }
 
     return nav;
@@ -1531,7 +1630,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {isDark ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
                 {isDark ? 'Modo Claro' : 'Modo Escuro'}
               </DropdownMenuItem>
-              {canAccessSettings && (
+              {isSuperAdmin() && canAccessSettings && (
                 <DropdownMenuItem onClick={() => navigate('/configuracoes')} className="cursor-pointer" data-tour="settings">
                   <Settings className="mr-2 h-4 w-4" />
                   Configurações
