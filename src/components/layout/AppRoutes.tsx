@@ -34,7 +34,7 @@ function LandscapeBlocker() {
 }
 
 export function AppRoutes() {
-  const { isLoading } = useAuthContext();
+  const { isLoading, isInitialized } = useAuthContext();
   const isMobile = useIsMobile();
   const location = useLocation();
   const { shouldBlock } = useLandscapeBlocker(isMobile);
@@ -57,8 +57,8 @@ export function AppRoutes() {
     lockPortrait();
   }, [isMobile]);
 
-  // Show loading while checking system status
-  if (systemStatus.isLoading) {
+  // Show loading while checking system status OR while auth is not initialized
+  if (systemStatus.isLoading || !isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -79,7 +79,7 @@ export function AppRoutes() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Show loading only for protected routes while checking auth
+  // Show loading only for protected routes while checking auth data
   if (isLoading && !isCurrentRoutePublic) {
     return <PageLoader />;
   }
