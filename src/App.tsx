@@ -12,12 +12,19 @@ import { AppRoutes } from "@/components/layout/AppRoutes";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      staleTime: 30 * 1000, // 30 seconds for fresher data
       refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      staleTime: 5 * 60 * 1000,
+      refetchOnReconnect: true,
+      retry: 1,
+    },
+    mutations: {
+      retry: 1,
     },
   },
 });
+
+// Export queryClient for use in mutation invalidations
+export { queryClient };
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
