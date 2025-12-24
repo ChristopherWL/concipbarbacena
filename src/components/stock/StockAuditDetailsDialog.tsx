@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { toast } from 'sonner';
 import { StockAudit, StockAuditType, StockAuditStatus, useCreateStockAudit } from '@/hooks/useStockAudits';
 
 const AUDIT_TYPE_CONFIG: Record<StockAuditType, { label: string; icon: React.ReactNode; color: string; bgColor: string }> = {
@@ -50,16 +51,31 @@ export function StockAuditDetailsDialog({ open, onOpenChange, audit }: StockAudi
   const isWarranty = audit.audit_type === 'garantia';
 
   const handleCreateResolution = async () => {
-    await createAudit.mutateAsync({
-      product_id: audit.product_id,
-      serial_number_id: audit.serial_number_id,
-      audit_type: 'resolucao',
-      quantity: returnToStock ? audit.quantity : 0,
-      description: resolutionNotes || `Resolução da ocorrência de ${typeConfig.label.toLowerCase()}`,
-      parent_audit_id: audit.id,
-      status: 'resolvido',
-    });
-    onOpenChange(false);
+    try {
+      await createAudit.mutateAsync({
+        product_id: audit.product_id,
+        serial_number_id: audit.serial_number_id,
+        audit_type: 'resolucao',
+        quantity: returnToStock ? audit.quantity : 0,
+        description: resolutionNotes || `Resolução da ocorrência de ${typeConfig.label.toLowerCase()}`,
+        parent_audit_id: audit.id,
+        status: 'resolvido',
+      });
+      toast.success('Resolução registrada com sucesso');
+      onOpenChange(false);
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Erro desconhecido';
+      const errorCode = error?.code || '';
+      const errorDetails = error?.details || '';
+      const errorHint = error?.hint || '';
+      
+      console.error('Erro ao registrar resolução:', { error, errorMessage, errorCode, errorDetails, errorHint });
+      
+      toast.error(`Erro ao registrar resolução: ${errorMessage}`, {
+        description: errorCode ? `Código: ${errorCode}. ${errorDetails} ${errorHint}`.trim() : undefined,
+        duration: 8000,
+      });
+    }
   };
 
   if (!open) return null;
