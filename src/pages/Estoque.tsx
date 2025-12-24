@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -174,24 +173,15 @@ const CategoryCard = ({ category, stats, trend, onClick }: CategoryCardProps) =>
 export default function Estoque() {
   const navigate = useNavigate();
   const { 
-    getCategoryStats, 
+    statsByCategory, 
+    trendsByCategory,
     auditStats, 
     productsLoading,
-    getMovementTrend,
     zeroStockProducts,
     totalProducts,
     totalStock,
     totalLowStock,
   } = useEstoque();
-
-  // Memoize trend data for each category
-  const categoryTrends = useMemo(() => {
-    const trends: Record<StockCategory, ReturnType<typeof getMovementTrend>> = {} as any;
-    CATEGORIES.forEach(cat => {
-      trends[cat] = getMovementTrend(cat);
-    });
-    return trends;
-  }, [getMovementTrend]);
 
   return (
     <DashboardLayout>
@@ -272,8 +262,8 @@ export default function Estoque() {
         {/* Category Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 animate-stagger">
           {CATEGORIES.map((category) => {
-            const stats = getCategoryStats(category);
-            const trend = categoryTrends[category];
+            const stats = statsByCategory[category];
+            const trend = trendsByCategory[category];
             
             return (
               <CategoryCard
