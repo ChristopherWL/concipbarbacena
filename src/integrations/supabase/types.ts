@@ -4815,6 +4815,14 @@ export type Database = {
       }
     }
     Functions: {
+      can_access_by_hierarchy: {
+        Args: {
+          _target_branch_id: string
+          _target_team_id?: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       can_edit_branch_settings: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
@@ -4852,6 +4860,7 @@ export type Database = {
         Returns: string
       }
       get_user_branch_id: { Args: { _user_id: string }; Returns: string }
+      get_user_team_id: { Args: { _user_id: string }; Returns: string }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
       get_zero_stock_products: {
         Args: { p_branch_id?: string; p_limit?: number; p_tenant_id: string }
@@ -4869,7 +4878,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_branch_manager: {
+        Args: { _branch_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      is_team_leader: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_technician_assigned_to_order: {
         Args: { _order_id: string; _user_id: string }
         Returns: boolean
@@ -4884,6 +4901,10 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      user_belongs_to_team: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
       user_belongs_to_tenant: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
