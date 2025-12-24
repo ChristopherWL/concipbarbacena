@@ -31,6 +31,7 @@ const Configuracoes = lazy(() => import("@/pages/Configuracoes"));
 const Fornecedores = lazy(() => import("@/pages/Fornecedores"));
 const RecursosHumanos = lazy(() => import("@/pages/RecursosHumanos"));
 const SuperAdmin = lazy(() => import("@/pages/SuperAdmin"));
+const Admin = lazy(() => import("@/pages/Admin"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 export interface RouteConfig {
@@ -57,6 +58,7 @@ export const PROTECTED_PREFIXES = [
   "/fornecedores",
   "/rh",
   "/superadmin",
+  "/admin",
   "/notas",
   "/emissao",
   "/fechamento",
@@ -96,6 +98,7 @@ export const routes: RouteConfig[] = [
   { path: "/fornecedores", element: Fornecedores },
   { path: "/rh", element: RecursosHumanos },
   { path: "/superadmin", element: SuperAdmin },
+  { path: "/admin", element: Admin },
   
   // Dynamic route for tenant landing pages
   { path: "/:slug", element: LandingPage, isPublic: true },
