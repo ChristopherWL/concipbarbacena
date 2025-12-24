@@ -47,11 +47,11 @@ import { formatCurrency } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
 
 // Lazy load report components for better performance
-const RelatorioObras = lazy(() => import('@/components/relatorios/RelatorioObras').then(m => ({ default: m.RelatorioObras })));
-const RelatorioDiarioObras = lazy(() => import('@/components/relatorios/RelatorioDiarioObras').then(m => ({ default: m.RelatorioDiarioObras })));
-const RelatorioInventario = lazy(() => import('@/components/relatorios/RelatorioInventario').then(m => ({ default: m.RelatorioInventario })));
-const RelatorioGarantia = lazy(() => import('@/components/relatorios/RelatorioGarantia').then(m => ({ default: m.RelatorioGarantia })));
-const RelatorioItensInventario = lazy(() => import('@/components/relatorios/RelatorioItensInventario').then(m => ({ default: m.RelatorioItensInventario })));
+const RelatorioObras = lazy(() => import('@/components/reports/RelatorioObras').then(m => ({ default: m.RelatorioObras })));
+const RelatorioDiarioObras = lazy(() => import('@/components/reports/RelatorioDiarioObras').then(m => ({ default: m.RelatorioDiarioObras })));
+const RelatorioInventario = lazy(() => import('@/components/reports/RelatorioInventario').then(m => ({ default: m.RelatorioInventario })));
+const RelatorioGarantia = lazy(() => import('@/components/reports/RelatorioGarantia').then(m => ({ default: m.RelatorioGarantia })));
+const RelatorioItensInventario = lazy(() => import('@/components/reports/RelatorioItensInventario').then(m => ({ default: m.RelatorioItensInventario })));
 
 // Report card component for the grid view
 interface ReportCardProps {

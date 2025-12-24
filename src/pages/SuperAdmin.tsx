@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Shield, LogOut, Settings, Palette, Building, Building2, Users, ChevronRight, Sparkles, Zap, Lock } from 'lucide-react';
-import { CompanyDataPanel } from '@/components/superadmin/CompanyDataPanel';
-import { SystemModulesPanel } from '@/components/superadmin/SystemModulesPanel';
-import { ThemePanel } from '@/components/superadmin/ThemePanel';
-import { BranchesPanel } from '@/components/superadmin/BranchesPanel';
-import { UserManagementPanel } from '@/components/superadmin/UserManagementPanel';
+import { CompanyDataPanel } from '@/components/super-admin/CompanyDataPanel';
+import { SystemModulesPanel } from '@/components/super-admin/SystemModulesPanel';
+import { ThemePanel } from '@/components/super-admin/ThemePanel';
+import { BranchesPanel } from '@/components/super-admin/BranchesPanel';
+import { UserManagementPanel } from '@/components/super-admin/UserManagementPanel';
 import { cn } from '@/lib/utils';
 
 type PanelType = 'company' | 'branches' | 'modules' | 'users' | 'theme';

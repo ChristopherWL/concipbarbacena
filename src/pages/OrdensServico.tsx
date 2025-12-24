@@ -29,9 +29,9 @@ import { SERVICE_ORDER_STATUS_LABELS, PRIORITY_LABELS, PRIORITY_COLORS, ServiceO
 import { Loader2, ClipboardList, Plus, UserPlus, Clock, CheckCircle, AlertTriangle, Search, Trash2, Settings, Edit, Calendar, MapPin, User, FileText, Upload, X, Image } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { toast } from 'sonner';
-import { ServiceOrderEtapasPanel } from '@/components/serviceOrders/ServiceOrderEtapasPanel';
-import { ServiceOrderEditDialog } from '@/components/serviceOrders/ServiceOrderEditDialog';
-import { ServiceOrderCardProgress } from '@/components/serviceOrders/ServiceOrderCardProgress';
+import { ServiceOrderEtapasPanel } from '@/components/service-orders/ServiceOrderEtapasPanel';
+import { ServiceOrderEditDialog } from '@/components/service-orders/ServiceOrderEditDialog';
+import { ServiceOrderCardProgress } from '@/components/service-orders/ServiceOrderCardProgress';
 import { SignatureModal } from '@/components/ui/signature-modal';
 import { supabase } from '@/integrations/supabase/client';
 import { useBranchFilter } from '@/hooks/useBranchFilter';
