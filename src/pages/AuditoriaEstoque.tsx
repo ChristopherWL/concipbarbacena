@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { 
   Plus, Search, AlertTriangle, Shield, Package, 
-  MoreVertical, CheckCircle2, Clock, XCircle, Eye, Layers, PackageCheck, Send, ClipboardList, Link2
+  MoreVertical, CheckCircle2, Clock, XCircle, Eye, Layers, PackageCheck, Send, ClipboardList, Link2, ArrowDown, Wrench
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -93,9 +93,19 @@ export default function AuditoriaEstoque() {
     return audit.resolutions && audit.resolutions.length > 0;
   };
 
+  // Check if audit is pending (can be resolved)
+  const isPending = (audit: StockAudit) => {
+    return !hasResolution(audit) && audit.status !== 'cancelado' && audit.audit_type !== 'resolucao';
+  };
+
   const openDetails = (audit: StockAudit) => {
     setSelectedAudit(audit);
     setDetailsDialogOpen(true);
+  };
+
+  // Find resolution audit for a parent
+  const getResolutionAudit = (parentId: string) => {
+    return audits?.find(a => a.parent_audit_id === parentId);
   };
 
   // Stats
@@ -238,21 +248,21 @@ export default function AuditoriaEstoque() {
                     const typeConfig = AUDIT_TYPE_CONFIG[audit.audit_type];
                     const statusConfig = STATUS_CONFIG[audit.status];
                     const resolved = hasResolution(audit);
+                    const pending = isPending(audit);
+                    const resolutionAudit = resolved ? getResolutionAudit(audit.id) : null;
+                    
                     return (
-                      <div key={audit.id} className={`${resolved ? 'border-l-4 border-green-500' : ''}`}>
+                      <div key={audit.id} className={`${resolved ? 'border-l-4 border-green-500' : pending ? 'border-l-4 border-yellow-500' : ''}`}>
+                        {/* Main Audit Card */}
                         <div 
-                          className={`p-4 space-y-3 cursor-pointer active:bg-muted/50 ${resolved ? 'bg-green-50/50 dark:bg-green-900/10' : ''}`}
-                          onClick={() => openDetails(audit)}
+                          className={`p-4 space-y-3 ${resolved ? 'bg-green-50/50 dark:bg-green-900/10' : ''}`}
                         >
                           <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => openDetails(audit)}>
                               <div className="flex items-center gap-2">
                                 <p className="font-medium truncate">{audit.product?.name}</p>
                                 {resolved && (
-                                  <span className="inline-flex items-center gap-1 text-green-600">
-                                    <Link2 className="w-3 h-3" />
-                                    <CheckCircle2 className="w-3 h-3" />
-                                  </span>
+                                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
                                 )}
                               </div>
                               <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
@@ -260,20 +270,39 @@ export default function AuditoriaEstoque() {
                                 <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
                               )}
                             </div>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-                                  <MoreVertical className="w-4 h-4" />
+                            
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-2">
+                              {pending ? (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="h-8 text-xs border-green-500 text-green-700 hover:bg-green-50"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openDetails(audit);
+                                  }}
+                                >
+                                  <Wrench className="w-3 h-3 mr-1" />
+                                  Resolver
                                 </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => openDetails(audit)}>
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Ver Detalhes
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                              ) : resolved ? (
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  className="h-8 text-xs text-green-700"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (resolutionAudit) openDetails(resolutionAudit);
+                                  }}
+                                >
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  Ver Resolução
+                                </Button>
+                              ) : null}
+                            </div>
                           </div>
+                          
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
                               <Badge variant={typeConfig.variant} className="gap-1 text-xs">
@@ -282,24 +311,41 @@ export default function AuditoriaEstoque() {
                               </Badge>
                               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${resolved ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : statusConfig.className}`}>
                                 {resolved ? <CheckCircle2 className="w-3 h-3" /> : statusConfig.icon}
-                                {resolved ? 'Resolvido' : statusConfig.label}
+                                {resolved ? 'Concluído' : statusConfig.label}
                               </span>
                             </div>
                             <span className="text-xs text-muted-foreground">
                               Qtd: {audit.quantity}
                             </span>
                           </div>
+                          
                           <p className="text-xs text-muted-foreground">
                             {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
                           </p>
                         </div>
                         
-                        {/* Resolution indicator */}
+                        {/* Resolution Link Indicator */}
                         {resolved && audit.resolutions && (
-                          <div className="px-4 pb-3 pt-0 bg-green-50/50 dark:bg-green-900/10">
-                            <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 rounded px-2 py-1">
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span>Resolução: {format(new Date(audit.resolutions[0].reported_at), "dd/MM/yyyy", { locale: ptBR })}</span>
+                          <div className="bg-green-50 dark:bg-green-900/20 border-t border-green-200 dark:border-green-800">
+                            <div 
+                              className="px-4 py-2 flex items-center gap-3 cursor-pointer hover:bg-green-100/50 dark:hover:bg-green-900/30"
+                              onClick={() => resolutionAudit && openDetails(resolutionAudit)}
+                            >
+                              <div className="flex flex-col items-center">
+                                <ArrowDown className="w-4 h-4 text-green-600" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Link2 className="w-3 h-3 text-green-600" />
+                                  <span className="text-xs font-medium text-green-700 dark:text-green-400">
+                                    Resolução registrada
+                                  </span>
+                                </div>
+                                <p className="text-xs text-green-600 dark:text-green-500">
+                                  {format(new Date(audit.resolutions[0].reported_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                                </p>
+                              </div>
+                              <Eye className="w-4 h-4 text-green-600" />
                             </div>
                           </div>
                         )}
@@ -326,13 +372,15 @@ export default function AuditoriaEstoque() {
                         const typeConfig = AUDIT_TYPE_CONFIG[audit.audit_type];
                         const statusConfig = STATUS_CONFIG[audit.status];
                         const resolved = hasResolution(audit);
+                        const pending = isPending(audit);
+                        const resolutionAudit = resolved ? getResolutionAudit(audit.id) : null;
+                        
                         return (
                           <TableRow 
                             key={audit.id} 
-                            className={`cursor-pointer hover:bg-muted/50 ${resolved ? 'bg-green-50/30 dark:bg-green-900/10' : ''}`} 
-                            onClick={() => openDetails(audit)}
+                            className={`${resolved ? 'bg-green-50/30 dark:bg-green-900/10' : pending ? 'hover:bg-muted/50' : ''}`} 
                           >
-                            <TableCell>
+                            <TableCell className="cursor-pointer" onClick={() => openDetails(audit)}>
                               <div className="flex items-start gap-2">
                                 {resolved && (
                                   <div className="flex flex-col items-center pt-1">
@@ -360,33 +408,50 @@ export default function AuditoriaEstoque() {
                             <TableCell>
                               <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${resolved ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : statusConfig.className}`}>
                                 {resolved ? <CheckCircle2 className="w-3 h-3" /> : statusConfig.icon}
-                                {resolved ? 'Resolvido' : statusConfig.label}
+                                {resolved ? 'Concluído' : statusConfig.label}
                               </span>
                             </TableCell>
                             <TableCell className="text-muted-foreground text-sm">
                               <div>
                                 {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
                                 {resolved && audit.resolutions && (
-                                  <p className="text-xs text-green-600">
-                                    Resolvido: {format(new Date(audit.resolutions[0].reported_at), "dd/MM/yyyy", { locale: ptBR })}
+                                  <p className="text-xs text-green-600 flex items-center gap-1">
+                                    <ArrowDown className="w-3 h-3" />
+                                    {format(new Date(audit.resolutions[0].reported_at), "dd/MM/yyyy", { locale: ptBR })}
                                   </p>
                                 )}
                               </div>
                             </TableCell>
-                            <TableCell onClick={(e) => e.stopPropagation()}>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <MoreVertical className="w-4 h-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => openDetails(audit)}>
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    Ver Detalhes
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                            <TableCell>
+                              {pending ? (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="h-8 text-xs border-green-500 text-green-700 hover:bg-green-50"
+                                  onClick={() => openDetails(audit)}
+                                >
+                                  <Wrench className="w-3 h-3 mr-1" />
+                                  Resolver
+                                </Button>
+                              ) : resolved ? (
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  className="h-8 text-xs text-green-700"
+                                  onClick={() => resolutionAudit && openDetails(resolutionAudit)}
+                                >
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  Detalhes
+                                </Button>
+                              ) : (
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => openDetails(audit)}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              )}
                             </TableCell>
                           </TableRow>
                         );
