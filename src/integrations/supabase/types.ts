@@ -3102,6 +3102,7 @@ export type Database = {
           is_active: boolean | null
           phone: string | null
           selected_branch_id: string | null
+          team_id: string | null
           tenant_id: string | null
           updated_at: string | null
         }
@@ -3115,6 +3116,7 @@ export type Database = {
           is_active?: boolean | null
           phone?: string | null
           selected_branch_id?: string | null
+          team_id?: string | null
           tenant_id?: string | null
           updated_at?: string | null
         }
@@ -3128,6 +3130,7 @@ export type Database = {
           is_active?: boolean | null
           phone?: string | null
           selected_branch_id?: string | null
+          team_id?: string | null
           tenant_id?: string | null
           updated_at?: string | null
         }
@@ -3144,6 +3147,13 @@ export type Database = {
             columns: ["selected_branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
             referencedColumns: ["id"]
           },
           {
@@ -4892,6 +4902,9 @@ export type Database = {
         | "superadmin"
         | "caixa"
         | "diretor"
+        | "branch_manager"
+        | "team_leader"
+        | "field_user"
       contract_type: "clt" | "pj" | "estagio" | "temporario" | "autonomo"
       employee_status: "ativo" | "ferias" | "afastado" | "desligado"
       leave_type:
@@ -5083,6 +5096,9 @@ export const Constants = {
         "superadmin",
         "caixa",
         "diretor",
+        "branch_manager",
+        "team_leader",
+        "field_user",
       ],
       contract_type: ["clt", "pj", "estagio", "temporario", "autonomo"],
       employee_status: ["ativo", "ferias", "afastado", "desligado"],
