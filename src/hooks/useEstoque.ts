@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useProducts } from '@/hooks/useProducts';
 import { useStockAudits } from '@/hooks/useStockAudits';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useBranchFilter } from '@/hooks/useBranchFilter';
 import { supabase } from '@/integrations/supabase/client';
 import { StockCategory } from '@/types/stock';
-import { subDays, format, startOfDay } from 'date-fns';
+import { subDays, format } from 'date-fns';
 
 // All stock categories
 const CATEGORIES: StockCategory[] = ['epi', 'epc', 'ferramentas', 'materiais', 'equipamentos'];
@@ -16,7 +15,9 @@ const CATEGORIES: StockCategory[] = ['epi', 'epc', 'ferramentas', 'materiais', '
 export interface CategoryStats {
   total: number;
   totalStock: number;
+  totalValue: number;
   lowStock: number;
+  zeroStock: number;
 }
 
 export interface AuditStats {
@@ -30,13 +31,11 @@ export interface MovementTrendPoint {
   saidas: number;
 }
 
-export interface CriticalAlert {
+export interface ZeroStockProduct {
   id: string;
   name: string;
-  code: string;
   category: StockCategory;
-  currentStock: number;
-  minStock: number;
+  sku: string | null;
 }
 
 // Pre-computed stats by category
@@ -44,29 +43,25 @@ export type StatsByCategory = Record<StockCategory, CategoryStats>;
 export type TrendsByCategory = Record<StockCategory, MovementTrendPoint[]>;
 
 export interface UseEstoqueReturn {
-  // Data
-  products: ReturnType<typeof useProducts>['data'];
-  audits: ReturnType<typeof useStockAudits>['data'];
-  
   // Loading states
   isLoading: boolean;
-  productsLoading: boolean;
+  statsLoading: boolean;
   auditsLoading: boolean;
-  movementTrendLoading: boolean;
+  trendsLoading: boolean;
   
-  // Pre-computed stats (no functions, just data)
+  // Pre-computed stats from DB (no products array needed for dashboard)
   statsByCategory: StatsByCategory;
   trendsByCategory: TrendsByCategory;
   auditStats: AuditStats;
   
-  // Critical alerts
-  criticalAlerts: CriticalAlert[];
-  zeroStockProducts: CriticalAlert[];
+  // Critical alerts (minimal data from DB)
+  zeroStockProducts: ZeroStockProduct[];
   
-  // Summary
+  // Summary totals
   totalProducts: number;
   totalStock: number;
   totalLowStock: number;
+  totalValue: number;
 }
 
 // ============= HOOK =============
@@ -75,41 +70,58 @@ export function useEstoque(): UseEstoqueReturn {
   const { tenant } = useAuthContext();
   const { branchId, shouldFilter } = useBranchFilter();
   
-  const { 
-    data: products = [], 
-    isLoading: productsLoading 
-  } = useProducts();
+  const effectiveBranchId = shouldFilter ? branchId : null;
   
-  const { 
-    data: audits = [], 
-    isLoading: auditsLoading 
-  } = useStockAudits();
-
-  // Fetch movement trends for last 7 days
-  const { data: movementTrends = [], isLoading: movementTrendLoading } = useQuery({
-    queryKey: ['stock_movement_trends', tenant?.id, branchId],
+  // Fetch aggregated category stats from RPC
+  const { data: categoryStatsRaw = [], isLoading: statsLoading } = useQuery({
+    queryKey: ['stock_category_stats', tenant?.id, effectiveBranchId],
     queryFn: async () => {
       if (!tenant?.id) return [];
       
-      const sevenDaysAgo = startOfDay(subDays(new Date(), 7)).toISOString();
+      const { data, error } = await supabase.rpc('get_stock_category_stats', {
+        p_tenant_id: tenant.id,
+        p_branch_id: effectiveBranchId,
+      });
       
-      let query = supabase
-        .from('stock_movements')
-        .select(`
-          id,
-          movement_type,
-          quantity,
-          created_at,
-          product:products!inner(category)
-        `)
-        .eq('tenant_id', tenant.id)
-        .gte('created_at', sevenDaysAgo);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!tenant?.id,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  // Fetch zero stock products for alerts
+  const { data: zeroStockRaw = [], isLoading: zeroStockLoading } = useQuery({
+    queryKey: ['zero_stock_products', tenant?.id, effectiveBranchId],
+    queryFn: async () => {
+      if (!tenant?.id) return [];
       
-      if (shouldFilter && branchId) {
-        query = query.eq('branch_id', branchId);
-      }
+      const { data, error } = await supabase.rpc('get_zero_stock_products', {
+        p_tenant_id: tenant.id,
+        p_branch_id: effectiveBranchId,
+        p_limit: 10,
+      });
       
-      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!tenant?.id,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  // Fetch movement trends from RPC
+  const { data: trendsRaw = [], isLoading: trendsLoading } = useQuery({
+    queryKey: ['movement_trends', tenant?.id, effectiveBranchId],
+    queryFn: async () => {
+      if (!tenant?.id) return [];
+      
+      const { data, error } = await supabase.rpc('get_movement_trends', {
+        p_tenant_id: tenant.id,
+        p_branch_id: effectiveBranchId,
+      });
+      
       if (error) throw error;
       return data || [];
     },
@@ -118,31 +130,39 @@ export function useEstoque(): UseEstoqueReturn {
     gcTime: 5 * 60 * 1000,
   });
 
-  // Pre-compute all category stats in a single pass
+  // Fetch audits for audit stats
+  const { 
+    data: audits = [], 
+    isLoading: auditsLoading 
+  } = useStockAudits();
+
+  // Transform RPC results into statsByCategory
   const statsByCategory = useMemo<StatsByCategory>(() => {
     const stats = {} as StatsByCategory;
     
     // Initialize all categories with zero values
     CATEGORIES.forEach(cat => {
-      stats[cat] = { total: 0, totalStock: 0, lowStock: 0 };
+      stats[cat] = { total: 0, totalStock: 0, totalValue: 0, lowStock: 0, zeroStock: 0 };
     });
     
-    // Single pass through products to calculate all stats
-    products.forEach(p => {
-      const cat = p.category as StockCategory;
+    // Map RPC results to stats
+    categoryStatsRaw.forEach((row: any) => {
+      const cat = row.category as StockCategory;
       if (stats[cat]) {
-        stats[cat].total += 1;
-        stats[cat].totalStock += p.current_stock || 0;
-        if ((p.current_stock || 0) <= (p.min_stock || 0)) {
-          stats[cat].lowStock += 1;
-        }
+        stats[cat] = {
+          total: Number(row.total_items) || 0,
+          totalStock: Number(row.total_stock) || 0,
+          totalValue: Number(row.total_value) || 0,
+          lowStock: Number(row.low_stock_count) || 0,
+          zeroStock: Number(row.zero_stock_count) || 0,
+        };
       }
     });
     
     return stats;
-  }, [products]);
+  }, [categoryStatsRaw]);
 
-  // Pre-compute all movement trends by category
+  // Transform RPC trends into trendsByCategory
   const trendsByCategory = useMemo<TrendsByCategory>(() => {
     const trends = {} as TrendsByCategory;
     
@@ -165,26 +185,31 @@ export function useEstoque(): UseEstoqueReturn {
       }));
     });
     
-    // Single pass through movements to aggregate by category and date
-    movementTrends.forEach((m: any) => {
-      const movementDate = format(new Date(m.created_at), 'yyyy-MM-dd');
-      const category = m.product?.category as StockCategory;
-      
+    // Map RPC results to trends
+    trendsRaw.forEach((row: any) => {
+      const category = row.category as StockCategory;
       if (!category || !trends[category]) return;
       
-      const dateIndex = dateRange.findIndex(d => d.dateStr === movementDate);
+      const movementDateStr = row.movement_date; // Already a date string from DB
+      const dateIndex = dateRange.findIndex(d => d.dateStr === movementDateStr);
       if (dateIndex === -1) return;
       
-      const quantity = m.quantity || 0;
-      if (m.movement_type === 'entrada' || m.movement_type === 'devolucao') {
-        trends[category][dateIndex].entradas += quantity;
-      } else if (m.movement_type === 'saida') {
-        trends[category][dateIndex].saidas += quantity;
-      }
+      trends[category][dateIndex].entradas += Number(row.total_in) || 0;
+      trends[category][dateIndex].saidas += Number(row.total_out) || 0;
     });
     
     return trends;
-  }, [movementTrends]);
+  }, [trendsRaw]);
+
+  // Transform zero stock products
+  const zeroStockProducts = useMemo<ZeroStockProduct[]>(() => {
+    return zeroStockRaw.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      category: row.category as StockCategory,
+      sku: row.sku,
+    }));
+  }, [zeroStockRaw]);
 
   // Memoized audit stats
   const auditStats = useMemo<AuditStats>(() => {
@@ -195,61 +220,29 @@ export function useEstoque(): UseEstoqueReturn {
     };
   }, [audits]);
 
-  // Memoized critical alerts (zero stock or below minimum)
-  const criticalAlerts = useMemo<CriticalAlert[]>(() => {
-    return products
-      .filter(p => (p.current_stock || 0) <= (p.min_stock || 0))
-      .map(p => ({
-        id: p.id,
-        name: p.name,
-        code: p.code,
-        category: p.category as StockCategory,
-        currentStock: p.current_stock || 0,
-        minStock: p.min_stock || 0,
-      }))
-      .slice(0, 10);
-  }, [products]);
-
-  // Memoized zero stock products
-  const zeroStockProducts = useMemo<CriticalAlert[]>(() => {
-    return products
-      .filter(p => (p.current_stock || 0) === 0)
-      .map(p => ({
-        id: p.id,
-        name: p.name,
-        code: p.code,
-        category: p.category as StockCategory,
-        currentStock: 0,
-        minStock: p.min_stock || 0,
-      }))
-      .slice(0, 8);
-  }, [products]);
-
-  // Memoized summary stats - derive from statsByCategory
+  // Summary stats derived from statsByCategory
   const summaryStats = useMemo(() => {
     let totalProducts = 0;
     let totalStock = 0;
     let totalLowStock = 0;
+    let totalValue = 0;
     
     CATEGORIES.forEach(cat => {
       totalProducts += statsByCategory[cat].total;
       totalStock += statsByCategory[cat].totalStock;
       totalLowStock += statsByCategory[cat].lowStock;
+      totalValue += statsByCategory[cat].totalValue;
     });
     
-    return { totalProducts, totalStock, totalLowStock };
+    return { totalProducts, totalStock, totalLowStock, totalValue };
   }, [statsByCategory]);
 
   return {
-    // Data
-    products,
-    audits,
-    
     // Loading states
-    isLoading: productsLoading || auditsLoading,
-    productsLoading,
+    isLoading: statsLoading || auditsLoading || zeroStockLoading,
+    statsLoading,
     auditsLoading,
-    movementTrendLoading,
+    trendsLoading,
     
     // Pre-computed stats
     statsByCategory,
@@ -257,7 +250,6 @@ export function useEstoque(): UseEstoqueReturn {
     auditStats,
     
     // Critical alerts
-    criticalAlerts,
     zeroStockProducts,
     
     // Summary

@@ -176,7 +176,7 @@ export default function Estoque() {
     statsByCategory, 
     trendsByCategory,
     auditStats, 
-    productsLoading,
+    statsLoading,
     zeroStockProducts,
     totalProducts,
     totalStock,
@@ -224,7 +224,7 @@ export default function Estoque() {
                         {product.name}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
-                        {product.code} • {CATEGORY_LABELS[product.category]}
+                        {product.sku || '-'} • {CATEGORY_LABELS[product.category]}
                       </p>
                     </div>
                     <Badge variant="outline" className="text-[10px] border-destructive/30 text-destructive shrink-0">
@@ -311,7 +311,7 @@ export default function Estoque() {
         </div>
 
         {/* Loading indicator */}
-        {productsLoading && (
+        {statsLoading && (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
