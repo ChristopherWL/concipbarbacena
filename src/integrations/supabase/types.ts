@@ -3671,6 +3671,7 @@ export type Database = {
           description: string
           evidence_urls: Json | null
           id: string
+          parent_audit_id: string | null
           product_id: string
           quantity: number
           reported_at: string
@@ -3690,6 +3691,7 @@ export type Database = {
           description: string
           evidence_urls?: Json | null
           id?: string
+          parent_audit_id?: string | null
           product_id: string
           quantity?: number
           reported_at?: string
@@ -3709,6 +3711,7 @@ export type Database = {
           description?: string
           evidence_urls?: Json | null
           id?: string
+          parent_audit_id?: string | null
           product_id?: string
           quantity?: number
           reported_at?: string
@@ -3727,6 +3730,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_audits_parent_audit_id_fkey"
+            columns: ["parent_audit_id"]
+            isOneToOne: false
+            referencedRelation: "stock_audits"
             referencedColumns: ["id"]
           },
           {
@@ -4917,7 +4927,12 @@ export type Database = {
         | "cancelado"
         | "enviado"
         | "recebido"
-      stock_audit_type: "defeito" | "furto" | "garantia" | "inventario"
+      stock_audit_type:
+        | "defeito"
+        | "furto"
+        | "garantia"
+        | "inventario"
+        | "resolucao"
       stock_category:
         | "epi"
         | "epc"
@@ -5109,7 +5124,13 @@ export const Constants = {
         "enviado",
         "recebido",
       ],
-      stock_audit_type: ["defeito", "furto", "garantia", "inventario"],
+      stock_audit_type: [
+        "defeito",
+        "furto",
+        "garantia",
+        "inventario",
+        "resolucao",
+      ],
       stock_category: [
         "epi",
         "epc",

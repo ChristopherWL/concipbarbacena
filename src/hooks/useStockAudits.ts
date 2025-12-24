@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export type StockAuditType = 'defeito' | 'furto' | 'garantia' | 'inventario';
+export type StockAuditType = 'defeito' | 'furto' | 'garantia' | 'inventario' | 'resolucao';
 export type StockAuditStatus = 'aberto' | 'em_analise' | 'resolvido' | 'cancelado' | 'enviado' | 'recebido';
 
 export interface StockAudit {
@@ -21,6 +21,7 @@ export interface StockAudit {
   resolved_at: string | null;
   resolved_by: string | null;
   resolution_notes: string | null;
+  parent_audit_id: string | null;
   created_at: string;
   updated_at: string;
   product?: {
@@ -33,6 +34,12 @@ export interface StockAudit {
     id: string;
     serial_number: string;
   };
+  parent_audit?: {
+    id: string;
+    audit_type: StockAuditType;
+    description: string;
+    reported_at: string;
+  } | null;
 }
 
 export interface CreateStockAuditData {
@@ -43,6 +50,7 @@ export interface CreateStockAuditData {
   description: string;
   evidence_urls?: string[];
   status?: StockAuditStatus;
+  parent_audit_id?: string | null;
 }
 
 export function useStockAudits(filters?: { 
@@ -62,7 +70,8 @@ export function useStockAudits(filters?: {
         .select(`
           *,
           product:products(id, name, code, category),
-          serial_number:serial_numbers(id, serial_number)
+          serial_number:serial_numbers(id, serial_number),
+          parent_audit:stock_audits!parent_audit_id(id, audit_type, description, reported_at)
         `)
         .eq('tenant_id', tenant.id)
         .order('created_at', { ascending: false });
@@ -106,6 +115,7 @@ export function useCreateStockAudit() {
           evidence_urls: data.evidence_urls || [],
           reported_by: user?.id,
           status: data.status || 'aberto',
+          parent_audit_id: data.parent_audit_id || null,
         } as any)
         .select()
         .single();

@@ -45,6 +45,7 @@ const AUDIT_TYPE_CONFIG: Record<StockAuditType, { label: string; icon: React.Rea
   furto: { label: 'Furto', icon: <Shield className="w-3 h-3" />, variant: 'destructive' },
   garantia: { label: 'Garantia', icon: <Package className="w-3 h-3" />, variant: 'default' },
   inventario: { label: 'Inventário', icon: <ClipboardList className="w-3 h-3" />, variant: 'outline' },
+  resolucao: { label: 'Resolução', icon: <CheckCircle2 className="w-3 h-3" />, variant: 'default' },
 };
 
 const STATUS_CONFIG: Record<StockAuditStatus, { label: string; icon: React.ReactNode; className: string }> = {
