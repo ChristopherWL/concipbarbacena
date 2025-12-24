@@ -45,16 +45,6 @@ export interface CreateStockAuditData {
   status?: StockAuditStatus;
 }
 
-export interface UpdateStockAuditData {
-  id: string;
-  status?: StockAuditStatus;
-  resolution_notes?: string;
-  return_to_stock?: boolean;
-  quantity?: number;
-  product_id?: string;
-  serial_number_id?: string | null;
-}
-
 export function useStockAudits(filters?: { 
   audit_type?: StockAuditType; 
   status?: StockAuditStatus;
@@ -129,99 +119,6 @@ export function useCreateStockAudit() {
     },
     onError: (error: any) => {
       toast.error('Erro ao registrar auditoria: ' + error.message);
-    },
-  });
-}
-
-export function useUpdateStockAudit() {
-  const queryClient = useQueryClient();
-  const { user } = useAuthContext();
-
-  return useMutation({
-    mutationFn: async (data: UpdateStockAuditData) => {
-      const updateData: any = {};
-      
-      if (data.status) {
-        updateData.status = data.status;
-        if (data.status === 'resolvido') {
-          updateData.resolved_at = new Date().toISOString();
-          updateData.resolved_by = user?.id;
-        }
-      }
-      if (data.resolution_notes !== undefined) {
-        updateData.resolution_notes = data.resolution_notes;
-      }
-
-      const { data: audit, error } = await supabase
-        .from('stock_audits')
-        .update(updateData)
-        .eq('id', data.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // If returning to stock, update product stock and serial number status
-      if (data.return_to_stock && data.quantity && data.product_id) {
-        // Update product current_stock
-        const { data: product } = await supabase
-          .from('products')
-          .select('current_stock')
-          .eq('id', data.product_id)
-          .single();
-
-        if (product) {
-          await supabase
-            .from('products')
-            .update({ current_stock: (product.current_stock || 0) + data.quantity })
-            .eq('id', data.product_id);
-        }
-
-        // If has serial number, update status to disponivel
-        if (data.serial_number_id) {
-          await supabase
-            .from('serial_numbers')
-            .update({ status: 'disponivel' })
-            .eq('id', data.serial_number_id);
-        }
-      }
-
-      return audit;
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['stock-audits'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['serial-numbers'] });
-      if (variables.return_to_stock) {
-        toast.success('Item retornado ao estoque com sucesso');
-      } else {
-        toast.success('Auditoria atualizada com sucesso');
-      }
-    },
-    onError: (error: any) => {
-      toast.error('Erro ao atualizar auditoria: ' + error.message);
-    },
-  });
-}
-
-export function useDeleteStockAudit() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('stock_audits')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stock-audits'] });
-      toast.success('Auditoria removida com sucesso');
-    },
-    onError: (error: any) => {
-      toast.error('Erro ao remover auditoria: ' + error.message);
     },
   });
 }
