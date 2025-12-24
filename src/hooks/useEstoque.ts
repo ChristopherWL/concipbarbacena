@@ -5,8 +5,11 @@ import { useStockAudits } from '@/hooks/useStockAudits';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useBranchFilter } from '@/hooks/useBranchFilter';
 import { supabase } from '@/integrations/supabase/client';
-import { StockCategory, CATEGORY_LABELS } from '@/types/stock';
+import { StockCategory } from '@/types/stock';
 import { subDays, format, startOfDay } from 'date-fns';
+
+// All stock categories
+const CATEGORIES: StockCategory[] = ['epi', 'epc', 'ferramentas', 'materiais', 'equipamentos'];
 
 // ============= TYPES =============
 
@@ -36,6 +39,10 @@ export interface CriticalAlert {
   minStock: number;
 }
 
+// Pre-computed stats by category
+export type StatsByCategory = Record<StockCategory, CategoryStats>;
+export type TrendsByCategory = Record<StockCategory, MovementTrendPoint[]>;
+
 export interface UseEstoqueReturn {
   // Data
   products: ReturnType<typeof useProducts>['data'];
@@ -47,12 +54,10 @@ export interface UseEstoqueReturn {
   auditsLoading: boolean;
   movementTrendLoading: boolean;
   
-  // Computed stats
-  getCategoryStats: (category: StockCategory) => CategoryStats;
+  // Pre-computed stats (no functions, just data)
+  statsByCategory: StatsByCategory;
+  trendsByCategory: TrendsByCategory;
   auditStats: AuditStats;
-  
-  // Movement trends (last 7 days)
-  getMovementTrend: (category: StockCategory) => MovementTrendPoint[];
   
   // Critical alerts
   criticalAlerts: CriticalAlert[];
@@ -109,51 +114,76 @@ export function useEstoque(): UseEstoqueReturn {
       return data || [];
     },
     enabled: !!tenant?.id,
-    staleTime: 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
-  // Memoized category stats calculator
-  const getCategoryStats = useMemo(() => {
-    return (category: StockCategory): CategoryStats => {
-      const categoryProducts = products.filter(p => p.category === category);
-      return {
-        total: categoryProducts.length,
-        totalStock: categoryProducts.reduce((acc, p) => acc + (p.current_stock || 0), 0),
-        lowStock: categoryProducts.filter(p => (p.current_stock || 0) <= (p.min_stock || 0)).length,
-      };
-    };
+  // Pre-compute all category stats in a single pass
+  const statsByCategory = useMemo<StatsByCategory>(() => {
+    const stats = {} as StatsByCategory;
+    
+    // Initialize all categories with zero values
+    CATEGORIES.forEach(cat => {
+      stats[cat] = { total: 0, totalStock: 0, lowStock: 0 };
+    });
+    
+    // Single pass through products to calculate all stats
+    products.forEach(p => {
+      const cat = p.category as StockCategory;
+      if (stats[cat]) {
+        stats[cat].total += 1;
+        stats[cat].totalStock += p.current_stock || 0;
+        if ((p.current_stock || 0) <= (p.min_stock || 0)) {
+          stats[cat].lowStock += 1;
+        }
+      }
+    });
+    
+    return stats;
   }, [products]);
 
-  // Memoized movement trend by category
-  const getMovementTrend = useMemo(() => {
-    return (category: StockCategory): MovementTrendPoint[] => {
-      const last7Days: MovementTrendPoint[] = [];
+  // Pre-compute all movement trends by category
+  const trendsByCategory = useMemo<TrendsByCategory>(() => {
+    const trends = {} as TrendsByCategory;
+    
+    // Generate date range for last 7 days
+    const dateRange: { dateStr: string; displayDate: string }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = subDays(new Date(), i);
+      dateRange.push({
+        dateStr: format(date, 'yyyy-MM-dd'),
+        displayDate: format(date, 'dd/MM'),
+      });
+    }
+    
+    // Initialize all categories with empty trends
+    CATEGORIES.forEach(cat => {
+      trends[cat] = dateRange.map(d => ({ 
+        date: d.displayDate, 
+        entradas: 0, 
+        saidas: 0 
+      }));
+    });
+    
+    // Single pass through movements to aggregate by category and date
+    movementTrends.forEach((m: any) => {
+      const movementDate = format(new Date(m.created_at), 'yyyy-MM-dd');
+      const category = m.product?.category as StockCategory;
       
-      for (let i = 6; i >= 0; i--) {
-        const date = subDays(new Date(), i);
-        const dateStr = format(date, 'yyyy-MM-dd');
-        const displayDate = format(date, 'dd/MM');
-        
-        const dayMovements = movementTrends.filter((m: any) => {
-          const movementDate = format(new Date(m.created_at), 'yyyy-MM-dd');
-          const movementCategory = m.product?.category;
-          return movementDate === dateStr && movementCategory === category;
-        });
-        
-        const entradas = dayMovements
-          .filter((m: any) => m.movement_type === 'entrada' || m.movement_type === 'devolucao')
-          .reduce((acc: number, m: any) => acc + (m.quantity || 0), 0);
-          
-        const saidas = dayMovements
-          .filter((m: any) => m.movement_type === 'saida')
-          .reduce((acc: number, m: any) => acc + (m.quantity || 0), 0);
-        
-        last7Days.push({ date: displayDate, entradas, saidas });
+      if (!category || !trends[category]) return;
+      
+      const dateIndex = dateRange.findIndex(d => d.dateStr === movementDate);
+      if (dateIndex === -1) return;
+      
+      const quantity = m.quantity || 0;
+      if (m.movement_type === 'entrada' || m.movement_type === 'devolucao') {
+        trends[category][dateIndex].entradas += quantity;
+      } else if (m.movement_type === 'saida') {
+        trends[category][dateIndex].saidas += quantity;
       }
-      
-      return last7Days;
-    };
+    });
+    
+    return trends;
   }, [movementTrends]);
 
   // Memoized audit stats
@@ -177,7 +207,7 @@ export function useEstoque(): UseEstoqueReturn {
         currentStock: p.current_stock || 0,
         minStock: p.min_stock || 0,
       }))
-      .slice(0, 10); // Limit to 10 alerts
+      .slice(0, 10);
   }, [products]);
 
   // Memoized zero stock products
@@ -192,17 +222,23 @@ export function useEstoque(): UseEstoqueReturn {
         currentStock: 0,
         minStock: p.min_stock || 0,
       }))
-      .slice(0, 8); // Limit to 8 products
+      .slice(0, 8);
   }, [products]);
 
-  // Memoized summary stats
+  // Memoized summary stats - derive from statsByCategory
   const summaryStats = useMemo(() => {
-    return {
-      totalProducts: products.length,
-      totalStock: products.reduce((acc, p) => acc + (p.current_stock || 0), 0),
-      totalLowStock: products.filter(p => (p.current_stock || 0) <= (p.min_stock || 0)).length,
-    };
-  }, [products]);
+    let totalProducts = 0;
+    let totalStock = 0;
+    let totalLowStock = 0;
+    
+    CATEGORIES.forEach(cat => {
+      totalProducts += statsByCategory[cat].total;
+      totalStock += statsByCategory[cat].totalStock;
+      totalLowStock += statsByCategory[cat].lowStock;
+    });
+    
+    return { totalProducts, totalStock, totalLowStock };
+  }, [statsByCategory]);
 
   return {
     // Data
@@ -215,12 +251,10 @@ export function useEstoque(): UseEstoqueReturn {
     auditsLoading,
     movementTrendLoading,
     
-    // Computed stats
-    getCategoryStats,
+    // Pre-computed stats
+    statsByCategory,
+    trendsByCategory,
     auditStats,
-    
-    // Movement trends
-    getMovementTrend,
     
     // Critical alerts
     criticalAlerts,
