@@ -259,10 +259,6 @@ export function useAuth() {
         selectedBranch = branchData;
       }
 
-      // Debug: Log roles being loaded
-      console.log('[Auth Debug] Roles loaded for user:', userId, roles);
-      console.log('[Auth Debug] Profile loaded:', profile?.full_name, profile?.email);
-
       setState(prev => {
         const next = {
           ...prev,
@@ -493,14 +489,6 @@ export function useAuth() {
     return hasRole('manager') || hasRole('admin') || hasRole('superadmin');
   };
 
-  // Field user / Technician - operational user with limited access
-  const isFieldUser = (): boolean => {
-    // A field user is someone who only has 'technician', 'warehouse', or 'caixa' role
-    // and is NOT admin, manager, or superadmin
-    if (isSuperAdmin() || isAdmin() || hasRole('manager')) return false;
-    return hasRole('technician') || hasRole('warehouse') || hasRole('caixa');
-  };
-
   return {
     ...state,
     signIn,
@@ -509,7 +497,6 @@ export function useAuth() {
     isSuperAdmin,
     isAdmin,
     isManager,
-    isFieldUser,
     refetchUserData: () => state.user && fetchUserData(state.user.id),
   };
 }
