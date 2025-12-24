@@ -4,11 +4,12 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { useProducts } from '@/hooks/useProducts';
-import { useStockAudits } from '@/hooks/useStockAudits';
+import { useEstoque } from '@/hooks/useEstoque';
 import { StockCategory, CATEGORY_LABELS } from '@/types/stock';
 import { Loader2, HardHat, Shield, Wrench, Boxes, Monitor, ClipboardCheck } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
+
+// ============= CONSTANTS =============
 
 const CATEGORY_ICONS: Record<StockCategory, React.ComponentType<{ className?: string }>> = {
   epi: HardHat,
@@ -26,13 +27,16 @@ const CATEGORY_ROUTES: Record<StockCategory, string> = {
   equipamentos: '/estoque/equipamentos',
 };
 
+const CATEGORIES: StockCategory[] = ['epi', 'epc', 'ferramentas', 'materiais', 'equipamentos'];
+
+// ============= COMPONENT =============
+
 export default function Estoque() {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuthContext();
+  const { getCategoryStats, auditStats, productsLoading } = useEstoque();
 
-  const { data: products = [], isLoading: productsLoading } = useProducts();
-  const { data: audits = [] } = useStockAudits();
-
+  // Auth redirect
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth', { replace: true });
@@ -45,24 +49,6 @@ export default function Estoque() {
 
   if (!user) return null;
 
-  const getCategoryStats = (cat: StockCategory) => {
-    const catProducts = products.filter(p => p.category === cat);
-    return {
-      total: catProducts.length,
-      totalStock: catProducts.reduce((acc, p) => acc + (p.current_stock || 0), 0),
-      lowStock: catProducts.filter(p => (p.current_stock || 0) <= (p.min_stock || 0)).length,
-    };
-  };
-
-  const getAuditStats = () => {
-    const pending = audits.filter(a => a.status === 'aberto' || a.status === 'em_analise').length;
-    const total = audits.length;
-    return { total, pending };
-  };
-
-  const categories: StockCategory[] = ['epi', 'epc', 'ferramentas', 'materiais', 'equipamentos'];
-  const auditStats = getAuditStats();
-
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fade-in">
@@ -74,14 +60,15 @@ export default function Estoque() {
 
         {/* Category Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 animate-stagger">
-          {categories.map((cat) => {
-            const Icon = CATEGORY_ICONS[cat];
-            const stats = getCategoryStats(cat);
+          {CATEGORIES.map((category) => {
+            const Icon = CATEGORY_ICONS[category];
+            const stats = getCategoryStats(category);
+            
             return (
               <Card 
-                key={cat} 
+                key={category} 
                 variant="interactive"
-                onClick={() => navigate(CATEGORY_ROUTES[cat])}
+                onClick={() => navigate(CATEGORY_ROUTES[category])}
               >
                 <CardContent className="p-3 sm:p-4">
                   <div className="flex flex-col items-center text-center gap-2">
@@ -89,7 +76,9 @@ export default function Estoque() {
                       <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm sm:text-base font-semibold text-foreground">{CATEGORY_LABELS[cat]}</p>
+                      <p className="text-sm sm:text-base font-semibold text-foreground">
+                        {CATEGORY_LABELS[category]}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {stats.total} produtos • {stats.totalStock} un
                       </p>
@@ -131,6 +120,7 @@ export default function Estoque() {
           </Card>
         </div>
 
+        {/* Loading indicator */}
         {productsLoading && (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
