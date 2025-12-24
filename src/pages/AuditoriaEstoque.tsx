@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useStockAudits, useUpdateStockAudit, StockAuditType, StockAuditStatus, StockAudit } from '@/hooks/useStockAudits';
+import { useStockAudits, StockAuditType, StockAuditStatus, StockAudit } from '@/hooks/useStockAudits';
 import { StockAuditDialog } from '@/components/stock/StockAuditDialog';
 import { StockAuditDetailsDialog } from '@/components/stock/StockAuditDetailsDialog';
 import { BulkWarrantyDialog } from '@/components/stock/BulkWarrantyDialog';
@@ -72,8 +72,6 @@ export default function AuditoriaEstoque() {
     status: filterStatus !== 'all' ? filterStatus : undefined,
   });
 
-  const updateAudit = useUpdateStockAudit();
-
   const filteredAudits = audits?.filter(audit => {
     if (!search) return true;
     const searchLower = search.toLowerCase();
@@ -84,22 +82,6 @@ export default function AuditoriaEstoque() {
       audit.serial_number?.serial_number?.toLowerCase().includes(searchLower)
     );
   });
-
-  const handleStatusChange = async (auditId: string, newStatus: StockAuditStatus) => {
-    await updateAudit.mutateAsync({ id: auditId, status: newStatus });
-  };
-
-  const handleWarrantyReturn = async (audit: StockAudit) => {
-    await updateAudit.mutateAsync({
-      id: audit.id,
-      status: 'recebido',
-      resolution_notes: 'Item recebido da garantia e devolvido ao estoque',
-      return_to_stock: true,
-      quantity: audit.quantity,
-      product_id: audit.product_id,
-      serial_number_id: audit.serial_number_id,
-    });
-  };
 
   const openDetails = (audit: StockAudit) => {
     setSelectedAudit(audit);
@@ -270,39 +252,6 @@ export default function AuditoriaEstoque() {
                                 <Eye className="w-4 h-4 mr-2" />
                                 Ver Detalhes
                               </DropdownMenuItem>
-                              {audit.audit_type === 'garantia' && audit.status === 'aberto' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'enviado')}>
-                                  <Send className="w-4 h-4 mr-2" />
-                                  Marcar Enviado
-                                </DropdownMenuItem>
-                              )}
-                              {audit.audit_type === 'garantia' && audit.status === 'enviado' && (
-                                <DropdownMenuItem onClick={() => handleWarrantyReturn(audit)}>
-                                  <PackageCheck className="w-4 h-4 mr-2" />
-                                  Marcar Recebido
-                                </DropdownMenuItem>
-                              )}
-                              {audit.status === 'aberto' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'em_analise')}>
-                                  <Clock className="w-4 h-4 mr-2" />
-                                  Iniciar Análise
-                                </DropdownMenuItem>
-                              )}
-                              {audit.status !== 'resolvido' && audit.status !== 'cancelado' && audit.status !== 'recebido' && (
-                                <>
-                                  <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'resolvido')}>
-                                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                                    Marcar Resolvido
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    onClick={() => handleStatusChange(audit.id, 'cancelado')}
-                                    className="text-destructive"
-                                  >
-                                    <XCircle className="w-4 h-4 mr-2" />
-                                    Cancelar
-                                  </DropdownMenuItem>
-                                </>
-                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -385,39 +334,6 @@ export default function AuditoriaEstoque() {
                                     <Eye className="w-4 h-4 mr-2" />
                                     Ver Detalhes
                                   </DropdownMenuItem>
-                                  {audit.audit_type === 'garantia' && audit.status === 'aberto' && (
-                                    <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'enviado')}>
-                                      <Send className="w-4 h-4 mr-2" />
-                                      Marcar Enviado
-                                    </DropdownMenuItem>
-                                  )}
-                                  {audit.audit_type === 'garantia' && audit.status === 'enviado' && (
-                                    <DropdownMenuItem onClick={() => handleWarrantyReturn(audit)}>
-                                      <PackageCheck className="w-4 h-4 mr-2" />
-                                      Marcar Recebido
-                                    </DropdownMenuItem>
-                                  )}
-                                  {audit.status === 'aberto' && (
-                                    <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'em_analise')}>
-                                      <Clock className="w-4 h-4 mr-2" />
-                                      Iniciar Análise
-                                    </DropdownMenuItem>
-                                  )}
-                                  {audit.status !== 'resolvido' && audit.status !== 'cancelado' && audit.status !== 'recebido' && (
-                                    <>
-                                      <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'resolvido')}>
-                                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                                        Marcar Resolvido
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem 
-                                        onClick={() => handleStatusChange(audit.id, 'cancelado')}
-                                        className="text-destructive"
-                                      >
-                                        <XCircle className="w-4 h-4 mr-2" />
-                                        Cancelar
-                                      </DropdownMenuItem>
-                                    </>
-                                  )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </TableCell>
