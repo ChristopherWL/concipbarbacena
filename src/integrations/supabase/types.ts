@@ -4926,6 +4926,7 @@ export type Database = {
         | "branch_manager"
         | "team_leader"
         | "field_user"
+        | "director"
       contract_type: "clt" | "pj" | "estagio" | "temporario" | "autonomo"
       employee_status: "ativo" | "ferias" | "afastado" | "desligado"
       leave_type:
@@ -5120,6 +5121,7 @@ export const Constants = {
         "branch_manager",
         "team_leader",
         "field_user",
+        "director",
       ],
       contract_type: ["clt", "pj", "estagio", "temporario", "autonomo"],
       employee_status: ["ativo", "ferias", "afastado", "desligado"],
