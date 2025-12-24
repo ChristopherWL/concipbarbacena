@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDirectorBranch } from '@/contexts/DirectorBranchContext';
@@ -51,12 +51,6 @@ export default function Equipes() {
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [teamForm, setTeamForm] = useState({ name: '', description: '', leader_employee_id: '', vehicle_id: '', color: '#3b82f6', member_employee_ids: [] as string[] });
 
-  useEffect(() => {
-    if (!authLoading && !user) navigate('/auth', { replace: true });
-  }, [user, authLoading, navigate]);
-
-  if (authLoading) return <PageLoading text="Carregando equipes" />;
-  if (!user) return null;
 
   const openCreateDialog = () => {
     setEditingTeam(null);

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDirectorBranch } from '@/contexts/DirectorBranchContext';
@@ -67,12 +67,6 @@ export default function Frota() {
   const [maintenanceForm, setMaintenanceForm] = useState({ vehicle_id: '', maintenance_type: 'preventiva' as MaintenanceType, description: '', scheduled_date: '', cost: '0' });
   const [fuelForm, setFuelForm] = useState({ vehicle_id: '', supplier_id: '', date: new Date().toISOString().split('T')[0], km_at_fill: '', liters: '', price_per_liter: '', fuel_type: 'gasolina', full_tank: true, notes: '' });
 
-  useEffect(() => {
-    if (!authLoading && !user) navigate('/auth', { replace: true });
-  }, [user, authLoading, navigate]);
-
-  if (authLoading) return <PageLoading text="Carregando frota" />;
-  if (!user) return null;
 
   const handleCreateVehicle = async () => {
     if (!vehicleForm.plate || !vehicleForm.brand || !vehicleForm.model) {

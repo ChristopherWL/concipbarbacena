@@ -1,13 +1,10 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { useEstoque } from '@/hooks/useEstoque';
 import { StockCategory, CATEGORY_LABELS } from '@/types/stock';
 import { Loader2, HardHat, Shield, Wrench, Boxes, Monitor, ClipboardCheck } from 'lucide-react';
-import { PageLoading } from '@/components/ui/page-loading';
+import { useNavigate } from 'react-router-dom';
 
 // ============= CONSTANTS =============
 
@@ -33,21 +30,8 @@ const CATEGORIES: StockCategory[] = ['epi', 'epc', 'ferramentas', 'materiais', '
 
 export default function Estoque() {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuthContext();
   const { getCategoryStats, auditStats, productsLoading } = useEstoque();
 
-  // Auth redirect
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth', { replace: true });
-    }
-  }, [user, authLoading, navigate]);
-
-  if (authLoading) {
-    return <PageLoading text="Carregando estoque" />;
-  }
-
-  if (!user) return null;
 
   return (
     <DashboardLayout>

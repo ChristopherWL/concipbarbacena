@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDirectorBranch } from '@/contexts/DirectorBranchContext';
@@ -85,12 +85,6 @@ export default function OrdensServico() {
   const { etapas: orderEtapas } = useServiceOrderEtapas(selectedOrder?.id);
   const { createDiario } = useDiarioServiceOrders(selectedOrder?.id);
 
-  useEffect(() => {
-    if (!authLoading && !user) navigate('/auth', { replace: true });
-  }, [user, authLoading, navigate]);
-
-  if (authLoading) return <PageLoading text="Carregando ordens de serviço" />;
-  if (!user) return null;
 
   const filteredOrders = orders.filter(o => {
     const matchesStatus = statusFilter === 'all' || o.status === statusFilter;

@@ -1,6 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useState, useCallback } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { EPIFormDialog } from '@/components/stock/EPIFormDialog';
@@ -10,11 +8,8 @@ import { EstoqueTable } from '@/components/stock/EstoqueTable';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useProductsPaginated } from '@/hooks/useProductsPaginated';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { PageLoading } from '@/components/ui/page-loading';
 
 export default function EstoqueEPI() {
-  const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuthContext();
   const { isReadOnly } = useUserPermissions();
   const [isFormOpen, setIsFormOpen] = useState(false);
   
@@ -35,19 +30,6 @@ export default function EstoqueEPI() {
   // Memoized callbacks to prevent unnecessary re-renders
   const handleOpenForm = useCallback(() => setIsFormOpen(true), []);
   const handleCloseForm = useCallback((open: boolean) => setIsFormOpen(open), []);
-
-  // Auth redirect
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth', { replace: true });
-    }
-  }, [user, authLoading, navigate]);
-
-  if (authLoading) {
-    return <PageLoading text="Carregando EPIs" />;
-  }
-
-  if (!user) return null;
 
   return (
     <DashboardLayout>
