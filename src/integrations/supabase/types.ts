@@ -3102,6 +3102,7 @@ export type Database = {
           is_active: boolean | null
           phone: string | null
           selected_branch_id: string | null
+          team_id: string | null
           tenant_id: string | null
           updated_at: string | null
         }
@@ -3115,6 +3116,7 @@ export type Database = {
           is_active?: boolean | null
           phone?: string | null
           selected_branch_id?: string | null
+          team_id?: string | null
           tenant_id?: string | null
           updated_at?: string | null
         }
@@ -3128,6 +3130,7 @@ export type Database = {
           is_active?: boolean | null
           phone?: string | null
           selected_branch_id?: string | null
+          team_id?: string | null
           tenant_id?: string | null
           updated_at?: string | null
         }
@@ -3144,6 +3147,13 @@ export type Database = {
             columns: ["selected_branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
             referencedColumns: ["id"]
           },
           {
@@ -3671,6 +3681,7 @@ export type Database = {
           description: string
           evidence_urls: Json | null
           id: string
+          parent_audit_id: string | null
           product_id: string
           quantity: number
           reported_at: string
@@ -3690,6 +3701,7 @@ export type Database = {
           description: string
           evidence_urls?: Json | null
           id?: string
+          parent_audit_id?: string | null
           product_id: string
           quantity?: number
           reported_at?: string
@@ -3709,6 +3721,7 @@ export type Database = {
           description?: string
           evidence_urls?: Json | null
           id?: string
+          parent_audit_id?: string | null
           product_id?: string
           quantity?: number
           reported_at?: string
@@ -3727,6 +3740,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_audits_parent_audit_id_fkey"
+            columns: ["parent_audit_id"]
+            isOneToOne: false
+            referencedRelation: "stock_audits"
             referencedColumns: ["id"]
           },
           {
@@ -4795,6 +4815,14 @@ export type Database = {
       }
     }
     Functions: {
+      can_access_by_hierarchy: {
+        Args: {
+          _target_branch_id: string
+          _target_team_id?: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       can_edit_branch_settings: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
@@ -4807,12 +4835,42 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      get_movement_trends: {
+        Args: { p_branch_id?: string; p_tenant_id: string }
+        Returns: {
+          category: string
+          movement_date: string
+          total_in: number
+          total_out: number
+        }[]
+      }
+      get_stock_category_stats: {
+        Args: { p_branch_id?: string; p_tenant_id: string }
+        Returns: {
+          category: string
+          low_stock_count: number
+          total_items: number
+          total_stock: number
+          total_value: number
+          zero_stock_count: number
+        }[]
+      }
       get_tenant_id_from_storage_path: {
         Args: { object_path: string }
         Returns: string
       }
       get_user_branch_id: { Args: { _user_id: string }; Returns: string }
+      get_user_team_id: { Args: { _user_id: string }; Returns: string }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
+      get_zero_stock_products: {
+        Args: { p_branch_id?: string; p_limit?: number; p_tenant_id: string }
+        Returns: {
+          category: string
+          id: string
+          name: string
+          sku: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4820,7 +4878,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_branch_manager: {
+        Args: { _branch_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_branch_mgr: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      is_team_leader: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_technician_assigned_to_order: {
         Args: { _order_id: string; _user_id: string }
         Returns: boolean
@@ -4831,6 +4899,12 @@ export type Database = {
       }
       is_user_in_order_team: {
         Args: { _order_id: string; _user_id: string }
+        Returns: boolean
+      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      user_belongs_to_team: {
+        Args: { _team_id: string; _user_id: string }
         Returns: boolean
       }
       user_belongs_to_tenant: {
@@ -4851,6 +4925,10 @@ export type Database = {
         | "superadmin"
         | "caixa"
         | "diretor"
+        | "branch_manager"
+        | "team_leader"
+        | "field_user"
+        | "director"
       contract_type: "clt" | "pj" | "estagio" | "temporario" | "autonomo"
       employee_status: "ativo" | "ferias" | "afastado" | "desligado"
       leave_type:
@@ -4888,7 +4966,12 @@ export type Database = {
         | "cancelado"
         | "enviado"
         | "recebido"
-      stock_audit_type: "defeito" | "furto" | "garantia" | "inventario"
+      stock_audit_type:
+        | "defeito"
+        | "furto"
+        | "garantia"
+        | "inventario"
+        | "resolucao"
       stock_category:
         | "epi"
         | "epc"
@@ -5037,6 +5120,10 @@ export const Constants = {
         "superadmin",
         "caixa",
         "diretor",
+        "branch_manager",
+        "team_leader",
+        "field_user",
+        "director",
       ],
       contract_type: ["clt", "pj", "estagio", "temporario", "autonomo"],
       employee_status: ["ativo", "ferias", "afastado", "desligado"],
@@ -5080,7 +5167,13 @@ export const Constants = {
         "enviado",
         "recebido",
       ],
-      stock_audit_type: ["defeito", "furto", "garantia", "inventario"],
+      stock_audit_type: [
+        "defeito",
+        "furto",
+        "garantia",
+        "inventario",
+        "resolucao",
+      ],
       stock_category: [
         "epi",
         "epc",
