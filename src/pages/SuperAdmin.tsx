@@ -4,21 +4,23 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Shield, LogOut, Settings, Palette, Building, Building2, Users, ChevronRight, Sparkles, Zap, Lock } from 'lucide-react';
+import { Loader2, Shield, LogOut, Settings, Palette, Building, Building2, Users, ChevronRight, Sparkles, Zap, Lock, KeyRound } from 'lucide-react';
 import { CompanyDataPanel } from '@/components/super-admin/CompanyDataPanel';
 import { SystemModulesPanel } from '@/components/super-admin/SystemModulesPanel';
 import { ThemePanel } from '@/components/super-admin/ThemePanel';
 import { BranchesPanel } from '@/components/super-admin/BranchesPanel';
 import { UserManagementPanel } from '@/components/super-admin/UserManagementPanel';
+import { AccessManagementPanel } from '@/components/super-admin/AccessManagementPanel';
 import { cn } from '@/lib/utils';
 
-type PanelType = 'company' | 'branches' | 'modules' | 'users' | 'theme';
+type PanelType = 'company' | 'branches' | 'modules' | 'users' | 'access' | 'theme';
 
 const menuItems: { id: PanelType; label: string; description: string; icon: React.ElementType }[] = [
   { id: 'company', label: 'Dados da Empresa', description: 'Informações gerais e branding', icon: Building },
   { id: 'branches', label: 'Filiais', description: 'Gerenciar unidades', icon: Building2 },
   { id: 'modules', label: 'Módulos e Páginas', description: 'Funcionalidades do sistema', icon: Settings },
   { id: 'users', label: 'Usuários e Permissões', description: 'Controle de acesso', icon: Users },
+  { id: 'access', label: 'Gestão de Acessos', description: 'Cargos, filiais e equipes', icon: KeyRound },
   { id: 'theme', label: 'Tema e Aparência', description: 'Personalização visual', icon: Palette },
 ];
 
@@ -66,6 +68,8 @@ export default function SuperAdmin() {
         return <SystemModulesPanel />;
       case 'users':
         return <UserManagementPanel />;
+      case 'access':
+        return <AccessManagementPanel />;
       case 'theme':
         return <ThemePanel />;
       default:
@@ -98,7 +102,7 @@ export default function SuperAdmin() {
             </Button>
           </div>
           {/* Mobile Tabs */}
-          <div className="grid grid-cols-5 gap-1.5 mt-2">
+          <div className="grid grid-cols-6 gap-1.5 mt-2">
             {menuItems.map((item) => {
               const isActive = activePanel === item.id;
               const Icon = item.icon;
