@@ -34,7 +34,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 
 export interface RouteConfig {
   path: string;
-  element: React.LazyExoticComponent<React.ComponentType>;
+  element: React.LazyExoticComponent<() => JSX.Element>;
   isPublic?: boolean;
   isProtectedPrefix?: boolean;
 }
