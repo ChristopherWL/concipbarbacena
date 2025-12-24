@@ -71,14 +71,13 @@ export function useStockAudits(filters?: {
     queryFn: async () => {
       if (!tenant?.id) return [];
 
+      // First query: get audits with product and serial info
       let query = supabase
         .from('stock_audits')
         .select(`
           *,
           product:products(id, name, code, category),
-          serial_number:serial_numbers(id, serial_number),
-          parent_audit:stock_audits!parent_audit_id(id, audit_type, description, reported_at),
-          resolutions:stock_audits!stock_audits_parent_audit_id_fkey(id, description, reported_at, status)
+          serial_number:serial_numbers(id, serial_number)
         `)
         .eq('tenant_id', tenant.id)
         .order('created_at', { ascending: false });
@@ -95,8 +94,41 @@ export function useStockAudits(filters?: {
 
       const { data, error } = await query;
 
-      if (error) throw error;
-      return data as StockAudit[];
+      if (error) {
+        console.error('Error fetching stock audits:', error);
+        throw error;
+      }
+
+      // Process the data to add parent_audit and resolutions info
+      const auditsWithRelations = await Promise.all((data || []).map(async (audit) => {
+        let parent_audit = null;
+        let resolutions: any[] = [];
+
+        // Fetch parent audit if exists
+        if (audit.parent_audit_id) {
+          const { data: parentData } = await supabase
+            .from('stock_audits')
+            .select('id, audit_type, description, reported_at')
+            .eq('id', audit.parent_audit_id)
+            .maybeSingle();
+          parent_audit = parentData;
+        }
+
+        // Fetch resolutions (child audits)
+        const { data: resolutionsData } = await supabase
+          .from('stock_audits')
+          .select('id, description, reported_at, status')
+          .eq('parent_audit_id', audit.id);
+        resolutions = resolutionsData || [];
+
+        return {
+          ...audit,
+          parent_audit,
+          resolutions,
+        };
+      }));
+
+      return auditsWithRelations as StockAudit[];
     },
     enabled: !!tenant?.id,
   });
