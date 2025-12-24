@@ -5,7 +5,8 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSystemStatus } from "@/hooks/useSystemStatus";
 import { useLandscapeBlocker } from "@/hooks/useLandscapeBlocker";
-import { routes, isPublicRoute } from "@/routes";
+import { routes } from "@/routes";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Fallback component for lazy loading
 function PageLoader() {
@@ -34,13 +35,11 @@ function LandscapeBlocker() {
 }
 
 export function AppRoutes() {
-  const { isLoading } = useAuthContext();
+  const { isInitialized } = useAuthContext();
   const isMobile = useIsMobile();
   const location = useLocation();
   const { shouldBlock } = useLandscapeBlocker(isMobile);
   const systemStatus = useSystemStatus();
-
-  const isCurrentRoutePublic = isPublicRoute(location.pathname);
 
   // Lock portrait orientation on mobile
   useEffect(() => {
@@ -57,8 +56,8 @@ export function AppRoutes() {
     lockPortrait();
   }, [isMobile]);
 
-  // Show loading while checking system status
-  if (systemStatus.isLoading) {
+  // Show loading while checking system status OR while auth is not initialized
+  if (systemStatus.isLoading || !isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -79,19 +78,26 @@ export function AppRoutes() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Show loading only for protected routes while checking auth
-  if (isLoading && !isCurrentRoutePublic) {
-    return <PageLoader />;
-  }
-
   return (
     <>
       {shouldBlock && <LandscapeBlocker />}
 
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {routes.map(({ path, element: Element }) => (
-            <Route key={path} path={path} element={<Element />} />
+          {routes.map(({ path, element: Element, isPublic }) => (
+            <Route 
+              key={path} 
+              path={path} 
+              element={
+                isPublic ? (
+                  <Element />
+                ) : (
+                  <ProtectedRoute>
+                    <Element />
+                  </ProtectedRoute>
+                )
+              } 
+            />
           ))}
         </Routes>
       </Suspense>

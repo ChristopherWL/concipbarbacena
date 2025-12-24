@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -18,16 +17,9 @@ import { DashboardObras } from '@/components/dashboard/DashboardObras';
 type DashboardType = 'overview' | 'vendas' | 'estoque' | 'frota' | 'servico' | 'rh' | 'obras';
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const { user, profile, tenant, roles, isLoading: authLoading } = useAuthContext();
+  const { user, profile, tenant, roles } = useAuthContext();
   const [dashboardType, setDashboardType] = useState<DashboardType>('overview');
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(true);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth', { replace: true });
-    }
-  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     const fetchDashboardType = async () => {
@@ -102,11 +94,9 @@ export default function Dashboard() {
     fetchDashboardType();
   }, [user, tenant?.id, roles]);
 
-  if (authLoading || isLoadingDashboard) {
+  if (isLoadingDashboard) {
     return <PageLoading text="Carregando dashboard" />;
   }
-
-  if (!user) return null;
 
   const renderDashboard = () => {
     switch (dashboardType) {

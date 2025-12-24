@@ -1,9 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile, UserRole, Tenant, AppRole, Branch } from '@/types/database';
 import { saveThemeSnapshotToSession, resetInlineThemeFromCachedSnapshot, clearThemeSnapshotFromSession } from '@/lib/themeCache';
+import { toast } from 'sonner';
+import { sanitizeErrorMessage } from '@/lib/errorUtils';
 
+// ============= TYPES =============
 
 interface AuthState {
   user: User | null;
@@ -13,6 +16,16 @@ interface AuthState {
   tenant: Tenant | null;
   selectedBranch: Branch | null;
   isLoading: boolean;
+  isInitialized: boolean; // Track if initial session check is complete
+}
+
+interface AuthResult {
+  data: { user: User | null; session: Session | null } | null;
+  error: AuthError | null;
+}
+
+interface SignOutResult {
+  error: AuthError | null;
 }
 
 // Helper to convert hex to HSL
@@ -189,6 +202,8 @@ const clearAuthSnapshot = () => {
 
 export function useAuth() {
   const initialSnapshot = readAuthSnapshot();
+  const initializationRef = useRef(false);
+  const hydrationInProgress = useRef(false);
 
   const [state, setState] = useState<AuthState>(() => ({
     user: null,
@@ -197,8 +212,9 @@ export function useAuth() {
     roles: initialSnapshot?.roles ?? [],
     tenant: initialSnapshot?.tenant ?? null,
     selectedBranch: initialSnapshot?.selectedBranch ?? null,
-    // Start without blocking UI; we'll validate session in background.
-    isLoading: false,
+    // Start with loading true to prevent redirects before session check
+    isLoading: true,
+    isInitialized: false,
   }));
 
   const fetchUserData = useCallback(async (userId: string) => {
@@ -271,136 +287,190 @@ export function useAuth() {
     }
   }, []);
 
-    useEffect(() => {
-    const hydrate = async (session: Session | null) => {
-      const snapshot = readAuthSnapshot();
-      const canFastRestore =
-        !!session?.user &&
-        !!snapshot &&
-        snapshot.userId === session.user.id &&
-        Date.now() - snapshot.savedAt <= 10 * 60 * 1000;
+  useEffect(() => {
+    // Prevent double initialization in React StrictMode
+    if (initializationRef.current) return;
+    initializationRef.current = true;
 
-      // Update session/user immediately.
-      // If we have a fresh snapshot, avoid blocking the UI with the loading screen.
-      setState(prev => ({
-        ...prev,
-        session,
-        user: session?.user ?? null,
-        isLoading: !!session?.user && !canFastRestore,
-        ...(canFastRestore
-          ? {
-              profile: snapshot.profile,
-              roles: snapshot.roles,
-              tenant: snapshot.tenant,
-              selectedBranch: snapshot.selectedBranch,
-            }
-          : {}),
-      }));
+    const hydrate = async (session: Session | null, isInitialCheck = false) => {
+      // Prevent concurrent hydration
+      if (hydrationInProgress.current && !isInitialCheck) return;
+      hydrationInProgress.current = true;
 
-      // Apply cached theme ASAP when restoring
-      if (canFastRestore && snapshot.tenant) {
-        applyThemeColors(snapshot.tenant);
-      }
+      try {
+        const snapshot = readAuthSnapshot();
+        const canFastRestore =
+          !!session?.user &&
+          !!snapshot &&
+          snapshot.userId === session.user.id &&
+          Date.now() - snapshot.savedAt <= 10 * 60 * 1000;
 
-      if (session?.user) {
-        // Always refresh in background; don't block the UI when we have cache.
-        try {
-          await fetchUserData(session.user.id);
-        } finally {
-          setState(prev => ({ ...prev, isLoading: false }));
-        }
-      } else {
-        // Clear cached theme so it doesn't leak to another account on next login
-        clearThemeSnapshotFromSession();
-        resetInlineThemeFromCachedSnapshot();
-
-        clearAuthSnapshot();
-
-        // Remove dark mode and restore clean state
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.forEach((cls) => {
-          if (cls.startsWith('menu-theme-')) document.documentElement.classList.remove(cls);
-        });
-
-        // Clear any remaining inline CSS variables to ensure defaults from index.css apply
-        const cssVarsToReset = [
-          '--primary', '--ring', '--brand', '--accent', '--accent-foreground',
-          '--background', '--muted', '--secondary', '--card', '--card-foreground',
-          '--custom-menu-bg', '--custom-menu-fg', '--custom-menu-accent', '--custom-menu-border',
-          '--sidebar-background', '--sidebar-foreground', '--sidebar-accent', '--sidebar-border',
-          '--header-background'
-        ];
-        cssVarsToReset.forEach(v => document.documentElement.style.removeProperty(v));
-
+        // Update session/user immediately
         setState(prev => ({
           ...prev,
-          profile: null,
-          roles: [],
-          tenant: null,
-          selectedBranch: null,
-          isLoading: false,
+          session,
+          user: session?.user ?? null,
+          isLoading: !!session?.user && !canFastRestore,
+          isInitialized: true,
+          ...(canFastRestore
+            ? {
+                profile: snapshot.profile,
+                roles: snapshot.roles,
+                tenant: snapshot.tenant,
+                selectedBranch: snapshot.selectedBranch,
+              }
+            : {}),
         }));
+
+        // Apply cached theme ASAP when restoring
+        if (canFastRestore && snapshot.tenant) {
+          applyThemeColors(snapshot.tenant);
+        }
+
+        if (session?.user) {
+          // Always refresh in background
+          try {
+            await fetchUserData(session.user.id);
+          } catch (error) {
+            console.error('Error fetching user data during hydration:', error);
+            // Don't show toast on hydration - only on explicit actions
+          } finally {
+            setState(prev => ({ ...prev, isLoading: false, isInitialized: true }));
+          }
+        } else {
+          // Clear cached theme
+          clearThemeSnapshotFromSession();
+          resetInlineThemeFromCachedSnapshot();
+          clearAuthSnapshot();
+
+          // Remove dark mode and restore clean state
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.forEach((cls) => {
+            if (cls.startsWith('menu-theme-')) document.documentElement.classList.remove(cls);
+          });
+
+          // Clear CSS variables
+          const cssVarsToReset = [
+            '--primary', '--ring', '--brand', '--accent', '--accent-foreground',
+            '--background', '--muted', '--secondary', '--card', '--card-foreground',
+            '--custom-menu-bg', '--custom-menu-fg', '--custom-menu-accent', '--custom-menu-border',
+            '--sidebar-background', '--sidebar-foreground', '--sidebar-accent', '--sidebar-border',
+            '--header-background'
+          ];
+          cssVarsToReset.forEach(v => document.documentElement.style.removeProperty(v));
+
+          setState(prev => ({
+            ...prev,
+            profile: null,
+            roles: [],
+            tenant: null,
+            selectedBranch: null,
+            isLoading: false,
+            isInitialized: true,
+          }));
+        }
+      } finally {
+        hydrationInProgress.current = false;
       }
     };
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // Only hydrate on meaningful auth events, not on TOKEN_REFRESHED
+        // Only hydrate on meaningful auth events
         if (event === 'TOKEN_REFRESHED') {
-          // Just update the session without full rehydration
           setState(prev => ({ ...prev, session }));
           return;
         }
         // Defer backend calls to avoid blocking the auth callback
         setTimeout(() => {
-          hydrate(session);
+          hydrate(session, false);
         }, 0);
       }
     );
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      hydrate(session);
+      hydrate(session, true);
+    }).catch((error) => {
+      console.error('Error getting initial session:', error);
+      setState(prev => ({ ...prev, isLoading: false, isInitialized: true }));
     });
 
     return () => subscription.unsubscribe();
   }, [fetchUserData]);
 
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    return { data, error };
+  const signIn = async (email: string, password: string): Promise<AuthResult> => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true }));
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      
+      if (error) {
+        const friendlyMessage = sanitizeErrorMessage(error);
+        toast.error('Erro ao entrar', {
+          description: friendlyMessage,
+        });
+        setState(prev => ({ ...prev, isLoading: false }));
+        return { data: null, error };
+      }
+
+      toast.success('Login realizado com sucesso!');
+      return { data, error: null };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro de conexão';
+      toast.error('Erro ao conectar', {
+        description: 'Verifique sua conexão com a internet e tente novamente.',
+      });
+      setState(prev => ({ ...prev, isLoading: false }));
+      return { data: null, error: error as AuthError };
+    }
   };
 
-  const signOut = async () => {
-    // Clear cached auth state first (so UI updates immediately)
-    clearAuthSnapshot();
+  const signOut = async (): Promise<SignOutResult> => {
+    try {
+      // Clear cached auth state first
+      clearAuthSnapshot();
 
-    // Force clear local state BEFORE calling supabase.signOut
-    // This prevents race conditions where the Auth page redirect check
-    // sees stale user/roles data before onAuthStateChange fires
-    setState({
-      user: null,
-      session: null,
-      profile: null,
-      roles: [],
-      tenant: null,
-      selectedBranch: null,
-      isLoading: false,
-    });
+      // Force clear local state BEFORE calling supabase.signOut
+      setState({
+        user: null,
+        session: null,
+        profile: null,
+        roles: [],
+        tenant: null,
+        selectedBranch: null,
+        isLoading: false,
+        isInitialized: true,
+      });
 
-    const { error } = await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
 
-    // Ignore "session_not_found" – the user is already logged out on the server
-    if (error && (error as any)?.code === "session_not_found") {
+      // Ignore "session_not_found" – the user is already logged out
+      if (error && (error as any)?.code === 'session_not_found') {
+        toast.success('Sessão encerrada');
+        return { error: null };
+      }
+
+      if (error) {
+        const friendlyMessage = sanitizeErrorMessage(error);
+        toast.error('Erro ao sair', {
+          description: friendlyMessage,
+        });
+        return { error };
+      }
+
+      toast.success('Sessão encerrada');
       return { error: null };
+    } catch (error) {
+      toast.error('Erro ao desconectar', {
+        description: 'Ocorreu um erro ao encerrar a sessão.',
+      });
+      return { error: error as AuthError };
     }
-
-    return { error };
   };
 
   const hasRole = (role: AppRole): boolean => {

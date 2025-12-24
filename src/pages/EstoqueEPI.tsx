@@ -1,44 +1,35 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useState, useCallback } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { ProductsTable } from '@/components/stock/ProductsTable';
 import { EPIFormDialog } from '@/components/stock/EPIFormDialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { TableSkeleton } from '@/components/ui/table-skeleton';
-import { useProducts } from '@/hooks/useProducts';
+import { EstoqueStats } from '@/components/stock/EstoqueStats';
+import { EstoqueFilters } from '@/components/stock/EstoqueFilters';
+import { EstoqueTable } from '@/components/stock/EstoqueTable';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useProductsPaginated } from '@/hooks/useProductsPaginated';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { Plus } from 'lucide-react';
-import { PageLoading } from '@/components/ui/page-loading';
 
 export default function EstoqueEPI() {
-  const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuthContext();
   const { isReadOnly } = useUserPermissions();
-  const [searchQuery, setSearchQuery] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  
+  // Use paginated hook with URL sync
+  const {
+    products,
+    isLoading,
+    isFetching,
+    pagination,
+    filters,
+    setSearch,
+    setStatus,
+    goToPage,
+    setPageSize,
+    resetFilters,
+  } = useProductsPaginated('epi');
 
-  const { data: products = [], isLoading: productsLoading } = useProducts('epi');
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth', { replace: true });
-    }
-  }, [user, authLoading, navigate]);
-
-  if (authLoading) {
-    return <PageLoading text="Carregando EPIs" />;
-  }
-
-  if (!user) return null;
-
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.code.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Memoized callbacks to prevent unnecessary re-renders
+  const handleOpenForm = useCallback(() => setIsFormOpen(true), []);
+  const handleCloseForm = useCallback((open: boolean) => setIsFormOpen(open), []);
 
   return (
     <DashboardLayout>
@@ -48,65 +39,46 @@ export default function EstoqueEPI() {
           description="Equipamentos de Proteção Individual"
         />
 
+        {/* Stats Cards */}
+        <EstoqueStats 
+          products={products} 
+          isLoading={isLoading} 
+        />
+
         {/* Main Content Card */}
         <Card className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]">
           <CardHeader className="border-b bg-muted/30 py-3 px-3 sm:px-6">
-            {/* Mobile Layout */}
-            <div className="sm:hidden space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base">EPIs</CardTitle>
-                  <CardDescription className="text-xs">{filteredProducts.length} de {products.length}</CardDescription>
-                </div>
-                {!isReadOnly && (
-                  <Button onClick={() => setIsFormOpen(true)} size="sm">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Novo
-                  </Button>
-                )}
-              </div>
-              <Input
-                placeholder="Buscar..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 text-sm"
-              />
-            </div>
-            
-            {/* Desktop Layout */}
-            <div className="hidden sm:flex items-center justify-between gap-4">
-              <div>
-                <CardTitle className="text-base">EPIs Cadastrados</CardTitle>
-                <CardDescription>{filteredProducts.length} de {products.length} itens</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Buscar por código ou nome..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64"
-                />
-                {!isReadOnly && (
-                  <Button onClick={() => setIsFormOpen(true)} size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo EPI
-                  </Button>
-                )}
-              </div>
-            </div>
+            <EstoqueFilters
+              filters={filters}
+              totalCount={pagination.totalCount}
+              isFetching={isFetching}
+              isReadOnly={isReadOnly}
+              title="EPIs Cadastrados"
+              titleMobile="EPIs"
+              onSearchChange={setSearch}
+              onStatusChange={setStatus}
+              onResetFilters={resetFilters}
+              onAddNew={handleOpenForm}
+              addNewLabel="Novo EPI"
+              addNewLabelMobile="Novo"
+            />
           </CardHeader>
+          
           <CardContent className="p-0 sm:p-0 bg-transparent sm:bg-card">
-            {productsLoading ? (
-              <TableSkeleton columns={8} rows={5} />
-            ) : (
-              <ProductsTable products={filteredProducts} />
-            )}
+            <EstoqueTable
+              products={products}
+              isLoading={isLoading}
+              pagination={pagination}
+              onPageChange={goToPage}
+              onPageSizeChange={setPageSize}
+              emptyMessage="Nenhum EPI encontrado"
+            />
           </CardContent>
         </Card>
 
         <EPIFormDialog 
           open={isFormOpen} 
-          onOpenChange={setIsFormOpen}
+          onOpenChange={handleCloseForm}
         />
       </div>
     </DashboardLayout>
