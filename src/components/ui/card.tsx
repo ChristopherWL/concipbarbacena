@@ -13,7 +13,6 @@ const cardVariants = cva(
         gradient: "border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-lg)] hover:border-primary/30",
         interactive: "border-border/30 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-lg)] hover:border-primary/40 hover:-translate-y-1 cursor-pointer",
         stat: "border-border/20 bg-gradient-to-br from-card to-muted/30 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:scale-[1.02] cursor-pointer",
-        dashboard: "relative overflow-hidden border-border/20 bg-gradient-to-br from-card via-card to-primary/[0.02] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-lg)] hover:border-primary/50 hover:-translate-y-1.5 cursor-pointer before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/0 before:to-primary/5 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300 group",
       },
     },
     defaultVariants: {

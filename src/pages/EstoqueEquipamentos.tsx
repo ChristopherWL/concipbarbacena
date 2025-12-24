@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ProductsTable } from '@/components/stock/ProductsTable';
@@ -10,13 +12,28 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useProducts } from '@/hooks/useProducts';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { Plus } from 'lucide-react';
+import { PageLoading } from '@/components/ui/page-loading';
 
 export default function EstoqueEquipamentos() {
+  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuthContext();
   const { isReadOnly } = useUserPermissions();
   const [searchQuery, setSearchQuery] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const { data: products = [], isLoading: productsLoading } = useProducts('equipamentos');
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth', { replace: true });
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return <PageLoading text="Carregando equipamentos" />;
+  }
+
+  if (!user) return null;
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

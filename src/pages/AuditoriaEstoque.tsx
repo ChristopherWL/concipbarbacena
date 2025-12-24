@@ -28,11 +28,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { 
   Plus, Search, AlertTriangle, Shield, Package, 
-  MoreVertical, CheckCircle2, Clock, XCircle, Eye, Layers, PackageCheck, Send, ClipboardList, Link2, ArrowDown, Wrench
+  MoreVertical, CheckCircle2, Clock, XCircle, Eye, Layers, PackageCheck, Send, ClipboardList
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useStockAudits, StockAuditType, StockAuditStatus, StockAudit } from '@/hooks/useStockAudits';
+import { useStockAudits, useUpdateStockAudit, StockAuditType, StockAuditStatus, StockAudit } from '@/hooks/useStockAudits';
 import { StockAuditDialog } from '@/components/stock/StockAuditDialog';
 import { StockAuditDetailsDialog } from '@/components/stock/StockAuditDetailsDialog';
 import { BulkWarrantyDialog } from '@/components/stock/BulkWarrantyDialog';
@@ -45,7 +45,6 @@ const AUDIT_TYPE_CONFIG: Record<StockAuditType, { label: string; icon: React.Rea
   furto: { label: 'Furto', icon: <Shield className="w-3 h-3" />, variant: 'destructive' },
   garantia: { label: 'Garantia', icon: <Package className="w-3 h-3" />, variant: 'default' },
   inventario: { label: 'Inventário', icon: <ClipboardList className="w-3 h-3" />, variant: 'outline' },
-  resolucao: { label: 'Resolução', icon: <CheckCircle2 className="w-3 h-3" />, variant: 'default' },
 };
 
 const STATUS_CONFIG: Record<StockAuditStatus, { label: string; icon: React.ReactNode; className: string }> = {
@@ -73,11 +72,9 @@ export default function AuditoriaEstoque() {
     status: filterStatus !== 'all' ? filterStatus : undefined,
   });
 
-  // Filter and group audits - hide resolutions from main list since they appear grouped
+  const updateAudit = useUpdateStockAudit();
+
   const filteredAudits = audits?.filter(audit => {
-    // Hide resolution audits from main list (they show grouped with parent)
-    if (audit.audit_type === 'resolucao') return false;
-    
     if (!search) return true;
     const searchLower = search.toLowerCase();
     return (
@@ -88,24 +85,25 @@ export default function AuditoriaEstoque() {
     );
   });
 
-  // Check if an audit has a resolution
-  const hasResolution = (audit: StockAudit) => {
-    return audit.resolutions && audit.resolutions.length > 0;
+  const handleStatusChange = async (auditId: string, newStatus: StockAuditStatus) => {
+    await updateAudit.mutateAsync({ id: auditId, status: newStatus });
   };
 
-  // Check if audit is pending (can be resolved)
-  const isPending = (audit: StockAudit) => {
-    return !hasResolution(audit) && audit.status !== 'cancelado' && audit.audit_type !== 'resolucao';
+  const handleWarrantyReturn = async (audit: StockAudit) => {
+    await updateAudit.mutateAsync({
+      id: audit.id,
+      status: 'recebido',
+      resolution_notes: 'Item recebido da garantia e devolvido ao estoque',
+      return_to_stock: true,
+      quantity: audit.quantity,
+      product_id: audit.product_id,
+      serial_number_id: audit.serial_number_id,
+    });
   };
 
   const openDetails = (audit: StockAudit) => {
     setSelectedAudit(audit);
     setDetailsDialogOpen(true);
-  };
-
-  // Find resolution audit for a parent
-  const getResolutionAudit = (parentId: string) => {
-    return audits?.find(a => a.parent_audit_id === parentId);
   };
 
   // Stats
@@ -247,108 +245,85 @@ export default function AuditoriaEstoque() {
                   {filteredAudits?.map((audit) => {
                     const typeConfig = AUDIT_TYPE_CONFIG[audit.audit_type];
                     const statusConfig = STATUS_CONFIG[audit.status];
-                    const resolved = hasResolution(audit);
-                    const pending = isPending(audit);
-                    const resolutionAudit = resolved ? getResolutionAudit(audit.id) : null;
-                    
                     return (
-                      <div key={audit.id} className={`${resolved ? 'border-l-4 border-green-500' : pending ? 'border-l-4 border-yellow-500' : ''}`}>
-                        {/* Main Audit Card */}
-                        <div 
-                          className={`p-4 space-y-3 ${resolved ? 'bg-green-50/50 dark:bg-green-900/10' : ''}`}
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => openDetails(audit)}>
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium truncate">{audit.product?.name}</p>
-                                {resolved && (
-                                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
-                              {audit.serial_number && (
-                                <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
-                              )}
-                            </div>
-                            
-                            {/* Action Buttons */}
-                            <div className="flex items-center gap-2">
-                              {pending ? (
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="h-8 text-xs border-green-500 text-green-700 hover:bg-green-50"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openDetails(audit);
-                                  }}
-                                >
-                                  <Wrench className="w-3 h-3 mr-1" />
-                                  Resolver
-                                </Button>
-                              ) : resolved ? (
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  className="h-8 text-xs text-green-700"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (resolutionAudit) openDetails(resolutionAudit);
-                                  }}
-                                >
-                                  <Eye className="w-3 h-3 mr-1" />
-                                  Ver Resolução
-                                </Button>
-                              ) : null}
-                            </div>
+                      <div 
+                        key={audit.id} 
+                        className="p-4 space-y-3 cursor-pointer active:bg-muted/50"
+                        onClick={() => openDetails(audit)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{audit.product?.name}</p>
+                            <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
+                            {audit.serial_number && (
+                              <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
+                            )}
                           </div>
-                          
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              <Badge variant={typeConfig.variant} className="gap-1 text-xs">
-                                {typeConfig.icon}
-                                {typeConfig.label}
-                              </Badge>
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${resolved ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : statusConfig.className}`}>
-                                {resolved ? <CheckCircle2 className="w-3 h-3" /> : statusConfig.icon}
-                                {resolved ? 'Concluído' : statusConfig.label}
-                              </span>
-                            </div>
-                            <span className="text-xs text-muted-foreground">
-                              Qtd: {audit.quantity}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openDetails(audit)}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                Ver Detalhes
+                              </DropdownMenuItem>
+                              {audit.audit_type === 'garantia' && audit.status === 'aberto' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'enviado')}>
+                                  <Send className="w-4 h-4 mr-2" />
+                                  Marcar Enviado
+                                </DropdownMenuItem>
+                              )}
+                              {audit.audit_type === 'garantia' && audit.status === 'enviado' && (
+                                <DropdownMenuItem onClick={() => handleWarrantyReturn(audit)}>
+                                  <PackageCheck className="w-4 h-4 mr-2" />
+                                  Marcar Recebido
+                                </DropdownMenuItem>
+                              )}
+                              {audit.status === 'aberto' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'em_analise')}>
+                                  <Clock className="w-4 h-4 mr-2" />
+                                  Iniciar Análise
+                                </DropdownMenuItem>
+                              )}
+                              {audit.status !== 'resolvido' && audit.status !== 'cancelado' && audit.status !== 'recebido' && (
+                                <>
+                                  <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'resolvido')}>
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                    Marcar Resolvido
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleStatusChange(audit.id, 'cancelado')}
+                                    className="text-destructive"
+                                  >
+                                    <XCircle className="w-4 h-4 mr-2" />
+                                    Cancelar
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Badge variant={typeConfig.variant} className="gap-1 text-xs">
+                              {typeConfig.icon}
+                              {typeConfig.label}
+                            </Badge>
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.className}`}>
+                              {statusConfig.icon}
+                              {statusConfig.label}
                             </span>
                           </div>
-                          
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
-                          </p>
+                          <span className="text-xs text-muted-foreground">
+                            Qtd: {audit.quantity}
+                          </span>
                         </div>
-                        
-                        {/* Resolution Link Indicator */}
-                        {resolved && audit.resolutions && (
-                          <div className="bg-green-50 dark:bg-green-900/20 border-t border-green-200 dark:border-green-800">
-                            <div 
-                              className="px-4 py-2 flex items-center gap-3 cursor-pointer hover:bg-green-100/50 dark:hover:bg-green-900/30"
-                              onClick={() => resolutionAudit && openDetails(resolutionAudit)}
-                            >
-                              <div className="flex flex-col items-center">
-                                <ArrowDown className="w-4 h-4 text-green-600" />
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <Link2 className="w-3 h-3 text-green-600" />
-                                  <span className="text-xs font-medium text-green-700 dark:text-green-400">
-                                    Resolução registrada
-                                  </span>
-                                </div>
-                                <p className="text-xs text-green-600 dark:text-green-500">
-                                  {format(new Date(audit.resolutions[0].reported_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                                </p>
-                              </div>
-                              <Eye className="w-4 h-4 text-green-600" />
-                            </div>
-                          </div>
-                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
+                        </p>
                       </div>
                     );
                   })}
@@ -371,31 +346,15 @@ export default function AuditoriaEstoque() {
                       {filteredAudits?.map((audit) => {
                         const typeConfig = AUDIT_TYPE_CONFIG[audit.audit_type];
                         const statusConfig = STATUS_CONFIG[audit.status];
-                        const resolved = hasResolution(audit);
-                        const pending = isPending(audit);
-                        const resolutionAudit = resolved ? getResolutionAudit(audit.id) : null;
-                        
                         return (
-                          <TableRow 
-                            key={audit.id} 
-                            className={`${resolved ? 'bg-green-50/30 dark:bg-green-900/10' : pending ? 'hover:bg-muted/50' : ''}`} 
-                          >
-                            <TableCell className="cursor-pointer" onClick={() => openDetails(audit)}>
-                              <div className="flex items-start gap-2">
-                                {resolved && (
-                                  <div className="flex flex-col items-center pt-1">
-                                    <div className="w-0.5 h-2 bg-green-500" />
-                                    <Link2 className="w-3 h-3 text-green-500" />
-                                    <div className="w-0.5 h-2 bg-green-500" />
-                                  </div>
+                          <TableRow key={audit.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDetails(audit)}>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium">{audit.product?.name}</p>
+                                <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
+                                {audit.serial_number && (
+                                  <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
                                 )}
-                                <div>
-                                  <p className="font-medium">{audit.product?.name}</p>
-                                  <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
-                                  {audit.serial_number && (
-                                    <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
-                                  )}
-                                </div>
                               </div>
                             </TableCell>
                             <TableCell>
@@ -406,52 +365,61 @@ export default function AuditoriaEstoque() {
                             </TableCell>
                             <TableCell>{audit.quantity}</TableCell>
                             <TableCell>
-                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${resolved ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : statusConfig.className}`}>
-                                {resolved ? <CheckCircle2 className="w-3 h-3" /> : statusConfig.icon}
-                                {resolved ? 'Concluído' : statusConfig.label}
+                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusConfig.className}`}>
+                                {statusConfig.icon}
+                                {statusConfig.label}
                               </span>
                             </TableCell>
                             <TableCell className="text-muted-foreground text-sm">
-                              <div>
-                                {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
-                                {resolved && audit.resolutions && (
-                                  <p className="text-xs text-green-600 flex items-center gap-1">
-                                    <ArrowDown className="w-3 h-3" />
-                                    {format(new Date(audit.resolutions[0].reported_at), "dd/MM/yyyy", { locale: ptBR })}
-                                  </p>
-                                )}
-                              </div>
+                              {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
                             </TableCell>
-                            <TableCell>
-                              {pending ? (
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="h-8 text-xs border-green-500 text-green-700 hover:bg-green-50"
-                                  onClick={() => openDetails(audit)}
-                                >
-                                  <Wrench className="w-3 h-3 mr-1" />
-                                  Resolver
-                                </Button>
-                              ) : resolved ? (
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  className="h-8 text-xs text-green-700"
-                                  onClick={() => resolutionAudit && openDetails(resolutionAudit)}
-                                >
-                                  <Eye className="w-3 h-3 mr-1" />
-                                  Detalhes
-                                </Button>
-                              ) : (
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  onClick={() => openDetails(audit)}
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                              )}
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => openDetails(audit)}>
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Ver Detalhes
+                                  </DropdownMenuItem>
+                                  {audit.audit_type === 'garantia' && audit.status === 'aberto' && (
+                                    <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'enviado')}>
+                                      <Send className="w-4 h-4 mr-2" />
+                                      Marcar Enviado
+                                    </DropdownMenuItem>
+                                  )}
+                                  {audit.audit_type === 'garantia' && audit.status === 'enviado' && (
+                                    <DropdownMenuItem onClick={() => handleWarrantyReturn(audit)}>
+                                      <PackageCheck className="w-4 h-4 mr-2" />
+                                      Marcar Recebido
+                                    </DropdownMenuItem>
+                                  )}
+                                  {audit.status === 'aberto' && (
+                                    <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'em_analise')}>
+                                      <Clock className="w-4 h-4 mr-2" />
+                                      Iniciar Análise
+                                    </DropdownMenuItem>
+                                  )}
+                                  {audit.status !== 'resolvido' && audit.status !== 'cancelado' && audit.status !== 'recebido' && (
+                                    <>
+                                      <DropdownMenuItem onClick={() => handleStatusChange(audit.id, 'resolvido')}>
+                                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                                        Marcar Resolvido
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem 
+                                        onClick={() => handleStatusChange(audit.id, 'cancelado')}
+                                        className="text-destructive"
+                                      >
+                                        <XCircle className="w-4 h-4 mr-2" />
+                                        Cancelar
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </TableCell>
                           </TableRow>
                         );

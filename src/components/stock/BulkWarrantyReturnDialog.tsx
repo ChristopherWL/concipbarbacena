@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, PackageCheck, AlertTriangle } from 'lucide-react';
-import { useStockAudits, StockAudit } from '@/hooks/useStockAudits';
+import { useStockAudits, useUpdateStockAudit, StockAudit } from '@/hooks/useStockAudits';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -20,6 +20,7 @@ export function BulkWarrantyReturnDialog({ open, onOpenChange }: BulkWarrantyRet
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { data: audits } = useStockAudits({ audit_type: 'garantia' });
+  const updateAudit = useUpdateStockAudit();
 
   const pendingWarranties = audits?.filter(
     a => a.audit_type === 'garantia' && a.status !== 'resolvido' && a.status !== 'cancelado'
@@ -48,9 +49,37 @@ export function BulkWarrantyReturnDialog({ open, onOpenChange }: BulkWarrantyRet
   }, [selectedIds.length, pendingWarranties]);
 
   const handleSubmit = async () => {
-    // Updates are blocked by RLS policy - audits are immutable
-    toast.info('Auditorias são imutáveis por política de segurança');
-    onOpenChange(false);
+    if (selectedIds.length === 0) {
+      toast.error('Selecione pelo menos um item');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      for (const id of selectedIds) {
+        const audit = pendingWarranties.find(a => a.id === id);
+        if (audit) {
+          await updateAudit.mutateAsync({
+            id: audit.id,
+            status: 'recebido',
+            resolution_notes: 'Item recebido da garantia (processamento em lote)',
+            return_to_stock: true,
+            quantity: audit.quantity,
+            product_id: audit.product_id,
+            serial_number_id: audit.serial_number_id,
+          });
+        }
+      }
+      
+      toast.success(`${selectedIds.length} itens recebidos da garantia com sucesso`);
+      setSelectedIds([]);
+      onOpenChange(false);
+    } catch (error: any) {
+      toast.error('Erro ao processar: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!open) return null;

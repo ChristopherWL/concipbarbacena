@@ -13,10 +13,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, Calendar, MapPin, User, Clock, Loader2, FileText, Upload, X, ChevronRight, Image, ArrowLeft, ListChecks, Eye, Settings } from "lucide-react";
 import { useObras, useDiarioObras, Obra, DiarioObra } from "@/hooks/useObras";
-import { ObraEtapasPanel } from "@/components/construction-projects/ObraEtapasPanel";
-import { ObraCard } from "@/components/construction-projects/ObraCard";
-import { ObraFormDialog } from "@/components/construction-projects/ObraFormDialog";
-import { ObraEditDialog } from "@/components/construction-projects/ObraEditDialog";
+import { ObraEtapasPanel } from "@/components/obras/ObraEtapasPanel";
+import { ObraCard } from "@/components/obras/ObraCard";
+import { ObraFormDialog } from "@/components/obras/ObraFormDialog";
+import { ObraEditDialog } from "@/components/obras/ObraEditDialog";
 import { useObraEtapas } from "@/hooks/useObraEtapas";
 import { useEmployees } from "@/hooks/useEmployees";
 import { TableSkeleton } from "@/components/ui/table-skeleton";

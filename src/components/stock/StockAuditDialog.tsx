@@ -115,23 +115,16 @@ export function StockAuditDialog({ open, onOpenChange, defaultProductId }: Stock
       return;
     }
     
-    try {
-      await createAudit.mutateAsync({
-        product_id: data.product_id,
-        serial_number_id: selectedSerialId || null,
-        audit_type: data.audit_type,
-        quantity: data.quantity,
-        description: data.description,
-      });
-      toast.success('Ocorrência registrada com sucesso');
-      reset();
-      setSelectedSerialId(null);
-      onOpenChange(false);
-    } catch (error: any) {
-      const errorMessage = error?.message || 'Erro desconhecido';
-      console.error('Erro ao registrar ocorrência:', error);
-      toast.error(`Erro ao registrar: ${errorMessage}`);
-    }
+    await createAudit.mutateAsync({
+      product_id: data.product_id,
+      serial_number_id: selectedSerialId || null,
+      audit_type: data.audit_type,
+      quantity: data.quantity,
+      description: data.description,
+    });
+    reset();
+    setSelectedSerialId(null);
+    onOpenChange(false);
   };
 
   if (!open) return null;

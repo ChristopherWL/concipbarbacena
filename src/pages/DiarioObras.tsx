@@ -20,7 +20,7 @@ import { exportDiarioObraPDF } from "@/lib/exportDiarioObraPDF";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TablePagination } from "@/components/ui/table-pagination";
 import { Separator } from "@/components/ui/separator";
-import { MobileDiarioForm } from "@/components/daily-logs/MobileDiarioForm";
+import { MobileDiarioForm } from "@/components/diario/MobileDiarioForm";
 import { SignatureModal } from "@/components/ui/signature-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";

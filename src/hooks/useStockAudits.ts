@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export type StockAuditType = 'defeito' | 'furto' | 'garantia' | 'inventario' | 'resolucao';
+export type StockAuditType = 'defeito' | 'furto' | 'garantia' | 'inventario';
 export type StockAuditStatus = 'aberto' | 'em_analise' | 'resolvido' | 'cancelado' | 'enviado' | 'recebido';
 
 export interface StockAudit {
@@ -21,7 +21,6 @@ export interface StockAudit {
   resolved_at: string | null;
   resolved_by: string | null;
   resolution_notes: string | null;
-  parent_audit_id: string | null;
   created_at: string;
   updated_at: string;
   product?: {
@@ -34,18 +33,6 @@ export interface StockAudit {
     id: string;
     serial_number: string;
   };
-  parent_audit?: {
-    id: string;
-    audit_type: StockAuditType;
-    description: string;
-    reported_at: string;
-  } | null;
-  resolutions?: {
-    id: string;
-    description: string;
-    reported_at: string;
-    status: StockAuditStatus;
-  }[];
 }
 
 export interface CreateStockAuditData {
@@ -56,7 +43,16 @@ export interface CreateStockAuditData {
   description: string;
   evidence_urls?: string[];
   status?: StockAuditStatus;
-  parent_audit_id?: string | null;
+}
+
+export interface UpdateStockAuditData {
+  id: string;
+  status?: StockAuditStatus;
+  resolution_notes?: string;
+  return_to_stock?: boolean;
+  quantity?: number;
+  product_id?: string;
+  serial_number_id?: string | null;
 }
 
 export function useStockAudits(filters?: { 
@@ -71,7 +67,6 @@ export function useStockAudits(filters?: {
     queryFn: async () => {
       if (!tenant?.id) return [];
 
-      // First query: get audits with product and serial info
       let query = supabase
         .from('stock_audits')
         .select(`
@@ -94,41 +89,8 @@ export function useStockAudits(filters?: {
 
       const { data, error } = await query;
 
-      if (error) {
-        console.error('Error fetching stock audits:', error);
-        throw error;
-      }
-
-      // Process the data to add parent_audit and resolutions info
-      const auditsWithRelations = await Promise.all((data || []).map(async (audit) => {
-        let parent_audit = null;
-        let resolutions: any[] = [];
-
-        // Fetch parent audit if exists
-        if (audit.parent_audit_id) {
-          const { data: parentData } = await supabase
-            .from('stock_audits')
-            .select('id, audit_type, description, reported_at')
-            .eq('id', audit.parent_audit_id)
-            .maybeSingle();
-          parent_audit = parentData;
-        }
-
-        // Fetch resolutions (child audits)
-        const { data: resolutionsData } = await supabase
-          .from('stock_audits')
-          .select('id, description, reported_at, status')
-          .eq('parent_audit_id', audit.id);
-        resolutions = resolutionsData || [];
-
-        return {
-          ...audit,
-          parent_audit,
-          resolutions,
-        };
-      }));
-
-      return auditsWithRelations as StockAudit[];
+      if (error) throw error;
+      return data as StockAudit[];
     },
     enabled: !!tenant?.id,
   });
@@ -142,7 +104,6 @@ export function useCreateStockAudit() {
     mutationFn: async (data: CreateStockAuditData) => {
       if (!tenant?.id) throw new Error('Tenant não encontrado');
 
-      // Create the audit record
       const { data: audit, error } = await supabase
         .from('stock_audits')
         .insert({
@@ -155,60 +116,54 @@ export function useCreateStockAudit() {
           evidence_urls: data.evidence_urls || [],
           reported_by: user?.id,
           status: data.status || 'aberto',
-          parent_audit_id: data.parent_audit_id || null,
         } as any)
         .select()
         .single();
 
       if (error) throw error;
+      return audit;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stock-audits'] });
+      toast.success('Auditoria registrada com sucesso');
+    },
+    onError: (error: any) => {
+      toast.error('Erro ao registrar auditoria: ' + error.message);
+    },
+  });
+}
 
-      // For defect/theft audits, subtract from stock
-      if (['defeito', 'furto'].includes(data.audit_type) && data.quantity > 0) {
-        // Get current product stock
-        const { data: product } = await supabase
-          .from('products')
-          .select('current_stock')
-          .eq('id', data.product_id)
-          .single();
+export function useUpdateStockAudit() {
+  const queryClient = useQueryClient();
+  const { user } = useAuthContext();
 
-        if (product) {
-          const previousStock = product.current_stock || 0;
-          const newStock = Math.max(0, previousStock - data.quantity);
-          
-          // Create a stock movement record
-          await supabase
-            .from('stock_movements')
-            .insert({
-              tenant_id: tenant.id,
-              product_id: data.product_id,
-              serial_number_id: data.serial_number_id || null,
-              movement_type: 'saida',
-              quantity: data.quantity,
-              previous_stock: previousStock,
-              new_stock: newStock,
-              reason: `Auditoria: ${data.audit_type === 'defeito' ? 'Defeito' : 'Furto'} - ${data.description}`,
-              created_by: user?.id,
-            } as any);
-
-          // Update product stock
-          await supabase
-            .from('products')
-            .update({ current_stock: newStock } as any)
-            .eq('id', data.product_id);
-        }
-
-        // If serial number, update its status
-        if (data.serial_number_id) {
-          await supabase
-            .from('serial_numbers')
-            .update({ status: data.audit_type === 'defeito' ? 'em_manutencao' : 'descartado' } as any)
-            .eq('id', data.serial_number_id);
+  return useMutation({
+    mutationFn: async (data: UpdateStockAuditData) => {
+      const updateData: any = {};
+      
+      if (data.status) {
+        updateData.status = data.status;
+        if (data.status === 'resolvido') {
+          updateData.resolved_at = new Date().toISOString();
+          updateData.resolved_by = user?.id;
         }
       }
+      if (data.resolution_notes !== undefined) {
+        updateData.resolution_notes = data.resolution_notes;
+      }
 
-      // For resolution audits that return to stock
-      if (data.audit_type === 'resolucao' && data.quantity > 0) {
-        // Get current product stock
+      const { data: audit, error } = await supabase
+        .from('stock_audits')
+        .update(updateData)
+        .eq('id', data.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // If returning to stock, update product stock and serial number status
+      if (data.return_to_stock && data.quantity && data.product_id) {
+        // Update product current_stock
         const { data: product } = await supabase
           .from('products')
           .select('current_stock')
@@ -216,54 +171,57 @@ export function useCreateStockAudit() {
           .single();
 
         if (product) {
-          const previousStock = product.current_stock || 0;
-          const newStock = previousStock + data.quantity;
-          
-          // Create a stock movement record for return
-          await supabase
-            .from('stock_movements')
-            .insert({
-              tenant_id: tenant.id,
-              product_id: data.product_id,
-              serial_number_id: data.serial_number_id || null,
-              movement_type: 'entrada',
-              quantity: data.quantity,
-              previous_stock: previousStock,
-              new_stock: newStock,
-              reason: `Resolução de auditoria - ${data.description}`,
-              created_by: user?.id,
-            } as any);
-
-          // Update product stock
           await supabase
             .from('products')
-            .update({ current_stock: newStock } as any)
+            .update({ current_stock: (product.current_stock || 0) + data.quantity })
             .eq('id', data.product_id);
         }
 
-        // If serial number, restore its status
+        // If has serial number, update status to disponivel
         if (data.serial_number_id) {
           await supabase
             .from('serial_numbers')
-            .update({ status: 'disponivel' } as any)
+            .update({ status: 'disponivel' })
             .eq('id', data.serial_number_id);
         }
       }
 
       return audit;
     },
-    onSuccess: async () => {
-      // Force immediate refetch of related queries
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: ['stock-audits'] }),
-        queryClient.refetchQueries({ queryKey: ['products'] }),
-        queryClient.refetchQueries({ queryKey: ['serial-numbers'] }),
-        queryClient.refetchQueries({ queryKey: ['stock-movements'] }),
-      ]);
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['stock-audits'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['serial-numbers'] });
+      if (variables.return_to_stock) {
+        toast.success('Item retornado ao estoque com sucesso');
+      } else {
+        toast.success('Auditoria atualizada com sucesso');
+      }
     },
     onError: (error: any) => {
-      console.error('Erro ao registrar auditoria:', error);
-      toast.error('Erro ao registrar auditoria: ' + (error?.message || 'Erro desconhecido'));
+      toast.error('Erro ao atualizar auditoria: ' + error.message);
+    },
+  });
+}
+
+export function useDeleteStockAudit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('stock_audits')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stock-audits'] });
+      toast.success('Auditoria removida com sucesso');
+    },
+    onError: (error: any) => {
+      toast.error('Erro ao remover auditoria: ' + error.message);
     },
   });
 }
