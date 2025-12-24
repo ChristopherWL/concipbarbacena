@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { 
   Plus, Search, AlertTriangle, Shield, Package, 
-  MoreVertical, CheckCircle2, Clock, XCircle, Eye, Layers, PackageCheck, Send, ClipboardList
+  MoreVertical, CheckCircle2, Clock, XCircle, Eye, Layers, PackageCheck, Send, ClipboardList, Link2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -73,7 +73,11 @@ export default function AuditoriaEstoque() {
     status: filterStatus !== 'all' ? filterStatus : undefined,
   });
 
+  // Filter and group audits - hide resolutions from main list since they appear grouped
   const filteredAudits = audits?.filter(audit => {
+    // Hide resolution audits from main list (they show grouped with parent)
+    if (audit.audit_type === 'resolucao') return false;
+    
     if (!search) return true;
     const searchLower = search.toLowerCase();
     return (
@@ -83,6 +87,11 @@ export default function AuditoriaEstoque() {
       audit.serial_number?.serial_number?.toLowerCase().includes(searchLower)
     );
   });
+
+  // Check if an audit has a resolution
+  const hasResolution = (audit: StockAudit) => {
+    return audit.resolutions && audit.resolutions.length > 0;
+  };
 
   const openDetails = (audit: StockAudit) => {
     setSelectedAudit(audit);
@@ -228,52 +237,72 @@ export default function AuditoriaEstoque() {
                   {filteredAudits?.map((audit) => {
                     const typeConfig = AUDIT_TYPE_CONFIG[audit.audit_type];
                     const statusConfig = STATUS_CONFIG[audit.status];
+                    const resolved = hasResolution(audit);
                     return (
-                      <div 
-                        key={audit.id} 
-                        className="p-4 space-y-3 cursor-pointer active:bg-muted/50"
-                        onClick={() => openDetails(audit)}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{audit.product?.name}</p>
-                            <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
-                            {audit.serial_number && (
-                              <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
-                            )}
+                      <div key={audit.id} className={`${resolved ? 'border-l-4 border-green-500' : ''}`}>
+                        <div 
+                          className={`p-4 space-y-3 cursor-pointer active:bg-muted/50 ${resolved ? 'bg-green-50/50 dark:bg-green-900/10' : ''}`}
+                          onClick={() => openDetails(audit)}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium truncate">{audit.product?.name}</p>
+                                {resolved && (
+                                  <span className="inline-flex items-center gap-1 text-green-600">
+                                    <Link2 className="w-3 h-3" />
+                                    <CheckCircle2 className="w-3 h-3" />
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
+                              {audit.serial_number && (
+                                <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
+                              )}
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => openDetails(audit)}>
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  Ver Detalhes
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => openDetails(audit)}>
-                                <Eye className="w-4 h-4 mr-2" />
-                                Ver Detalhes
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <Badge variant={typeConfig.variant} className="gap-1 text-xs">
-                              {typeConfig.icon}
-                              {typeConfig.label}
-                            </Badge>
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.className}`}>
-                              {statusConfig.icon}
-                              {statusConfig.label}
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <Badge variant={typeConfig.variant} className="gap-1 text-xs">
+                                {typeConfig.icon}
+                                {typeConfig.label}
+                              </Badge>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${resolved ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : statusConfig.className}`}>
+                                {resolved ? <CheckCircle2 className="w-3 h-3" /> : statusConfig.icon}
+                                {resolved ? 'Resolvido' : statusConfig.label}
+                              </span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              Qtd: {audit.quantity}
                             </span>
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            Qtd: {audit.quantity}
-                          </span>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
+                          </p>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
-                        </p>
+                        
+                        {/* Resolution indicator */}
+                        {resolved && audit.resolutions && (
+                          <div className="px-4 pb-3 pt-0 bg-green-50/50 dark:bg-green-900/10">
+                            <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 rounded px-2 py-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>Resolução: {format(new Date(audit.resolutions[0].reported_at), "dd/MM/yyyy", { locale: ptBR })}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -296,15 +325,29 @@ export default function AuditoriaEstoque() {
                       {filteredAudits?.map((audit) => {
                         const typeConfig = AUDIT_TYPE_CONFIG[audit.audit_type];
                         const statusConfig = STATUS_CONFIG[audit.status];
+                        const resolved = hasResolution(audit);
                         return (
-                          <TableRow key={audit.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDetails(audit)}>
+                          <TableRow 
+                            key={audit.id} 
+                            className={`cursor-pointer hover:bg-muted/50 ${resolved ? 'bg-green-50/30 dark:bg-green-900/10' : ''}`} 
+                            onClick={() => openDetails(audit)}
+                          >
                             <TableCell>
-                              <div>
-                                <p className="font-medium">{audit.product?.name}</p>
-                                <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
-                                {audit.serial_number && (
-                                  <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
+                              <div className="flex items-start gap-2">
+                                {resolved && (
+                                  <div className="flex flex-col items-center pt-1">
+                                    <div className="w-0.5 h-2 bg-green-500" />
+                                    <Link2 className="w-3 h-3 text-green-500" />
+                                    <div className="w-0.5 h-2 bg-green-500" />
+                                  </div>
                                 )}
+                                <div>
+                                  <p className="font-medium">{audit.product?.name}</p>
+                                  <p className="text-xs text-muted-foreground">{audit.product?.code}</p>
+                                  {audit.serial_number && (
+                                    <p className="text-xs text-primary">SN: {audit.serial_number.serial_number}</p>
+                                  )}
+                                </div>
                               </div>
                             </TableCell>
                             <TableCell>
@@ -315,13 +358,20 @@ export default function AuditoriaEstoque() {
                             </TableCell>
                             <TableCell>{audit.quantity}</TableCell>
                             <TableCell>
-                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusConfig.className}`}>
-                                {statusConfig.icon}
-                                {statusConfig.label}
+                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${resolved ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : statusConfig.className}`}>
+                                {resolved ? <CheckCircle2 className="w-3 h-3" /> : statusConfig.icon}
+                                {resolved ? 'Resolvido' : statusConfig.label}
                               </span>
                             </TableCell>
                             <TableCell className="text-muted-foreground text-sm">
-                              {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
+                              <div>
+                                {format(new Date(audit.reported_at), "dd/MM/yyyy", { locale: ptBR })}
+                                {resolved && audit.resolutions && (
+                                  <p className="text-xs text-green-600">
+                                    Resolvido: {format(new Date(audit.resolutions[0].reported_at), "dd/MM/yyyy", { locale: ptBR })}
+                                  </p>
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell onClick={(e) => e.stopPropagation()}>
                               <DropdownMenu>

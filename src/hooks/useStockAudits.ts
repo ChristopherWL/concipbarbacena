@@ -40,6 +40,12 @@ export interface StockAudit {
     description: string;
     reported_at: string;
   } | null;
+  resolutions?: {
+    id: string;
+    description: string;
+    reported_at: string;
+    status: StockAuditStatus;
+  }[];
 }
 
 export interface CreateStockAuditData {
@@ -71,7 +77,8 @@ export function useStockAudits(filters?: {
           *,
           product:products(id, name, code, category),
           serial_number:serial_numbers(id, serial_number),
-          parent_audit:stock_audits!parent_audit_id(id, audit_type, description, reported_at)
+          parent_audit:stock_audits!parent_audit_id(id, audit_type, description, reported_at),
+          resolutions:stock_audits!stock_audits_parent_audit_id_fkey(id, description, reported_at, status)
         `)
         .eq('tenant_id', tenant.id)
         .order('created_at', { ascending: false });
