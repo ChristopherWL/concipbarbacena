@@ -6,6 +6,7 @@ const GenericLandingPage = lazy(() => import("@/pages/GenericLandingPage"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const FieldUserDashboard = lazy(() => import("@/pages/FieldUserDashboard"));
 const Estoque = lazy(() => import("@/pages/Estoque"));
 const EstoqueEPI = lazy(() => import("@/pages/EstoqueEPI"));
 const EstoqueEPC = lazy(() => import("@/pages/EstoqueEPC"));
@@ -42,6 +43,7 @@ export interface RouteConfig {
 // Protected route prefixes - any route starting with these requires auth
 export const PROTECTED_PREFIXES = [
   "/dashboard",
+  "/app",
   "/estoque",
   "/frota",
   "/equipes",
@@ -69,6 +71,7 @@ export const routes: RouteConfig[] = [
   
   // Protected routes
   { path: "/dashboard", element: Dashboard },
+  { path: "/app", element: FieldUserDashboard },
   { path: "/estoque", element: Estoque },
   { path: "/estoque/epi", element: EstoqueEPI },
   { path: "/estoque/epc", element: EstoqueEPC },

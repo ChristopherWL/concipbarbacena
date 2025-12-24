@@ -90,7 +90,7 @@ export default function Auth() {
   const [isValidatingLocation, setIsValidatingLocation] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, isLoading: authLoading, signIn, tenant: userTenant, isSuperAdmin, roles, refetchUserData } = useAuthContext();
+  const { user, isLoading: authLoading, signIn, tenant: userTenant, isSuperAdmin, isFieldUser, roles, refetchUserData } = useAuthContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [branding, setBranding] = useState<TenantBranding | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -201,10 +201,18 @@ export default function Auth() {
         navigate('/superadmin', { replace: true });
         return;
       }
+      
+      // Field users (technician, warehouse, caixa) go to simplified mobile dashboard
+      if (isFieldUser()) {
+        navigate('/app', { replace: true });
+        return;
+      }
+      
+      // Managers, admins go to full dashboard
       const redirectTo = searchParams.get('redirect') || '/dashboard';
       navigate(redirectTo, { replace: true });
     }
-  }, [user, authLoading, navigate, searchParams, isSuperAdmin, roles, isValidatingLocation]);
+  }, [user, authLoading, navigate, searchParams, isSuperAdmin, isFieldUser, roles, isValidatingLocation]);
 
   const handleLogin = async (data: LoginFormData) => {
     setIsSubmitting(true);
