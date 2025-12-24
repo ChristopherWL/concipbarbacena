@@ -4807,12 +4807,41 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      get_movement_trends: {
+        Args: { p_branch_id?: string; p_tenant_id: string }
+        Returns: {
+          category: string
+          movement_date: string
+          total_in: number
+          total_out: number
+        }[]
+      }
+      get_stock_category_stats: {
+        Args: { p_branch_id?: string; p_tenant_id: string }
+        Returns: {
+          category: string
+          low_stock_count: number
+          total_items: number
+          total_stock: number
+          total_value: number
+          zero_stock_count: number
+        }[]
+      }
       get_tenant_id_from_storage_path: {
         Args: { object_path: string }
         Returns: string
       }
       get_user_branch_id: { Args: { _user_id: string }; Returns: string }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
+      get_zero_stock_products: {
+        Args: { p_branch_id?: string; p_limit?: number; p_tenant_id: string }
+        Returns: {
+          category: string
+          id: string
+          name: string
+          sku: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
