@@ -33,26 +33,7 @@ export default function EstoqueEPI() {
 
   return (
     <DashboardLayout>
-      <div className="relative space-y-4 sm:space-y-6 animate-fade-in">
-        {/* Folded corner effect - top right */}
-        <div className="absolute -top-4 sm:-top-6 right-0 w-16 h-16 pointer-events-none hidden sm:block" style={{ zIndex: 50 }}>
-          {/* Shadow under the fold */}
-          <div 
-            className="absolute top-3 right-3 w-10 h-10 rounded-sm"
-            style={{
-              background: 'rgba(0,0,0,0.25)',
-              filter: 'blur(4px)',
-              transform: 'rotate(45deg)',
-            }}
-          />
-          {/* Main fold triangle */}
-          <div 
-            className="absolute top-0 right-0 w-16 h-16"
-            style={{
-              background: 'linear-gradient(135deg, hsl(222 47% 25%) 50%, transparent 50%)',
-            }}
-          />
-        </div>
+      <div className="space-y-4 sm:space-y-6 animate-fade-in">
         <PageHeader
           title="EPIs"
           description="Equipamentos de Proteção Individual"
