@@ -33,7 +33,26 @@ export default function EstoqueEPI() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      <div className="relative space-y-4 sm:space-y-6 animate-fade-in">
+        {/* Folded corner effect on top right of page */}
+        <div 
+          className="absolute -top-4 sm:-top-6 right-0 w-12 h-12 pointer-events-none hidden sm:block"
+          style={{ zIndex: 10 }}
+        >
+          <div 
+            className="absolute top-0 right-0 w-12 h-12"
+            style={{
+              background: 'linear-gradient(135deg, hsl(var(--primary)) 50%, transparent 50%)',
+            }}
+          />
+          <div 
+            className="absolute top-0 right-0 w-12 h-12"
+            style={{
+              background: 'linear-gradient(135deg, transparent 45%, rgba(0,0,0,0.15) 50%, transparent 55%)',
+            }}
+          />
+        </div>
+
         <PageHeader
           title="EPIs"
           description="Equipamentos de Proteção Individual"
@@ -46,7 +65,7 @@ export default function EstoqueEPI() {
         />
 
         {/* Main Content Card */}
-        <Card folded className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]">
+        <Card className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]">
           <CardHeader className="border-b bg-muted/30 py-3 px-3 sm:px-6">
             <EstoqueFilters
               filters={filters}
