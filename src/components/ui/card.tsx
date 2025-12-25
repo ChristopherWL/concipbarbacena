@@ -35,36 +35,55 @@ export interface CardProps
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, folded = false, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        cardVariants({ variant, className }),
-        folded && "relative rounded-tr-none"
-      )}
-      {...props}
-    >
-      {folded && (
-        <>
-          {/* Folded corner effect */}
+  ({ className, variant, folded = false, children, ...props }, ref) => {
+    if (folded) {
+      return (
+        <div className="relative">
+          {/* Folded corner - positioned outside the card */}
           <div 
-            className="absolute top-0 right-0 w-8 h-8 z-10"
-            style={{
-              background: 'linear-gradient(135deg, transparent 50%, hsl(var(--muted)) 50%)',
-            }}
-          />
-          <div 
-            className="absolute top-0 right-0 w-8 h-8 z-20"
-            style={{
-              background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 50%, transparent 50%)',
-              boxShadow: '-2px 2px 4px rgba(0,0,0,0.15)',
-            }}
-          />
-        </>
-      )}
-      {props.children}
-    </div>
-  )
+            className="absolute -top-0 -right-0 w-10 h-10 pointer-events-none"
+            style={{ zIndex: 1 }}
+          >
+            {/* The fold triangle (dark part that looks like the back of the page) */}
+            <div 
+              className="absolute top-0 right-0 w-10 h-10"
+              style={{
+                background: 'linear-gradient(135deg, hsl(var(--primary)) 50%, transparent 50%)',
+              }}
+            />
+            {/* Shadow under the fold */}
+            <div 
+              className="absolute top-0 right-0 w-10 h-10"
+              style={{
+                background: 'linear-gradient(135deg, transparent 45%, rgba(0,0,0,0.1) 50%, transparent 55%)',
+              }}
+            />
+          </div>
+          <div
+            ref={ref}
+            className={cn(
+              cardVariants({ variant, className }),
+              "rounded-tr-none"
+            )}
+            style={{ clipPath: 'polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%)' }}
+            {...props}
+          >
+            {children}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={cn(cardVariants({ variant, className }))}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
 );
 Card.displayName = "Card";
 
