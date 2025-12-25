@@ -569,16 +569,19 @@
     height: 40px;
     z-index: 60;
     pointer-events: none;
+    /* Shadow that falls on the page content (inside) */
+    filter: drop-shadow(4px 4px 6px hsl(0 0% 0% / 0.2));
   }
 
   @media (min-width: 1024px) {
     .page-curl-container {
       width: 56px;
       height: 56px;
+      filter: drop-shadow(6px 6px 10px hsl(0 0% 0% / 0.25));
     }
   }
 
-  /* Page fold triangle - white paper with outer shadow only */
+  /* Page fold triangle - white paper */
   .page-curl-page {
     position: absolute;
     top: 0;
@@ -589,34 +592,20 @@
     
     /* White/light background matching page */
     background: hsl(var(--background));
+  }
 
-    /* Shadow on outer edges only - creates floating effect */
-    box-shadow: 
-      -3px 3px 6px hsl(0 0% 0% / 0.15),
-      -6px 6px 12px hsl(0 0% 0% / 0.1);
+  .dark .page-curl-container {
+    filter: drop-shadow(5px 5px 10px hsl(0 0% 0% / 0.5));
   }
 
   @media (min-width: 1024px) {
-    .page-curl-page {
-      box-shadow: 
-        -4px 4px 8px hsl(0 0% 0% / 0.18),
-        -8px 8px 16px hsl(0 0% 0% / 0.12);
+    .dark .page-curl-container {
+      filter: drop-shadow(8px 8px 14px hsl(0 0% 0% / 0.6));
     }
   }
 
   .dark .page-curl-page {
     background: hsl(var(--background));
-    box-shadow: 
-      -3px 3px 8px hsl(0 0% 0% / 0.4),
-      -6px 6px 16px hsl(0 0% 0% / 0.3);
-  }
-
-  @media (min-width: 1024px) {
-    .dark .page-curl-page {
-      box-shadow: 
-        -5px 5px 12px hsl(0 0% 0% / 0.5),
-        -10px 10px 24px hsl(0 0% 0% / 0.4);
-    }
   }
 
   /* Main content with clipped corner for page curl */
