@@ -4861,6 +4861,10 @@ export type Database = {
       }
       get_user_branch_id: { Args: { _user_id: string }; Returns: string }
       get_user_team_id: { Args: { _user_id: string }; Returns: string }
+      get_user_tenant_from_roles: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
       get_zero_stock_products: {
         Args: { p_branch_id?: string; p_limit?: number; p_tenant_id: string }
