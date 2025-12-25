@@ -328,6 +328,28 @@ export function useAuth() {
         }
 
         if (session?.user) {
+          // Validate server-side session (prevents stale local sessions that cause 401/403)
+          const { data: userData, error: userErr } = await supabase.auth.getUser();
+          if (userErr || !userData?.user) {
+            // Session exists locally but is invalid on the server
+            clearAuthSnapshot();
+            clearThemeSnapshotFromSession();
+            resetInlineThemeFromCachedSnapshot();
+            await supabase.auth.signOut();
+            setState(prev => ({
+              ...prev,
+              user: null,
+              session: null,
+              profile: null,
+              roles: [],
+              tenant: null,
+              selectedBranch: null,
+              isLoading: false,
+              isInitialized: true,
+            }));
+            return;
+          }
+
           // Always refresh in background
           try {
             await fetchUserData(session.user.id);

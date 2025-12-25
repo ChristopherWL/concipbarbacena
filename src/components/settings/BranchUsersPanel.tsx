@@ -90,10 +90,11 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
 
     setIsLoading(true);
     try {
-      // Check if session is still valid before making calls
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
+      // Validate session against server (prevents stale local sessions)
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData?.user) {
         toast.error('Sessão expirada. Por favor, faça login novamente.');
+        await supabase.auth.signOut();
         window.location.href = '/auth';
         return;
       }
@@ -106,8 +107,9 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
 
       // Check for auth errors specifically
       if (usersResult.error) {
-        const errorBody = usersResult.error.message || '';
-        if (errorBody.includes('Invalid authentication') || errorBody.includes('401')) {
+        const status = (usersResult.error as any)?.context?.status;
+        const body = (usersResult.error as any)?.context?.body;
+        if (status === 401 || body?.error === 'Invalid authentication') {
           toast.error('Sessão expirada. Por favor, faça login novamente.');
           await supabase.auth.signOut();
           window.location.href = '/auth';
