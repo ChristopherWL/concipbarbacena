@@ -562,7 +562,7 @@
     @apply bg-black/10 backdrop-blur-lg border border-black/10;
   }
 
-  /* Page curl / folded corner effect - realistic style */
+  /* Page curl / folded corner effect - realistic paper style */
   .page-curl-container {
     position: absolute;
     width: 40px;
@@ -578,7 +578,7 @@
     }
   }
 
-  /* Page fold triangle - solid color with floating shadow */
+  /* Page fold triangle - white paper with outer shadow only */
   .page-curl-page {
     position: absolute;
     top: 0;
@@ -587,38 +587,35 @@
     height: 100%;
     clip-path: polygon(100% 0, 100% 100%, 0 100%);
     
-    /* Solid sidebar color with subtle gradient for depth */
-    background: linear-gradient(
-      135deg,
-      hsl(var(--sidebar-background)) 0%,
-      hsl(var(--sidebar-background)) 60%,
-      hsl(222 47% 18%) 100%
-    );
+    /* White/light background matching page */
+    background: hsl(var(--background));
 
-    /* Floating shadow effect */
-    filter: drop-shadow(4px 4px 8px hsl(0 0% 0% / 0.4));
+    /* Shadow on outer edges only - creates floating effect */
+    box-shadow: 
+      -3px 3px 6px hsl(0 0% 0% / 0.15),
+      -6px 6px 12px hsl(0 0% 0% / 0.1);
   }
 
   @media (min-width: 1024px) {
     .page-curl-page {
-      filter: drop-shadow(6px 6px 12px hsl(0 0% 0% / 0.45));
+      box-shadow: 
+        -4px 4px 8px hsl(0 0% 0% / 0.18),
+        -8px 8px 16px hsl(0 0% 0% / 0.12);
     }
   }
 
   .dark .page-curl-page {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--sidebar-background)) 0%,
-      hsl(var(--sidebar-background)) 60%,
-      hsl(210 30% 12%) 100%
-    );
-    
-    filter: drop-shadow(5px 5px 10px hsl(0 0% 0% / 0.6));
+    background: hsl(var(--background));
+    box-shadow: 
+      -3px 3px 8px hsl(0 0% 0% / 0.4),
+      -6px 6px 16px hsl(0 0% 0% / 0.3);
   }
 
   @media (min-width: 1024px) {
     .dark .page-curl-page {
-      filter: drop-shadow(8px 8px 16px hsl(0 0% 0% / 0.7));
+      box-shadow: 
+        -5px 5px 12px hsl(0 0% 0% / 0.5),
+        -10px 10px 24px hsl(0 0% 0% / 0.4);
     }
   }
 
