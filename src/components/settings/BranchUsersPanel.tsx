@@ -90,13 +90,31 @@ export function BranchUsersPanel({ branchId }: BranchUsersPanelProps) {
 
     setIsLoading(true);
     try {
+      // Check if session is still valid before making calls
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        toast.error('Sessão expirada. Por favor, faça login novamente.');
+        window.location.href = '/auth';
+        return;
+      }
+
       const [usersResult, templatesResult, employeesResult] = await Promise.all([
         supabase.functions.invoke('get-tenant-users'),
         supabase.from('permission_templates').select('id, name, color, role').eq('tenant_id', tenant.id).eq('is_active', true),
         supabase.from('employees').select('id, name, user_id, position').eq('tenant_id', tenant.id).eq('branch_id', branchId).eq('status', 'ativo').order('name'),
       ]);
 
-      if (usersResult.error) throw usersResult.error;
+      // Check for auth errors specifically
+      if (usersResult.error) {
+        const errorBody = usersResult.error.message || '';
+        if (errorBody.includes('Invalid authentication') || errorBody.includes('401')) {
+          toast.error('Sessão expirada. Por favor, faça login novamente.');
+          await supabase.auth.signOut();
+          window.location.href = '/auth';
+          return;
+        }
+        throw usersResult.error;
+      }
 
       const templatesData = (templatesResult.data as PermissionTemplate[]) || [];
       const employeesData = (employeesResult.data as Employee[]) || [];
