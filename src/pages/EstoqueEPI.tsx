@@ -46,7 +46,7 @@ export default function EstoqueEPI() {
         />
 
         {/* Main Content Card */}
-        <Card className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]">
+        <Card folded className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]">
           <CardHeader className="border-b bg-muted/30 py-3 px-3 sm:px-6">
             <EstoqueFilters
               filters={filters}
