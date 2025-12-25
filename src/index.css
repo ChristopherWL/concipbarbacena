@@ -562,24 +562,23 @@
     @apply bg-black/10 backdrop-blur-lg border border-black/10;
   }
 
-  /* Page curl / folded corner effect */
+  /* Page curl / folded corner effect - realistic style */
   .page-curl-container {
     position: absolute;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     z-index: 60;
     pointer-events: none;
-    transition: opacity 0.3s ease-out;
   }
 
   @media (min-width: 1024px) {
     .page-curl-container {
-      width: 48px;
-      height: 48px;
+      width: 56px;
+      height: 56px;
     }
   }
 
-  /* Page triangle - paper fold with subtle gray */
+  /* Page fold triangle - solid color with floating shadow */
   .page-curl-page {
     position: absolute;
     top: 0;
@@ -587,77 +586,50 @@
     width: 100%;
     height: 100%;
     clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    
+    /* Solid sidebar color with subtle gradient for depth */
+    background: linear-gradient(
+      135deg,
+      hsl(var(--sidebar-background)) 0%,
+      hsl(var(--sidebar-background)) 60%,
+      hsl(222 47% 18%) 100%
+    );
 
-    /* Subtle gray gradient */
-    background:
-      linear-gradient(
-        315deg,
-        hsl(210 10% 88%) 0%,
-        hsl(210 8% 80%) 50%,
-        hsl(210 6% 72%) 100%
-      );
-
-    /* Shadow on outside edges */
-    filter:
-      drop-shadow(2px 2px 4px hsl(0 0% 0% / 0.3))
-      drop-shadow(4px 4px 8px hsl(0 0% 0% / 0.2));
+    /* Floating shadow effect */
+    filter: drop-shadow(4px 4px 8px hsl(0 0% 0% / 0.4));
   }
 
   @media (min-width: 1024px) {
     .page-curl-page {
-      filter:
-        drop-shadow(3px 3px 6px hsl(0 0% 0% / 0.3))
-        drop-shadow(6px 6px 12px hsl(0 0% 0% / 0.2));
+      filter: drop-shadow(6px 6px 12px hsl(0 0% 0% / 0.45));
     }
   }
 
   .dark .page-curl-page {
-    background:
-      linear-gradient(
-        315deg,
-        transparent 44%,
-        hsl(0 0% 0% / 0.6) 48%,
-        hsl(0 0% 0% / 0.7) 50%,
-        hsl(0 0% 0% / 0.6) 52%,
-        transparent 56%
-      ),
-      radial-gradient(
-        ellipse at 100% 100%,
-        hsl(0 0% 0% / 0.6) 0%,
-        hsl(0 0% 0% / 0.4) 30%,
-        transparent 60%
-      ),
-      linear-gradient(
-        315deg,
-        hsl(var(--background)) 0%,
-        hsl(207 22% 14%) 25%,
-        hsl(207 20% 18%) 50%,
-        hsl(207 18% 24%) 100%
-      );
-
-    filter:
-      drop-shadow(-2px -2px 4px hsl(0 0% 0% / 0.6))
-      drop-shadow(-4px -4px 8px hsl(0 0% 0% / 0.5));
+    background: linear-gradient(
+      135deg,
+      hsl(var(--sidebar-background)) 0%,
+      hsl(var(--sidebar-background)) 60%,
+      hsl(210 30% 12%) 100%
+    );
+    
+    filter: drop-shadow(5px 5px 10px hsl(0 0% 0% / 0.6));
   }
 
   @media (min-width: 1024px) {
     .dark .page-curl-page {
-      filter:
-        drop-shadow(-3px -3px 5px hsl(0 0% 0% / 0.6))
-        drop-shadow(-6px -6px 12px hsl(0 0% 0% / 0.5))
-        drop-shadow(-10px -10px 20px hsl(0 0% 0% / 0.4))
-        drop-shadow(-15px -15px 30px hsl(0 0% 0% / 0.3));
+      filter: drop-shadow(8px 8px 16px hsl(0 0% 0% / 0.7));
     }
   }
 
   /* Main content with clipped corner for page curl */
   .content-with-curl {
-    clip-path: polygon(32px 0, 100% 0, 100% 100%, 0 100%, 0 32px);
+    clip-path: polygon(40px 0, 100% 0, 100% 100%, 0 100%, 0 40px);
   }
 
   @media (min-width: 1024px) {
     .content-with-curl {
-      clip-path: polygon(48px 0, 100% 0, 100% 100%, 0 100%, 0 48px);
+      clip-path: polygon(56px 0, 100% 0, 100% 100%, 0 100%, 0 56px);
     }
   }
 
