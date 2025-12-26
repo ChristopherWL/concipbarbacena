@@ -142,12 +142,13 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     }
 
     // Rotated 90deg clockwise (visual coords) -> unrotated layout coords
+    // With CSS rotate(90deg): visualX aligns with original Y, and visualY aligns with (width - original X)
     const u = visualW ? pointerX / visualW : 0; // 0..1 across visual width
     const v = visualH ? pointerY / visualH : 0; // 0..1 across visual height
 
     return {
-      x: v * layoutW,
-      y: (1 - u) * layoutH,
+      x: (1 - v) * layoutW,
+      y: u * layoutH,
     };
   };
 
