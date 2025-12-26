@@ -116,39 +116,18 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     const pointerX = e.clientX - rect.left;
     const pointerY = e.clientY - rect.top;
 
-    // "Layout" size (pre-transform) vs "visual" size (post-transform).
-    // Some mobile browsers apply subtle scaling; use ratio checks instead of strict equality.
-    const layoutW = canvas.offsetWidth || rect.width;
-    const layoutH = canvas.offsetHeight || rect.height;
-    const visualW = rect.width || layoutW;
-    const visualH = rect.height || layoutH;
+    // Map from viewport pixels -> canvas drawing coordinates (CSS pixels)
+    // We draw in CSS pixels because initCanvas sets ctx.setTransform(dpr, ...)
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.width / dpr;
+    const cssH = canvas.height / dpr;
 
-    const ratioClose = (a: number, b: number, tol = 0.04) => {
-      if (!a || !b) return false;
-      return Math.abs(a / b - 1) < tol;
-    };
-
-    // If rotated 90deg, visualW≈layoutH and visualH≈layoutW.
-    const isVisuallyRotated = ratioClose(visualW, layoutH) && ratioClose(visualH, layoutW);
-
-    // Non-rotated: map visual pixels -> layout pixels (handles fractional zoom/DPR)
-    if (!isVisuallyRotated) {
-      const scaleX = layoutW / visualW;
-      const scaleY = layoutH / visualH;
-      return {
-        x: pointerX * scaleX,
-        y: pointerY * scaleY,
-      };
-    }
-
-    // Rotated 90deg clockwise (visual coords) -> unrotated layout coords
-    // With CSS rotate(90deg): visualX aligns with original Y, and visualY aligns with (width - original X)
-    const u = visualW ? pointerX / visualW : 0; // 0..1 across visual width
-    const v = visualH ? pointerY / visualH : 0; // 0..1 across visual height
+    const scaleX = rect.width ? cssW / rect.width : 1;
+    const scaleY = rect.height ? cssH / rect.height : 1;
 
     return {
-      x: (1 - v) * layoutW,
-      y: u * layoutH,
+      x: pointerX * scaleX,
+      y: pointerY * scaleY,
     };
   };
 
@@ -218,48 +197,13 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     const canvas = canvasRef.current;
     if (!canvas || !hasSignature) return;
 
-    // If we rotated the view, we need to rotate the saved image back
-    if (isPortrait) {
-      const tempCanvas = document.createElement("canvas");
-      const tempCtx = tempCanvas.getContext("2d");
-      if (!tempCtx) return;
-
-      // Swap dimensions for rotated output
-      tempCanvas.width = canvas.height;
-      tempCanvas.height = canvas.width;
-
-      // Rotate and draw
-      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-      tempCtx.rotate(-Math.PI / 2);
-      tempCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-
-      const dataUrl = tempCanvas.toDataURL("image/png");
-      onSave(dataUrl);
-    } else {
-      const dataUrl = canvas.toDataURL("image/png");
-      onSave(dataUrl);
-    }
+    // No CSS rotation: what you see is what gets saved.
+    const dataUrl = canvas.toDataURL("image/png");
+    onSave(dataUrl);
     onClose();
   };
 
   if (!open) return null;
-
-  // Rotated container styles for portrait mode
-  const rotatedStyles: React.CSSProperties = isPortrait
-    ? {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vh",
-        height: "100vw",
-        transform: "rotate(90deg)",
-        transformOrigin: "top left",
-        marginLeft: "100vw",
-      }
-    : {
-        position: "fixed",
-        inset: 0,
-      };
 
   return (
     <div 
@@ -267,8 +211,8 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
       style={{ touchAction: "none" }}
     >
       <div 
-        className="flex flex-col bg-background"
-        style={{ ...rotatedStyles, touchAction: "none" }}
+        className="fixed inset-0 flex flex-col bg-background"
+        style={{ touchAction: "none" }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-primary flex-shrink-0">
