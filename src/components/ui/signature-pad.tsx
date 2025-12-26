@@ -88,21 +88,37 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
 
   const getCoordinates = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
+    const container = containerRef.current;
+    if (!canvas || !container) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
     
-    // When rotated 90deg, we need to transform coordinates
+    // When rotated 90deg clockwise via CSS, the visual layout is transformed
+    // The getBoundingClientRect returns the transformed (visual) rect
     if (isPortrait) {
-      // The canvas is rotated 90deg clockwise via CSS
-      // So screen X becomes canvas Y, and screen Y (inverted) becomes canvas X
-      const screenX = e.clientX - rect.left;
-      const screenY = e.clientY - rect.top;
+      // Get pointer position relative to the visual rect
+      const pointerX = e.clientX - rect.left;
+      const pointerY = e.clientY - rect.top;
       
-      // Map rotated screen coords to canvas coords
+      // The CSS rotation is: transform: rotate(90deg) from top-left
+      // Visual width = original height, Visual height = original width
+      // We need to map visual coords back to canvas coords
+      // Canvas X = visual Y (scaled to canvas width)
+      // Canvas Y = visual height - visual X (scaled to canvas height)
+      
+      const canvasDisplayWidth = rect.width;
+      const canvasDisplayHeight = rect.height;
+      
+      // The actual canvas dimensions (before CSS rotation)
+      const actualWidth = parseFloat(canvas.style.width) || canvasDisplayHeight;
+      const actualHeight = parseFloat(canvas.style.height) || canvasDisplayWidth;
+      
+      // Map coordinates: 
+      // pointerX on screen -> actualHeight - pointerX on canvas (Y axis)
+      // pointerY on screen -> pointerY on canvas (X axis)
       return {
-        x: screenY,
-        y: rect.width - screenX,
+        x: pointerY * (actualWidth / canvasDisplayHeight),
+        y: (canvasDisplayWidth - pointerX) * (actualHeight / canvasDisplayWidth),
       };
     }
     
