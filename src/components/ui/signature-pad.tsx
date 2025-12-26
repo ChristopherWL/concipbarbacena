@@ -79,7 +79,9 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
 
-    ctx.scale(dpr, dpr);
+    // Reset any previous transforms (important when re-initializing)
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
@@ -88,43 +90,30 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
 
   const getCoordinates = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return { x: 0, y: 0 };
+    if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-    
-    // When rotated 90deg clockwise via CSS, the visual layout is transformed
-    // The getBoundingClientRect returns the transformed (visual) rect
-    if (isPortrait) {
-      // Get pointer position relative to the visual rect
-      const pointerX = e.clientX - rect.left;
-      const pointerY = e.clientY - rect.top;
-      
-      // The CSS rotation is: transform: rotate(90deg) from top-left
-      // Visual width = original height, Visual height = original width
-      // We need to map visual coords back to canvas coords
-      // Canvas X = visual Y (scaled to canvas width)
-      // Canvas Y = visual height - visual X (scaled to canvas height)
-      
-      const canvasDisplayWidth = rect.width;
-      const canvasDisplayHeight = rect.height;
-      
-      // The actual canvas dimensions (before CSS rotation)
-      const actualWidth = parseFloat(canvas.style.width) || canvasDisplayHeight;
-      const actualHeight = parseFloat(canvas.style.height) || canvasDisplayWidth;
-      
-      // Map coordinates: 
-      // pointerX on screen -> actualHeight - pointerX on canvas (Y axis)
-      // pointerY on screen -> pointerY on canvas (X axis)
-      return {
-        x: pointerY * (actualWidth / canvasDisplayHeight),
-        y: (canvasDisplayWidth - pointerX) * (actualHeight / canvasDisplayWidth),
-      };
+
+    const pointerX = e.clientX - rect.left;
+    const pointerY = e.clientY - rect.top;
+
+    // Default (no rotation)
+    if (!isPortrait) {
+      return { x: pointerX, y: pointerY };
     }
-    
+
+    // Portrait: parent is rotated 90deg clockwise.
+    // Visual width = original height; visual height = original width.
+    // We map visual normalized coords -> original canvas coords in CSS pixels.
+    const u = rect.width ? pointerX / rect.width : 0; // 0..1 across visual width
+    const v = rect.height ? pointerY / rect.height : 0; // 0..1 across visual height
+
+    const canvasWidthCss = rect.height;
+    const canvasHeightCss = rect.width;
+
     return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+      x: v * canvasWidthCss,
+      y: (1 - u) * canvasHeightCss,
     };
   };
 
