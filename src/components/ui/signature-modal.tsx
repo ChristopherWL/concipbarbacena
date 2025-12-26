@@ -176,9 +176,17 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
 
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
-    if (!ctx) return;
+    if (!ctx || !canvas) return;
+
+    // Reinitialize stroke style in case it was reset
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     const { x, y } = getCoordinates(e);
     ctx.beginPath();
@@ -189,6 +197,7 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
 
   const draw = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!isDrawing) return;
 
     const canvas = canvasRef.current;
@@ -200,7 +209,11 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
     ctx.stroke();
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!isDrawing) return;
     setIsDrawing(false);
     
@@ -304,14 +317,15 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full cursor-crosshair"
-            style={{ touchAction: 'none', pointerEvents: 'auto' }}
+            style={{ touchAction: 'none', pointerEvents: 'auto', userSelect: 'none', WebkitUserSelect: 'none' }}
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={stopDrawing}
-            onMouseLeave={stopDrawing}
+            onMouseLeave={() => stopDrawing()}
             onTouchStart={startDrawing}
             onTouchMove={draw}
             onTouchEnd={stopDrawing}
+            onTouchCancel={() => stopDrawing()}
           />
           {!hasSignature && isReady && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
