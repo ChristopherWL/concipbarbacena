@@ -185,6 +185,22 @@ const Obras = () => {
   // can reload the tab. We re-open the dialog immediately, then bind selectedObra
   // once obras are available.
   useEffect(() => {
+    // Only restore draft if the page was reloaded during an active update session
+    // (i.e., user opened camera and the browser unloaded). We detect this by checking
+    // performance.navigation or the Navigation Timing API.
+    const wasReloaded =
+      (typeof performance !== "undefined" &&
+        performance.getEntriesByType &&
+        (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming)?.type === "reload") ||
+      (typeof (performance as any).navigation !== "undefined" &&
+        (performance as any).navigation.type === 1);
+
+    if (!wasReloaded) {
+      // First navigation to page - clear any stale draft
+      clearUpdateDraft();
+      return;
+    }
+
     try {
       const raw = sessionStorage.getItem(UPDATE_DRAFT_KEY);
       if (!raw) return;
