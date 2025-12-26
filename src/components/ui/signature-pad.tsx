@@ -18,6 +18,7 @@ interface SignaturePadProps {
 export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: SignaturePadProps) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const drawingAreaRef = React.useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = React.useState(false);
   const [hasSignature, setHasSignature] = React.useState(false);
   const [isPortrait, setIsPortrait] = React.useState(false);
@@ -66,20 +67,21 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
   const initCanvas = React.useCallback(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
-    if (!canvas || !container) return;
+    const drawingArea = drawingAreaRef.current;
+    if (!canvas || !container || !drawingArea) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const rect = container.getBoundingClientRect();
+    // IMPORTANT: size the canvas based on the visible drawing area (not the outer container).
+    // Using a larger container caused the canvas element to overflow and only part of it to be interactive.
+    const rect = drawingArea.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
 
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    canvas.style.width = `${rect.width}px`;
-    canvas.style.height = `${rect.height}px`;
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
 
-    // Reset any previous transforms (important when re-initializing)
+    // Keep CSS size controlled by layout (w-full/h-full). Only set the internal bitmap size.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.strokeStyle = "#000";
@@ -248,7 +250,10 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
           ref={containerRef}
           className="flex-1 p-3 flex flex-col min-h-0 bg-muted/30"
         >
-          <div className="flex-1 rounded-lg overflow-hidden bg-white border-2 border-dashed border-border relative">
+          <div
+            ref={drawingAreaRef}
+            className="flex-1 rounded-lg overflow-hidden bg-white border-2 border-dashed border-border relative"
+          >
             <canvas
               ref={canvasRef}
               className="absolute inset-0 w-full h-full cursor-crosshair"
