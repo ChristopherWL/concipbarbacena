@@ -13,7 +13,7 @@ interface SignaturePadProps {
 
 /**
  * Signature pad that opens fullscreen.
- * Automatically rotates content 90deg when in portrait mode for landscape signing.
+ * In portrait, the UI is rotated to landscape via CSS while keeping touch mapping correct.
  */
 export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: SignaturePadProps) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -207,22 +207,54 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     const canvas = canvasRef.current;
     if (!canvas || !hasSignature) return;
 
-    // No CSS rotation: what you see is what gets saved.
-    const dataUrl = canvas.toDataURL("image/png");
-    onSave(dataUrl);
+    // If UI is rotated in portrait, rotate the exported image back to normal.
+    if (isPortrait) {
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+      if (!tempCtx) return;
+
+      tempCanvas.width = canvas.height;
+      tempCanvas.height = canvas.width;
+
+      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+      tempCtx.rotate(-Math.PI / 2);
+      tempCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+
+      onSave(tempCanvas.toDataURL("image/png"));
+    } else {
+      onSave(canvas.toDataURL("image/png"));
+    }
+
     onClose();
   };
 
   if (!open) return null;
 
+  // In portrait, we rotate the whole UI so the signing area stays landscape.
+  const rotatedStyles: React.CSSProperties = isPortrait
+    ? {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vh",
+        height: "100vw",
+        transform: "rotate(90deg)",
+        transformOrigin: "top left",
+        marginLeft: "100vw",
+      }
+    : {
+        position: "fixed",
+        inset: 0,
+      };
+
   return (
-    <div 
+    <div
       className="fixed inset-0 z-[9999] bg-background"
       style={{ touchAction: "none" }}
     >
-      <div 
-        className="fixed inset-0 flex flex-col bg-background"
-        style={{ touchAction: "none" }}
+      <div
+        className="flex flex-col bg-background"
+        style={{ ...rotatedStyles, touchAction: "none" }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-primary flex-shrink-0">
