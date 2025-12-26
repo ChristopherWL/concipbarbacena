@@ -91,6 +91,21 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
+    
+    // When rotated 90deg, we need to transform coordinates
+    if (isPortrait) {
+      // The canvas is rotated 90deg clockwise via CSS
+      // So screen X becomes canvas Y, and screen Y (inverted) becomes canvas X
+      const screenX = e.clientX - rect.left;
+      const screenY = e.clientY - rect.top;
+      
+      // Map rotated screen coords to canvas coords
+      return {
+        x: screenY,
+        y: rect.width - screenX,
+      };
+    }
+    
     return {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
