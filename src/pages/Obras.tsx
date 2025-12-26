@@ -1326,6 +1326,13 @@ const Obras = () => {
                   submitLabel="Salvar Atualização"
                   headerTitle={`Atualização - ${selectedObra?.nome || 'Obra'}`}
                 />
+
+                <SignaturePad
+                  open={showSignatureModal}
+                  onClose={() => setShowSignatureModal(false)}
+                  onSave={(sig) => setUpdateForm((prev) => ({ ...prev, assinatura: sig }))}
+                  title="Assinatura - Atualização de Obra"
+                />
               </>
             ) : (
               <>
