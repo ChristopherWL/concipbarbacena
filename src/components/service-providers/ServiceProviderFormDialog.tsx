@@ -124,6 +124,7 @@ export function ServiceProviderFormDialog({ open, onOpenChange, provider }: Prop
     try {
       const data = {
         ...values,
+        name: values.name, // Explicitly required
         branch_id: branchId || undefined,
         email: values.email || null,
       };
@@ -131,7 +132,7 @@ export function ServiceProviderFormDialog({ open, onOpenChange, provider }: Prop
       if (provider) {
         await updateProvider({ id: provider.id, ...data });
       } else {
-        await createProvider(data);
+        await createProvider({ ...data, name: data.name });
       }
       onOpenChange(false);
     } catch (error) {

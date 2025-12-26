@@ -135,6 +135,7 @@ const navigation: NavItem[] = [
   { name: 'Frota', href: '/frota', icon: Truck },
   { name: 'Equipes', href: '/equipes', icon: Users },
   { name: 'Recursos Humanos', href: '/rh', icon: UserPlus },
+  { name: 'Prestadores', href: '/prestadores', icon: HardHat },
   { 
     name: 'Atendimento', 
     icon: ClipboardList,
