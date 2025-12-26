@@ -591,6 +591,7 @@ const Obras = () => {
         registrado_por: user?.id || null,
         fotos: fotos.length ? fotos : null,
         ocorrencias: updateForm.responsavel ? `Responsável: ${updateForm.responsavel}` : null,
+        tipo: 'atualizacao_obra', // Mark as obra update, not field diary
       });
 
       if (error) {

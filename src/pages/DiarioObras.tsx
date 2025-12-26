@@ -54,7 +54,10 @@ const DiarioObras = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const { diarios, isLoading, createDiario, deleteDiario, validateDiario } = useDiarioObras();
+  const { diarios: allDiarios, isLoading, createDiario, deleteDiario, validateDiario } = useDiarioObras();
+  
+  // Filter to show only field diary entries (diario_campo), not obra updates
+  const diarios = allDiarios.filter(d => d.tipo !== 'atualizacao_obra');
   const { tenant, user } = useAuthContext();
   const isMobile = useIsMobile();
 
