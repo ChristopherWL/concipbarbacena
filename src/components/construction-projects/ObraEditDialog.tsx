@@ -33,7 +33,7 @@ export const ObraEditDialog = ({ obra, isOpen, onOpenChange, onSave, isPending }
   });
 
   useEffect(() => {
-    if (obra) {
+    if (obra && isOpen) {
       setFormData({
         nome: obra.nome || "",
         endereco: obra.endereco || "",
@@ -44,11 +44,11 @@ export const ObraEditDialog = ({ obra, isOpen, onOpenChange, onSave, isPending }
         data_inicio: obra.data_inicio || "",
         previsao_termino: obra.previsao_termino || "",
         status: obra.status || "planejada",
-        valor_contrato: obra.valor_contrato,
-        image_url: (obra as any).image_url || null,
+        valor_contrato: obra.valor_contrato ?? null,
+        image_url: obra.image_url || null,
       });
     }
-  }, [obra]);
+  }, [obra, isOpen]);
 
   const handleSave = () => {
     if (!obra) return;

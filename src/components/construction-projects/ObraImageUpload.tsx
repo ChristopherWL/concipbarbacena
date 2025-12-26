@@ -17,12 +17,13 @@ export function ObraImageUpload({
 }: ObraImageUploadProps) {
   const { tenant } = useAuthContext();
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  // Always sync previewUrl with currentUrl prop
   useEffect(() => {
-    setPreviewUrl(currentUrl || null);
+    setPreviewUrl(currentUrl ?? null);
   }, [currentUrl]);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
