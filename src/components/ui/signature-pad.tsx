@@ -53,11 +53,11 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
 
     updateOrientation();
 
-    // Try to rotate/lock to landscape automatically (silent best-effort)
+    // Try to rotate/lock to landscape automatically (best-effort)
     const orientation = (screen as any)?.orientation;
     const lockPromise: Promise<unknown> | undefined = orientation?.lock?.("landscape");
     lockPromise?.catch?.(() => {
-      // Not supported or blocked by the browser; keep working without locking.
+      // Not supported or blocked by the browser; fallback to CSS-rotated UI.
     });
 
     window.addEventListener("resize", onResize);
@@ -101,43 +101,57 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // IMPORTANT: size the canvas based on the visible drawing area (not the outer container).
-    // Using a larger container caused the canvas element to overflow and only part of it to be interactive.
-    const rect = drawingArea.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
 
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    // When the UI is rotated via CSS (portrait), getBoundingClientRect() returns the visual (swapped) size.
+    // We want the *layout* size to keep pointer mapping stable.
+    const layoutW = drawingArea.offsetWidth || canvas.offsetWidth;
+    const layoutH = drawingArea.offsetHeight || canvas.offsetHeight;
 
-    // Keep CSS size controlled by layout (w-full/h-full). Only set the internal bitmap size.
+    const visualRect = drawingArea.getBoundingClientRect();
+    const cssW = isPortrait ? layoutW : visualRect.width;
+    const cssH = isPortrait ? layoutH : visualRect.height;
+
+    canvas.width = Math.max(1, Math.floor(cssW * dpr));
+    canvas.height = Math.max(1, Math.floor(cssH * dpr));
+
+    // Draw in CSS pixels
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-  }, []);
+  }, [isPortrait]);
 
   const getCoordinates = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-    const pointerX = e.clientX - rect.left;
-    const pointerY = e.clientY - rect.top;
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
 
-    // Map from viewport pixels -> canvas drawing coordinates (CSS pixels)
-    // We draw in CSS pixels because initCanvas sets ctx.setTransform(dpr, ...)
+    // We draw in CSS pixels (initCanvas uses ctx.setTransform(dpr,...))
     const dpr = window.devicePixelRatio || 1;
     const cssW = canvas.width / dpr;
     const cssH = canvas.height / dpr;
 
-    const scaleX = rect.width ? cssW / rect.width : 1;
-    const scaleY = rect.height ? cssH / rect.height : 1;
+    if (!isPortrait) {
+      const scaleX = rect.width ? cssW / rect.width : 1;
+      const scaleY = rect.height ? cssH / rect.height : 1;
+      return { x: px * scaleX, y: py * scaleY };
+    }
+
+    // Portrait: UI is rotated 90deg clockwise via CSS.
+    // Visual rect has swapped dimensions; invert rotation so touch matches the unrotated canvas.
+    // xU = yV, yU = (H - xV)
+    const u = rect.width ? px / rect.width : 0; // along visual width
+    const v = rect.height ? py / rect.height : 0; // along visual height
 
     return {
-      x: pointerX * scaleX,
-      y: pointerY * scaleY,
+      x: v * cssW,
+      y: (1 - u) * cssH,
     };
   };
 
