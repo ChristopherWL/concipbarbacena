@@ -214,6 +214,17 @@ export function MobileFormWizard({
       position: 'fixed' as const,
     } : {};
 
+    const renderedContent = React.useMemo(() => {
+      // If the step content is a React element (e.g., SignatureCanvas), inject isRotated so
+      // pointer coordinates match the finger when CSS rotation is applied.
+      if (React.isValidElement(currentStepData?.content)) {
+        return React.cloneElement(currentStepData.content as React.ReactElement<any>, {
+          isRotated: needsCssRotation,
+        });
+      }
+      return currentStepData?.content;
+    }, [currentStepData?.content, needsCssRotation]);
+
     return (
       <div 
         className={cn(
@@ -233,7 +244,7 @@ export function MobileFormWizard({
 
         {/* Signature content - fills available space */}
         <div className="flex-1 overflow-hidden p-4 flex flex-col min-h-0">
-          {currentStepData?.content}
+          {renderedContent}
         </div>
 
         {/* Simple Cancel/Save buttons */}
