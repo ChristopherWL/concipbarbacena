@@ -1128,20 +1128,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col h-full" data-tour="sidebar">
           {/* Navigation */}
           <nav className={cn(
-            "flex-1 py-4 overflow-y-auto overflow-x-hidden transition-all duration-150",
+            "flex-1 py-3 overflow-y-auto overflow-x-hidden transition-all duration-200 scrollbar-thin scrollbar-thumb-sidebar-accent scrollbar-track-transparent",
             collapsed ? "px-2" : "px-3"
           )}>
             
             {/* Menu Label */}
             {!collapsed && (
-              <div className="px-3 mb-3">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
-                  Menu Principal
-                </span>
+              <div className="sidebar-section-label flex items-center gap-2 mb-2">
+                <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                <span>Menu Principal</span>
               </div>
             )}
             
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {currentNavigation.map((item, index) => {
                 if (item.children && !collapsed) {
                   const isMenuOpen = openMenus.includes(item.name);
@@ -1149,55 +1148,58 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   
                   return (
                     <div key={item.name} className="select-none" data-tour={getTourId(item.name)}>
-                      <Button
-                        variant="ghost"
+                      <button
                         className={cn(
-                          'w-full justify-between gap-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors h-11 px-3',
-                          hasActiveChild && 'bg-sidebar-accent/60 text-sidebar-foreground'
+                          'sidebar-nav-item w-full flex items-center justify-between gap-2 rounded-xl text-sidebar-foreground/70 hover:text-sidebar-foreground h-11 px-3 group',
+                          hasActiveChild && 'active text-sidebar-foreground'
                         )}
                         onClick={() => toggleMenu(item.name)}
                       >
                         <div className="flex items-center gap-3">
-                          <item.icon className={cn(
-                            "h-4.5 w-4.5 transition-colors",
-                            hasActiveChild ? "text-primary" : "text-sidebar-foreground/60"
-                          )} />
+                          <div className={cn(
+                            "sidebar-icon-container",
+                            hasActiveChild && "bg-primary/20"
+                          )}>
+                            <item.icon className={cn(
+                              "h-[18px] w-[18px] transition-colors",
+                              hasActiveChild ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-sidebar-foreground"
+                            )} />
+                          </div>
                           <span className="text-sm font-medium">{item.name}</span>
                           <NotificationBadge count={item.badge || 0} type={item.badgeType} />
                         </div>
-                        <ChevronRight className={cn(
-                          "h-4 w-4 transition-transform duration-200 text-sidebar-foreground/40",
-                          isMenuOpen && "rotate-90"
+                        <ChevronDown className={cn(
+                          "h-4 w-4 transition-transform duration-300 text-sidebar-foreground/40",
+                          isMenuOpen && "rotate-180"
                         )} />
-                      </Button>
+                      </button>
                       <div
                         className={cn(
-                          "ml-6 mt-1 overflow-hidden transition-all duration-200",
-                          isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
+                          "sidebar-submenu overflow-hidden transition-all duration-300 ease-out",
+                          isMenuOpen ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0",
                         )}
                       >
-                        <div className="space-y-0.5 border-l border-sidebar-foreground/10 pl-4 py-1">
-                          {item.children.map((child) => (
-                            <Button
+                        <div className="space-y-0.5 pl-5 py-1">
+                          {item.children.map((child, childIdx) => (
+                            <button
                               key={child.name}
-                              variant="ghost"
-                              size="sm"
                               data-tour={getTourId(child.name)}
                               className={cn(
-                                'w-full justify-between text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-colors h-9 px-3 rounded-md',
-                                isActive(child.href) && 'bg-primary/10 text-primary font-medium'
+                                'sidebar-submenu-item w-full flex items-center justify-between text-sidebar-foreground/60 hover:text-sidebar-foreground transition-all h-9 pl-6 pr-3 rounded-lg group/child',
+                                isActive(child.href) && 'active text-primary font-medium bg-primary/10'
                               )}
                               onClick={() => handleNavigation(child.href)}
+                              style={{ animationDelay: `${childIdx * 30}ms` }}
                             >
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2.5">
                                 <child.icon className={cn(
-                                  "h-3.5 w-3.5",
-                                  isActive(child.href) ? "text-primary" : "text-sidebar-foreground/50"
+                                  "h-3.5 w-3.5 transition-colors",
+                                  isActive(child.href) ? "text-primary" : "text-sidebar-foreground/50 group-hover/child:text-sidebar-foreground"
                                 )} />
                                 <span className="text-xs font-medium">{child.name}</span>
                               </div>
                               <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
-                            </Button>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -1211,95 +1213,82 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 return (
                   <DropdownMenu key={item.name}>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
+                      <button
                         title={item.name}
                         aria-label={item.name}
                         className={cn(
-                          'w-full h-11 p-0 justify-center text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-all duration-200 rounded-lg relative group',
-                          hasActiveChild && 'bg-sidebar-accent/50 text-sidebar-foreground'
+                          'sidebar-collapsed-btn w-full mx-auto',
+                          hasActiveChild && 'active'
                         )}
                       >
-                        <div className={cn(
-                          "flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200",
-                          hasActiveChild 
-                            ? "bg-primary/20 text-primary" 
-                            : "bg-sidebar-foreground/5 text-sidebar-foreground/60 group-hover:bg-sidebar-foreground/10"
-                        )}>
-                          <item.icon className="h-5 w-5" />
-                        </div>
+                        <item.icon className={cn(
+                          "h-5 w-5 transition-colors",
+                          hasActiveChild ? "text-primary" : "text-sidebar-foreground/60"
+                        )} />
                         {(item.badge || 0) > 0 && (
-                          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full ring-2 ring-sidebar-background" />
+                          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-destructive rounded-full ring-2 ring-sidebar-background animate-pulse" />
                         )}
-                      </Button>
+                      </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent 
                       side="right" 
                       align="start" 
-                      sideOffset={16}
-                      className="w-60 p-0 bg-sidebar backdrop-blur-xl border border-primary/20 shadow-[0_0_40px_-10px] shadow-primary/30 rounded-2xl z-[100] animate-in fade-in-0 zoom-in-95 slide-in-from-left-3 duration-200 overflow-hidden"
+                      sideOffset={12}
+                      className="w-56 p-0 bg-sidebar/95 backdrop-blur-xl border border-sidebar-border/50 shadow-2xl shadow-black/20 rounded-xl z-[100] animate-in fade-in-0 zoom-in-95 slide-in-from-left-2 duration-200 overflow-hidden"
                     >
-                      {/* Glow effect at top */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+                      {/* Gradient top line */}
+                      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
                       
                       {/* Header */}
-                      <div className="relative px-4 py-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-primary/10">
+                      <div className="relative px-4 py-3 bg-gradient-to-b from-sidebar-accent/30 to-transparent border-b border-sidebar-border/30">
                         <div className="flex items-center gap-3">
-                          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 shadow-lg shadow-primary/20">
-                            <item.icon className="h-5 w-5 text-primary" />
-                            <div className="absolute inset-0 rounded-xl bg-primary/10 blur-sm" />
+                          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/15 border border-primary/20">
+                            <item.icon className="h-4.5 w-4.5 text-primary" />
                           </div>
                           <div>
-                            <span className="text-sm font-bold text-sidebar-foreground tracking-wide">{item.name}</span>
-                            <p className="text-[10px] text-primary/70 font-medium uppercase tracking-widest">Menu</p>
+                            <span className="text-sm font-semibold text-sidebar-foreground">{item.name}</span>
+                            <p className="text-[10px] text-sidebar-foreground/50 font-medium">Submenu</p>
                           </div>
                         </div>
                       </div>
                       
                       {/* Items */}
-                      <div className="p-2 space-y-1">
+                      <div className="p-1.5 space-y-0.5">
                         {item.children.map((child, idx) => (
                           <DropdownMenuItem 
                             key={child.href} 
                             onClick={() => handleNavigation(child.href)}
                             className={cn(
-                              "cursor-pointer gap-3 px-3 py-3 rounded-xl transition-all duration-200 group/item border border-transparent",
+                              "cursor-pointer gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group/item",
                               isActive(child.href) 
-                                ? "bg-gradient-to-r from-primary/25 via-primary/15 to-primary/5 text-primary border-primary/30 shadow-lg shadow-primary/10" 
-                                : "hover:bg-sidebar-accent/50 hover:border-sidebar-foreground/10"
+                                ? "bg-primary/15 text-primary" 
+                                : "hover:bg-sidebar-accent/50"
                             )}
-                            style={{ animationDelay: `${idx * 50}ms` }}
                           >
                             <div className={cn(
-                              "relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
+                              "flex items-center justify-center w-7 h-7 rounded-md transition-all",
                               isActive(child.href) 
-                                ? "bg-primary/30 shadow-md shadow-primary/30" 
+                                ? "bg-primary/20" 
                                 : "bg-sidebar-foreground/5 group-hover/item:bg-sidebar-foreground/10"
                             )}>
                               <child.icon className={cn(
-                                "h-4 w-4 transition-colors",
-                                isActive(child.href) ? "text-primary" : "text-sidebar-foreground/60 group-hover/item:text-sidebar-foreground"
+                                "h-3.5 w-3.5",
+                                isActive(child.href) ? "text-primary" : "text-sidebar-foreground/60"
                               )} />
-                              {isActive(child.href) && (
-                                <div className="absolute inset-0 rounded-lg bg-primary/20 blur-md" />
-                              )}
                             </div>
                             <span className={cn(
-                              "flex-1 text-sm font-medium transition-colors",
-                              isActive(child.href) ? "text-primary" : "text-sidebar-foreground/80 group-hover/item:text-sidebar-foreground"
+                              "flex-1 text-sm font-medium",
+                              isActive(child.href) ? "text-primary" : "text-sidebar-foreground/80"
                             )}>{child.name}</span>
                             {(child.badge || 0) > 0 && (
                               <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
                             )}
                             {isActive(child.href) && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50 animate-pulse" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                             )}
                           </DropdownMenuItem>
                         ))}
                       </div>
-                      
-                      {/* Bottom glow */}
-                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );
@@ -1310,65 +1299,74 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 return (
                   <Tooltip key={item.name}>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
+                      <button
                         title={item.name}
                         aria-label={item.name}
                         data-tour={getTourId(item.name)}
                         className={cn(
-                          'w-full h-11 p-0 justify-center text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-all duration-200 rounded-lg relative group',
-                          isActive(item.href!) && 'bg-sidebar-accent/50 text-sidebar-foreground'
+                          'sidebar-collapsed-btn w-full mx-auto',
+                          isActive(item.href!) && 'active'
                         )}
                         onClick={() => handleNavigation(item.href!)}
                       >
-                        <div className={cn(
-                          "flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200",
-                          isActive(item.href!) 
-                            ? "bg-primary/20 text-primary" 
-                            : "bg-sidebar-foreground/5 text-sidebar-foreground/60 group-hover:bg-sidebar-foreground/10"
-                        )}>
-                          <item.icon className="h-5 w-5" />
-                        </div>
+                        <item.icon className={cn(
+                          "h-5 w-5 transition-colors",
+                          isActive(item.href!) ? "text-primary" : "text-sidebar-foreground/60"
+                        )} />
                         {(item.badge || 0) > 0 && (
-                          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full ring-2 ring-sidebar-background" />
+                          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-destructive rounded-full ring-2 ring-sidebar-background animate-pulse" />
                         )}
-                      </Button>
+                      </button>
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="font-medium">
+                    <TooltipContent 
+                      side="right" 
+                      sideOffset={8}
+                      className="font-medium bg-sidebar border-sidebar-border text-sidebar-foreground shadow-lg"
+                    >
                       {item.name}
                     </TooltipContent>
                   </Tooltip>
                 );
               }
 
+              // Regular menu item - expanded
               return (
-                <Button
+                <button
                   key={item.name}
-                  variant="ghost"
                   data-tour={getTourId(item.name)}
                   className={cn(
-                    'w-full justify-start gap-3 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors h-11 px-3 rounded-lg',
-                    isActive(item.href!) && 'bg-sidebar-accent/60 text-sidebar-foreground font-medium'
+                    'sidebar-nav-item w-full flex items-center gap-3 text-sidebar-foreground/70 hover:text-sidebar-foreground h-11 px-3 rounded-xl group',
+                    isActive(item.href!) && 'active text-sidebar-foreground font-medium'
                   )}
                   onClick={() => handleNavigation(item.href!)}
                 >
-                  <item.icon className={cn(
-                    "h-4.5 w-4.5 transition-colors",
-                    isActive(item.href!) ? "text-primary" : "text-sidebar-foreground/60"
-                  )} />
-                  <span className="text-sm font-medium">{item.name}</span>
+                  <div className={cn(
+                    "sidebar-icon-container",
+                    isActive(item.href!) && "bg-primary/20"
+                  )}>
+                    <item.icon className={cn(
+                      "h-[18px] w-[18px] transition-colors",
+                      isActive(item.href!) ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-sidebar-foreground"
+                    )} />
+                  </div>
+                  <span className="text-sm font-medium flex-1">{item.name}</span>
                   {(item.badge || 0) > 0 && (
-                    <NotificationBadge count={item.badge || 0} type={item.badgeType} className="ml-auto" />
+                    <NotificationBadge count={item.badge || 0} type={item.badgeType} />
                   )}
-                </Button>
+                </button>
               );
             })}
             </div>
 
-            {/* Bottom Divider */}
+            {/* Bottom decorative element */}
             {!collapsed && (
               <div className="mt-6 px-3">
                 <div className="menu-divider" />
+                <div className="flex items-center justify-center gap-1.5 py-3 opacity-40">
+                  <div className="w-1 h-1 rounded-full bg-sidebar-foreground animate-pulse" />
+                  <div className="w-1 h-1 rounded-full bg-sidebar-foreground animate-pulse" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-1 h-1 rounded-full bg-sidebar-foreground animate-pulse" style={{ animationDelay: '0.4s' }} />
+                </div>
               </div>
             )}
           </nav>

@@ -347,8 +347,166 @@
   /* Simple divider */
   .menu-divider {
     height: 1px;
-    background: hsl(var(--sidebar-foreground) / 0.1);
+    background: linear-gradient(90deg, transparent, hsl(var(--sidebar-foreground) / 0.15), transparent);
     margin: 0.75rem 0;
+  }
+
+  /* Sidebar Navigation Styles */
+  .sidebar-nav-item {
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) scaleY(0);
+    width: 3px;
+    height: 60%;
+    background: hsl(var(--primary));
+    border-radius: 0 2px 2px 0;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-nav-item.active::before {
+    transform: translateY(-50%) scaleY(1);
+  }
+
+  .sidebar-nav-item:hover {
+    background: hsl(var(--sidebar-accent) / 0.5);
+  }
+
+  .sidebar-nav-item.active {
+    background: linear-gradient(90deg, hsl(var(--primary) / 0.15), transparent);
+  }
+
+  /* Sidebar icon container */
+  .sidebar-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-nav-item:hover .sidebar-icon-container {
+    background: hsl(var(--sidebar-foreground) / 0.1);
+    transform: scale(1.05);
+  }
+
+  .sidebar-nav-item.active .sidebar-icon-container {
+    background: hsl(var(--primary) / 0.2);
+    color: hsl(var(--primary));
+  }
+
+  /* Sidebar submenu */
+  .sidebar-submenu {
+    position: relative;
+  }
+
+  .sidebar-submenu::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, hsl(var(--sidebar-foreground) / 0.1), transparent);
+  }
+
+  .sidebar-submenu-item {
+    position: relative;
+    transition: all 0.15s ease;
+  }
+
+  .sidebar-submenu-item::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    width: 8px;
+    height: 1px;
+    background: hsl(var(--sidebar-foreground) / 0.2);
+    transition: all 0.15s ease;
+  }
+
+  .sidebar-submenu-item:hover::before {
+    background: hsl(var(--primary) / 0.5);
+    width: 12px;
+  }
+
+  .sidebar-submenu-item.active::before {
+    background: hsl(var(--primary));
+    width: 12px;
+  }
+
+  /* Sidebar glow effects */
+  .sidebar-glow-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: hsl(var(--primary));
+    border-radius: 50%;
+    filter: blur(2px);
+    animation: sidebarGlowPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes sidebarGlowPulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.5); }
+  }
+
+  /* Sidebar section label */
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: hsl(var(--sidebar-foreground) / 0.4);
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Sidebar collapsed icon button */
+  .sidebar-collapsed-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+    background: hsl(var(--sidebar-foreground) / 0.05);
+  }
+
+  .sidebar-collapsed-btn:hover {
+    background: hsl(var(--sidebar-accent) / 0.6);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+  }
+
+  .sidebar-collapsed-btn.active {
+    background: hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.3);
+  }
+
+  .sidebar-collapsed-btn.active::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 0.875rem;
+    border: 1px solid hsl(var(--primary) / 0.3);
+    animation: sidebarActiveRing 2s ease-in-out infinite;
+  }
+
+  @keyframes sidebarActiveRing {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
   }
 
   /* Header and sidebar become transparent so they look like one continuous piece */
