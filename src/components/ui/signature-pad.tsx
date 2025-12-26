@@ -117,16 +117,21 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     const pointerY = e.clientY - rect.top;
 
     // "Layout" size (pre-transform) vs "visual" size (post-transform).
-    // When we rotate the UI via CSS, getBoundingClientRect() swaps width/height.
+    // Some mobile browsers apply subtle scaling; use ratio checks instead of strict equality.
     const layoutW = canvas.offsetWidth || rect.width;
     const layoutH = canvas.offsetHeight || rect.height;
     const visualW = rect.width || layoutW;
     const visualH = rect.height || layoutH;
 
-    const close = (a: number, b: number) => Math.abs(a - b) < 2;
-    const isVisuallyRotated = close(visualW, layoutH) && close(visualH, layoutW);
+    const ratioClose = (a: number, b: number, tol = 0.04) => {
+      if (!a || !b) return false;
+      return Math.abs(a / b - 1) < tol;
+    };
 
-    // Map from visual pixels -> layout pixels (handles browser zoom / fractional DPR)
+    // If rotated 90deg, visualW≈layoutH and visualH≈layoutW.
+    const isVisuallyRotated = ratioClose(visualW, layoutH) && ratioClose(visualH, layoutW);
+
+    // Non-rotated: map visual pixels -> layout pixels (handles fractional zoom/DPR)
     if (!isVisuallyRotated) {
       const scaleX = layoutW / visualW;
       const scaleY = layoutH / visualH;
@@ -146,12 +151,28 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     };
   };
 
+  const debugOnceRef = React.useRef(false);
+
   const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    
+
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!ctx || !canvas) return;
+
+    // Debug (single print) to diagnose coordinate mismatches on real devices
+    if (!debugOnceRef.current) {
+      debugOnceRef.current = true;
+      const rect = canvas.getBoundingClientRect();
+      // eslint-disable-next-line no-console
+      console.log("[SignaturePad debug]", {
+        isPortrait,
+        devicePixelRatio: window.devicePixelRatio,
+        client: { x: e.clientX, y: e.clientY },
+        rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+        offset: { w: canvas.offsetWidth, h: canvas.offsetHeight },
+      });
+    }
 
     try {
       canvas.setPointerCapture(e.pointerId);
