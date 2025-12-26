@@ -23,10 +23,15 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
   const [hasSignature, setHasSignature] = React.useState(false);
   const [isPortrait, setIsPortrait] = React.useState(false);
 
-  // Check if in portrait mode
+  // Check if in portrait mode (more reliable than innerWidth/innerHeight on mobile)
   const checkPortrait = React.useCallback(() => {
     if (typeof window === "undefined") return false;
-    return window.innerHeight > window.innerWidth;
+
+    try {
+      return window.matchMedia?.("(orientation: portrait)")?.matches ?? (window.innerHeight > window.innerWidth);
+    } catch {
+      return window.innerHeight > window.innerWidth;
+    }
   }, []);
 
   // Handle open and orientation
@@ -40,19 +45,32 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
       setIsPortrait(checkPortrait());
     };
 
+    const onResize = () => updateOrientation();
+    const onOrientationChange = () => {
+      // iOS can lag orientation metrics; re-check after layout settles
+      setTimeout(updateOrientation, 150);
+    };
+
     updateOrientation();
 
-    window.addEventListener("resize", updateOrientation);
-    window.addEventListener("orientationchange", () => {
-      setTimeout(updateOrientation, 100);
-    });
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onOrientationChange);
+    window.matchMedia?.("(orientation: portrait)")?.addEventListener?.("change", onResize);
+
+    // Also listen to the visual viewport (mobile browser UI can change the viewport without a full resize)
+    const vv = window.visualViewport;
+    vv?.addEventListener?.("resize", onResize);
+    vv?.addEventListener?.("scroll", onResize);
 
     // Prevent body scroll when signature pad is open
     document.body.style.overflow = "hidden";
 
     return () => {
-      window.removeEventListener("resize", updateOrientation);
-      window.removeEventListener("orientationchange", updateOrientation);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onOrientationChange);
+      window.matchMedia?.("(orientation: portrait)")?.removeEventListener?.("change", onResize);
+      vv?.removeEventListener?.("resize", onResize);
+      vv?.removeEventListener?.("scroll", onResize);
       document.body.style.overflow = "";
     };
   }, [open, checkPortrait]);
