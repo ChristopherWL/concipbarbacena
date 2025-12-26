@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, type PointerEvent } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Pen, X, Check, Trash2 } from 'lucide-react';
@@ -143,7 +143,7 @@ export function SignatureCanvas({ onSignatureChange, className, inline = false, 
     };
   };
 
-  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const startDrawing = (e: PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -169,7 +169,7 @@ export function SignatureCanvas({ onSignatureChange, className, inline = false, 
     setHasSignature(true);
   };
 
-  const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const draw = (e: PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isDrawing) return;
@@ -183,7 +183,7 @@ export function SignatureCanvas({ onSignatureChange, className, inline = false, 
     ctx.stroke();
   };
 
-  const stopDrawing = (e?: React.PointerEvent<HTMLCanvasElement>) => {
+  const stopDrawing = (e?: PointerEvent<HTMLCanvasElement>) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
