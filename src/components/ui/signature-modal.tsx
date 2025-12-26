@@ -124,103 +124,97 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
     };
   }, [open, initCanvas]);
 
-  const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
+  const getCoordinatesFromPoint = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-    
-    let clientX: number, clientY: number;
-    
-    if ('touches' in e && e.touches.length > 0) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else if ('clientX' in e) {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    } else {
-      return { x: 0, y: 0 };
-    }
-    
+
     // When CSS rotation is applied (90deg), we need to swap and adjust coordinates
     if (needsCssRotation) {
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      
+
       const relX = clientX - centerX;
       const relY = clientY - centerY;
-      
+
       const rotatedX = relY;
       const rotatedY = -relX;
-      
+
       const canvasX = rotatedX + rect.height / 2;
       const canvasY = rotatedY + rect.width / 2;
-      
+
       const scaleX = canvas.width / rect.height / (window.devicePixelRatio || 1);
       const scaleY = canvas.height / rect.width / (window.devicePixelRatio || 1);
-      
+
       return {
         x: canvasX * scaleX,
         y: canvasY * scaleY,
       };
     }
-    
+
     const scaleX = canvas.width / rect.width / (window.devicePixelRatio || 1);
     const scaleY = canvas.height / rect.height / (window.devicePixelRatio || 1);
-    
+
     return {
       x: (clientX - rect.left) * scaleX,
       y: (clientY - rect.top) * scaleY,
     };
   };
 
-  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
+    const ctx = canvas?.getContext("2d");
     if (!ctx || !canvas) return;
 
-    // Reinitialize stroke style in case it was reset
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    // Capture pointer so move/up keep firing even if finger leaves the canvas
+    try {
+      (e.currentTarget as HTMLCanvasElement).setPointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
 
-    const { x, y } = getCoordinates(e);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    const { x, y } = getCoordinatesFromPoint(e.clientX, e.clientY);
     ctx.beginPath();
     ctx.moveTo(x, y);
     setIsDrawing(true);
     setHasSignature(true);
   };
 
-  const draw = (e: React.MouseEvent | React.TouchEvent) => {
+  const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isDrawing) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
+    const ctx = canvas?.getContext("2d");
     if (!ctx) return;
 
-    const { x, y } = getCoordinates(e);
+    const { x, y } = getCoordinatesFromPoint(e.clientX, e.clientY);
     ctx.lineTo(x, y);
     ctx.stroke();
   };
 
-  const stopDrawing = (e?: React.MouseEvent | React.TouchEvent) => {
+  const stopDrawing = (e?: React.PointerEvent<HTMLCanvasElement>) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     if (!isDrawing) return;
     setIsDrawing(false);
-    
+
     // Save signature when drawing stops
     const canvas = canvasRef.current;
     if (canvas && hasSignature) {
-      const dataUrl = canvas.toDataURL('image/png');
+      const dataUrl = canvas.toDataURL("image/png");
       setSignature(dataUrl);
     }
   };
@@ -318,14 +312,11 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
             ref={canvasRef}
             className="absolute inset-0 w-full h-full cursor-crosshair"
             style={{ touchAction: 'none', pointerEvents: 'auto', userSelect: 'none', WebkitUserSelect: 'none' }}
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseLeave={() => stopDrawing()}
-            onTouchStart={startDrawing}
-            onTouchMove={draw}
-            onTouchEnd={stopDrawing}
-            onTouchCancel={() => stopDrawing()}
+            onPointerDown={startDrawing}
+            onPointerMove={draw}
+            onPointerUp={stopDrawing}
+            onPointerCancel={stopDrawing}
+            onPointerLeave={stopDrawing}
           />
           {!hasSignature && isReady && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
