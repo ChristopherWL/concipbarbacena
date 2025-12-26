@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { X, Check, Trash2, Pen } from "lucide-react";
+import { X, Check, Trash2, Pen, RotateCcw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -205,6 +205,53 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
 
   if (!open) return null;
 
+  // Portrait mode: show rotate prompt instead of canvas
+  if (isPortrait) {
+    return (
+      <div 
+        className="fixed inset-0 z-[9999] bg-background flex flex-col"
+        style={{ touchAction: "none" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary flex-shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="text-primary-foreground hover:bg-primary-foreground/20"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+          <h3 className="text-base font-semibold text-primary-foreground">{title}</h3>
+          <div className="w-10" />
+        </div>
+
+        {/* Rotate prompt */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
+          <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
+            <RotateCcw className="h-12 w-12 text-primary" />
+          </div>
+          <div className="text-center space-y-2">
+            <h4 className="text-xl font-semibold text-foreground">Gire o celular</h4>
+            <p className="text-muted-foreground text-sm max-w-xs">
+              Para assinar, coloque o celular na posição horizontal (paisagem)
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="mt-4"
+          >
+            Cancelar
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Landscape mode: show the actual signature canvas
   return (
     <div 
       className="fixed inset-0 z-[9999] bg-background"
