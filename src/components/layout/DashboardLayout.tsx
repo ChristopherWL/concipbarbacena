@@ -107,67 +107,44 @@ interface NavItem {
   children?: NavChild[];
 }
 
-interface NavSection {
-  label: string;
-  items: NavItem[];
-}
-
-const navigationSections: NavSection[] = [
-  {
-    label: '',
-    items: [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+const navigation: NavItem[] = [
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { 
+    name: 'Estoque', 
+    href: '/estoque',
+    icon: Package,
+    children: [
+      { name: 'Materiais', href: '/estoque/materiais', icon: Package },
+      { name: 'Equipamentos', href: '/estoque/equipamentos', icon: Package },
+      { name: 'Ferramentas', href: '/estoque/ferramentas', icon: Wrench },
+      { name: 'EPI', href: '/estoque/epi', icon: Package },
+      { name: 'EPC', href: '/estoque/epc', icon: Package },
+      { name: 'Auditoria', href: '/estoque/auditoria', icon: AlertTriangle },
     ]
   },
-  {
-    label: 'OPERAÇÃO',
-    items: [
-      { 
-        name: 'Estoque', 
-        href: '/estoque',
-        icon: Package,
-        children: [
-          { name: 'Materiais', href: '/estoque/materiais', icon: Package },
-          { name: 'Equipamentos', href: '/estoque/equipamentos', icon: Package },
-          { name: 'Ferramentas', href: '/estoque/ferramentas', icon: Wrench },
-          { name: 'EPI', href: '/estoque/epi', icon: Package },
-          { name: 'EPC', href: '/estoque/epc', icon: Package },
-          { name: 'Auditoria', href: '/estoque/auditoria', icon: AlertTriangle },
-        ]
-      },
-      { name: 'Movimentação', href: '/estoque/entrada', icon: ArrowLeftRight },
-      { 
-        name: 'Notas Fiscais', 
-        icon: Receipt,
-        children: [
-          { name: 'Entrada de NF', href: '/notas-fiscais', icon: Receipt },
-          { name: 'Emissão de NF', href: '/emissao-nf', icon: FileText },
-        ]
-      },
-      { name: 'Fechamento', href: '/fechamento', icon: Calculator },
+  { name: 'Movimentação', href: '/estoque/entrada', icon: FileText },
+  { 
+    name: 'Notas Fiscais', 
+    icon: Receipt,
+    children: [
+      { name: 'Entrada de NF', href: '/notas-fiscais', icon: Receipt },
+      { name: 'Emissão de NF', href: '/emissao-nf', icon: FileText },
     ]
   },
-  {
-    label: 'GESTÃO',
-    items: [
-      { name: 'Frota', href: '/frota', icon: Truck },
-      { name: 'Equipes', href: '/equipes', icon: Users },
-      { name: 'Recursos Humanos', href: '/rh', icon: UserPlus },
-      { 
-        name: 'Atendimento', 
-        icon: ClipboardList,
-        children: [
-          { name: 'Ordens de Serviço', href: '/os', icon: ClipboardList },
-          { name: 'Clientes', href: '/clientes', icon: UserPlus },
-        ]
-      },
-      { name: 'Relatórios', href: '/relatorios', icon: BarChart3 },
+  { name: 'Fechamento', href: '/fechamento', icon: Calculator },
+  { name: 'Frota', href: '/frota', icon: Truck },
+  { name: 'Equipes', href: '/equipes', icon: Users },
+  { name: 'Recursos Humanos', href: '/rh', icon: UserPlus },
+  { 
+    name: 'Atendimento', 
+    icon: ClipboardList,
+    children: [
+      { name: 'Ordens de Serviço', href: '/os', icon: ClipboardList },
+      { name: 'Clientes', href: '/clientes', icon: UserPlus },
     ]
-  }
+  },
+  { name: 'Relatórios', href: '/relatorios', icon: BarChart3 },
 ];
-
-// Flatten for compatibility with existing code
-const navigation: NavItem[] = navigationSections.flatMap(section => section.items);
 
 // Helper to find which parent menu contains the current path
 const getActiveParentMenu = (pathname: string): string | null => {
@@ -1146,220 +1123,254 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   const SidebarContent = ({ collapsed = false }: { collapsed?: boolean }) => {
-    // Build sections based on currentNavigation
-    const getCurrentSections = () => {
-      return navigationSections.map(section => ({
-        ...section,
-        items: section.items.filter(item => 
-          currentNavigation.some(navItem => navItem.name === item.name)
-        )
-      })).filter(section => section.items.length > 0);
-    };
-
-    const currentSections = getCurrentSections();
-
-    const renderCollapsedItem = (item: NavItem) => {
-      if (item.children) {
-        const hasActiveChild = isParentActive(item);
-        return (
-          <DropdownMenu key={item.name}>
-            <DropdownMenuTrigger asChild>
-              <button
-                title={item.name}
-                aria-label={item.name}
-                className={cn(
-                  'w-10 h-10 mx-auto flex items-center justify-center rounded-md transition-all duration-150',
-                  'hover:bg-sidebar-accent/50',
-                  hasActiveChild && 'bg-sidebar-accent/60'
-                )}
-              >
-                <item.icon className={cn(
-                  "h-5 w-5",
-                  hasActiveChild ? "text-sidebar-foreground" : "text-sidebar-foreground/60"
-                )} />
-                {(item.badge || 0) > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-destructive rounded-full" />
-                )}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              side="right" 
-              align="start" 
-              sideOffset={8}
-              className="w-48 bg-sidebar border border-sidebar-border shadow-xl rounded-lg z-[100]"
-            >
-              <div className="px-3 py-2 border-b border-sidebar-border/50">
-                <span className="text-sm font-semibold text-sidebar-foreground">{item.name}</span>
-              </div>
-              <div className="p-1">
-                {item.children.map((child) => (
-                  <DropdownMenuItem 
-                    key={child.href} 
-                    onClick={() => handleNavigation(child.href)}
-                    className={cn(
-                      "cursor-pointer gap-2 px-3 py-2 rounded-md",
-                      isActive(child.href) 
-                        ? "bg-sidebar-accent/60 text-sidebar-foreground" 
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/40"
-                    )}
-                  >
-                    <child.icon className="h-4 w-4" />
-                    <span className="text-sm">{child.name}</span>
-                  </DropdownMenuItem>
-                ))}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      }
-
-      return (
-        <Tooltip key={item.name}>
-          <TooltipTrigger asChild>
-            <button
-              data-tour={getTourId(item.name)}
-              className={cn(
-                'w-10 h-10 mx-auto flex items-center justify-center rounded-md transition-all duration-150',
-                'hover:bg-sidebar-accent/50',
-                isActive(item.href!) && 'bg-sidebar-accent/60'
-              )}
-              onClick={() => handleNavigation(item.href!)}
-            >
-              <item.icon className={cn(
-                "h-5 w-5",
-                isActive(item.href!) ? "text-sidebar-foreground" : "text-sidebar-foreground/60"
-              )} />
-              {(item.badge || 0) > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-destructive rounded-full" />
-              )}
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right" sideOffset={8} className="bg-sidebar border-sidebar-border text-sidebar-foreground">
-            {item.name}
-          </TooltipContent>
-        </Tooltip>
-      );
-    };
-
-    const renderExpandedItem = (item: NavItem) => {
-      if (item.children) {
-        const isMenuOpen = openMenus.includes(item.name);
-        const hasActiveChild = isParentActive(item);
-        
-        return (
-          <div key={item.name} className="select-none" data-tour={getTourId(item.name)}>
-            <button
-              className={cn(
-                'w-full flex items-center justify-between h-10 px-3 rounded-md transition-all duration-150',
-                'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/40',
-                hasActiveChild && 'bg-sidebar-accent/50 text-sidebar-foreground'
-              )}
-              onClick={() => toggleMenu(item.name)}
-            >
-              <div className="flex items-center gap-3">
-                <item.icon className={cn(
-                  "h-[18px] w-[18px]",
-                  hasActiveChild ? "text-sidebar-foreground" : "text-sidebar-foreground/60"
-                )} />
-                <span className="text-sm font-medium">{item.name}</span>
-                <NotificationBadge count={item.badge || 0} type={item.badgeType} />
-              </div>
-              <ChevronDown className={cn(
-                "h-4 w-4 transition-transform duration-200 text-sidebar-foreground/40",
-                isMenuOpen && "rotate-180"
-              )} />
-            </button>
-            <div
-              className={cn(
-                "overflow-hidden transition-all duration-200 ease-out",
-                isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
-              )}
-            >
-              <div className="mt-1 ml-4 pl-4 border-l border-sidebar-foreground/10 space-y-0.5">
-                {item.children.map((child) => (
-                  <button
-                    key={child.name}
-                    data-tour={getTourId(child.name)}
-                    className={cn(
-                      'w-full flex items-center justify-between h-9 px-3 rounded-md transition-all duration-150',
-                      'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/30',
-                      isActive(child.href) && 'text-sidebar-foreground bg-sidebar-accent/40 font-medium'
-                    )}
-                    onClick={() => handleNavigation(child.href)}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <child.icon className={cn(
-                        "h-4 w-4",
-                        isActive(child.href) ? "text-sidebar-foreground" : "text-sidebar-foreground/50"
-                      )} />
-                      <span className="text-sm">{child.name}</span>
-                    </div>
-                    <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-      }
-
-      return (
-        <button
-          key={item.name}
-          data-tour={getTourId(item.name)}
-          className={cn(
-            'w-full flex items-center gap-3 h-10 px-3 rounded-md transition-all duration-150',
-            'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/40',
-            isActive(item.href!) && 'bg-sidebar-accent/50 text-sidebar-foreground font-medium'
-          )}
-          onClick={() => handleNavigation(item.href!)}
-        >
-          <item.icon className={cn(
-            "h-[18px] w-[18px]",
-            isActive(item.href!) ? "text-sidebar-foreground" : "text-sidebar-foreground/60"
-          )} />
-          <span className="text-sm font-medium flex-1">{item.name}</span>
-          {(item.badge || 0) > 0 && (
-            <NotificationBadge count={item.badge || 0} type={item.badgeType} />
-          )}
-        </button>
-      );
-    };
-
     return (
       <TooltipProvider delayDuration={0}>
         <div className="flex flex-col h-full" data-tour="sidebar">
+          {/* Navigation */}
           <nav className={cn(
-            "flex-1 py-3 overflow-y-auto overflow-x-hidden",
+            "flex-1 py-3 overflow-y-auto overflow-x-hidden transition-all duration-200 scrollbar-thin scrollbar-thumb-sidebar-accent scrollbar-track-transparent",
             collapsed ? "px-2" : "px-3"
           )}>
-            {collapsed ? (
-              // Collapsed view - just icons
-              <div className="space-y-1">
-                {currentNavigation.map(item => renderCollapsedItem(item))}
+            
+            {/* Menu Label */}
+            {!collapsed && (
+              <div className="sidebar-section-label flex items-center gap-2 mb-2">
+                <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                <span>Menu Principal</span>
               </div>
-            ) : (
-              // Expanded view - with sections
-              <div className="space-y-4">
-                {currentSections.map((section, sectionIdx) => (
-                  <div key={section.label || `section-${sectionIdx}`}>
-                    {/* Section Label */}
-                    {section.label && (
-                      <div className="px-2 mb-2">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-sidebar-accent/50 text-sidebar-foreground/60 border border-sidebar-border/30">
-                          {section.label}
-                        </span>
+            )}
+            
+            <div className="space-y-0.5">
+              {currentNavigation.map((item, index) => {
+                if (item.children && !collapsed) {
+                  const isMenuOpen = openMenus.includes(item.name);
+                  const hasActiveChild = isParentActive(item);
+                  
+                  return (
+                    <div key={item.name} className="select-none" data-tour={getTourId(item.name)}>
+                      <button
+                        className={cn(
+                          'sidebar-nav-item w-full flex items-center justify-between gap-2 rounded-xl text-sidebar-foreground/70 hover:text-sidebar-foreground h-11 px-3 group',
+                          hasActiveChild && 'active text-sidebar-foreground'
+                        )}
+                        onClick={() => toggleMenu(item.name)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "sidebar-icon-container",
+                            hasActiveChild && "bg-primary/20"
+                          )}>
+                            <item.icon className={cn(
+                              "h-[18px] w-[18px] transition-colors",
+                              hasActiveChild ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-sidebar-foreground"
+                            )} />
+                          </div>
+                          <span className="text-sm font-medium">{item.name}</span>
+                          <NotificationBadge count={item.badge || 0} type={item.badgeType} />
+                        </div>
+                        <ChevronDown className={cn(
+                          "h-4 w-4 transition-transform duration-300 text-sidebar-foreground/40",
+                          isMenuOpen && "rotate-180"
+                        )} />
+                      </button>
+                      <div
+                        className={cn(
+                          "sidebar-submenu overflow-hidden transition-all duration-300 ease-out",
+                          isMenuOpen ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0",
+                        )}
+                      >
+                        <div className="space-y-0.5 pl-5 py-1">
+                          {item.children.map((child, childIdx) => (
+                            <button
+                              key={child.name}
+                              data-tour={getTourId(child.name)}
+                              className={cn(
+                                'sidebar-submenu-item w-full flex items-center justify-between text-sidebar-foreground/60 hover:text-sidebar-foreground transition-all h-9 pl-6 pr-3 rounded-lg group/child',
+                                isActive(child.href) && 'active text-primary font-medium bg-primary/10'
+                              )}
+                              onClick={() => handleNavigation(child.href)}
+                              style={{ animationDelay: `${childIdx * 30}ms` }}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <child.icon className={cn(
+                                  "h-3.5 w-3.5 transition-colors",
+                                  isActive(child.href) ? "text-primary" : "text-sidebar-foreground/50 group-hover/child:text-sidebar-foreground"
+                                )} />
+                                <span className="text-xs font-medium">{child.name}</span>
+                              </div>
+                              <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    )}
-                    {/* Section Items */}
-                    <div className="space-y-0.5">
-                      {section.items.map(item => renderExpandedItem(item))}
                     </div>
+                  );
+                }
+
+              // Collapsed mode with dropdown for items with children
+              if (item.children && collapsed) {
+                const hasActiveChild = isParentActive(item);
+                return (
+                  <DropdownMenu key={item.name}>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        title={item.name}
+                        aria-label={item.name}
+                        className={cn(
+                          'sidebar-collapsed-btn w-full mx-auto',
+                          hasActiveChild && 'active'
+                        )}
+                      >
+                        <item.icon className={cn(
+                          "h-5 w-5 transition-colors",
+                          hasActiveChild ? "text-primary" : "text-sidebar-foreground/60"
+                        )} />
+                        {(item.badge || 0) > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-destructive rounded-full ring-2 ring-sidebar-background animate-pulse" />
+                        )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      side="right" 
+                      align="start" 
+                      sideOffset={12}
+                      className="w-56 p-0 bg-sidebar/95 backdrop-blur-xl border border-sidebar-border/50 shadow-2xl shadow-black/20 rounded-xl z-[100] animate-in fade-in-0 zoom-in-95 slide-in-from-left-2 duration-200 overflow-hidden"
+                    >
+                      {/* Gradient top line */}
+                      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                      
+                      {/* Header */}
+                      <div className="relative px-4 py-3 bg-gradient-to-b from-sidebar-accent/30 to-transparent border-b border-sidebar-border/30">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/15 border border-primary/20">
+                            <item.icon className="h-4.5 w-4.5 text-primary" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-semibold text-sidebar-foreground">{item.name}</span>
+                            <p className="text-[10px] text-sidebar-foreground/50 font-medium">Submenu</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Items */}
+                      <div className="p-1.5 space-y-0.5">
+                        {item.children.map((child, idx) => (
+                          <DropdownMenuItem 
+                            key={child.href} 
+                            onClick={() => handleNavigation(child.href)}
+                            className={cn(
+                              "cursor-pointer gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group/item",
+                              isActive(child.href) 
+                                ? "bg-primary/15 text-primary" 
+                                : "hover:bg-sidebar-accent/50"
+                            )}
+                          >
+                            <div className={cn(
+                              "flex items-center justify-center w-7 h-7 rounded-md transition-all",
+                              isActive(child.href) 
+                                ? "bg-primary/20" 
+                                : "bg-sidebar-foreground/5 group-hover/item:bg-sidebar-foreground/10"
+                            )}>
+                              <child.icon className={cn(
+                                "h-3.5 w-3.5",
+                                isActive(child.href) ? "text-primary" : "text-sidebar-foreground/60"
+                              )} />
+                            </div>
+                            <span className={cn(
+                              "flex-1 text-sm font-medium",
+                              isActive(child.href) ? "text-primary" : "text-sidebar-foreground/80"
+                            )}>{child.name}</span>
+                            {(child.badge || 0) > 0 && (
+                              <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-90" />
+                            )}
+                            {isActive(child.href) && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                            )}
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+
+              // Regular menu item - collapsed
+              if (collapsed) {
+                return (
+                  <Tooltip key={item.name}>
+                    <TooltipTrigger asChild>
+                      <button
+                        title={item.name}
+                        aria-label={item.name}
+                        data-tour={getTourId(item.name)}
+                        className={cn(
+                          'sidebar-collapsed-btn w-full mx-auto',
+                          isActive(item.href!) && 'active'
+                        )}
+                        onClick={() => handleNavigation(item.href!)}
+                      >
+                        <item.icon className={cn(
+                          "h-5 w-5 transition-colors",
+                          isActive(item.href!) ? "text-primary" : "text-sidebar-foreground/60"
+                        )} />
+                        {(item.badge || 0) > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-destructive rounded-full ring-2 ring-sidebar-background animate-pulse" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent 
+                      side="right" 
+                      sideOffset={8}
+                      className="font-medium bg-sidebar border-sidebar-border text-sidebar-foreground shadow-lg"
+                    >
+                      {item.name}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+
+              // Regular menu item - expanded
+              return (
+                <button
+                  key={item.name}
+                  data-tour={getTourId(item.name)}
+                  className={cn(
+                    'sidebar-nav-item w-full flex items-center gap-3 text-sidebar-foreground/70 hover:text-sidebar-foreground h-11 px-3 rounded-xl group',
+                    isActive(item.href!) && 'active text-sidebar-foreground font-medium'
+                  )}
+                  onClick={() => handleNavigation(item.href!)}
+                >
+                  <div className={cn(
+                    "sidebar-icon-container",
+                    isActive(item.href!) && "bg-primary/20"
+                  )}>
+                    <item.icon className={cn(
+                      "h-[18px] w-[18px] transition-colors",
+                      isActive(item.href!) ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-sidebar-foreground"
+                    )} />
                   </div>
-                ))}
+                  <span className="text-sm font-medium flex-1">{item.name}</span>
+                  {(item.badge || 0) > 0 && (
+                    <NotificationBadge count={item.badge || 0} type={item.badgeType} />
+                  )}
+                </button>
+              );
+            })}
+            </div>
+
+            {/* Bottom decorative element */}
+            {!collapsed && (
+              <div className="mt-6 px-3">
+                <div className="menu-divider" />
+                <div className="flex items-center justify-center gap-1.5 py-3 opacity-40">
+                  <div className="w-1 h-1 rounded-full bg-sidebar-foreground animate-pulse" />
+                  <div className="w-1 h-1 rounded-full bg-sidebar-foreground animate-pulse" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-1 h-1 rounded-full bg-sidebar-foreground animate-pulse" style={{ animationDelay: '0.4s' }} />
+                </div>
               </div>
             )}
           </nav>
+
         </div>
       </TooltipProvider>
     );
