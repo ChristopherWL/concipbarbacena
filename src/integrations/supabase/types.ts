@@ -4827,6 +4827,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_access_employee: {
+        Args: { _employee_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_edit_branch_settings: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
