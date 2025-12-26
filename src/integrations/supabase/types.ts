@@ -4815,6 +4815,10 @@ export type Database = {
       }
     }
     Functions: {
+      can_access_branch: {
+        Args: { _branch_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_access_by_hierarchy: {
         Args: {
           _target_branch_id: string
@@ -4887,6 +4891,7 @@ export type Database = {
         Returns: boolean
       }
       is_branch_mgr: { Args: { _user_id: string }; Returns: boolean }
+      is_matriz_user: { Args: { _user_id: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
       is_team_leader: {
