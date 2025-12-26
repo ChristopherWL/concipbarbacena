@@ -94,11 +94,28 @@ const Obras = () => {
 
   // Image state: upload immediately so camera photos persist even if the browser reloads
   const [uploadedPhotos, setUploadedPhotos] = useState<
-    { url: string; path: string; description: string }[]
+    { url?: string; path: string; description: string }[]
   >([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [imageDescriptions, setImageDescriptions] = useState<string[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+
+  // Signed URL cache for private bucket (obras-fotos)
+  const signedUrlCacheRef = useRef<Record<string, string>>({});
+  const [, forceSignedUrlRerender] = useState(0);
+
+  const ensureSignedUrlForPath = async (path: string) => {
+    if (!path) return;
+    if (signedUrlCacheRef.current[path]) return;
+
+    const { data, error } = await supabase.storage
+      .from("obras-fotos")
+      .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 dias
+
+    if (error || !data?.signedUrl) return;
+    signedUrlCacheRef.current[path] = data.signedUrl;
+    forceSignedUrlRerender((x) => x + 1);
+  };
 
   // Mobile wizard step (persisted with draft so it doesn't jump back after camera)
   const [updateWizardStep, setUpdateWizardStep] = useState(0);
@@ -127,7 +144,7 @@ const Obras = () => {
   const saveUpdateDraft = (payload: {
     obraId: string;
     updateForm: typeof updateForm;
-    photos: { url: string; path: string; description: string }[];
+    photos: { url?: string; path: string; description: string }[];
     wizardStep: number;
   }) => {
     try {
@@ -174,7 +191,7 @@ const Obras = () => {
       const parsed = JSON.parse(raw) as {
         obraId: string;
         updateForm: typeof updateForm;
-        photos?: { url: string; path: string; description: string }[];
+        photos?: { url?: string; path: string; description: string }[];
         wizardStep?: number;
         savedAt: number;
       };
@@ -191,9 +208,17 @@ const Obras = () => {
       setPendingDraftObraId(parsed.obraId);
       setUpdateForm(parsed.updateForm);
       setUploadedPhotos(photos);
-      setImagePreviewUrls(photos.map((p) => p.url));
+
+      // Restore previews: use stored signed URL when present; otherwise generate one from path
+      const existingUrls = photos.map((p) => p.url).filter(Boolean) as string[];
+      setImagePreviewUrls(existingUrls);
       setImageDescriptions(photos.map((p) => p.description || ""));
       setUpdateWizardStep(wizardStep);
+
+      // Generate signed URLs for any photos that only have a path
+      photos.forEach((p) => {
+        if (!p.url && p.path) void ensureSignedUrlForPath(p.path);
+      });
 
       // Open immediately; selectedObra will be resolved in the effect below
       setIsUpdateDialogOpen(true);
@@ -367,13 +392,31 @@ const Obras = () => {
             continue;
           }
 
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from("obras-fotos").getPublicUrl(fileName);
+          // Bucket é privado: gerar URL assinada para preview
+          const { data: signedData, error: signedErr } = await supabase.storage
+            .from("obras-fotos")
+            .createSignedUrl(fileName, 60 * 60 * 24 * 7);
 
-          setUploadedPhotos((prev) => [...prev, { url: publicUrl, path: fileName, description: "" }]);
-          setImagePreviewUrls((prev) => [...prev, publicUrl]);
-          setImageDescriptions((prev) => [...prev, ""]);
+          const signedUrl = signedData?.signedUrl;
+          if (!signedUrl || signedErr) {
+            console.error("Signed URL error:", signedErr);
+            toast({
+              title: "Atenção",
+              description: "Imagem salva, mas não foi possível gerar o preview.",
+              variant: "destructive",
+            });
+          }
+
+          if (signedUrl) {
+            signedUrlCacheRef.current[fileName] = signedUrl;
+            setUploadedPhotos((prev) => [...prev, { url: signedUrl, path: fileName, description: "" }]);
+            setImagePreviewUrls((prev) => [...prev, signedUrl]);
+            setImageDescriptions((prev) => [...prev, ""]);
+          } else {
+            // Ainda assim manter o path (salvo) mesmo sem preview
+            setUploadedPhotos((prev) => [...prev, { path: fileName, description: "" }]);
+            setImageDescriptions((prev) => [...prev, ""]);
+          }
         }
       } finally {
         setIsUploadingImages(false);
@@ -414,9 +457,14 @@ const Obras = () => {
     });
   };
 
-  const uploadImages = async (): Promise<{ url: string; description: string }[]> => {
-    // Images are uploaded immediately on selection
-    return uploadedPhotos.map((p) => ({ url: p.url, description: p.description }));
+  const uploadImages = async (): Promise<{ bucket: string; path: string; url?: string; description: string }[]> => {
+    // Images are uploaded immediately on selection; we persist the file PATH (private bucket)
+    return uploadedPhotos.map((p) => ({
+      bucket: "obras-fotos",
+      path: p.path,
+      url: p.url,
+      description: p.description,
+    }));
   };
 
   const handleSubmitUpdate = async () => {
@@ -458,8 +506,9 @@ const Obras = () => {
       // Upload images with descriptions
       const uploadedPhotos = await uploadImages();
 
-      // Upload signature (store as URL instead of a huge dataURL)
-      let signatureUrl: string | null = null;
+      // Upload signature (store as PATH; bucket is private)
+      let signaturePath: string | null = null;
+      let signaturePreviewUrl: string | null = null;
       if (updateForm.assinatura) {
         const fileName = `${tenantId}/${selectedObra.id}/assinatura-${Date.now()}.png`;
 
@@ -487,17 +536,33 @@ const Obras = () => {
         if (signUploadError) {
           console.error('Signature upload error:', signUploadError);
         } else {
-          const { data: { publicUrl } } = supabase.storage
+          signaturePath = fileName;
+          const { data: signedData } = await supabase.storage
             .from('obras-fotos')
-            .getPublicUrl(fileName);
-          signatureUrl = publicUrl;
+            .createSignedUrl(fileName, 60 * 60 * 24 * 7);
+          signaturePreviewUrl = signedData?.signedUrl || null;
+          if (signaturePreviewUrl) signedUrlCacheRef.current[fileName] = signaturePreviewUrl;
         }
       }
 
-      // Create fotos array with descriptions
+      // Create fotos array with descriptions (persist PATH + optional preview URL)
       const fotos = [
-        ...uploadedPhotos.map(photo => ({ url: photo.url, description: photo.description })),
-        ...(signatureUrl ? [{ url: signatureUrl, description: 'Assinatura' }] : []),
+        ...uploadedPhotos.map((photo) => ({
+          bucket: 'obras-fotos',
+          path: photo.path,
+          url: photo.url,
+          description: photo.description,
+        })),
+        ...(signaturePath
+          ? [
+              {
+                bucket: 'obras-fotos',
+                path: signaturePath,
+                url: signaturePreviewUrl,
+                description: 'Assinatura',
+              },
+            ]
+          : []),
       ];
 
       const { error } = await supabase.from("diario_obras").insert({
@@ -916,41 +981,54 @@ const Obras = () => {
                           <Label className="text-muted-foreground text-xs mb-2 block">Imagens</Label>
                           <div className="space-y-3">
                             {selectedDiario.fotos.map((foto, index) => {
-                              const fotoUrl = typeof foto === 'string' ? foto : (foto as any)?.url;
-                              const fotoDesc = typeof foto === 'object' ? (foto as any)?.description : null;
+                              const fotoObj = typeof foto === "object" && foto ? (foto as any) : null;
+                              const fotoPath = fotoObj?.path as string | undefined;
+                              const cachedSigned = fotoPath ? signedUrlCacheRef.current[fotoPath] : undefined;
+                              const fotoUrl =
+                                typeof foto === "string" ? foto : (fotoObj?.url as string | undefined) || cachedSigned;
+                              const fotoDesc = typeof foto === "object" ? (foto as any)?.description : null;
+
+                              if (fotoPath && !cachedSigned) {
+                                // Preload signed URL for private bucket
+                                void ensureSignedUrlForPath(fotoPath);
+                              }
+
                               return (
                                 <div key={index} className="border rounded-lg p-2 space-y-2">
                                   <div className="relative group">
-                                    <img 
-                                      src={fotoUrl} 
+                                    <img
+                                      src={fotoUrl || "/placeholder.svg"}
                                       alt={fotoDesc || `Imagem ${index + 1}`}
                                       className="w-full h-32 sm:h-40 object-contain rounded-lg bg-muted/30 border cursor-pointer"
-                                      onClick={() => setFullscreenImage(fotoUrl)}
+                                      onClick={() => fotoUrl && setFullscreenImage(fotoUrl)}
                                       onError={(e) => {
-                                        console.error('Image load error:', fotoUrl);
-                                        (e.target as HTMLImageElement).src = '/placeholder.svg';
+                                        console.error("Image load error:", fotoUrl || fotoPath);
+                                        (e.target as HTMLImageElement).src = "/placeholder.svg";
                                       }}
                                     />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                                       <Button
                                         variant="secondary"
                                         size="sm"
-                                        onClick={() => setFullscreenImage(fotoUrl)}
+                                        onClick={() => fotoUrl && setFullscreenImage(fotoUrl)}
+                                        disabled={!fotoUrl}
                                       >
                                         <Eye className="h-4 w-4 mr-1" />
                                         Ver
                                       </Button>
-                                      <a 
-                                        href={fotoUrl} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <Button variant="secondary" size="sm">
-                                          <Upload className="h-4 w-4 mr-1 rotate-180" />
-                                          Baixar
-                                        </Button>
-                                      </a>
+                                      {fotoUrl && (
+                                        <a
+                                          href={fotoUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <Button variant="secondary" size="sm">
+                                            <Upload className="h-4 w-4 mr-1 rotate-180" />
+                                            Baixar
+                                          </Button>
+                                        </a>
+                                      )}
                                     </div>
                                   </div>
                                   {fotoDesc && (

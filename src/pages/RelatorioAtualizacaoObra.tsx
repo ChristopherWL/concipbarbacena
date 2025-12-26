@@ -18,7 +18,7 @@ interface DiarioData {
   atividades_realizadas: string | null;
   materiais_utilizados: string | null;
   ocorrencias: string | null;
-  fotos: Array<{ url: string; description?: string }> | null;
+  fotos: Array<{ url?: string; path?: string; bucket?: string; description?: string }> | null;
   created_at: string;
   obra: {
     id: string;
@@ -47,6 +47,7 @@ export default function RelatorioAtualizacaoObra() {
   const [diario, setDiario] = useState<DiarioData | null>(null);
   const [branch, setBranch] = useState<BranchData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [signedUrlByPath, setSignedUrlByPath] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchDiario = async () => {
@@ -74,6 +75,32 @@ export default function RelatorioAtualizacaoObra() {
         console.error("Error fetching diario:", error);
       } else {
         setDiario(data as unknown as DiarioData);
+
+        // Pre-resolve signed URLs for any stored paths (private bucket)
+        const fotos = ((data as any)?.fotos || []) as Array<any>;
+        const paths = fotos
+          .map((f) => (typeof f === "object" ? f?.path : null))
+          .filter(Boolean) as string[];
+
+        if (paths.length) {
+          const unique = Array.from(new Set(paths));
+          const entries = await Promise.all(
+            unique.map(async (path) => {
+              const { data: signed } = await supabase.storage
+                .from("obras-fotos")
+                .createSignedUrl(path, 60 * 60 * 24 * 7);
+              return [path, signed?.signedUrl] as const;
+            })
+          );
+
+          setSignedUrlByPath((prev) => {
+            const next = { ...prev };
+            for (const [path, url] of entries) {
+              if (url) next[path] = url;
+            }
+            return next;
+          });
+        }
         
         // Fetch branch data
         const branchId = (data as any)?.branch_id || (data as any)?.obra?.branch_id;
@@ -307,7 +334,7 @@ export default function RelatorioAtualizacaoObra() {
               <div className="space-y-4">
                 {/* Fotos normais - grid lado a lado */}
                 {fotos.filter(foto => {
-                  const fotoUrl = typeof foto === "string" ? foto : foto?.url;
+                  const fotoUrl = typeof foto === "string" ? foto : (foto?.url || (foto?.path ? signedUrlByPath[foto.path] : undefined));
                   const fotoDesc = typeof foto === "object" ? foto?.description : null;
                   return !(fotoDesc?.toLowerCase().includes("assinatura") || fotoUrl?.includes("assinatura"));
                 }).length > 0 && (
@@ -318,11 +345,11 @@ export default function RelatorioAtualizacaoObra() {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {fotos.filter(foto => {
-                        const fotoUrl = typeof foto === "string" ? foto : foto?.url;
+                        const fotoUrl = typeof foto === "string" ? foto : (foto?.url || (foto?.path ? signedUrlByPath[foto.path] : undefined));
                         const fotoDesc = typeof foto === "object" ? foto?.description : null;
                         return !(fotoDesc?.toLowerCase().includes("assinatura") || fotoUrl?.includes("assinatura"));
                       }).map((foto, index) => {
-                        const fotoUrl = typeof foto === "string" ? foto : foto?.url;
+                        const fotoUrl = typeof foto === "string" ? foto : (foto?.url || (foto?.path ? signedUrlByPath[foto.path] : undefined));
                         const fotoDesc = typeof foto === "object" ? foto?.description : null;
                         return (
                           <div
@@ -358,11 +385,11 @@ export default function RelatorioAtualizacaoObra() {
 
                 {/* Assinaturas - largura completa */}
                 {fotos.filter(foto => {
-                  const fotoUrl = typeof foto === "string" ? foto : foto?.url;
+                  const fotoUrl = typeof foto === "string" ? foto : (foto?.url || (foto?.path ? signedUrlByPath[foto.path] : undefined));
                   const fotoDesc = typeof foto === "object" ? foto?.description : null;
                   return fotoDesc?.toLowerCase().includes("assinatura") || fotoUrl?.includes("assinatura");
                 }).map((foto, index) => {
-                  const fotoUrl = typeof foto === "string" ? foto : foto?.url;
+                  const fotoUrl = typeof foto === "string" ? foto : (foto?.url || (foto?.path ? signedUrlByPath[foto.path] : undefined));
                   return (
                     <div key={`sig-${index}`} className="space-y-2">
                       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
