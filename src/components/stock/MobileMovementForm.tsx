@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { SignatureCanvas } from './SignatureCanvas';
+import { SignaturePad } from '@/components/ui/signature-pad';
 import { SerialNumberInput } from './SerialNumberInput';
 import { MobileFormWizard, WizardStep } from '@/components/ui/mobile-form-wizard';
 import { ScannerDialog } from './ScannerDialog';
@@ -589,12 +589,36 @@ export function MobileMovementForm({
     </div>
   );
 
-  // Step 4: Signature
+  // Step 4: Signature - now uses a button to open signature pad
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  
   const step4Content = (
-    <SignatureCanvas 
-      onSignatureChange={setSignature}
-      inline={true}
-    />
+    <div className="flex flex-col items-center justify-center h-full gap-4">
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full h-24 border-dashed"
+        onClick={() => setShowSignaturePad(true)}
+      >
+        {signature ? (
+          <div className="flex flex-col items-center gap-2">
+            <img src={signature} alt="Assinatura" className="max-h-12" />
+            <span className="text-xs text-green-600">✓ Assinatura capturada - toque para alterar</span>
+          </div>
+        ) : (
+          <span>Toque para Assinar</span>
+        )}
+      </Button>
+      <SignaturePad
+        open={showSignaturePad}
+        onClose={() => setShowSignaturePad(false)}
+        onSave={(sig) => {
+          setSignature(sig);
+          setShowSignaturePad(false);
+        }}
+        title="Assinatura"
+      />
+    </div>
   );
 
   const wizardSteps: WizardStep[] = isEntrada
@@ -602,13 +626,13 @@ export function MobileMovementForm({
         { id: 'nf', title: 'Nota Fiscal', content: step1Content },
         { id: 'items', title: 'Itens', content: step2Content },
         { id: 'notes', title: 'Observações', content: step3Content },
-        { id: 'signature', title: 'Assinatura', content: step4Content, landscape: true },
+        { id: 'signature', title: 'Assinatura', content: step4Content },
       ]
     : [
         { id: 'responsible', title: 'Responsável', content: step1Content },
         { id: 'items', title: 'Itens', content: step2Content },
         { id: 'notes', title: 'Observações', content: step3Content },
-        { id: 'signature', title: 'Assinatura', content: step4Content, landscape: true },
+        { id: 'signature', title: 'Assinatura', content: step4Content },
       ];
 
   return createPortal(

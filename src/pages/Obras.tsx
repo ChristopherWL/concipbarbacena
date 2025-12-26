@@ -20,8 +20,7 @@ import { ObraEditDialog } from "@/components/construction-projects/ObraEditDialo
 import { useObraEtapas } from "@/hooks/useObraEtapas";
 import { useEmployees } from "@/hooks/useEmployees";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { SignatureCanvas } from "@/components/stock/SignatureCanvas";
-import { SignatureModal } from "@/components/ui/signature-modal";
+import { SignaturePad } from "@/components/ui/signature-pad";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useDirectorBranch } from "@/contexts/DirectorBranchContext";
@@ -1295,12 +1294,24 @@ const Obras = () => {
                     {
                       id: "assinatura",
                       title: "Assinatura *",
-                      landscape: true,
                       content: (
-                        <SignatureCanvas 
-                          inline
-                          onSignatureChange={(signature) => setUpdateForm((prev) => ({ ...prev, assinatura: signature }))}
-                        />
+                        <div className="flex flex-col items-center justify-center h-full gap-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full h-20 border-dashed"
+                            onClick={() => setShowSignatureModal(true)}
+                          >
+                            {updateForm.assinatura ? (
+                              <div className="flex items-center gap-2">
+                                <img src={updateForm.assinatura} alt="Assinatura" className="max-h-12" />
+                                <span className="text-xs text-green-600">✓ Assinatura capturada</span>
+                              </div>
+                            ) : (
+                              <span>Toque para Assinar</span>
+                            )}
+                          </Button>
+                        </div>
                       ),
                     },
                   ] as WizardStep[]}
@@ -1490,7 +1501,7 @@ const Obras = () => {
                         Capturar Assinatura
                       </Button>
                     )}
-                    <SignatureModal
+                    <SignaturePad
                       open={showSignatureModal}
                       onClose={() => setShowSignatureModal(false)}
                       onSave={(sig) => setUpdateForm((prev) => ({ ...prev, assinatura: sig }))}

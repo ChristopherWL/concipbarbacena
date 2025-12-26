@@ -52,8 +52,7 @@ import { useSuppliers } from '@/hooks/useSuppliers';
 import { useSerialNumbers } from '@/hooks/useSerialNumbers';
 import { useCreateStockMovement } from '@/hooks/useStockMovements';
 import { useCreateInvoice, useCreateStandaloneInvoice } from '@/hooks/useInvoices';
-import { SignatureCanvas } from '@/components/stock/SignatureCanvas';
-import { SignatureModal } from '@/components/ui/signature-modal';
+import { SignaturePad } from '@/components/ui/signature-pad';
 import { MovementHistory } from '@/components/stock/MovementHistory';
 import { SerialNumberInput } from '@/components/stock/SerialNumberInput';
 import { MobileMovementForm } from '@/components/stock/MobileMovementForm';
@@ -1105,7 +1104,7 @@ export default function Movimentacao() {
                 )}
               </div>
 
-              <SignatureModal
+              <SignaturePad
                 open={showSignatureModal}
                 onClose={() => setShowSignatureModal(false)}
                 onSave={(sig) => setSignature(sig)}

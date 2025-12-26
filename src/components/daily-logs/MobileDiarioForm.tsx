@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { X, Plus, Trash2, BookOpen, Sun, Cloud, CloudRain, CloudSun, Users, ClipboardList, CheckCircle, Calendar, ChevronDown, PenTool } from 'lucide-react';
-import { SignatureModal } from '@/components/ui/signature-modal';
+import { SignaturePad } from '@/components/ui/signature-pad';
 import { MobileFormWizard, WizardStep } from '@/components/ui/mobile-form-wizard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -1054,7 +1054,7 @@ export function MobileDiarioForm({ open, onClose, onSubmit, isSubmitting }: Mobi
         canComplete={allMembersSigned}
       />
 
-      <SignatureModal
+      <SignaturePad
         open={signingMemberIndex !== null}
         onClose={() => setSigningMemberIndex(null)}
         onSave={handleSignature}

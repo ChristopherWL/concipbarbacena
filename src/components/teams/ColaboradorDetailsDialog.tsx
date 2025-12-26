@@ -20,7 +20,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { exportFichaEPI } from '@/lib/exportFichaEPI';
 import { toast } from 'sonner';
-import { SignatureModal } from '@/components/ui/signature-modal';
+import { SignaturePad } from '@/components/ui/signature-pad';
 
 interface ColaboradorDetailsDialogProps {
   open: boolean;
@@ -344,7 +344,7 @@ export function ColaboradorDetailsDialog({ open, onOpenChange, colaborador }: Co
           </Button>
         </div>
 
-        <SignatureModal
+        <SignaturePad
           open={showSignature}
           onClose={() => setShowSignature(false)}
           onSave={(sig) => setSignature(sig)}
