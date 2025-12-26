@@ -3,17 +3,31 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useMatrizBranch } from '@/contexts/MatrizBranchContext';
 
 /**
- * Returns the branch_id to filter data by.
- * - For superadmin: returns null (no filter - sees all data)
- * - For directors without selection: returns null (sees ALL branches data)
- * - For directors with selection: returns the selected branch
- * - For Matriz users (is_main = true): 
- *   - If they selected a branch via MatrizBranchSelector: returns that branch
- *   - Otherwise: returns null (sees ALL branches data)
- * - For regular branch users: MUST have a branch assigned - returns that branch
- * - For users without branch: should NOT see any data (returns impossible filter)
+ * PROFESSIONAL BRANCH ISOLATION SYSTEM
+ * 
+ * Regras de acesso por nível hierárquico:
+ * 
+ * 1. SuperAdmin: vê TUDO (todas as empresas, todas as filiais)
+ * 2. Admin da Matriz: vê TODAS as filiais do tenant (pode filtrar opcionalmente)
+ * 3. Manager da Matriz: vê TODAS as filiais do tenant (pode filtrar opcionalmente)
+ * 4. Diretor: vê TODAS as filiais do tenant (pode filtrar opcionalmente)
+ * 5. Admin/Manager de Filial: vê APENAS dados da própria filial
+ * 6. Usuário Regular: vê APENAS dados da filial atribuída
+ * 7. Usuário sem filial: BLOQUEADO (não vê nada)
+ * 
+ * IMPORTANTE: As políticas RLS no banco de dados também aplicam estas regras.
+ * Este hook é usado para otimizar queries no frontend.
  */
-export function useBranchFilter() {
+
+export interface BranchFilterResult {
+  branchId: string | null;
+  shouldFilter: boolean;
+  isDirector: boolean;
+  isMatriz: boolean;
+  canSeeAllBranches: boolean;
+}
+
+export function useBranchFilter(): BranchFilterResult {
   const { selectedBranch: directorBranch, isDirector } = useDirectorBranch();
   const { selectedBranch: userBranch, roles, profile } = useAuthContext();
   const { selectedBranchId: matrizSelectedBranchId } = useMatrizBranch();
@@ -21,59 +35,140 @@ export function useBranchFilter() {
   const isSuperAdmin = roles.some(r => r.role === 'superadmin');
   const isAdmin = roles.some(r => r.role === 'admin');
   const isManager = roles.some(r => r.role === 'manager');
-  const isMatriz = userBranch?.is_main === true;
+  
+  // Verifica se o usuário está na Matriz (branch principal)
+  const isMatriz = userBranch?.is_main === true || profile?.branch_id === null;
 
-  // Superadmin sees all data
+  // ============================================
+  // NÍVEL 1: SuperAdmin - acesso total
+  // ============================================
   if (isSuperAdmin) {
-    return { branchId: null, shouldFilter: false, isDirector: false, isMatriz: false };
+    return { 
+      branchId: null, 
+      shouldFilter: false, 
+      isDirector: false, 
+      isMatriz: false,
+      canSeeAllBranches: true 
+    };
   }
 
-  // Admin users at Matriz level can see all data
+  // ============================================
+  // NÍVEL 2: Admin da Matriz - vê todas as filiais
+  // ============================================
   if (isAdmin && isMatriz) {
+    // Pode filtrar por uma filial específica se selecionada, mas por padrão vê tudo
     if (matrizSelectedBranchId) {
-      return { branchId: matrizSelectedBranchId, shouldFilter: true, isDirector: false, isMatriz: true };
+      return { 
+        branchId: matrizSelectedBranchId, 
+        shouldFilter: true, 
+        isDirector: false, 
+        isMatriz: true,
+        canSeeAllBranches: true 
+      };
     }
-    return { branchId: null, shouldFilter: false, isDirector: false, isMatriz: true };
+    return { 
+      branchId: null, 
+      shouldFilter: false, 
+      isDirector: false, 
+      isMatriz: true,
+      canSeeAllBranches: true 
+    };
   }
 
-  // Directors: when branch selected, filter by that branch; otherwise see all
+  // ============================================
+  // NÍVEL 3: Diretor - vê todas as filiais
+  // ============================================
   if (isDirector) {
     if (directorBranch) {
-      return { branchId: directorBranch.id, shouldFilter: true, isDirector: true, isMatriz: false };
+      return { 
+        branchId: directorBranch.id, 
+        shouldFilter: true, 
+        isDirector: true, 
+        isMatriz: false,
+        canSeeAllBranches: true 
+      };
     }
-    // No branch selected - director sees all data
-    return { branchId: null, shouldFilter: false, isDirector: true, isMatriz: false };
+    return { 
+      branchId: null, 
+      shouldFilter: false, 
+      isDirector: true, 
+      isMatriz: false,
+      canSeeAllBranches: true 
+    };
   }
 
-  // Matriz users (manager level): can select a specific branch to filter, or see all
-  if (isMatriz && isManager) {
+  // ============================================
+  // NÍVEL 4: Manager da Matriz - vê todas as filiais
+  // ============================================
+  if (isManager && isMatriz) {
     if (matrizSelectedBranchId) {
-      return { branchId: matrizSelectedBranchId, shouldFilter: true, isDirector: false, isMatriz: true };
+      return { 
+        branchId: matrizSelectedBranchId, 
+        shouldFilter: true, 
+        isDirector: false, 
+        isMatriz: true,
+        canSeeAllBranches: true 
+      };
     }
-    // No branch selected - matriz manager sees all data
-    return { branchId: null, shouldFilter: false, isDirector: false, isMatriz: true };
+    return { 
+      branchId: null, 
+      shouldFilter: false, 
+      isDirector: false, 
+      isMatriz: true,
+      canSeeAllBranches: true 
+    };
   }
 
-  // Regular users with assigned branch - MUST filter by their branch
-  if (userBranch && !userBranch.is_main) {
-    return { branchId: userBranch.id, shouldFilter: true, isDirector: false, isMatriz: false };
+  // ============================================
+  // NÍVEL 5: Admin/Manager de Filial específica
+  // Vê APENAS dados da própria filial
+  // ============================================
+  if ((isAdmin || isManager) && userBranch && !userBranch.is_main) {
+    return { 
+      branchId: userBranch.id, 
+      shouldFilter: true, 
+      isDirector: false, 
+      isMatriz: false,
+      canSeeAllBranches: false 
+    };
   }
 
-  // Users at Matriz branch (regular users, not admin/manager) - can see Matriz data only
-  if (userBranch && userBranch.is_main) {
-    return { branchId: userBranch.id, shouldFilter: true, isDirector: false, isMatriz: false };
+  // ============================================
+  // NÍVEL 6: Usuário regular com filial atribuída
+  // Vê APENAS dados da própria filial
+  // ============================================
+  if (userBranch) {
+    return { 
+      branchId: userBranch.id, 
+      shouldFilter: true, 
+      isDirector: false, 
+      isMatriz: userBranch.is_main === true,
+      canSeeAllBranches: false 
+    };
   }
 
-  // CRITICAL: Users without a branch assignment should NOT see all data
-  // Return a filter that effectively blocks access to prevent data leakage
-  // They need to have their branch_id set in their profile
+  // Fallback: tenta usar branch_id do profile
   if (profile?.branch_id) {
-    // Profile has branch_id but userBranch wasn't loaded - use the ID directly
-    return { branchId: profile.branch_id, shouldFilter: true, isDirector: false, isMatriz: false };
+    return { 
+      branchId: profile.branch_id, 
+      shouldFilter: true, 
+      isDirector: false, 
+      isMatriz: false,
+      canSeeAllBranches: false 
+    };
   }
 
-  // No branch assigned - this user needs to be assigned to a branch
-  // Return a dummy UUID that won't match any real branch to prevent data access
-  console.warn('User has no branch assigned - data access restricted');
-  return { branchId: '00000000-0000-0000-0000-000000000000', shouldFilter: true, isDirector: false, isMatriz: false };
+  // ============================================
+  // NÍVEL 7: Usuário sem filial - BLOQUEADO
+  // Retorna UUID inválido para garantir que não veja nada
+  // As políticas RLS também bloqueiam no backend
+  // ============================================
+  console.warn('[useBranchFilter] Usuário sem filial atribuída - acesso bloqueado');
+  return { 
+    branchId: '00000000-0000-0000-0000-000000000000', 
+    shouldFilter: true, 
+    isDirector: false, 
+    isMatriz: false,
+    canSeeAllBranches: false 
+  };
 }
