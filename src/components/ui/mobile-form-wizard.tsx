@@ -204,15 +204,19 @@ export function MobileFormWizard({
 
   // Landscape view for signature – uses CSS rotation only when needed
   if (isLandscape) {
-    const rotationStyle = needsCssRotation ? {
-      transform: 'rotate(90deg)',
-      transformOrigin: 'center center',
-      width: '100dvh',
-      height: '100dvw',
-      left: 'calc(50% - 50dvh)',
-      top: 'calc(50% - 50dvw)',
-      position: 'fixed' as const,
-    } : {};
+    // NOTE: avoid dvh/dvw here; some mobile browsers mis-handle them and can render a blank
+    // fullscreen (white) overlay. Use vh/vw for reliability.
+    const rotationStyle = needsCssRotation
+      ? {
+          transform: "rotate(90deg)",
+          transformOrigin: "center center",
+          width: "100vh",
+          height: "100vw",
+          left: "calc(50% - 50vh)",
+          top: "calc(50% - 50vw)",
+          position: "fixed" as const,
+        }
+      : {};
 
     const renderedContent = React.useMemo(() => {
       // If the step content is a React element (e.g., SignatureCanvas), inject isRotated so
@@ -233,7 +237,7 @@ export function MobileFormWizard({
           "landscape-locked",
           className
         )}
-        style={rotationStyle}
+        style={{ ...rotationStyle, touchAction: "none" }}
       >
         {/* Simple title */}
         <div className="px-4 py-3 border-b border-border/20 flex-shrink-0 bg-background">

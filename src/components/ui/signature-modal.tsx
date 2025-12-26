@@ -252,15 +252,19 @@ export function SignatureModal({ open, onClose, onSave, title = "Assinatura" }: 
 
   if (!open) return null;
 
-  const rotationStyle = needsCssRotation ? {
-    transform: 'rotate(90deg)',
-    transformOrigin: 'center center',
-    width: '100dvh',
-    height: '100dvw',
-    left: 'calc(50% - 50dvh)',
-    top: 'calc(50% - 50dvw)',
-    position: 'fixed' as const,
-  } : {};
+  // NOTE: avoid dvh/dvw here; some mobile browsers mis-handle them and can render a blank
+  // fullscreen (white) overlay. Use vh/vw for reliability.
+  const rotationStyle = needsCssRotation
+    ? {
+        transform: "rotate(90deg)",
+        transformOrigin: "center center",
+        width: "100vh",
+        height: "100vw",
+        left: "calc(50% - 50vh)",
+        top: "calc(50% - 50vw)",
+        position: "fixed" as const,
+      }
+    : {};
 
   return createPortal(
     <div 
