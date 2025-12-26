@@ -3673,6 +3673,304 @@ export type Database = {
           },
         ]
       }
+      service_provider_assignments: {
+        Row: {
+          assigned_at: string | null
+          completed_at: string | null
+          created_at: string | null
+          days_worked: number | null
+          hours_worked: number | null
+          id: string
+          is_paid: boolean | null
+          notes: string | null
+          paid_at: string | null
+          payment_type: Database["public"]["Enums"]["payment_type"]
+          rate_applied: number
+          service_order_id: string
+          service_provider_id: string
+          started_at: string | null
+          tenant_id: string
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          days_worked?: number | null
+          hours_worked?: number | null
+          id?: string
+          is_paid?: boolean | null
+          notes?: string | null
+          paid_at?: string | null
+          payment_type: Database["public"]["Enums"]["payment_type"]
+          rate_applied: number
+          service_order_id: string
+          service_provider_id: string
+          started_at?: string | null
+          tenant_id: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          days_worked?: number | null
+          hours_worked?: number | null
+          id?: string
+          is_paid?: boolean | null
+          notes?: string | null
+          paid_at?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
+          rate_applied?: number
+          service_order_id?: string
+          service_provider_id?: string
+          started_at?: string | null
+          tenant_id?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_provider_assignments_service_order_id_fkey"
+            columns: ["service_order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_provider_assignments_service_provider_id_fkey"
+            columns: ["service_provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_provider_assignments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_landing_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_provider_assignments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_provider_payments: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          paid_at: string | null
+          paid_by: string | null
+          reference_month: number
+          reference_year: number
+          service_provider_id: string
+          status: string | null
+          tenant_id: string
+          total_amount: number | null
+          total_days_worked: number | null
+          total_hours_worked: number | null
+          total_os_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          reference_month: number
+          reference_year: number
+          service_provider_id: string
+          status?: string | null
+          tenant_id: string
+          total_amount?: number | null
+          total_days_worked?: number | null
+          total_hours_worked?: number | null
+          total_os_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          reference_month?: number
+          reference_year?: number
+          service_provider_id?: string
+          status?: string | null
+          tenant_id?: string
+          total_amount?: number | null
+          total_days_worked?: number | null
+          total_hours_worked?: number | null
+          total_os_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_provider_payments_service_provider_id_fkey"
+            columns: ["service_provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_provider_payments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_landing_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_provider_payments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_providers: {
+        Row: {
+          address: string | null
+          bank_account: string | null
+          bank_account_type: string | null
+          bank_agency: string | null
+          bank_name: string | null
+          branch_id: string | null
+          city: string | null
+          complement: string | null
+          created_at: string | null
+          daily_rate: number | null
+          document: string | null
+          document_type: string | null
+          email: string | null
+          hourly_rate: number | null
+          id: string
+          is_active: boolean | null
+          monthly_rate: number | null
+          name: string
+          neighborhood: string | null
+          notes: string | null
+          number: string | null
+          payment_type: Database["public"]["Enums"]["payment_type"]
+          phone: string | null
+          phone2: string | null
+          photo_url: string | null
+          pix_key: string | null
+          rate_per_os: number | null
+          rg: string | null
+          skills: string[] | null
+          specialty: string | null
+          state: string | null
+          tenant_id: string
+          updated_at: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          bank_account?: string | null
+          bank_account_type?: string | null
+          bank_agency?: string | null
+          bank_name?: string | null
+          branch_id?: string | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string | null
+          daily_rate?: number | null
+          document?: string | null
+          document_type?: string | null
+          email?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          monthly_rate?: number | null
+          name: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
+          phone?: string | null
+          phone2?: string | null
+          photo_url?: string | null
+          pix_key?: string | null
+          rate_per_os?: number | null
+          rg?: string | null
+          skills?: string[] | null
+          specialty?: string | null
+          state?: string | null
+          tenant_id: string
+          updated_at?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          bank_account?: string | null
+          bank_account_type?: string | null
+          bank_agency?: string | null
+          bank_name?: string | null
+          branch_id?: string | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string | null
+          daily_rate?: number | null
+          document?: string | null
+          document_type?: string | null
+          email?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          monthly_rate?: number | null
+          name?: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
+          phone?: string | null
+          phone2?: string | null
+          photo_url?: string | null
+          pix_key?: string | null
+          rate_per_os?: number | null
+          rg?: string | null
+          skills?: string[] | null
+          specialty?: string | null
+          state?: string | null
+          tenant_id?: string
+          updated_at?: string | null
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_providers_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_providers_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_landing_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_providers_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_audits: {
         Row: {
           audit_type: Database["public"]["Enums"]["stock_audit_type"]
@@ -4964,6 +5262,7 @@ export type Database = {
         | "transferencia"
         | "ajuste"
         | "devolucao"
+      payment_type: "diaria" | "hora" | "por_os" | "mensal"
       priority_level: "baixa" | "media" | "alta" | "urgente"
       serial_status: "disponivel" | "em_uso" | "em_manutencao" | "descartado"
       service_order_status:
@@ -5163,6 +5462,7 @@ export const Constants = {
         "ajuste",
         "devolucao",
       ],
+      payment_type: ["diaria", "hora", "por_os", "mensal"],
       priority_level: ["baixa", "media", "alta", "urgente"],
       serial_status: ["disponivel", "em_uso", "em_manutencao", "descartado"],
       service_order_status: [
