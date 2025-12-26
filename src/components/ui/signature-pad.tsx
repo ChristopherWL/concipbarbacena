@@ -113,31 +113,36 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-
     const pointerX = e.clientX - rect.left;
     const pointerY = e.clientY - rect.top;
 
-    // Use the element's layout size (pre-transform) as the "CSS pixel" drawing space.
-    // This fixes half-canvas / offset issues when the whole container is rotated via CSS.
-    const cssW = canvas.offsetWidth || rect.width;
-    const cssH = canvas.offsetHeight || rect.height;
+    // "Layout" size (pre-transform) vs "visual" size (post-transform).
+    // When we rotate the UI via CSS, getBoundingClientRect() swaps width/height.
+    const layoutW = canvas.offsetWidth || rect.width;
+    const layoutH = canvas.offsetHeight || rect.height;
+    const visualW = rect.width || layoutW;
+    const visualH = rect.height || layoutH;
 
-    const u = rect.width ? pointerX / rect.width : 0; // 0..1 across visual width
-    const v = rect.height ? pointerY / rect.height : 0; // 0..1 across visual height
+    const close = (a: number, b: number) => Math.abs(a - b) < 2;
+    const isVisuallyRotated = close(visualW, layoutH) && close(visualH, layoutW);
 
-    // Default (no rotation): map visual -> layout coords (handles minor scaling mismatches)
-    if (!isPortrait) {
+    // Map from visual pixels -> layout pixels (handles browser zoom / fractional DPR)
+    if (!isVisuallyRotated) {
+      const scaleX = layoutW / visualW;
+      const scaleY = layoutH / visualH;
       return {
-        x: u * cssW,
-        y: v * cssH,
+        x: pointerX * scaleX,
+        y: pointerY * scaleY,
       };
     }
 
-    // Portrait: we rotate the whole UI 90deg clockwise so the user can sign "deitado".
-    // Map visual normalized coords back into the canvas' unrotated layout space.
+    // Rotated 90deg clockwise (visual coords) -> unrotated layout coords
+    const u = visualW ? pointerX / visualW : 0; // 0..1 across visual width
+    const v = visualH ? pointerY / visualH : 0; // 0..1 across visual height
+
     return {
-      x: v * cssW,
-      y: (1 - u) * cssH,
+      x: v * layoutW,
+      y: (1 - u) * layoutH,
     };
   };
 
