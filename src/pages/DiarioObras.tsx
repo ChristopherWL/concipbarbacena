@@ -21,7 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TablePagination } from "@/components/ui/table-pagination";
 import { Separator } from "@/components/ui/separator";
 import { MobileDiarioForm } from "@/components/daily-logs/MobileDiarioForm";
-import { SignatureModal } from "@/components/ui/signature-modal";
+import { SignaturePad } from "@/components/ui/signature-pad";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -939,7 +939,7 @@ const DiarioObras = () => {
         </Dialog>
 
         {/* Signature Modal */}
-        <SignatureModal
+        <SignaturePad
           open={isSignatureModalOpen}
           onClose={() => {
             setIsSignatureModalOpen(false);

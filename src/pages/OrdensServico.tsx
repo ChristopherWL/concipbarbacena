@@ -32,7 +32,7 @@ import { toast } from 'sonner';
 import { ServiceOrderEtapasPanel } from '@/components/service-orders/ServiceOrderEtapasPanel';
 import { ServiceOrderEditDialog } from '@/components/service-orders/ServiceOrderEditDialog';
 import { ServiceOrderCardProgress } from '@/components/service-orders/ServiceOrderCardProgress';
-import { SignatureModal } from '@/components/ui/signature-modal';
+import { SignaturePad } from '@/components/ui/signature-pad';
 import { supabase } from '@/integrations/supabase/client';
 import { useBranchFilter } from '@/hooks/useBranchFilter';
 
@@ -623,7 +623,7 @@ export default function OrdensServico() {
         </Dialog>
 
         {/* Signature Modal */}
-        <SignatureModal
+        <SignaturePad
           open={showSignatureModal}
           onClose={() => setShowSignatureModal(false)}
           onSave={(signature) => {
