@@ -99,23 +99,27 @@ export function SignaturePad({ open, onClose, onSave, title = "Assinatura" }: Si
     const pointerX = e.clientX - rect.left;
     const pointerY = e.clientY - rect.top;
 
-    // Default (no rotation)
-    if (!isPortrait) {
-      return { x: pointerX, y: pointerY };
-    }
+    // Use the element's layout size (pre-transform) as the "CSS pixel" drawing space.
+    // This fixes half-canvas / offset issues when the whole container is rotated via CSS.
+    const cssW = canvas.offsetWidth || rect.width;
+    const cssH = canvas.offsetHeight || rect.height;
 
-    // Portrait: parent is rotated 90deg clockwise.
-    // Visual width = original height; visual height = original width.
-    // We map visual normalized coords -> original canvas coords in CSS pixels.
     const u = rect.width ? pointerX / rect.width : 0; // 0..1 across visual width
     const v = rect.height ? pointerY / rect.height : 0; // 0..1 across visual height
 
-    const canvasWidthCss = rect.height;
-    const canvasHeightCss = rect.width;
+    // Default (no rotation): map visual -> layout coords (handles minor scaling mismatches)
+    if (!isPortrait) {
+      return {
+        x: u * cssW,
+        y: v * cssH,
+      };
+    }
 
+    // Portrait: we rotate the whole UI 90deg clockwise so the user can sign "deitado".
+    // Map visual normalized coords back into the canvas' unrotated layout space.
     return {
-      x: v * canvasWidthCss,
-      y: (1 - u) * canvasHeightCss,
+      x: v * cssW,
+      y: (1 - u) * cssH,
     };
   };
 
