@@ -389,6 +389,7 @@ export type Database = {
           status: string
           supervisor_signature: string | null
           tenant_id: string
+          tipo: string | null
           updated_at: string
           validated_at: string | null
           validated_by: string | null
@@ -437,6 +438,7 @@ export type Database = {
           status?: string
           supervisor_signature?: string | null
           tenant_id: string
+          tipo?: string | null
           updated_at?: string
           validated_at?: string | null
           validated_by?: string | null
@@ -485,6 +487,7 @@ export type Database = {
           status?: string
           supervisor_signature?: string | null
           tenant_id?: string
+          tipo?: string | null
           updated_at?: string
           validated_at?: string | null
           validated_by?: string | null

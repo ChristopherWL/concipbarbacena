@@ -44,8 +44,11 @@ export function RelatorioDiarioObras() {
 
   const filteredDiarios = useMemo(() => {
     return diarios.filter(diario => {
+      // Filter out obra updates - only show field diary entries
+      if ((diario as any).tipo === 'atualizacao_obra') return false;
+      
       const matchesSearch = !searchTerm || 
-        diario.obra?.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (diario as any).obra?.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         diario.atividades_realizadas?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || diario.status === statusFilter;
       const matchesObra = obraFilter === 'all' || diario.obra_id === obraFilter;

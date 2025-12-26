@@ -100,6 +100,8 @@ export interface DiarioObra {
   supervisor_signature?: string;
   validated_at?: string;
   validated_by?: string;
+  // Type: 'diario_campo' for field diary, 'atualizacao_obra' for obra updates
+  tipo?: 'diario_campo' | 'atualizacao_obra';
 }
 
 export const useObras = () => {
@@ -341,7 +343,7 @@ export const useDiarioObras = (obraId?: string) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as DiarioObra[];
+      return (data || []) as unknown as DiarioObra[];
     },
     enabled: !!tenantId,
   });
@@ -397,6 +399,7 @@ export const useDiarioObras = (obraId?: string) => {
           clima_noite: diario.clima_noite,
           // Status
           status: 'aberto',
+          tipo: 'diario_campo', // Mark as field diary entry
         })
         .select()
         .single();
