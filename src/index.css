@@ -864,23 +864,14 @@
   .animate-stagger > *:nth-child(6) { animation-delay: 250ms; }
 }
 
-/* Signature canvas - lock orientation to portrait on mobile */
+/* Signature canvas */
+/* NOTE: removemos regras de rotação via CSS aqui porque em alguns navegadores mobile
+   isso causava “tela branca” ao abrir a assinatura (o container ia para fora da viewport).
+   A orientação/rotação agora é controlada apenas pelos componentes (JS + styles inline). */
 .signature-canvas-fullscreen {
-  /* Prevent orientation changes when signature is open */
-  orientation: portrait;
+  /* keep as marker class; no forced transforms */
 }
 
-@media screen and (orientation: landscape) and (max-width: 1024px) {
-  .signature-canvas-fullscreen {
-    position: fixed;
-    width: 100vh;
-    height: 100vw;
-    transform: rotate(-90deg);
-    transform-origin: top left;
-    left: 100%;
-    top: 0;
-  }
-}
 
 /* Print styles - clean white background, no decorations */
 @media print {
