@@ -79,7 +79,7 @@ export default function Fechamento() {
   const [couponForm, setCouponForm] = useState({
     supplier_id: '',
     invoice_number: '',
-    issue_date: new Date().toISOString().split('T')[0],
+    issue_date: format(new Date(), 'yyyy-MM-dd'),
     total_value: '',
     notes: '',
   });
@@ -162,7 +162,7 @@ export default function Fechamento() {
       setCouponForm({
         supplier_id: '',
         invoice_number: '',
-        issue_date: new Date().toISOString().split('T')[0],
+        issue_date: format(new Date(), 'yyyy-MM-dd'),
         total_value: '',
         notes: '',
       });
