@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { PageContainer } from '@/components/layout/PageContainer';
+import { StatsCard, StatsGrid } from '@/components/layout/StatsCard';
+import { DataCard } from '@/components/layout/DataCard';
 import { ProductsTable } from '@/components/stock/ProductsTable';
 import { EquipamentoFormDialog } from '@/components/stock/EquipamentoFormDialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useProducts } from '@/hooks/useProducts';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { Plus } from 'lucide-react';
+import { Plus, Monitor, Package, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function EstoqueEquipamentos() {
   const { isReadOnly } = useUserPermissions();
@@ -23,75 +22,76 @@ export default function EstoqueEquipamentos() {
     product.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Stats
+  const totalProducts = products.length;
+  const totalStock = products.reduce((sum, p) => sum + (p.current_stock || 0), 0);
+  const lowStock = products.filter(p => (p.current_stock || 0) <= (p.min_stock || 0) && p.min_stock).length;
+  const inStock = products.filter(p => (p.current_stock || 0) > 0).length;
+
   return (
     <DashboardLayout>
-      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      <PageContainer>
         <PageHeader
           title="Equipamentos"
           description="Câmeras, modems, roteadores e equipamentos de rede"
+          icon={<Monitor className="h-5 w-5" />}
         />
 
-        {/* Main Content Card */}
-        <Card className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]">
-          <CardHeader className="border-b bg-muted/30 py-3 px-3 sm:px-6">
-            {/* Mobile Layout */}
-            <div className="sm:hidden space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base">Equipamentos</CardTitle>
-                  <CardDescription className="text-xs">{filteredProducts.length} de {products.length}</CardDescription>
-                </div>
-                {!isReadOnly && (
-                  <Button onClick={() => setIsFormOpen(true)} size="sm">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Novo
-                  </Button>
-                )}
-              </div>
-              <Input
-                placeholder="Buscar..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 text-sm"
-              />
-            </div>
-            
-            {/* Desktop Layout */}
-            <div className="hidden sm:flex items-center justify-between gap-4">
-              <div>
-                <CardTitle className="text-base">Equipamentos Cadastrados</CardTitle>
-                <CardDescription>{filteredProducts.length} de {products.length} itens</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Buscar por código ou nome..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64"
-                />
-                {!isReadOnly && (
-                  <Button onClick={() => setIsFormOpen(true)} size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo Equipamento
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 sm:p-0 bg-transparent sm:bg-card">
-            {productsLoading ? (
-              <TableSkeleton columns={8} rows={5} />
-            ) : (
-              <ProductsTable products={filteredProducts} />
-            )}
-          </CardContent>
-        </Card>
+        {/* Stats Grid */}
+        <StatsGrid columns={4}>
+          <StatsCard
+            value={totalProducts}
+            label="Total de Produtos"
+            icon={Package}
+            variant="primary"
+          />
+          <StatsCard
+            value={totalStock}
+            label="Unidades em Estoque"
+            icon={Monitor}
+            variant="success"
+          />
+          <StatsCard
+            value={inStock}
+            label="Itens Disponíveis"
+            icon={CheckCircle}
+            variant="info"
+          />
+          <StatsCard
+            value={lowStock}
+            label="Estoque Baixo"
+            icon={AlertTriangle}
+            variant="destructive"
+          />
+        </StatsGrid>
+
+        {/* Data Table */}
+        <DataCard
+          isLoading={productsLoading}
+          loadingColumns={8}
+          loadingRows={5}
+          header={{
+            title: 'Equipamentos Cadastrados',
+            count: { filtered: filteredProducts.length, total: products.length },
+            searchValue: searchQuery,
+            onSearchChange: setSearchQuery,
+            searchPlaceholder: 'Buscar por código ou nome...',
+            primaryAction: !isReadOnly ? {
+              label: 'Novo Equipamento',
+              mobileLabel: 'Novo',
+              icon: Plus,
+              onClick: () => setIsFormOpen(true),
+            } : undefined,
+          }}
+        >
+          <ProductsTable products={filteredProducts} />
+        </DataCard>
 
         <EquipamentoFormDialog 
           open={isFormOpen} 
           onOpenChange={setIsFormOpen}
         />
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }

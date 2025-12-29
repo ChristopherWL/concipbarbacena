@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { PageContainer } from '@/components/layout/PageContainer';
+import { StatsCard, StatsGrid } from '@/components/layout/StatsCard';
+import { DataCard } from '@/components/layout/DataCard';
 import { ProductsTable } from '@/components/stock/ProductsTable';
 import { MaterialFormDialog, MATERIAL_TYPES } from '@/components/stock/MaterialFormDialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useProducts } from '@/hooks/useProducts';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { Plus } from 'lucide-react';
+import { Plus, Boxes, Package, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function EstoqueMateriais() {
   const { isReadOnly } = useUserPermissions();
@@ -28,100 +27,89 @@ export default function EstoqueMateriais() {
     return matchesSearch && matchesType;
   });
 
+  // Stats
+  const totalProducts = products.length;
+  const totalStock = products.reduce((sum, p) => sum + (p.current_stock || 0), 0);
+  const lowStock = products.filter(p => (p.current_stock || 0) <= (p.min_stock || 0) && p.min_stock).length;
+  const inStock = products.filter(p => (p.current_stock || 0) > 0).length;
+
   return (
     <DashboardLayout>
-      <div className="space-y-4 sm:space-y-6 animate-fade-in">
-        {/* Page Header */}
+      <PageContainer>
         <PageHeader
           title="Materiais"
           description="Materiais de consumo e insumos por categoria"
+          icon={<Boxes className="h-5 w-5" />}
         />
 
-        {/* Main Content Card */}
-        <Card className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]" data-tour="products-table">
-          <CardHeader className="border-b bg-muted/30 py-3 px-3 sm:px-6">
-            {/* Mobile Layout */}
-            <div className="sm:hidden space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base">Materiais</CardTitle>
-                  <CardDescription className="text-xs">{filteredProducts.length} de {products.length}</CardDescription>
-                </div>
-                {!isReadOnly && (
-                  <Button onClick={() => setIsFormOpen(true)} size="sm" data-tour="add-product-btn">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Novo
-                  </Button>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Buscar..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 h-9 text-sm"
-                />
-                <Select value={materialTypeFilter} onValueChange={setMaterialTypeFilter}>
-                  <SelectTrigger className="w-28 bg-background h-9 text-sm">
-                    <SelectValue placeholder="Tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    {Object.entries(MATERIAL_TYPES).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            {/* Desktop Layout */}
-            <div className="hidden sm:flex items-center justify-between gap-4">
-              <div>
-                <CardTitle className="text-base">Materiais Cadastrados</CardTitle>
-                <CardDescription>{filteredProducts.length} de {products.length} itens</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Buscar por código ou nome..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64"
-                />
-                <Select value={materialTypeFilter} onValueChange={setMaterialTypeFilter}>
-                  <SelectTrigger className="w-36 bg-background h-8 text-sm">
-                    <SelectValue placeholder="Tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos os tipos</SelectItem>
-                    {Object.entries(MATERIAL_TYPES).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {!isReadOnly && (
-                  <Button onClick={() => setIsFormOpen(true)} size="sm" data-tour="add-product-btn">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo Material
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 sm:p-0 bg-transparent sm:bg-card">
-            {productsLoading ? (
-              <TableSkeleton columns={8} rows={5} />
-            ) : (
-              <ProductsTable products={filteredProducts} />
-            )}
-          </CardContent>
-        </Card>
+        {/* Stats Grid */}
+        <StatsGrid columns={4}>
+          <StatsCard
+            value={totalProducts}
+            label="Total de Produtos"
+            icon={Package}
+            variant="primary"
+          />
+          <StatsCard
+            value={totalStock}
+            label="Unidades em Estoque"
+            icon={Boxes}
+            variant="success"
+          />
+          <StatsCard
+            value={inStock}
+            label="Itens Disponíveis"
+            icon={CheckCircle}
+            variant="info"
+          />
+          <StatsCard
+            value={lowStock}
+            label="Estoque Baixo"
+            icon={AlertTriangle}
+            variant="destructive"
+          />
+        </StatsGrid>
+
+        {/* Data Table */}
+        <DataCard
+          isLoading={productsLoading}
+          loadingColumns={8}
+          loadingRows={5}
+          header={{
+            title: 'Materiais Cadastrados',
+            count: { filtered: filteredProducts.length, total: products.length },
+            searchValue: searchQuery,
+            onSearchChange: setSearchQuery,
+            searchPlaceholder: 'Buscar por código ou nome...',
+            actions: (
+              <Select value={materialTypeFilter} onValueChange={setMaterialTypeFilter}>
+                <SelectTrigger className="w-36 bg-background h-8 text-sm">
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os tipos</SelectItem>
+                  {Object.entries(MATERIAL_TYPES).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ),
+            primaryAction: !isReadOnly ? {
+              label: 'Novo Material',
+              mobileLabel: 'Novo',
+              icon: Plus,
+              onClick: () => setIsFormOpen(true),
+            } : undefined,
+          }}
+        >
+          <ProductsTable products={filteredProducts} />
+        </DataCard>
 
         <MaterialFormDialog 
           open={isFormOpen} 
           onOpenChange={setIsFormOpen}
         />
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }
