@@ -241,71 +241,75 @@ export default function OrdensServico() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 sm:space-y-6 px-2 sm:px-0 animate-fade-in" data-tour="service-orders-content">
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6 animate-fade-in" data-tour="service-orders-content">
         <PageHeader
           title="Ordens de Serviço"
           description="Gerencie OS e clientes"
           icon={<ClipboardList className="h-5 w-5" />}
         />
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-stagger">
-          <Card variant="stat" onClick={() => setStatusFilter('all')}>
-            <CardContent className="p-4">
-              <p className="stat-value">{stats.total}</p>
-              <p className="stat-label">Total</p>
+        <div className="grid grid-cols-4 gap-2 sm:gap-4 animate-stagger">
+          <Card variant="stat" onClick={() => setStatusFilter('all')} className="cursor-pointer">
+            <CardContent className="p-2 sm:p-4">
+              <p className="stat-value text-base sm:text-2xl">{stats.total}</p>
+              <p className="stat-label text-[10px] sm:text-xs">Total</p>
             </CardContent>
           </Card>
-          <Card variant="stat" onClick={() => setStatusFilter('aberta')}>
-            <CardContent className="p-4">
-              <p className="stat-value text-info">{stats.abertas}</p>
-              <p className="stat-label">Abertas</p>
+          <Card variant="stat" onClick={() => setStatusFilter('aberta')} className="cursor-pointer">
+            <CardContent className="p-2 sm:p-4">
+              <p className="stat-value text-info text-base sm:text-2xl">{stats.abertas}</p>
+              <p className="stat-label text-[10px] sm:text-xs">Abertas</p>
             </CardContent>
           </Card>
-          <Card variant="stat" onClick={() => setStatusFilter('em_andamento')}>
-            <CardContent className="p-4">
-              <p className="stat-value text-warning">{stats.andamento}</p>
-              <p className="stat-label">Em Andamento</p>
+          <Card variant="stat" onClick={() => setStatusFilter('em_andamento')} className="cursor-pointer">
+            <CardContent className="p-2 sm:p-4">
+              <p className="stat-value text-warning text-base sm:text-2xl">{stats.andamento}</p>
+              <p className="stat-label text-[10px] sm:text-xs truncate">Andamento</p>
             </CardContent>
           </Card>
-          <Card variant="stat" onClick={() => setStatusFilter('concluida')}>
-            <CardContent className="p-4">
-              <p className="stat-value text-success">{stats.concluidas}</p>
-              <p className="stat-label">Concluídas</p>
+          <Card variant="stat" onClick={() => setStatusFilter('concluida')} className="cursor-pointer">
+            <CardContent className="p-2 sm:p-4">
+              <p className="stat-value text-success text-base sm:text-2xl">{stats.concluidas}</p>
+              <p className="stat-label text-[10px] sm:text-xs">Concluídas</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Search and Filter */}
         <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <Input
-                placeholder="Buscar por título, cliente ou número..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full sm:max-w-sm"
-              />
-              <Select value={statusFilter} onValueChange={v => setStatusFilter(v as ServiceOrderStatus | 'all')}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([v, l]) => (
-                    <SelectItem key={v} value={v}>{l}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {!isReadOnly && (
-                <Button onClick={() => setOrderDialogOpen(true)} className="hover-lift">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nova OS
-                </Button>
-              )}
+          <CardHeader className="p-2 sm:p-4 pb-2 sm:pb-3">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex items-center gap-2 flex-1">
+                <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <Input
+                  placeholder="Buscar..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-8 sm:h-9 text-sm"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Select value={statusFilter} onValueChange={v => setStatusFilter(v as ServiceOrderStatus | 'all')}>
+                  <SelectTrigger className="w-28 sm:w-40 h-8 sm:h-9 text-xs sm:text-sm">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {Object.entries(SERVICE_ORDER_STATUS_LABELS).map(([v, l]) => (
+                      <SelectItem key={v} value={v}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {!isReadOnly && (
+                  <Button onClick={() => setOrderDialogOpen(true)} className="h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-4">
+                    <Plus className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Nova OS</span>
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
-          <CardContent className="px-3 sm:px-6">
+          <CardContent className="px-2 sm:px-6 pb-2 sm:pb-4">
             {ordersLoading ? (
               <Loader2 className="h-8 w-8 animate-spin mx-auto" />
             ) : filteredOrders.length === 0 ? (
@@ -314,21 +318,21 @@ export default function OrdensServico() {
                 <p className="text-muted-foreground">Nenhuma OS encontrada</p>
               </div>
             ) : (
-              <div className="grid gap-3 sm:gap-4">
+              <div className="grid gap-2 sm:gap-3">
                 {filteredOrders.map(order => (
                   <Card 
                     key={order.id} 
                     className="border cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => handleOpenDetail(order)}
                   >
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="flex flex-col gap-3">
+                    <CardContent className="p-2 sm:p-4">
+                      <div className="flex flex-col gap-2 sm:gap-3">
                         {/* Header */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                          <div className="flex items-start sm:items-center gap-2 flex-wrap">
-                            <span className="font-mono text-sm text-muted-foreground">#{order.order_number.toString().padStart(5, '0')}</span>
-                            <h3 className="font-semibold">{order.title}</h3>
-                            <Badge className={PRIORITY_COLORS[order.priority]}>{PRIORITY_LABELS[order.priority]}</Badge>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                            <span className="font-mono text-xs sm:text-sm text-muted-foreground">#{order.order_number.toString().padStart(5, '0')}</span>
+                            <h3 className="font-semibold text-sm sm:text-base truncate max-w-[180px] sm:max-w-none">{order.title}</h3>
+                            <Badge className={`${PRIORITY_COLORS[order.priority]} text-[10px] sm:text-xs px-1.5 sm:px-2`}>{PRIORITY_LABELS[order.priority]}</Badge>
                           </div>
                           
                           {/* Desktop actions */}
@@ -354,27 +358,21 @@ export default function OrdensServico() {
                           )}
                         </div>
                         
-                        {/* Info grid */}
-                        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 text-sm text-muted-foreground">
+                        {/* Info grid - compact on mobile */}
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs sm:text-sm text-muted-foreground">
                           {order.customer?.name && (
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <User className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span className="truncate">{order.customer.name}</span>
-                            </div>
-                          )}
-                          {order.address && (
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span className="truncate">{order.address}</span>
+                            <div className="flex items-center gap-1 min-w-0">
+                              <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
+                              <span className="truncate max-w-[100px] sm:max-w-none">{order.customer.name}</span>
                             </div>
                           )}
                           {order.scheduled_date && (
-                            <div className="flex items-center gap-1.5">
-                              <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
                               <span>{new Date(order.scheduled_date).toLocaleDateString('pt-BR')}</span>
                             </div>
                           )}
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1">
                             {getStatusIcon(order.status)}
                             <span>{SERVICE_ORDER_STATUS_LABELS[order.status]}</span>
                           </div>
@@ -383,23 +381,24 @@ export default function OrdensServico() {
                         {/* Progress */}
                         {tenantId && <ServiceOrderCardProgress serviceOrderId={order.id} tenantId={tenantId} />}
                         
-                        {/* Mobile actions */}
+                        {/* Mobile actions - more compact */}
                         {!isReadOnly && (
-                          <div className="flex sm:hidden items-center gap-2 pt-2 border-t border-border/20">
-                            <Button variant="outline" size="sm" onClick={(e) => handleOpenEditDialog(order, e)}>
-                              <Settings className="h-4 w-4" />
+                          <div className="flex sm:hidden items-center gap-1.5 pt-2 border-t border-border/20">
+                            <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={(e) => handleOpenEditDialog(order, e)}>
+                              <Settings className="h-3 w-3" />
                             </Button>
-                            <Button className="flex-1" size="sm" onClick={(e) => handleOpenUpdateDialog(order, e)}>
-                              <Edit className="h-4 w-4 mr-2" />
+                            <Button className="flex-1 h-7 text-xs" size="sm" onClick={(e) => handleOpenUpdateDialog(order, e)}>
+                              <Edit className="h-3 w-3 mr-1" />
                               Atualizar
                             </Button>
                             {isAdmin() && (
                               <Button 
                                 variant="outline" 
                                 size="sm"
+                                className="h-7 px-2"
                                 onClick={(e) => { e.stopPropagation(); setOrderToDelete(order); }}
                               >
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <Trash2 className="h-3 w-3 text-destructive" />
                               </Button>
                             )}
                           </div>
