@@ -5144,6 +5144,7 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      can_user_create: { Args: { p_user_id: string }; Returns: boolean }
       can_user_delete: { Args: { p_user_id: string }; Returns: boolean }
       get_movement_trends: {
         Args: { p_branch_id?: string; p_tenant_id: string }
