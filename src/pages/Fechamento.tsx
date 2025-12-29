@@ -358,6 +358,12 @@ export default function Fechamento() {
     }).format(value);
   };
 
+  const parseDateOnly = (dateStr: string) => {
+    const safe = (dateStr || '').slice(0, 10); // yyyy-MM-dd
+    const [y, m, d] = safe.split('-').map((n) => Number(n));
+    return new Date(y, (m || 1) - 1, d || 1);
+  };
+
   const months = [
     { value: 1, label: 'Janeiro' },
     { value: 2, label: 'Fevereiro' },
@@ -684,7 +690,7 @@ export default function Fechamento() {
                               {coupon.coupon_number}
                             </TableCell>
                             <TableCell>
-                              {format(new Date(coupon.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
+                              {format(parseDateOnly(coupon.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
                             </TableCell>
                             <TableCell className="font-semibold">
                               {formatCurrency(coupon.total_value)}
@@ -1032,7 +1038,7 @@ export default function Fechamento() {
                   <div className="space-y-1">
                     <Label className="text-muted-foreground text-xs">Data de Emissão</Label>
                     <p className="font-semibold">
-                      {format(new Date(selectedCoupon.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
+                      {format(parseDateOnly(selectedCoupon.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
                     </p>
                   </div>
                 </div>
