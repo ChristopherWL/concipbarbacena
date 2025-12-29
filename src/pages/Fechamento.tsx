@@ -129,7 +129,7 @@ export default function Fechamento() {
           ? `${selectedYear + 1}-01-01` 
           : `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-01`
         )
-        .order('issue_date', { ascending: true });
+        .order('issue_date', { ascending: false });
       
       if (error) throw error;
       return data || [];
