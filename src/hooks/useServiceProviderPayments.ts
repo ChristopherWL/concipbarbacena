@@ -1,23 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useBranchFilter } from "@/hooks/useBranchFilter";
 import { toast } from "sonner";
-import type { PaymentType } from "@/types/serviceProviders";
 
 export interface ServiceProviderManualPayment {
   id: string;
   tenant_id: string;
-  branch_id?: string;
   service_provider_id: string;
-  period_start: string;
-  period_end: string;
-  payment_type: string;
-  days_worked: number;
-  hours_worked: number;
-  rate_applied: number;
+  reference_month: number;
+  reference_year: number;
+  total_os_count: number;
+  total_days_worked: number;
+  total_hours_worked: number;
   total_amount: number;
-  description?: string;
   notes?: string;
   status: string;
   paid_at?: string;
@@ -29,11 +24,10 @@ export interface ServiceProviderManualPayment {
 export function useServiceProviderPayments(providerId?: string) {
   const { tenant } = useAuth();
   const tenantId = tenant?.id;
-  const { branchId } = useBranchFilter();
   const queryClient = useQueryClient();
 
   const { data: payments = [], isLoading } = useQuery({
-    queryKey: ['sp-manual-payments', tenantId, providerId, branchId],
+    queryKey: ['sp-manual-payments', tenantId, providerId],
     queryFn: async () => {
       if (!tenantId) return [];
       
@@ -44,19 +38,16 @@ export function useServiceProviderPayments(providerId?: string) {
           service_provider:service_providers(id, name, specialty, payment_type, daily_rate, hourly_rate)
         `)
         .eq('tenant_id', tenantId)
-        .order('period_start', { ascending: false });
+        .order('reference_year', { ascending: false })
+        .order('reference_month', { ascending: false });
 
       if (providerId) {
         query = query.eq('service_provider_id', providerId);
       }
 
-      if (branchId) {
-        query = query.eq('branch_id', branchId);
-      }
-
       const { data, error } = await query;
       if (error) throw error;
-      return data as (ServiceProviderManualPayment & { service_provider?: { id: string; name: string; specialty?: string; payment_type: PaymentType; daily_rate?: number; hourly_rate?: number } })[];
+      return data;
     },
     enabled: !!tenantId,
   });
@@ -64,30 +55,25 @@ export function useServiceProviderPayments(providerId?: string) {
   const createPaymentMutation = useMutation({
     mutationFn: async (payment: {
       service_provider_id: string;
-      period_start: string;
-      period_end: string;
-      payment_type: string;
-      days_worked?: number;
-      hours_worked?: number;
-      rate_applied: number;
-      description?: string;
+      reference_month: number;
+      reference_year: number;
+      total_days_worked?: number;
+      total_hours_worked?: number;
+      total_amount: number;
       notes?: string;
     }) => {
-      // Calcula o valor total
-      let total_amount = payment.rate_applied;
-      if (payment.payment_type === 'diaria' && payment.days_worked) {
-        total_amount = payment.rate_applied * payment.days_worked;
-      } else if (payment.payment_type === 'hora' && payment.hours_worked) {
-        total_amount = payment.rate_applied * payment.hours_worked;
-      }
-
       const { data, error } = await supabase
         .from('service_provider_payments')
         .insert([{ 
-          ...payment, 
+          service_provider_id: payment.service_provider_id,
+          reference_month: payment.reference_month,
+          reference_year: payment.reference_year,
+          total_days_worked: payment.total_days_worked ?? 0,
+          total_hours_worked: payment.total_hours_worked ?? 0,
+          total_os_count: 0,
+          total_amount: payment.total_amount,
+          notes: payment.notes,
           tenant_id: tenantId!,
-          branch_id: branchId,
-          total_amount,
           status: 'pendente',
         }])
         .select()
