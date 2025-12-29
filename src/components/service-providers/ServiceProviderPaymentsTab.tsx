@@ -208,7 +208,7 @@ export function ServiceProviderPaymentsTab() {
             <div className="flex gap-2 ml-auto">
               <Button size="sm" onClick={() => setAssignDialogOpen(true)} className="gap-1.5">
                 <Plus className="h-3.5 w-3.5" />
-                Nova Atribuição
+                Novo Pagamento
               </Button>
               {selectedProviderId && (
                 <Button size="sm" variant="outline" onClick={() => window.print()} className="gap-1.5 print:hidden">
