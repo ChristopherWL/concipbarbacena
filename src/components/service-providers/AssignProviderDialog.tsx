@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useServiceProviderAssignments } from "@/hooks/useServiceProviders";
-import { useServiceOrders } from "@/hooks/useServiceOrders";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +45,7 @@ import { DateRange } from "react-day-picker";
 
 const formSchema = z.object({
   service_provider_id: z.string().min(1, "Selecione um prestador"),
-  service_order_id: z.string().optional(),
+  service_order_ref: z.string().max(50).optional(),
   payment_type: z.enum(["diaria", "hora", "por_os", "mensal"]),
   rate_applied: z.coerce.number().optional(),
   date_range: z.object({
@@ -54,7 +53,7 @@ const formSchema = z.object({
     to: z.date().optional(),
   }).optional(),
   hours_worked: z.coerce.number().optional(),
-  notes: z.string().optional(),
+  notes: z.string().max(500).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -67,7 +66,6 @@ interface Props {
 
 export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
   const { assignToOrder } = useServiceProviderAssignments();
-  const { data: serviceOrders = [] } = useServiceOrders();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
@@ -123,12 +121,13 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
     try {
       await assignToOrder({
         service_provider_id: values.service_provider_id,
-        service_order_id: values.service_order_id,
         payment_type: values.payment_type as PaymentType,
         rate_applied: values.rate_applied,
         days_worked: daysWorked > 0 ? daysWorked : undefined,
         hours_worked: values.hours_worked,
-        notes: values.notes,
+        notes: values.service_order_ref 
+          ? `OS/Ref: ${values.service_order_ref}${values.notes ? ` - ${values.notes}` : ''}`
+          : values.notes,
       });
       form.reset();
       setDateRange(undefined);
@@ -138,16 +137,11 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
     }
   };
 
-  // Filtra OS abertas/em andamento
-  const availableOrders = serviceOrders.filter(
-    (os) => os.status === "aberta" || os.status === "em_andamento"
-  );
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Atribuir OS a Prestador</DialogTitle>
+          <DialogTitle>Novo Pagamento</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -179,24 +173,13 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
 
             <FormField
               control={form.control}
-              name="service_order_id"
+              name="service_order_ref"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ordem de Serviço</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a OS (opcional)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {availableOrders.map((os) => (
-                        <SelectItem key={os.id} value={os.id}>
-                          #{os.order_number} - {os.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Referência OS (opcional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: OS #123 ou descrição" maxLength={50} {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -332,9 +315,7 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button type="submit">
-                Atribuir
-              </Button>
+              <Button type="submit">Salvar</Button>
             </div>
           </form>
         </Form>
