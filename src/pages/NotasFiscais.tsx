@@ -408,6 +408,11 @@ export default function NotasFiscais() {
         });
       }
       
+      // Open PDF in new tab after successful save (if file was attached)
+      if (pdfUrl) {
+        handleViewAttachment(pdfUrl);
+      }
+      
       setFormData({
         invoice_number: '',
         invoice_series: '',
