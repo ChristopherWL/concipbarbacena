@@ -77,6 +77,12 @@ export default function OrdensServico() {
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Complete order dialog states
+  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const [completeSignature, setCompleteSignature] = useState<string | null>(null);
+  const [showCompleteSignatureModal, setShowCompleteSignatureModal] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Hooks for selected order
@@ -214,6 +220,38 @@ export default function OrdensServico() {
       toast.error("Erro ao registrar atualização");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenCompleteDialog = (order: ServiceOrder, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setSelectedOrder(order);
+    setCompleteSignature(null);
+    setIsCompleteDialogOpen(true);
+  };
+
+  const handleCompleteOrder = async () => {
+    if (!selectedOrder || !completeSignature) {
+      toast.error("Assinatura é obrigatória para concluir a O.S.");
+      return;
+    }
+
+    setIsCompleting(true);
+    try {
+      await updateOrder.mutateAsync({
+        id: selectedOrder.id,
+        status: 'concluida' as ServiceOrderStatus,
+        completed_at: new Date().toISOString(),
+        signature_url: completeSignature,
+      });
+      setIsCompleteDialogOpen(false);
+      setIsDetailDialogOpen(false);
+      setSelectedOrder(null);
+      toast.success("O.S. concluída com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao concluir O.S.");
+    } finally {
+      setIsCompleting(false);
     }
   };
 
@@ -454,6 +492,16 @@ export default function OrdensServico() {
                       <Edit className="h-4 w-4 mr-2" />
                       Registrar Atualização
                     </Button>
+                    {selectedOrder?.status !== 'concluida' && (
+                      <Button 
+                        variant="default"
+                        className="bg-success hover:bg-success/90"
+                        onClick={(e) => handleOpenCompleteDialog(selectedOrder!, e)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Concluir O.S.
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
@@ -745,6 +793,80 @@ export default function OrdensServico() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Complete Order Dialog */}
+        <Dialog open={isCompleteDialogOpen} onOpenChange={setIsCompleteDialogOpen}>
+          <DialogContent className="w-full max-w-md max-h-[90vh] p-0 sm:p-0 bg-transparent shadow-none border-0">
+            <div className="bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+              <DialogHeader className="bg-success px-6 pt-6 pb-4 rounded-t-xl flex-shrink-0">
+                <DialogTitle className="text-success-foreground">Concluir Ordem de Serviço</DialogTitle>
+                <DialogDescription className="text-success-foreground/80">
+                  #{selectedOrder?.order_number.toString().padStart(5, '0')} - {selectedOrder?.title}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-4">
+                <div className="text-sm text-muted-foreground">
+                  <p>Ao concluir esta O.S., ela será marcada como finalizada.</p>
+                  <p className="mt-2 font-medium text-foreground">É necessário assinar para confirmar a conclusão.</p>
+                </div>
+
+                {/* Signature */}
+                <div className="space-y-2">
+                  <Label>Assinatura do Responsável *</Label>
+                  {completeSignature ? (
+                    <div className="border rounded-lg p-2 bg-muted/50">
+                      <img src={completeSignature} alt="Assinatura" className="max-h-24 mx-auto" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={() => setCompleteSignature(null)}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Limpar Assinatura
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setShowCompleteSignatureModal(true)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Assinar
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setIsCompleteDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button
+                    className="bg-success hover:bg-success/90"
+                    onClick={handleCompleteOrder}
+                    disabled={isCompleting || !completeSignature}
+                  >
+                    {isCompleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Confirmar Conclusão
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Signature Modal for Complete */}
+        <SignaturePad
+          open={showCompleteSignatureModal}
+          onClose={() => setShowCompleteSignatureModal(false)}
+          onSave={(sig) => {
+            setCompleteSignature(sig);
+            setShowCompleteSignatureModal(false);
+          }}
+          title="Assinatura de Conclusão"
+        />
       </div>
     </DashboardLayout>
   );
