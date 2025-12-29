@@ -155,108 +155,76 @@ export function ServiceProvidersTab() {
             return (
               <Card 
                 key={provider.id} 
-                className={`group relative transition-all duration-300 hover:shadow-lg border-0 shadow-sm ${
+                className={`group transition-all duration-200 hover:shadow-md ${
                   !provider.is_active ? 'opacity-60' : ''
                 }`}
               >
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-4">
-                    {/* Avatar */}
-                    <Avatar className="h-12 w-12 rounded-xl bg-primary text-primary-foreground shrink-0">
-                      <AvatarImage src={provider.photo_url || undefined} className="rounded-xl" />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg rounded-xl">
+                <CardContent className="p-4">
+                  {/* Header com Avatar e Nome */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <Avatar className="h-11 w-11 rounded-lg shrink-0">
+                      <AvatarImage src={provider.photo_url || undefined} className="rounded-lg" />
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-lg">
                         {provider.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-
-                    {/* Info */}
-                    <div className="min-w-0 flex-1 space-y-2">
-                      {/* Name */}
-                      <h3 className="font-semibold text-foreground truncate text-base">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium text-foreground truncate leading-tight">
                         {provider.name}
                       </h3>
-
-                      {/* Document */}
                       {provider.document && (
-                        <Badge variant="secondary" className="font-mono text-xs bg-muted/80">
+                        <p className="font-mono text-xs text-primary mt-0.5">
                           {provider.document}
-                        </Badge>
+                        </p>
                       )}
-
-                      {/* Specialty */}
-                      {provider.specialty && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Wrench className="h-4 w-4 shrink-0" />
-                          <span className="truncate">{provider.specialty}</span>
-                        </div>
-                      )}
-
-                      {/* Location */}
-                      {(provider.city || provider.state) && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <MapPin className="h-4 w-4 shrink-0 text-orange-500" />
-                          <span className="truncate">
-                            {provider.city}{provider.city && provider.state ? '/' : ''}{provider.state}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions Menu */}
-                    <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleEdit(provider)}
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Editar</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={() => { setProviderToDelete(provider); setDeleteDialogOpen(true); }}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Excluir</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
                     </div>
                   </div>
 
-                  {/* Status Footer */}
-                  <div className="mt-4 pt-3 border-t border-border/50">
-                    <div className="flex items-center justify-between">
-                      <span className={`text-xs ${provider.is_active ? 'text-muted-foreground' : 'text-muted-foreground/60'}`}>
-                        {provider.is_active ? 'Prestador ativo' : 'Prestador inativo'}
-                      </span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Switch
-                              checked={provider.is_active}
-                              onCheckedChange={() => handleToggleActive(provider)}
-                              className="data-[state=checked]:bg-success scale-90"
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {provider.is_active ? 'Desativar' : 'Ativar'}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                  {/* Info */}
+                  <div className="space-y-1.5 text-sm text-muted-foreground">
+                    {provider.specialty && (
+                      <div className="flex items-center gap-2">
+                        <Wrench className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{provider.specialty}</span>
+                      </div>
+                    )}
+                    {(provider.city || provider.state) && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-orange-500" />
+                        <span className="truncate">
+                          {provider.city}{provider.city && provider.state ? '/' : ''}{provider.state}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="mt-3 pt-3 border-t flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {provider.is_active ? 'Prestador ativo' : 'Prestador inativo'}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleEdit(provider)}
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => { setProviderToDelete(provider); setDeleteDialogOpen(true); }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <Switch
+                        checked={provider.is_active}
+                        onCheckedChange={() => handleToggleActive(provider)}
+                        className="data-[state=checked]:bg-success scale-75"
+                      />
                     </div>
                   </div>
                 </CardContent>
