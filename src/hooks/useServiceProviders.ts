@@ -76,16 +76,33 @@ export function useServiceProviders() {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('service_providers')
-        .update({ is_active: false })
+        .delete()
         .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['service-providers'] });
-      toast.success('Prestador desativado');
+      toast.success('Prestador excluído');
     },
     onError: (error: Error) => {
-      toast.error(`Erro ao desativar: ${error.message}`);
+      toast.error(`Erro ao excluir: ${error.message}`);
+    },
+  });
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      const { error } = await supabase
+        .from('service_providers')
+        .update({ is_active: isActive })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['service-providers'] });
+      toast.success(variables.isActive ? 'Prestador ativado' : 'Prestador desativado');
+    },
+    onError: (error: Error) => {
+      toast.error(`Erro: ${error.message}`);
     },
   });
 
@@ -95,6 +112,7 @@ export function useServiceProviders() {
     createProvider: createMutation.mutateAsync,
     updateProvider: updateMutation.mutateAsync,
     deleteProvider: deleteMutation.mutateAsync,
+    toggleProviderActive: toggleActiveMutation.mutateAsync,
   };
 }
 
