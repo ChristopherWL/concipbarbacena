@@ -119,7 +119,7 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 sm:space-y-6 px-2 sm:px-0" data-tour="dashboard-content">
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6" data-tour="dashboard-content">
         <PageHeader
           title={`Bem-vindo, ${profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Usuário'}!`}
           description={tenant ? `Visão geral de ${tenant.name}` : 'Entre em contato com o administrador'}

@@ -118,7 +118,7 @@ export function DashboardOverview() {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-5">
       {/* Matriz Branch Selector - Mobile only */}
       {isMatriz && (
         <div className="lg:hidden">
@@ -141,7 +141,7 @@ export function DashboardOverview() {
       )}
 
       {/* Calendar + Pie Chart Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-5">
         {/* Calendar - Left side */}
         <div className="lg:col-span-8">
           <DashboardCalendar sector="overview" />
@@ -278,7 +278,7 @@ export function DashboardOverview() {
       </Card>
 
       {/* Activity + Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
         {/* Recent Activity */}
         <Card className="futuristic-card rounded-xl">
           <CardHeader className="pb-2">

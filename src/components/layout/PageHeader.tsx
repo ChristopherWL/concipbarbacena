@@ -13,22 +13,22 @@ export function PageHeader({ title, description, children, className, icon }: Pa
   return (
     <div className={cn("relative flex flex-col items-center gap-1", className)}>
       {/* Title with decorative elements */}
-      <div className="flex items-center gap-3">
-        {/* Left decorative line */}
-        <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary" />
-          <div className="w-6 sm:w-10 h-0.5 bg-primary rounded-full" />
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Left decorative line - hidden on very small screens */}
+        <div className="hidden xs:flex items-center gap-1 sm:gap-1.5">
+          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 rounded-full bg-primary" />
+          <div className="w-4 sm:w-6 md:w-10 h-0.5 bg-primary rounded-full" />
         </div>
 
         {/* Title */}
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-foreground text-center">
           {title}
         </h1>
 
-        {/* Right decorative line */}
-        <div className="flex items-center gap-1.5">
-          <div className="w-6 sm:w-10 h-0.5 bg-primary rounded-full" />
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary" />
+        {/* Right decorative line - hidden on very small screens */}
+        <div className="hidden xs:flex items-center gap-1 sm:gap-1.5">
+          <div className="w-4 sm:w-6 md:w-10 h-0.5 bg-primary rounded-full" />
+          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 rounded-full bg-primary" />
         </div>
       </div>
 
