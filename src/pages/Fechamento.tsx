@@ -54,6 +54,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Search,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -253,7 +254,27 @@ export default function Fechamento() {
     },
   });
 
-  // Group coupons by supplier (excluding items without supplier)
+  // Delete coupon mutation
+  const deleteCoupon = useMutation({
+    mutationFn: async (couponId: string) => {
+      const { error } = await supabase
+        .from('fiscal_coupons')
+        .delete()
+        .eq('id', couponId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fiscal_coupons'] });
+      toast.success('Cupom excluído com sucesso!');
+      setIsCouponDetailsOpen(false);
+      setSelectedCoupon(null);
+    },
+    onError: (error) => {
+      toast.error('Erro ao excluir cupom: ' + error.message);
+    },
+  });
+
   const supplierGroups = useMemo(() => {
     if (!coupons) return [];
     
@@ -1055,7 +1076,21 @@ export default function Fechamento() {
                 </div>
               </div>
             )}
-            <DialogFooter>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+              {!isMonthClosed && (
+                <Button 
+                  variant="destructive" 
+                  onClick={() => selectedCoupon && deleteCoupon.mutate(selectedCoupon.id)}
+                  disabled={deleteCoupon.isPending}
+                >
+                  {deleteCoupon.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Excluir
+                </Button>
+              )}
               <Button variant="outline" onClick={() => setIsCouponDetailsOpen(false)}>
                 Fechar
               </Button>
