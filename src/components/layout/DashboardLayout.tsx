@@ -2167,7 +2167,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main Content */}
       <div className={cn(
         "flex-1 flex flex-col transition-all duration-300 ease-out lg:pt-10 relative print:!pl-0 print:!pt-0",
-        isCollapsed ? "lg:pl-16" : "lg:pl-64"
+        isCollapsed ? "lg:pl-12" : "lg:pl-40"
       )}>
         {/* Dark background layer for mobile - simulates sidebar bg */}
         <div className="lg:hidden fixed inset-0 bg-sidebar -z-10 print:hidden" />
