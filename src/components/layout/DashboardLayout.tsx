@@ -1094,7 +1094,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (count <= 0) return null;
     return (
       <span className={cn(
-        "flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold rounded-full",
+        "flex items-center justify-center min-w-4 h-4 px-1 text-[10px] font-bold rounded-full",
         type === 'danger' && "bg-destructive text-destructive-foreground",
         type === 'warning' && "bg-warning text-warning-foreground",
         className
