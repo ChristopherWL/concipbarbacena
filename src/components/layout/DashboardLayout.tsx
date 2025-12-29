@@ -1440,7 +1440,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Spacer - same width as sidebar */}
         <div className={cn(
           "h-full transition-all duration-200",
-          isCollapsed ? "w-12" : "w-48"
+          isCollapsed ? "w-12" : "w-44"
         )} />
 
         {/* Header content - center */}
@@ -1574,7 +1574,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Desktop Sidebar - below header */}
       <aside className={cn(
         "hidden lg:fixed lg:bottom-0 lg:left-0 lg:flex lg:flex-col transition-all duration-200 ease-out z-30 print:!hidden overflow-hidden",
-        isCollapsed ? "lg:w-12" : "lg:w-48",
+        isCollapsed ? "lg:w-12" : "lg:w-44",
         // When collapsed, sidebar starts below the logo area
         isCollapsed ? (isAtTop ? "lg:top-[5rem]" : "lg:top-[4.5rem]") : "lg:top-2"
       )}>
@@ -1667,7 +1667,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Expand Arrow between sidebar and content */}
       <div className={cn(
         "hidden lg:flex fixed top-1/2 -translate-y-1/2 z-40 transition-all duration-200",
-        isCollapsed ? "left-12" : "left-48"
+        isCollapsed ? "left-12" : "left-44"
       )}>
         <Button
           variant="ghost"
