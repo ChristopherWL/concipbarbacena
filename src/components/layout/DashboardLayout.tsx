@@ -1440,7 +1440,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Spacer - same width as sidebar */}
         <div className={cn(
           "h-full transition-all duration-200",
-          isCollapsed ? "w-16" : "w-64"
+          isCollapsed ? "w-14" : "w-56"
         )} />
 
         {/* Header content - center */}
@@ -1574,7 +1574,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Desktop Sidebar - below header */}
       <aside className={cn(
         "hidden lg:fixed lg:bottom-0 lg:left-0 lg:flex lg:flex-col transition-all duration-200 ease-out z-30 print:!hidden overflow-hidden",
-        isCollapsed ? "lg:w-16" : "lg:w-64",
+        isCollapsed ? "lg:w-14" : "lg:w-56",
         // When collapsed, sidebar starts below the logo area
         isCollapsed ? (isAtTop ? "lg:top-[5rem]" : "lg:top-[4.5rem]") : "lg:top-2"
       )}>
@@ -1593,11 +1593,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col flex-1 bg-transparent relative z-10">
           {/* Logo - show only when NOT collapsed */}
           {!isCollapsed && (
-            <div className="flex flex-col items-center px-4 pb-2 animate-fade-in">
+            <div className="flex flex-col items-center px-3 pb-1 animate-fade-in">
               {/* Show branch name or company logo based on director selection */}
               {isDirector && selectedBranch ? (
                 <>
-                  <div className="text-2xl font-bold text-sidebar-foreground text-center mb-2 animate-scale-in">
+                  <div className="text-lg font-bold text-sidebar-foreground text-center mb-1 animate-scale-in">
                     {selectedBranch.name}
                   </div>
                   <DirectorBranchDropdown variant="sidebar" />
@@ -1608,10 +1608,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <img 
                       src={currentLogo} 
                       alt={tenant?.name || 'Logo'} 
-                      className="h-24 object-contain mb-2 animate-scale-in"
+                      className="h-14 object-contain mb-1 animate-scale-in"
                     />
                   ) : (
-                    <div className="text-2xl font-bold text-sidebar-foreground text-center mb-2 animate-scale-in">
+                    <div className="text-lg font-bold text-sidebar-foreground text-center mb-1 animate-scale-in">
                       {tenant?.name || 'System'}
                     </div>
                   )}
@@ -1621,10 +1621,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <img 
                   src={currentLogo} 
                   alt={branchData?.name || tenant?.name || 'Logo'} 
-                  className="h-28 object-contain animate-scale-in"
+                  className="h-16 object-contain animate-scale-in"
                 />
               ) : (
-                <div className="text-3xl font-bold text-sidebar-foreground text-center animate-scale-in">
+                <div className="text-xl font-bold text-sidebar-foreground text-center animate-scale-in">
                   {branchData?.name || tenant?.name || 'System'}
                 </div>
               )}
@@ -1641,8 +1641,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Large Logo when collapsed - positioned at top of sidebar */}
       {isCollapsed && (
         <div className={cn(
-          "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out w-16",
-          isAtTop ? "-top-6 left-3" : "top-10 left-0"
+          "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out w-14",
+          isAtTop ? "top-2 left-0" : "top-10 left-0"
         )}>
           {currentLogo ? (
             <img 
@@ -1650,13 +1650,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               alt={tenant?.name || 'Logo'} 
             className={cn(
                 "object-contain transition-all duration-200 ease-out",
-                isAtTop ? "h-56 w-56 -translate-y-12" : "h-14 w-14"
+                isAtTop ? "h-12 w-12" : "h-10 w-10"
               )}
             />
           ) : (
             <div className={cn(
               "font-bold text-sidebar-foreground transition-all duration-200 ease-out",
-              isAtTop ? "text-3xl" : "text-xl"
+              isAtTop ? "text-xl" : "text-lg"
             )}>
               {(branchData?.name || tenant?.name)?.charAt(0) || 'S'}
             </div>
@@ -1667,7 +1667,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Expand Arrow between sidebar and content */}
       <div className={cn(
         "hidden lg:flex fixed top-1/2 -translate-y-1/2 z-40 transition-all duration-200",
-        isCollapsed ? "left-16" : "left-64"
+        isCollapsed ? "left-14" : "left-56"
       )}>
         <Button
           variant="ghost"
