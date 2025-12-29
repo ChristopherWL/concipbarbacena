@@ -123,12 +123,25 @@ export function useEmployees() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('employees')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
       if (error) throw error;
+      
+      // Se não retornou nada, verificar se ainda existe
+      const { data: checkData } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (checkData) {
+        throw new Error('Sem permissão para excluir este colaborador');
+      }
+      
       return true;
     },
     onSuccess: () => {
