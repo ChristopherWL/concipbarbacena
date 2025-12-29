@@ -150,25 +150,33 @@ export function useServiceProviderAssignments(providerId?: string) {
   const assignMutation = useMutation({
     mutationFn: async (assignment: {
       service_provider_id: string;
-      service_order_id: string;
+      service_order_id?: string;
       payment_type: PaymentType;
-      rate_applied: number;
+      rate_applied?: number;
       days_worked?: number;
       hours_worked?: number;
       notes?: string;
     }) => {
+      const rateApplied = assignment.rate_applied || 0;
+      
       // Calcula o valor total baseado no tipo de pagamento
-      let total_amount = assignment.rate_applied;
+      let total_amount = rateApplied;
       if (assignment.payment_type === 'diaria' && assignment.days_worked) {
-        total_amount = assignment.rate_applied * assignment.days_worked;
+        total_amount = rateApplied * assignment.days_worked;
       } else if (assignment.payment_type === 'hora' && assignment.hours_worked) {
-        total_amount = assignment.rate_applied * assignment.hours_worked;
+        total_amount = rateApplied * assignment.hours_worked;
       }
 
       const { data, error } = await supabase
         .from('service_provider_assignments')
         .insert([{ 
-          ...assignment, 
+          service_provider_id: assignment.service_provider_id,
+          service_order_id: assignment.service_order_id || null,
+          payment_type: assignment.payment_type,
+          rate_applied: rateApplied,
+          days_worked: assignment.days_worked,
+          hours_worked: assignment.hours_worked,
+          notes: assignment.notes,
           tenant_id: tenantId,
           total_amount,
         }])
