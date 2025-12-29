@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { PageContainer } from '@/components/layout/PageContainer';
+import { StatsCard, StatsGrid } from '@/components/layout/StatsCard';
+import { DataCard } from '@/components/layout/DataCard';
 import { ProductsTable } from '@/components/stock/ProductsTable';
 import { FerramentaFormDialog } from '@/components/stock/FerramentaFormDialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useProducts } from '@/hooks/useProducts';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { Plus } from 'lucide-react';
+import { Plus, Wrench, Package, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function EstoqueFerramentas() {
   const { isReadOnly } = useUserPermissions();
@@ -23,75 +22,76 @@ export default function EstoqueFerramentas() {
     product.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Stats
+  const totalProducts = products.length;
+  const totalStock = products.reduce((sum, p) => sum + (p.current_stock || 0), 0);
+  const lowStock = products.filter(p => (p.current_stock || 0) <= (p.min_stock || 0) && p.min_stock).length;
+  const inStock = products.filter(p => (p.current_stock || 0) > 0).length;
+
   return (
     <DashboardLayout>
-      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      <PageContainer>
         <PageHeader
           title="Ferramentas"
           description="Ferramentas manuais, elétricas e de medição"
+          icon={<Wrench className="h-5 w-5" />}
         />
 
-        {/* Main Content Card */}
-        <Card className="overflow-hidden bg-transparent sm:bg-card border-0 sm:border shadow-none sm:shadow-[var(--shadow-card)]">
-          <CardHeader className="border-b bg-muted/30 py-3 px-3 sm:px-6">
-            {/* Mobile Layout */}
-            <div className="sm:hidden space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base">Ferramentas</CardTitle>
-                  <CardDescription className="text-xs">{filteredProducts.length} de {products.length}</CardDescription>
-                </div>
-                {!isReadOnly && (
-                  <Button onClick={() => setIsFormOpen(true)} size="sm">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Nova
-                  </Button>
-                )}
-              </div>
-              <Input
-                placeholder="Buscar..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 text-sm"
-              />
-            </div>
-            
-            {/* Desktop Layout */}
-            <div className="hidden sm:flex items-center justify-between gap-4">
-              <div>
-                <CardTitle className="text-base">Ferramentas Cadastradas</CardTitle>
-                <CardDescription>{filteredProducts.length} de {products.length} itens</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Buscar por código ou nome..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64"
-                />
-                {!isReadOnly && (
-                  <Button onClick={() => setIsFormOpen(true)} size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nova Ferramenta
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 sm:p-0 bg-transparent sm:bg-card">
-            {productsLoading ? (
-              <TableSkeleton columns={8} rows={5} />
-            ) : (
-              <ProductsTable products={filteredProducts} />
-            )}
-          </CardContent>
-        </Card>
+        {/* Stats Grid */}
+        <StatsGrid columns={4}>
+          <StatsCard
+            value={totalProducts}
+            label="Total de Produtos"
+            icon={Package}
+            variant="primary"
+          />
+          <StatsCard
+            value={totalStock}
+            label="Unidades em Estoque"
+            icon={Wrench}
+            variant="success"
+          />
+          <StatsCard
+            value={inStock}
+            label="Itens Disponíveis"
+            icon={CheckCircle}
+            variant="info"
+          />
+          <StatsCard
+            value={lowStock}
+            label="Estoque Baixo"
+            icon={AlertTriangle}
+            variant="destructive"
+          />
+        </StatsGrid>
+
+        {/* Data Table */}
+        <DataCard
+          isLoading={productsLoading}
+          loadingColumns={8}
+          loadingRows={5}
+          header={{
+            title: 'Ferramentas Cadastradas',
+            count: { filtered: filteredProducts.length, total: products.length },
+            searchValue: searchQuery,
+            onSearchChange: setSearchQuery,
+            searchPlaceholder: 'Buscar por código ou nome...',
+            primaryAction: !isReadOnly ? {
+              label: 'Nova Ferramenta',
+              mobileLabel: 'Nova',
+              icon: Plus,
+              onClick: () => setIsFormOpen(true),
+            } : undefined,
+          }}
+        >
+          <ProductsTable products={filteredProducts} />
+        </DataCard>
 
         <FerramentaFormDialog 
           open={isFormOpen} 
           onOpenChange={setIsFormOpen}
         />
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }

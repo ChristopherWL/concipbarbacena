@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { useDirectorBranch } from '@/contexts/DirectorBranchContext';
+import { PageContainer } from '@/components/layout/PageContainer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users, 
@@ -13,6 +13,7 @@ import { EmployeesTab } from '@/components/hr/EmployeesTab';
 import { VacationsTab } from '@/components/hr/VacationsTab';
 import { LeavesTab } from '@/components/hr/LeavesTab';
 import { PayrollsTab } from '@/components/hr/PayrollsTab';
+import { useDirectorBranch } from '@/contexts/DirectorBranchContext';
 
 export default function RecursosHumanos() {
   const { isReadOnly } = useDirectorBranch();
@@ -20,49 +21,56 @@ export default function RecursosHumanos() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-3 px-2 sm:px-0" data-tour="hr-content">
+      <PageContainer>
         <PageHeader 
           title="Recursos Humanos" 
           description="Gestão de colaboradores, férias e folha de pagamento"
+          icon={<Users className="h-5 w-5" />}
         />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 mt-4">
-          <TabsList className="flex w-full h-auto p-2">
-            <TabsTrigger value="colaboradores" className="flex-1 flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
-              <Users className="h-4 w-4" />
-              <span>Colaboradores</span>
-            </TabsTrigger>
-            <TabsTrigger value="ferias" className="flex-1 flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
-              <Palmtree className="h-4 w-4" />
-              <span>Férias</span>
-            </TabsTrigger>
-            <TabsTrigger value="afastamentos" className="flex-1 flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
-              <FileText className="h-4 w-4" />
-              <span>Afastamentos</span>
-            </TabsTrigger>
-            <TabsTrigger value="folha" className="flex-1 flex flex-col gap-1 py-2 text-[10px] sm:text-xs">
-              <Calculator className="h-4 w-4" />
-              <span>Folha</span>
-            </TabsTrigger>
-          </TabsList>
+        {/* Tabs Container - Glassmorphism */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-info/20 rounded-xl sm:rounded-2xl blur-xl opacity-50 hidden sm:block" />
+          <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-xl">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-4 bg-muted/50">
+                <TabsTrigger value="colaboradores" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Users className="h-4 w-4" />
+                  <span>Colaboradores</span>
+                </TabsTrigger>
+                <TabsTrigger value="ferias" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Palmtree className="h-4 w-4" />
+                  <span>Férias</span>
+                </TabsTrigger>
+                <TabsTrigger value="afastamentos" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <FileText className="h-4 w-4" />
+                  <span>Afastamentos</span>
+                </TabsTrigger>
+                <TabsTrigger value="folha" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Calculator className="h-4 w-4" />
+                  <span>Folha</span>
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="colaboradores" className="mt-2">
-            <EmployeesTab isReadOnly={isReadOnly} />
-          </TabsContent>
+              <TabsContent value="colaboradores" className="mt-4 sm:mt-6">
+                <EmployeesTab isReadOnly={isReadOnly} />
+              </TabsContent>
 
-          <TabsContent value="ferias" className="mt-2">
-            <VacationsTab isReadOnly={isReadOnly} />
-          </TabsContent>
+              <TabsContent value="ferias" className="mt-4 sm:mt-6">
+                <VacationsTab isReadOnly={isReadOnly} />
+              </TabsContent>
 
-          <TabsContent value="afastamentos" className="mt-2">
-            <LeavesTab isReadOnly={isReadOnly} />
-          </TabsContent>
+              <TabsContent value="afastamentos" className="mt-4 sm:mt-6">
+                <LeavesTab isReadOnly={isReadOnly} />
+              </TabsContent>
 
-          <TabsContent value="folha" className="mt-2">
-            <PayrollsTab isReadOnly={isReadOnly} />
-          </TabsContent>
-        </Tabs>
-      </div>
+              <TabsContent value="folha" className="mt-4 sm:mt-6">
+                <PayrollsTab isReadOnly={isReadOnly} />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }
