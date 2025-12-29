@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import { 
   Calculator, 
-  DollarSign, 
   ClipboardCheck, 
   CheckCircle2, 
   AlertCircle,
@@ -25,17 +24,17 @@ import {
   Building2,
   CreditCard,
   Printer,
-  TrendingUp,
-  ArrowRight,
   Check,
   Clock,
-  Receipt
+  Receipt,
+  Plus
 } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import { PAYMENT_TYPE_LABELS, type PaymentType } from "@/types/serviceProviders";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { AssignProviderDialog } from "./AssignProviderDialog";
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -48,6 +47,7 @@ export function ServiceProviderPaymentsTab() {
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   const [selectedProviderId, setSelectedProviderId] = useState<string>("");
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   const { data: summary, isLoading: summaryLoading } = useServiceProviderPaymentSummary(
     selectedProviderId,
@@ -177,15 +177,27 @@ export function ServiceProviderPaymentsTab() {
               </Select>
             </div>
 
-            {selectedProviderId && (
-              <Button variant="outline" onClick={handlePrint} className="ml-auto print:hidden gap-2">
-                <Printer className="h-4 w-4" />
-                Imprimir
+            <div className="flex gap-2 ml-auto print:hidden">
+              <Button onClick={() => setAssignDialogOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Nova Atribuição
               </Button>
-            )}
+              {selectedProviderId && (
+                <Button variant="outline" onClick={handlePrint} className="gap-2">
+                  <Printer className="h-4 w-4" />
+                  Imprimir
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      <AssignProviderDialog 
+        open={assignDialogOpen} 
+        onOpenChange={setAssignDialogOpen}
+        providers={activeProviders}
+      />
 
       {!selectedProviderId ? (
         <Card className="border-dashed">
