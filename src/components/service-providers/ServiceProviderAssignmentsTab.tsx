@@ -30,8 +30,17 @@ export function ServiceProviderAssignmentsTab() {
   const [selectedProviderId, setSelectedProviderId] = useState<string>("");
   const { assignments, isLoading, markAsPaid } = useServiceProviderAssignments(selectedProviderId || undefined);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const activeProviders = providers.filter(p => p.is_active);
+  
+  // Paginação
+  const totalPages = Math.ceil(assignments.length / itemsPerPage);
+  const paginatedAssignments = assignments.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   if (isLoading) {
     return <TableSkeleton columns={6} rows={5} />;
@@ -86,7 +95,7 @@ export function ServiceProviderAssignmentsTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {assignments.map((assignment) => (
+                {paginatedAssignments.map((assignment) => (
                   <TableRow key={assignment.id}>
                     <TableCell>
                       <div>
@@ -153,6 +162,33 @@ export function ServiceProviderAssignmentsTab() {
                 ))}
               </TableBody>
             </Table>
+
+            {/* Paginação */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-4 border-t mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, assignments.length)} de {assignments.length}
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Anterior
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Próximo
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
