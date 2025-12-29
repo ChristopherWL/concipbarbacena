@@ -37,6 +37,8 @@ export function ServiceProvidersTab() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [providerToDelete, setProviderToDelete] = useState<ServiceProvider | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("active");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
   const filteredProviders = providers.filter((p) => {
     const matchesSearch = 
@@ -51,6 +53,13 @@ export function ServiceProvidersTab() {
     
     return matchesSearch && matchesStatus;
   });
+
+  // Paginação
+  const totalPages = Math.ceil(filteredProviders.length / itemsPerPage);
+  const paginatedProviders = filteredProviders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const activeCount = providers.filter(p => p.is_active).length;
   const inactiveCount = providers.filter(p => !p.is_active).length;
@@ -140,8 +149,9 @@ export function ServiceProvidersTab() {
           </CardContent>
         </Card>
       ) : (
+        <>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredProviders.map((provider) => {
+          {paginatedProviders.map((provider) => {
             const paymentInfo = getPaymentInfo(provider);
             return (
               <Card 
@@ -282,6 +292,34 @@ export function ServiceProvidersTab() {
             );
           })}
         </div>
+
+        {/* Paginação */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-4">
+            <p className="text-sm text-muted-foreground">
+              Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, filteredProviders.length)} de {filteredProviders.length}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Próximo
+              </Button>
+            </div>
+          </div>
+        )}
+        </>
       )}
 
       <ServiceProviderFormDialog
