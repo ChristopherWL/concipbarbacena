@@ -127,59 +127,59 @@ export function ServiceProviderPaymentsTab() {
 
   return (
     <div className="space-y-6">
-      {/* Cards Informativos Globais */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 animate-fade-in">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/20 rounded-xl">
-                <ClipboardCheck className="h-6 w-6 text-primary" />
+      {/* Cards Informativos Globais - Compactos */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 hover:shadow-md transition-all duration-200">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <ClipboardCheck className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="text-3xl font-bold">{globalStats.totalAssignments}</p>
-                <p className="text-sm text-muted-foreground">Total Atribuições</p>
+                <p className="text-xl font-bold">{globalStats.totalAssignments}</p>
+                <p className="text-xs text-muted-foreground">Atribuições</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/20 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 animate-fade-in" style={{ animationDelay: '50ms' }}>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-emerald-500/20 rounded-xl">
-                <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+        <Card className="bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/20 hover:shadow-md transition-all duration-200">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-emerald-500/20 rounded-lg">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
               </div>
               <div>
-                <p className="text-3xl font-bold">{formatCurrency(globalStats.paidAmount)}</p>
-                <p className="text-sm text-muted-foreground">Total Pago</p>
+                <p className="text-xl font-bold">{formatCurrency(globalStats.paidAmount)}</p>
+                <p className="text-xs text-muted-foreground">Pago</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border-amber-500/20 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 animate-fade-in" style={{ animationDelay: '100ms' }}>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-amber-500/20 rounded-xl">
-                <AlertCircle className="h-6 w-6 text-amber-500" />
+        <Card className="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border-amber-500/20 hover:shadow-md transition-all duration-200">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-amber-500/20 rounded-lg">
+                <AlertCircle className="h-4 w-4 text-amber-500" />
               </div>
               <div>
-                <p className="text-3xl font-bold">{formatCurrency(globalStats.pendingAmount)}</p>
-                <p className="text-sm text-muted-foreground">A Pagar</p>
+                <p className="text-xl font-bold">{formatCurrency(globalStats.pendingAmount)}</p>
+                <p className="text-xs text-muted-foreground">A Pagar</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent border-violet-500/20 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 animate-fade-in" style={{ animationDelay: '150ms' }}>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-violet-500/20 rounded-xl">
-                <Wallet className="h-6 w-6 text-violet-500" />
+        <Card className="bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent border-violet-500/20 hover:shadow-md transition-all duration-200">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-violet-500/20 rounded-lg">
+                <Wallet className="h-4 w-4 text-violet-500" />
               </div>
               <div>
-                <p className="text-3xl font-bold">{formatCurrency(globalStats.totalAmount)}</p>
-                <p className="text-sm text-muted-foreground">Total Geral</p>
+                <p className="text-xl font-bold">{formatCurrency(globalStats.totalAmount)}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
               </div>
             </div>
           </CardContent>
