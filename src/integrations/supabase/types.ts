@@ -3689,7 +3689,7 @@ export type Database = {
           paid_at: string | null
           payment_type: Database["public"]["Enums"]["payment_type"]
           rate_applied: number
-          service_order_id: string
+          service_order_id: string | null
           service_provider_id: string
           started_at: string | null
           tenant_id: string
@@ -3708,7 +3708,7 @@ export type Database = {
           paid_at?: string | null
           payment_type: Database["public"]["Enums"]["payment_type"]
           rate_applied: number
-          service_order_id: string
+          service_order_id?: string | null
           service_provider_id: string
           started_at?: string | null
           tenant_id: string
@@ -3727,7 +3727,7 @@ export type Database = {
           paid_at?: string | null
           payment_type?: Database["public"]["Enums"]["payment_type"]
           rate_applied?: number
-          service_order_id?: string
+          service_order_id?: string | null
           service_provider_id?: string
           started_at?: string | null
           tenant_id?: string
