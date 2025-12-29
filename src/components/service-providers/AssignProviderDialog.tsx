@@ -168,7 +168,6 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma</SelectItem>
                       {availableOrders.map((os) => (
                         <SelectItem key={os.id} value={os.id}>
                           #{os.order_number} - {os.title}
