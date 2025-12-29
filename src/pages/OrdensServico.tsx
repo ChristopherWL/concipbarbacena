@@ -6,7 +6,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useServiceOrders, useCreateServiceOrder, useUpdateServiceOrder, useCustomers, useCreateCustomer, useDeleteServiceOrder } from '@/hooks/useServiceOrders';
 import { useTeams } from '@/hooks/useTeams';
-import { useDiarioServiceOrders, useServiceOrderEtapas } from '@/hooks/useServiceOrderEtapas';
+import { useDiarioServiceOrders } from '@/hooks/useServiceOrderEtapas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +29,7 @@ import { SERVICE_ORDER_STATUS_LABELS, PRIORITY_LABELS, PRIORITY_COLORS, ServiceO
 import { Loader2, ClipboardList, Plus, UserPlus, Clock, CheckCircle, AlertTriangle, Search, Trash2, Settings, Edit, Calendar, MapPin, User, FileText, Upload, X, Image } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { toast } from 'sonner';
-import { ServiceOrderEtapasPanel } from '@/components/service-orders/ServiceOrderEtapasPanel';
+
 import { ServiceOrderEditDialog } from '@/components/service-orders/ServiceOrderEditDialog';
 import { ServiceOrderCardProgress } from '@/components/service-orders/ServiceOrderCardProgress';
 import { SignaturePad } from '@/components/ui/signature-pad';
@@ -68,8 +68,6 @@ export default function OrdensServico() {
   // Update (diário) form states
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [updateForm, setUpdateForm] = useState({
-    etapa: "",
-    etapaId: null as string | null,
     data: new Date().toISOString().split('T')[0],
     responsavel: "",
     descricao: "",
@@ -82,7 +80,6 @@ export default function OrdensServico() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Hooks for selected order
-  const { etapas: orderEtapas } = useServiceOrderEtapas(selectedOrder?.id);
   const { createDiario } = useDiarioServiceOrders(selectedOrder?.id);
 
 
@@ -152,8 +149,6 @@ export default function OrdensServico() {
     e?.stopPropagation();
     setSelectedOrder(order);
     setUpdateForm({
-      etapa: "",
-      etapaId: null,
       data: new Date().toISOString().split('T')[0],
       responsavel: "",
       descricao: "",
@@ -193,7 +188,7 @@ export default function OrdensServico() {
   };
 
   const handleSubmitUpdate = async () => {
-    if (!selectedOrder || !tenantId || !updateForm.etapaId || !updateForm.assinatura) {
+    if (!selectedOrder || !tenantId || !updateForm.assinatura) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
@@ -202,7 +197,7 @@ export default function OrdensServico() {
     try {
       await createDiario.mutateAsync({
         service_order_id: selectedOrder.id,
-        etapa_id: updateForm.etapaId,
+        etapa_id: null,
         tenant_id: tenantId,
         branch_id: shouldFilter ? branchId : null,
         data: updateForm.data,
@@ -425,12 +420,6 @@ export default function OrdensServico() {
                 </DialogTitle>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-6">
-                {selectedOrder && (
-                  <ServiceOrderEtapasPanel 
-                    serviceOrderId={selectedOrder.id} 
-                    isReadOnly={isReadOnly}
-                  />
-                )}
 
                 {/* Order Info */}
                 <Card>
@@ -483,31 +472,6 @@ export default function OrdensServico() {
                 </DialogDescription>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 min-h-0 space-y-4">
-                <div className="space-y-2">
-                  <Label>Etapa *</Label>
-                  {orderEtapas && orderEtapas.length > 0 ? (
-                    <Select
-                      value={updateForm.etapaId || ""}
-                      onValueChange={(v) => {
-                        const etapa = orderEtapas.find(e => e.id === v);
-                        setUpdateForm({ ...updateForm, etapaId: v, etapa: etapa?.nome || "" });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a etapa" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {orderEtapas.map(etapa => (
-                          <SelectItem key={etapa.id} value={etapa.id}>
-                            {etapa.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Nenhuma etapa cadastrada. Adicione etapas primeiro.</p>
-                  )}
-                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -610,7 +574,7 @@ export default function OrdensServico() {
                   </Button>
                   <Button
                     onClick={handleSubmitUpdate}
-                    disabled={isSubmitting || !updateForm.etapaId || !updateForm.assinatura}
+                    disabled={isSubmitting || !updateForm.assinatura}
                   >
                     {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     Salvar Atualização
