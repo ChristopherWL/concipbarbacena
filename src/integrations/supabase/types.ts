@@ -3859,6 +3859,8 @@ export type Database = {
           hourly_rate: number | null
           id: string
           is_active: boolean | null
+          monthly_due_day: number | null
+          monthly_payment_day: number | null
           monthly_rate: number | null
           name: string
           neighborhood: string | null
@@ -3895,6 +3897,8 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           is_active?: boolean | null
+          monthly_due_day?: number | null
+          monthly_payment_day?: number | null
           monthly_rate?: number | null
           name: string
           neighborhood?: string | null
@@ -3931,6 +3935,8 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           is_active?: boolean | null
+          monthly_due_day?: number | null
+          monthly_payment_day?: number | null
           monthly_rate?: number | null
           name?: string
           neighborhood?: string | null

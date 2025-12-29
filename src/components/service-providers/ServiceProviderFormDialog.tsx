@@ -58,6 +58,8 @@ const formSchema = z.object({
   hourly_rate: z.coerce.number().optional(),
   rate_per_os: z.coerce.number().optional(),
   monthly_rate: z.coerce.number().optional(),
+  monthly_due_day: z.coerce.number().min(1).max(31).optional(),
+  monthly_payment_day: z.coerce.number().min(1).max(31).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -110,6 +112,8 @@ export function ServiceProviderFormDialog({ open, onOpenChange, provider }: Prop
         hourly_rate: provider.hourly_rate || undefined,
         rate_per_os: provider.rate_per_os || undefined,
         monthly_rate: provider.monthly_rate || undefined,
+        monthly_due_day: (provider as any).monthly_due_day || undefined,
+        monthly_payment_day: (provider as any).monthly_payment_day || undefined,
       });
     } else {
       form.reset({
@@ -529,19 +533,49 @@ export function ServiceProviderFormDialog({ open, onOpenChange, provider }: Prop
                 )}
 
                 {paymentType === "mensal" && (
-                  <FormField
-                    control={form.control}
-                    name="monthly_rate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Valor Mensal (R$)</FormLabel>
-                        <FormControl>
-                          <Input type="number" step="0.01" placeholder="0,00" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="monthly_rate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Valor Mensal (R$)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.01" placeholder="0,00" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="monthly_due_day"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Dia de Vencimento</FormLabel>
+                            <FormControl>
+                              <Input type="number" min={1} max={31} placeholder="Ex: 10" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="monthly_payment_day"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Dia de Pagamento</FormLabel>
+                            <FormControl>
+                              <Input type="number" min={1} max={31} placeholder="Ex: 15" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </>
                 )}
               </TabsContent>
             </Tabs>

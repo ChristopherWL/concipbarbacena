@@ -38,6 +38,8 @@ export interface ServiceProvider {
   hourly_rate?: number;
   rate_per_os?: number;
   monthly_rate?: number;
+  monthly_due_day?: number;
+  monthly_payment_day?: number;
   is_active: boolean;
   photo_url?: string;
   created_at: string;
