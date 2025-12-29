@@ -150,142 +150,114 @@ export function ServiceProvidersTab() {
         </Card>
       ) : (
         <>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {paginatedProviders.map((provider) => {
-            const paymentInfo = getPaymentInfo(provider);
             return (
               <Card 
                 key={provider.id} 
-                className={`group relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
-                  !provider.is_active ? 'opacity-60 bg-muted/50' : ''
+                className={`group relative transition-all duration-300 hover:shadow-lg border-0 shadow-sm ${
+                  !provider.is_active ? 'opacity-60' : ''
                 }`}
               >
-                {/* Status indicator bar */}
-                <div className={`absolute top-0 left-0 right-0 h-1 ${
-                  provider.is_active ? 'bg-success' : 'bg-muted-foreground'
-                }`} />
-                
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="relative">
-                        <Avatar className="h-12 w-12 border-2 border-border">
-                          <AvatarImage src={provider.photo_url || undefined} />
-                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                            {provider.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        {/* Online/offline indicator */}
-                        <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card ${
-                          provider.is_active ? 'bg-success' : 'bg-muted-foreground'
-                        }`} />
-                      </div>
-                      <div className="min-w-0">
-                        <CardTitle className="text-base truncate">{provider.name}</CardTitle>
-                        <div className="flex items-center gap-2 mt-1">
-                          {provider.specialty && (
-                            <Badge variant="secondary" className="text-xs">
-                              {provider.specialty}
-                            </Badge>
-                          )}
-                          {!provider.is_active && (
-                            <Badge variant="outline" className="text-xs text-muted-foreground">
-                              Inativo
-                            </Badge>
-                          )}
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <Avatar className="h-12 w-12 rounded-xl bg-primary text-primary-foreground shrink-0">
+                      <AvatarImage src={provider.photo_url || undefined} className="rounded-xl" />
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg rounded-xl">
+                        {provider.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    {/* Info */}
+                    <div className="min-w-0 flex-1 space-y-2">
+                      {/* Name */}
+                      <h3 className="font-semibold text-foreground truncate text-base">
+                        {provider.name}
+                      </h3>
+
+                      {/* Document */}
+                      {provider.document && (
+                        <Badge variant="secondary" className="font-mono text-xs bg-muted/80">
+                          {provider.document}
+                        </Badge>
+                      )}
+
+                      {/* Specialty */}
+                      {provider.specialty && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Wrench className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{provider.specialty}</span>
                         </div>
-                      </div>
+                      )}
+
+                      {/* Location */}
+                      {(provider.city || provider.state) && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <MapPin className="h-4 w-4 shrink-0 text-orange-500" />
+                          <span className="truncate">
+                            {provider.city}{provider.city && provider.state ? '/' : ''}{provider.state}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Toggle Active */}
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Switch
-                            checked={provider.is_active}
-                            onCheckedChange={() => handleToggleActive(provider)}
-                            className="data-[state=checked]:bg-success"
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {provider.is_active ? 'Desativar prestador' : 'Ativar prestador'}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="space-y-3">
-                  {/* Contact Info */}
-                  <div className="space-y-1.5 text-sm">
-                    {provider.phone && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Phone className="h-3.5 w-3.5 shrink-0" />
-                        <a href={`tel:${provider.phone}`} className="hover:text-foreground transition-colors">
-                          {provider.phone}
-                        </a>
-                      </div>
-                    )}
-                    {provider.email && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Mail className="h-3.5 w-3.5 shrink-0" />
-                        <a href={`mailto:${provider.email}`} className="truncate hover:text-foreground transition-colors">
-                          {provider.email}
-                        </a>
-                      </div>
-                    )}
-                    {provider.city && provider.state && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5 shrink-0" />
-                        <span>{provider.city}/{provider.state}</span>
-                      </div>
-                    )}
+
+                    {/* Actions Menu */}
+                    <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleEdit(provider)}
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Editar</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={() => { setProviderToDelete(provider); setDeleteDialogOpen(true); }}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Excluir</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </div>
 
-                  {/* Payment Info */}
-                  <div className="flex items-center justify-between pt-3 border-t">
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">{paymentInfo.label}</span>
-                    </div>
-                    {paymentInfo.rate && (
-                      <Badge variant="default" className="bg-primary/10 text-primary hover:bg-primary/20">
-                        {formatCurrency(paymentInfo.rate)}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Bank Info Indicator */}
-                  {(provider.bank_name || provider.pix_key) && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Building2 className="h-3 w-3" />
-                      <span>
-                        {provider.bank_name ? `${provider.bank_name}` : ''}
-                        {provider.bank_name && provider.pix_key ? ' • ' : ''}
-                        {provider.pix_key ? 'PIX cadastrado' : ''}
+                  {/* Status Footer */}
+                  <div className="mt-4 pt-3 border-t border-border/50">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs ${provider.is_active ? 'text-muted-foreground' : 'text-muted-foreground/60'}`}>
+                        {provider.is_active ? 'Prestador ativo' : 'Prestador inativo'}
                       </span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Switch
+                              checked={provider.is_active}
+                              onCheckedChange={() => handleToggleActive(provider)}
+                              className="data-[state=checked]:bg-success scale-90"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {provider.is_active ? 'Desativar' : 'Ativar'}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-3 border-t">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleEdit(provider)}
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Editar
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => { setProviderToDelete(provider); setDeleteDialogOpen(true); }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
