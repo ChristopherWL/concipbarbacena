@@ -48,6 +48,7 @@ const formSchema = z.object({
   service_order_ref: z.string().max(50).optional(),
   payment_type: z.enum(["diaria", "hora", "por_os", "mensal"]),
   rate_applied: z.coerce.number().optional(),
+  payment_date: z.date({ required_error: "Data é obrigatória" }),
   date_range: z.object({
     from: z.date().optional(),
     to: z.date().optional(),
@@ -74,6 +75,7 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
     defaultValues: {
       payment_type: "diaria",
       rate_applied: 0,
+      payment_date: new Date(),
       date_range: { from: undefined, to: undefined },
     },
   });
@@ -221,6 +223,47 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
                   <FormControl>
                     <Input type="number" step="0.01" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="payment_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data do Pagamento *</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(field.value, "dd/MM/yyyy", { locale: ptBR })
+                          ) : (
+                            <span>Selecione a data</span>
+                          )}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        initialFocus
+                        locale={ptBR}
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
