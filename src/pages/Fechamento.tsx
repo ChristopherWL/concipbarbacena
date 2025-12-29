@@ -68,6 +68,8 @@ export default function Fechamento() {
   const [isClosingDialogOpen, setIsClosingDialogOpen] = useState(false);
   const [isReopenDialogOpen, setIsReopenDialogOpen] = useState(false);
   const [confirmClosingStep, setConfirmClosingStep] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<any | null>(null);
+  const [isCouponDetailsOpen, setIsCouponDetailsOpen] = useState(false);
   const [showSupplierDetails, setShowSupplierDetails] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -644,7 +646,14 @@ export default function Fechamento() {
                       </TableHeader>
                       <TableBody>
                         {paginatedCoupons.map((coupon: any) => (
-                          <TableRow key={coupon.id}>
+                          <TableRow 
+                            key={coupon.id}
+                            className="cursor-pointer hover:bg-muted/50 transition-colors"
+                            onClick={() => {
+                              setSelectedCoupon(coupon);
+                              setIsCouponDetailsOpen(true);
+                            }}
+                          >
                             <TableCell className="font-medium">
                               {coupon.coupon_number}
                             </TableCell>
@@ -973,6 +982,77 @@ export default function Fechamento() {
                   <Unlock className="h-4 w-4 mr-2" />
                 )}
                 Reabrir Mês
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Coupon Details Dialog */}
+        <Dialog open={isCouponDetailsOpen} onOpenChange={setIsCouponDetailsOpen}>
+          <DialogContent className="max-w-md mx-2 sm:mx-auto">
+            <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
+              <DialogTitle className="text-primary-foreground">Detalhes do Cupom</DialogTitle>
+              <DialogDescription className="text-primary-foreground/80">
+                Informações do cupom fiscal
+              </DialogDescription>
+            </DialogHeader>
+            {selectedCoupon && (
+              <div className="space-y-4 py-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs">Número do Cupom</Label>
+                    <p className="font-semibold">{selectedCoupon.coupon_number || '-'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs">Data de Emissão</Label>
+                    <p className="font-semibold">
+                      {format(new Date(selectedCoupon.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-muted-foreground text-xs">Fornecedor</Label>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <p className="font-semibold">{(selectedCoupon.supplier as any)?.name || '-'}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-muted-foreground text-xs">CNPJ do Fornecedor</Label>
+                  <p className="font-medium text-muted-foreground">
+                    {(selectedCoupon.supplier as any)?.cnpj || '-'}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-muted-foreground text-xs">Valor Total</Label>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatCurrency(selectedCoupon.total_value)}
+                  </p>
+                </div>
+
+                {selectedCoupon.notes && (
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs">Observações</Label>
+                    <p className="text-sm bg-muted p-3 rounded-lg">
+                      {selectedCoupon.notes}
+                    </p>
+                  </div>
+                )}
+
+                <div className="space-y-1 pt-2 border-t">
+                  <Label className="text-muted-foreground text-xs">Data de Cadastro</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {format(new Date(selectedCoupon.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  </p>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCouponDetailsOpen(false)}>
+                Fechar
               </Button>
             </DialogFooter>
           </DialogContent>
