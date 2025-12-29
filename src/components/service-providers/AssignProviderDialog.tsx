@@ -17,6 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -25,19 +26,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { CalendarIcon } from "lucide-react";
 import type { ServiceProvider, PaymentType } from "@/types/serviceProviders";
 import { PAYMENT_TYPE_LABELS } from "@/types/serviceProviders";
 import { formatCurrency } from "@/lib/formatters";
+import { format, differenceInDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
 
 const formSchema = z.object({
   service_provider_id: z.string().min(1, "Selecione um prestador"),
   service_order_id: z.string().optional(),
   payment_type: z.enum(["diaria", "hora", "por_os", "mensal"]),
   rate_applied: z.coerce.number().optional(),
-  days_worked: z.coerce.number().optional(),
+  date_range: z.object({
+    from: z.date().optional(),
+    to: z.date().optional(),
+  }).optional(),
   hours_worked: z.coerce.number().optional(),
   notes: z.string().optional(),
 });
@@ -54,20 +69,26 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
   const { assignToOrder } = useServiceProviderAssignments();
   const { data: serviceOrders = [] } = useServiceOrders();
 
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       payment_type: "diaria",
       rate_applied: 0,
-      days_worked: 1,
+      date_range: { from: undefined, to: undefined },
     },
   });
 
   const selectedProviderId = form.watch("service_provider_id");
   const paymentType = form.watch("payment_type");
   const rateApplied = form.watch("rate_applied");
-  const daysWorked = form.watch("days_worked");
   const hoursWorked = form.watch("hours_worked");
+
+  // Calculate days from date range
+  const daysWorked = dateRange?.from && dateRange?.to 
+    ? differenceInDays(dateRange.to, dateRange.from) + 1 
+    : dateRange?.from ? 1 : 0;
 
   // Atualiza valores quando prestador é selecionado
   useEffect(() => {
@@ -89,13 +110,13 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
 
   // Calcula valor total
   const calculateTotal = () => {
-    if (paymentType === "diaria" && daysWorked) {
-      return rateApplied * daysWorked;
+    if (paymentType === "diaria" && daysWorked > 0) {
+      return (rateApplied || 0) * daysWorked;
     }
     if (paymentType === "hora" && hoursWorked) {
-      return rateApplied * hoursWorked;
+      return (rateApplied || 0) * hoursWorked;
     }
-    return rateApplied;
+    return rateApplied || 0;
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -105,11 +126,12 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
         service_order_id: values.service_order_id,
         payment_type: values.payment_type as PaymentType,
         rate_applied: values.rate_applied,
-        days_worked: values.days_worked,
+        days_worked: daysWorked > 0 ? daysWorked : undefined,
         hours_worked: values.hours_worked,
         notes: values.notes,
       });
       form.reset();
+      setDateRange(undefined);
       onOpenChange(false);
     } catch (error) {
       // Error handled by hook
@@ -222,19 +244,51 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
             />
 
             {paymentType === "diaria" && (
-              <FormField
-                control={form.control}
-                name="days_worked"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dias Trabalhados</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <FormItem className="flex flex-col">
+                <FormLabel>Período de Trabalho</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dateRange?.from && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateRange?.from ? (
+                        dateRange.to ? (
+                          <>
+                            {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} -{" "}
+                            {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+                          </>
+                        ) : (
+                          format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
+                        )
+                      ) : (
+                        <span>Selecione o período</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={dateRange?.from}
+                      selected={dateRange}
+                      onSelect={setDateRange}
+                      numberOfMonths={2}
+                      locale={ptBR}
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                {daysWorked > 0 && (
+                  <FormDescription>
+                    {daysWorked} {daysWorked === 1 ? "dia" : "dias"} selecionado{daysWorked > 1 ? "s" : ""}
+                  </FormDescription>
                 )}
-              />
+              </FormItem>
             )}
 
             {paymentType === "hora" && (
