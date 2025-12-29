@@ -488,7 +488,12 @@ export default function Fechamento() {
               )}
               <Button 
                 variant="outline" 
-                onClick={() => setIsCouponDialogOpen(true)}
+                onClick={() => {
+                  if (selectedSupplier) {
+                    setCouponForm(prev => ({ ...prev, supplier_id: selectedSupplier }));
+                  }
+                  setIsCouponDialogOpen(true);
+                }}
                 disabled={isMonthClosed}
               >
                 <Plus className="h-4 w-4 mr-2" />
