@@ -2,9 +2,8 @@ import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, ClipboardList, Calculator } from "lucide-react";
+import { Users, Calculator } from "lucide-react";
 import { ServiceProvidersTab } from "@/components/service-providers/ServiceProvidersTab";
-import { ServiceProviderAssignmentsTab } from "@/components/service-providers/ServiceProviderAssignmentsTab";
 import { ServiceProviderPaymentsTab } from "@/components/service-providers/ServiceProviderPaymentsTab";
 
 export default function Prestadores() {
@@ -24,7 +23,7 @@ export default function Prestadores() {
         <div className="relative max-w-7xl mx-auto space-y-4 sm:space-y-8 p-3 sm:p-6">
           <PageHeader
             title="Prestadores de Serviço"
-            description="Cadastro, atribuição de OS e controle de pagamentos"
+            description="Cadastro e controle de pagamentos"
           />
 
           {/* Tabs Container - Glassmorphism */}
@@ -32,14 +31,10 @@ export default function Prestadores() {
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-info/20 rounded-xl sm:rounded-2xl blur-xl opacity-50 hidden sm:block" />
             <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-xl">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-3 max-w-md bg-muted/50">
+                <TabsList className="grid w-full grid-cols-2 max-w-sm bg-muted/50">
                   <TabsTrigger value="providers" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <Users className="h-4 w-4" />
                     <span className="hidden sm:inline">Cadastro</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="assignments" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    <ClipboardList className="h-4 w-4" />
-                    <span className="hidden sm:inline">Atribuições</span>
                   </TabsTrigger>
                   <TabsTrigger value="payments" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <Calculator className="h-4 w-4" />
@@ -49,10 +44,6 @@ export default function Prestadores() {
 
                 <TabsContent value="providers" className="mt-6">
                   <ServiceProvidersTab />
-                </TabsContent>
-
-                <TabsContent value="assignments" className="mt-6">
-                  <ServiceProviderAssignmentsTab />
                 </TabsContent>
 
                 <TabsContent value="payments" className="mt-6">
