@@ -26,7 +26,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { SERVICE_ORDER_STATUS_LABELS, PRIORITY_LABELS, PRIORITY_COLORS, ServiceOrderStatus, PriorityLevel, ServiceOrder } from '@/types/serviceOrders';
-import { Loader2, ClipboardList, Plus, UserPlus, Clock, CheckCircle, AlertTriangle, Search, Trash2, Settings, Edit, Calendar, MapPin, User, FileText, Upload, X, Image } from 'lucide-react';
+import { Loader2, ClipboardList, Plus, UserPlus, Clock, CheckCircle, AlertTriangle, Search, Trash2, Settings, Edit, Calendar, MapPin, User, FileText, Upload, X, Image, Download } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { toast } from 'sonner';
 
@@ -35,6 +35,7 @@ import { ServiceOrderCardProgress } from '@/components/service-orders/ServiceOrd
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { supabase } from '@/integrations/supabase/client';
 import { useBranchFilter } from '@/hooks/useBranchFilter';
+import { exportServiceOrderPDF } from '@/lib/exportServiceOrderPDF';
 
 export default function OrdensServico() {
   const navigate = useNavigate();
@@ -253,6 +254,20 @@ export default function OrdensServico() {
     } finally {
       setIsCompleting(false);
     }
+  };
+
+  const handleDownloadPDF = (order: ServiceOrder) => {
+    const companyInfo = {
+      name: tenant?.name || 'Empresa',
+      cnpj: tenant?.cnpj || undefined,
+      address: tenant?.address || undefined,
+      city: tenant?.city || undefined,
+      state: tenant?.state || undefined,
+      phone: tenant?.phone || undefined,
+      email: tenant?.email || undefined,
+    };
+    exportServiceOrderPDF(order, companyInfo);
+    toast.success('PDF gerado com sucesso!');
   };
 
   const getStatusIcon = (status: ServiceOrderStatus) => {
@@ -486,24 +501,33 @@ export default function OrdensServico() {
                   </CardContent>
                 </Card>
 
-                {!isReadOnly && (
-                  <div className="flex justify-end gap-2">
-                    <Button onClick={() => handleOpenUpdateDialog(selectedOrder!)}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Registrar Atualização
-                    </Button>
-                    {selectedOrder?.status !== 'concluida' && (
-                      <Button 
-                        variant="default"
-                        className="bg-success hover:bg-success/90"
-                        onClick={(e) => handleOpenCompleteDialog(selectedOrder!, e)}
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Concluir O.S.
+                <div className="flex justify-end gap-2 flex-wrap">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleDownloadPDF(selectedOrder!)}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Baixar PDF
+                  </Button>
+                  {!isReadOnly && (
+                    <>
+                      <Button onClick={() => handleOpenUpdateDialog(selectedOrder!)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Registrar Atualização
                       </Button>
-                    )}
-                  </div>
-                )}
+                      {selectedOrder?.status !== 'concluida' && (
+                        <Button 
+                          variant="default"
+                          className="bg-success hover:bg-success/90"
+                          onClick={(e) => handleOpenCompleteDialog(selectedOrder!, e)}
+                        >
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Concluir O.S.
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </DialogContent>
