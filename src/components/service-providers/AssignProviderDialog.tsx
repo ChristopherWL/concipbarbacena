@@ -34,9 +34,9 @@ import { formatCurrency } from "@/lib/formatters";
 
 const formSchema = z.object({
   service_provider_id: z.string().min(1, "Selecione um prestador"),
-  service_order_id: z.string().min(1, "Selecione uma OS"),
+  service_order_id: z.string().optional(),
   payment_type: z.enum(["diaria", "hora", "por_os", "mensal"]),
-  rate_applied: z.coerce.number().min(0, "Valor inválido"),
+  rate_applied: z.coerce.number().optional(),
   days_worked: z.coerce.number().optional(),
   hours_worked: z.coerce.number().optional(),
   notes: z.string().optional(),
@@ -160,14 +160,15 @@ export function AssignProviderDialog({ open, onOpenChange, providers }: Props) {
               name="service_order_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ordem de Serviço *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <FormLabel>Ordem de Serviço</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione a OS" />
+                        <SelectValue placeholder="Selecione a OS (opcional)" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="">Nenhuma</SelectItem>
                       {availableOrders.map((os) => (
                         <SelectItem key={os.id} value={os.id}>
                           #{os.order_number} - {os.title}
