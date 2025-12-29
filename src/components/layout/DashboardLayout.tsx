@@ -2194,7 +2194,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* Content centered with equal padding */}
-          <div className="p-3 sm:p-4 pb-20 sm:pb-24 lg:p-8 lg:pt-16 lg:pb-8 print:p-0">
+          <div className="p-3 sm:p-4 pb-20 sm:pb-24 lg:p-8 lg:pt-10 lg:pb-8 print:p-0">
             <div className="max-w-7xl mx-auto">
               <PageTransition>
                 {children}
