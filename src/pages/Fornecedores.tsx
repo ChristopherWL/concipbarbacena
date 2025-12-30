@@ -44,8 +44,15 @@ import {
 import { PageHeader } from '@/components/layout/PageHeader';
 import { PageLoading } from '@/components/ui/page-loading';
 import { TablePagination, usePagination } from '@/components/ui/table-pagination';
-import { Supplier } from '@/types/stock';
+import { Supplier, SupplierCategory, SUPPLIER_CATEGORY_LABELS } from '@/types/stock';
 import { formatCNPJ, formatPhone } from '@/lib/formatters';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface SupplierFormData {
   name: string;
@@ -57,6 +64,7 @@ interface SupplierFormData {
   city: string;
   state: string;
   notes: string;
+  category: SupplierCategory;
 }
 
 const initialFormData: SupplierFormData = {
@@ -69,6 +77,7 @@ const initialFormData: SupplierFormData = {
   city: '',
   state: '',
   notes: '',
+  category: 'geral',
 };
 
 export default function Fornecedores() {
@@ -99,6 +108,7 @@ export default function Fornecedores() {
         city: editingSupplier.city || '',
         state: editingSupplier.state || '',
         notes: editingSupplier.notes || '',
+        category: (editingSupplier.category as SupplierCategory) || 'geral',
       });
     } else {
       setFormData(initialFormData);
@@ -326,9 +336,12 @@ export default function Fornecedores() {
                       </div>
                       
                       {/* Footer */}
-                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50">
+                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50 flex items-center justify-between">
+                        <Badge variant="outline" className="text-[10px] sm:text-xs">
+                          {SUPPLIER_CATEGORY_LABELS[(supplier.category as SupplierCategory) || 'geral']}
+                        </Badge>
                         <span className="text-[10px] sm:text-xs text-muted-foreground">
-                          Fornecedor ativo
+                          Ativo
                         </span>
                       </div>
                     </div>
@@ -377,6 +390,27 @@ export default function Fornecedores() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
+              <div className="space-y-2">
+                <Label>Categoria <span className="text-destructive">*</span></Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value: SupplierCategory) => setFormData({ ...formData, category: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(SUPPLIER_CATEGORY_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>CNPJ</Label>
                 <Input

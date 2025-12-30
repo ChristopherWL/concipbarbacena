@@ -4203,6 +4203,7 @@ export type Database = {
         Row: {
           address: string | null
           branch_id: string | null
+          category: string | null
           city: string | null
           cnpj: string | null
           contact_name: string | null
@@ -4220,6 +4221,7 @@ export type Database = {
         Insert: {
           address?: string | null
           branch_id?: string | null
+          category?: string | null
           city?: string | null
           cnpj?: string | null
           contact_name?: string | null
@@ -4237,6 +4239,7 @@ export type Database = {
         Update: {
           address?: string | null
           branch_id?: string | null
+          category?: string | null
           city?: string | null
           cnpj?: string | null
           contact_name?: string | null
