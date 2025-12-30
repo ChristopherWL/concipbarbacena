@@ -414,27 +414,17 @@ export default function Auth() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Voltar</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center">
             {branding?.logo_url ? (
-              <img src={branding.logo_url} alt={branding.name} className="h-8 w-auto" />
+              <img src={branding.logo_url} alt={branding.name} className="h-10 w-auto" />
             ) : (
               <div 
-                className="flex items-center justify-center w-8 h-8 rounded-lg"
+                className="flex items-center justify-center w-10 h-10 rounded-lg"
                 style={{ background: theme.gradientPrimary }}
               >
-                <Building2 className="w-4 h-4 text-white" />
+                <Building2 className="w-5 h-5 text-white" />
               </div>
             )}
-            <span 
-              className="font-semibold"
-              style={{ 
-                background: theme.gradientPrimary,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}
-            >
-              {branding?.name || 'Sistema'}
-            </span>
           </div>
         </div>
 
