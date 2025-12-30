@@ -28,10 +28,11 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { MAINTENANCE_STATUS_LABELS, MAINTENANCE_TYPE_LABELS, MaintenanceStatus, MaintenanceType, Vehicle, Maintenance, FuelLog } from '@/types/fleet';
-import { Loader2, Truck, Plus, Wrench, AlertTriangle, CheckCircle, Clock, Trash2, Fuel, TrendingUp, Printer, Pencil } from 'lucide-react';
+import { Loader2, Truck, Plus, Wrench, AlertTriangle, CheckCircle, Clock, Trash2, Fuel, TrendingUp, Printer, Pencil, FileText, ClipboardList } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { toast } from 'sonner';
 import { FuelOrderReport } from '@/components/fleet/FuelOrderReport';
+import { FuelRecordReport } from '@/components/fleet/FuelRecordReport';
 
 export default function Frota() {
   const navigate = useNavigate();
@@ -59,9 +60,12 @@ export default function Frota() {
   const [maintenanceToDelete, setMaintenanceToDelete] = useState<Maintenance | null>(null);
   const [fuelLogToDelete, setFuelLogToDelete] = useState<FuelLog | null>(null);
   const [fuelLogToPrint, setFuelLogToPrint] = useState<FuelLog | null>(null);
+  const [fuelLogToRecord, setFuelLogToRecord] = useState<FuelLog | null>(null);
   const [vehicleToPrint, setVehicleToPrint] = useState<Vehicle | null>(null);
+  const [vehicleToRecord, setVehicleToRecord] = useState<Vehicle | null>(null);
   const [selectedFuelLogForPrint, setSelectedFuelLogForPrint] = useState<FuelLog | null>(null);
   const fuelLogPrintRef = useRef<HTMLDivElement>(null);
+  const fuelLogRecordRef = useRef<HTMLDivElement>(null);
   const vehiclePrintRef = useRef<HTMLDivElement>(null);
   const [vehicleForm, setVehicleForm] = useState({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '' });
   const [maintenanceForm, setMaintenanceForm] = useState({ vehicle_id: '', maintenance_type: 'preventiva' as MaintenanceType, description: '', scheduled_date: '', cost: '0' });
@@ -205,7 +209,7 @@ export default function Frota() {
               .company-info { text-align: right; }
               .company-name { font-size: 20px; font-weight: bold; text-transform: uppercase; }
               .company-cnpj { font-size: 14px; }
-              .title-box { background: #e5e5e5; text-align: center; padding: 8px; margin-bottom: 24px; border: 1px solid black; }
+              .title-box { background: #dbeafe; text-align: center; padding: 8px; margin-bottom: 24px; border: 1px solid black; }
               .title-box h2 { font-size: 18px; font-weight: bold; }
               .field-row { display: flex; gap: 8px; margin-bottom: 8px; }
               .field-label { font-weight: 600; font-size: 14px; white-space: nowrap; }
@@ -214,7 +218,7 @@ export default function Frota() {
               .vehicle-fields { display: flex; gap: 32px; margin-top: 8px; }
               table { width: 100%; border-collapse: collapse; margin: 24px 0 32px 0; }
               th, td { border: 1px solid black; padding: 8px; font-size: 14px; text-align: left; }
-              th { background: #f0f0f0; }
+              th { background: #eff6ff; }
               td.text-right, th.text-right { text-align: right; }
               .signature-section { margin-top: 48px; }
               .signature-row { display: flex; gap: 8px; margin-bottom: 32px; }
@@ -229,6 +233,63 @@ export default function Frota() {
           </head>
           <body>
             ${ref.current.innerHTML}
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 250);
+      }
+    }
+  };
+
+  const handlePrintFuelRecord = () => {
+    if (fuelLogRecordRef.current) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Registro de Abastecimento</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: Arial, sans-serif; background: white; color: black; }
+              .report-container { padding: 32px; width: 210mm; min-height: 297mm; margin: 0 auto; }
+              .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid black; padding-bottom: 16px; margin-bottom: 16px; }
+              .logo-container { width: 96px; }
+              .logo-container img { width: 100%; height: auto; }
+              .logo-placeholder { width: 80px; height: 80px; background: #e5e5e5; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666; }
+              .company-info { text-align: right; }
+              .company-name { font-size: 20px; font-weight: bold; text-transform: uppercase; }
+              .company-cnpj { font-size: 14px; }
+              .title-box { background: #dcfce7; text-align: center; padding: 8px; margin-bottom: 24px; border: 1px solid black; }
+              .title-box h2 { font-size: 18px; font-weight: bold; }
+              .field-row { display: flex; gap: 8px; margin-bottom: 8px; }
+              .field-label { font-weight: 600; font-size: 14px; white-space: nowrap; }
+              .field-value { border-bottom: 1px solid black; flex: 1; font-size: 14px; padding-left: 4px; }
+              .field-value-fixed { border-bottom: 1px solid black; font-size: 14px; padding: 0 16px; }
+              .vehicle-fields { display: flex; gap: 32px; margin-top: 8px; }
+              table { width: 100%; border-collapse: collapse; margin: 24px 0 32px 0; }
+              th, td { border: 1px solid black; padding: 8px; font-size: 14px; text-align: left; }
+              th { background: #f0fdf4; }
+              td.text-right, th.text-right { text-align: right; }
+              .signature-section { margin-top: 48px; }
+              .signature-row { display: flex; gap: 8px; margin-bottom: 32px; }
+              .signature-label { font-weight: 600; font-size: 14px; }
+              .signature-line { border-bottom: 1px solid black; flex: 1; height: 48px; }
+              .footer { margin-top: 48px; text-align: center; font-size: 14px; color: #666; }
+              @media print { 
+                body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } 
+                .report-container { padding: 16px; }
+              }
+            </style>
+          </head>
+          <body>
+            ${fuelLogRecordRef.current.innerHTML}
           </body>
           </html>
         `);
@@ -471,13 +532,25 @@ export default function Frota() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-primary"
+                                className="h-8 w-8 text-blue-600"
+                                title="Gerar Ordem de Abastecimento"
                                 onClick={() => {
                                   setVehicleToPrint(v);
                                   setSelectedFuelLogForPrint(null);
                                 }}
                               >
-                                <Printer className="h-4 w-4" />
+                                <FileText className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-green-600"
+                                title="Ver Registros de Abastecimento"
+                                onClick={() => {
+                                  setVehicleToRecord(v);
+                                }}
+                              >
+                                <ClipboardList className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="ghost"
@@ -546,8 +619,11 @@ export default function Frota() {
                               {!isReadOnly && (
                                 <TableCell className="py-2">
                                   <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => { setVehicleToPrint(v); setSelectedFuelLogForPrint(null); }}>
-                                      <Printer className="h-4 w-4" />
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-blue-600" title="Gerar Ordem" onClick={() => { setVehicleToPrint(v); setSelectedFuelLogForPrint(null); }}>
+                                      <FileText className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600" title="Ver Registros" onClick={() => { setVehicleToRecord(v); }}>
+                                      <ClipboardList className="h-4 w-4" />
                                     </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditVehicle(v)}>
                                       <Pencil className="h-4 w-4" />
@@ -588,7 +664,7 @@ export default function Frota() {
                           <TableHead className="hidden lg:table-cell text-right">R$/L</TableHead>
                           <TableHead className="text-right">Total</TableHead>
                           <TableHead className="hidden xl:table-cell">Comb.</TableHead>
-                          {isAdmin() && !isReadOnly && <TableHead className="w-12"></TableHead>}
+                          <TableHead className="w-24">Ações</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -605,13 +681,21 @@ export default function Frota() {
                             <TableCell className="hidden lg:table-cell text-right text-sm py-2">R$ {f.price_per_liter.toFixed(2)}</TableCell>
                             <TableCell className="text-right font-semibold text-sm py-2">R$ {f.total_cost.toFixed(2)}</TableCell>
                             <TableCell className="hidden xl:table-cell"><Badge variant="outline" className="text-xs">{f.fuel_type || '-'}</Badge></TableCell>
-                            {isAdmin() && !isReadOnly && (
-                              <TableCell className="py-2">
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setFuelLogToDelete(f)}>
-                                  <Trash2 className="h-4 w-4" />
+                            <TableCell className="py-2">
+                              <div className="flex gap-1">
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-blue-600" title="Ver Ordem" onClick={() => setFuelLogToPrint(f)}>
+                                  <FileText className="h-4 w-4" />
                                 </Button>
-                              </TableCell>
-                            )}
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600" title="Ver Registro" onClick={() => setFuelLogToRecord(f)}>
+                                  <ClipboardList className="h-4 w-4" />
+                                </Button>
+                                {isAdmin() && !isReadOnly && (
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setFuelLogToDelete(f)}>
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -963,6 +1047,97 @@ export default function Frota() {
                   
                   <div className="flex justify-end mt-4">
                     <Button variant="outline" onClick={() => { setVehicleToPrint(null); setSelectedFuelLogForPrint(null); }}>Fechar</Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Fuel Record Dialog (from fuel log) */}
+        <Dialog open={!!fuelLogToRecord} onOpenChange={(open) => !open && setFuelLogToRecord(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+            <DialogHeader className="bg-green-600 rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
+              <DialogTitle className="text-white">Registro de Abastecimento</DialogTitle>
+              <DialogDescription className="text-white/80">Visualize e imprima o registro de abastecimento</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div ref={fuelLogRecordRef}>
+                {fuelLogToRecord && fuelLogToRecord.vehicle && (
+                  <FuelRecordReport
+                    vehicle={fuelLogToRecord.vehicle}
+                    fuelLog={fuelLogToRecord}
+                    recordNumber={getFuelLogOrderNumber(fuelLogToRecord)}
+                  />
+                )}
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" onClick={() => setFuelLogToRecord(null)}>Fechar</Button>
+                <Button onClick={handlePrintFuelRecord} className="bg-green-600 hover:bg-green-700"><Printer className="h-4 w-4 mr-2" />Imprimir</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Fuel Records Dialog (from vehicle) - Shows all fuel logs for records */}
+        <Dialog open={!!vehicleToRecord} onOpenChange={(open) => { if (!open) { setVehicleToRecord(null); } }}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+            <DialogHeader className="bg-green-600 rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
+              <DialogTitle className="text-white">Registros de Abastecimento - {vehicleToRecord?.plate}</DialogTitle>
+              <DialogDescription className="text-white/80">
+                {vehicleToRecord ? `${vehicleToRecord.brand} ${vehicleToRecord.model}` : ''}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {vehicleToRecord && (
+                <>
+                  {(() => {
+                    const vehicleFuelLogs = fuelLogs.filter(f => f.vehicle_id === vehicleToRecord.id)
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                    
+                    if (vehicleFuelLogs.length === 0) {
+                      return (
+                        <div className="text-center py-8">
+                          <Fuel className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                          <p className="text-muted-foreground">Nenhum abastecimento registrado para este veículo</p>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground font-medium">Selecione um abastecimento para visualizar o registro:</p>
+                        <div className="max-h-[400px] overflow-y-auto border rounded-lg divide-y bg-background">
+                          {vehicleFuelLogs.map((log) => (
+                            <div 
+                              key={log.id} 
+                              className="p-3 cursor-pointer hover:bg-green-50 dark:hover:bg-green-950/20 transition-colors flex justify-between items-center gap-2"
+                              onClick={() => {
+                                setVehicleToRecord(null);
+                                setFuelLogToRecord(log);
+                              }}
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-sm">{new Date(log.date).toLocaleDateString('pt-BR')}</p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {log.liters.toFixed(2)}L • R$ {log.total_cost.toFixed(2)}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {log.km_at_fill.toLocaleString()} km
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="flex-shrink-0 border-green-500 text-green-600">
+                                #{getFuelLogOrderNumber(log)}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                  
+                  <div className="flex justify-end mt-4">
+                    <Button variant="outline" onClick={() => { setVehicleToRecord(null); }}>Fechar</Button>
                   </div>
                 </>
               )}
