@@ -76,14 +76,26 @@ export default function RelatorioAtualizacaoObra() {
       } else {
         setDiario(data as unknown as DiarioData);
 
-        // Pre-resolve signed URLs for any stored paths (private bucket)
+        // Use existing signed URLs from database when available
+        // Only create new signed URLs for paths without existing urls
         const fotos = ((data as any)?.fotos || []) as Array<any>;
-        const paths = fotos
-          .map((f) => (typeof f === "object" ? f?.path : null))
-          .filter(Boolean) as string[];
+        const urlMap: Record<string, string> = {};
+        const pathsNeedingSigning: string[] = [];
 
-        if (paths.length) {
-          const unique = Array.from(new Set(paths));
+        for (const foto of fotos) {
+          if (typeof foto === "object" && foto?.path) {
+            // If foto already has a valid signed URL, use it directly
+            if (foto?.url && foto.url.includes("token=")) {
+              urlMap[foto.path] = foto.url;
+            } else {
+              pathsNeedingSigning.push(foto.path);
+            }
+          }
+        }
+
+        // Only fetch new signed URLs for paths that don't have one
+        if (pathsNeedingSigning.length > 0) {
+          const unique = Array.from(new Set(pathsNeedingSigning));
           const entries = await Promise.all(
             unique.map(async (path) => {
               const { data: signed } = await supabase.storage
@@ -93,14 +105,12 @@ export default function RelatorioAtualizacaoObra() {
             })
           );
 
-          setSignedUrlByPath((prev) => {
-            const next = { ...prev };
-            for (const [path, url] of entries) {
-              if (url) next[path] = url;
-            }
-            return next;
-          });
+          for (const [path, url] of entries) {
+            if (url) urlMap[path] = url;
+          }
         }
+
+        setSignedUrlByPath(urlMap);
         
         // Fetch branch data
         const branchId = (data as any)?.branch_id || (data as any)?.obra?.branch_id;
