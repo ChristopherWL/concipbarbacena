@@ -355,9 +355,9 @@ export default function GenericLandingPage() {
               <span 
                 className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6 border"
                 style={{ 
-                  backgroundColor: 'rgba(197, 160, 89, 0.2)', 
-                  borderColor: theme.accentGold,
-                  color: theme.accentGold 
+                  backgroundColor: 'rgba(135, 206, 250, 0.3)', 
+                  borderColor: '#87CEEB',
+                  color: '#FFFFFF' 
                 }}
               >
                 {content.badge}
