@@ -818,8 +818,8 @@ export default function GenericLandingPage() {
         />
 
         <div className="max-w-6xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-10 sm:mb-16">
+          {/* Section Header with Call Center Info */}
+          <div className="text-center mb-8 sm:mb-12">
             <span 
               className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
               style={{ color: theme.neonPurple }}
@@ -829,62 +829,88 @@ export default function GenericLandingPage() {
             <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4">
               ABRA SEU <span style={{ color: theme.accentCyan }}>CHAMADO</span>
             </h2>
-            <p className="text-white/70 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
-              Identificou um problema na iluminação pública? Registre sua ocorrência e nossa equipe irá atender prontamente.
+            <p className="text-white/70 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto mb-6">
+              Identificou um problema na iluminação pública? Registre sua ocorrência ou ligue para nosso Call Center.
             </p>
+
+            {/* Compact Call Center Banner */}
+            <div 
+              className="inline-flex flex-col sm:flex-row items-center gap-3 sm:gap-6 p-4 sm:p-5 rounded-xl"
+              style={{ 
+                backgroundColor: 'rgba(9, 132, 227, 0.1)',
+                border: `1px solid ${theme.neonBlue}30`,
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: `${theme.neonBlue}30` }}
+                >
+                  <Phone className="w-5 h-5" style={{ color: theme.accentCyan }} />
+                </div>
+                <div className="text-left">
+                  <p className="text-white/60 text-xs uppercase tracking-wider">Ligue Grátis</p>
+                  <p className="text-lg sm:text-xl font-bold" style={{ color: theme.accentCyan }}>
+                    0800-006-1737
+                  </p>
+                </div>
+              </div>
+              
+              <div className="hidden sm:block w-px h-10 bg-white/10" />
+              
+              <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" style={{ color: theme.neonPurple }} />
+                  <span className="text-white/70">Seg-Sex: <span className="text-white">7:30-23:00</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" style={{ color: theme.neonPurple }} />
+                  <span className="text-white/70">Sáb: <span className="text-white">8:00-20:00</span></span>
+                </div>
+              </div>
+
+              <div className="hidden sm:block w-px h-10 bg-white/10" />
+
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <Globe className="w-4 h-4" style={{ color: theme.neonPurple }} />
+                <span className="text-white/70">App <span className="text-white">Cidade Iluminada</span></span>
+              </div>
+            </div>
           </div>
 
-          {/* Info Cards */}
-          <div className="grid sm:grid-cols-3 gap-4 mb-10">
+          {/* Compact Info Cards */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">
             <div 
-              className="p-4 sm:p-6 rounded-xl text-center"
+              className="p-3 sm:p-4 rounded-lg sm:rounded-xl text-center"
               style={{ 
                 backgroundColor: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
             >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                style={{ backgroundColor: `${theme.neonBlue}20` }}
-              >
-                <MapPin className="w-6 h-6" style={{ color: theme.neonBlue }} />
-              </div>
-              <h4 className="text-white font-semibold mb-1">Localize no Mapa</h4>
-              <p className="text-white/60 text-sm">Clique no mapa para marcar a localização exata</p>
+              <MapPin className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: theme.neonBlue }} />
+              <h4 className="text-white font-semibold text-xs sm:text-sm">Localize no Mapa</h4>
             </div>
 
             <div 
-              className="p-4 sm:p-6 rounded-xl text-center"
+              className="p-3 sm:p-4 rounded-lg sm:rounded-xl text-center"
               style={{ 
                 backgroundColor: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
             >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                style={{ backgroundColor: `${theme.neonPurple}20` }}
-              >
-                <AlertCircle className="w-6 h-6" style={{ color: theme.neonPurple }} />
-              </div>
-              <h4 className="text-white font-semibold mb-1">Informe a Plaqueta</h4>
-              <p className="text-white/60 text-sm">Todo poste possui uma plaqueta de identificação</p>
+              <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: theme.neonPurple }} />
+              <h4 className="text-white font-semibold text-xs sm:text-sm">Informe a Plaqueta</h4>
             </div>
 
             <div 
-              className="p-4 sm:p-6 rounded-xl text-center"
+              className="p-3 sm:p-4 rounded-lg sm:rounded-xl text-center"
               style={{ 
                 backgroundColor: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
             >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                style={{ backgroundColor: `${theme.accentCyan}20` }}
-              >
-                <Zap className="w-6 h-6" style={{ color: theme.accentCyan }} />
-              </div>
-              <h4 className="text-white font-semibold mb-1">Atendimento Rápido</h4>
-              <p className="text-white/60 text-sm">Acompanhe o status da sua solicitação</p>
+              <Zap className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: theme.accentCyan }} />
+              <h4 className="text-white font-semibold text-xs sm:text-sm">Atendimento Rápido</h4>
             </div>
           </div>
 
