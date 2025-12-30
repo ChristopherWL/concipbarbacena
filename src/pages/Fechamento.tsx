@@ -84,27 +84,37 @@ export default function Fechamento() {
     notes: '',
   });
 
-  // Check if month is closed
-  const { data: closedMonth } = useQuery({
-    queryKey: ['fechamento_mensal', tenant?.id, selectedMonth, selectedYear],
+  // Fetch all closed suppliers for this month/year
+  const { data: closedSuppliers = [] } = useQuery({
+    queryKey: ['fechamentos_mensais', tenant?.id, selectedMonth, selectedYear],
     queryFn: async () => {
-      if (!tenant?.id) return null;
+      if (!tenant?.id) return [];
       
       const { data, error } = await supabase
         .from('fechamentos_mensais')
-        .select('*')
+        .select('*, supplier:suppliers(id, name)')
         .eq('tenant_id', tenant.id)
         .eq('reference_month', selectedMonth)
-        .eq('reference_year', selectedYear)
-        .maybeSingle();
+        .eq('reference_year', selectedYear);
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!tenant?.id,
   });
 
-  const isMonthClosed = !!closedMonth;
+  // Check if a specific supplier is closed
+  const isSupplierClosed = (supplierId: string) => {
+    return closedSuppliers.some((f: any) => f.supplier_id === supplierId);
+  };
+
+  // Get closed record for a supplier
+  const getClosedRecord = (supplierId: string) => {
+    return closedSuppliers.find((f: any) => f.supplier_id === supplierId);
+  };
+
+  // Check if selected supplier is closed
+  const isSelectedSupplierClosed = selectedSupplier ? isSupplierClosed(selectedSupplier) : false;
 
   // Fetch fiscal coupons from fiscal_coupons table (NOT invoices)
   const { data: coupons, isLoading } = useQuery({
@@ -181,76 +191,86 @@ export default function Fechamento() {
       toast.error('Preencha o valor do cupom');
       return;
     }
-    if (isMonthClosed) {
+    if (isSupplierClosed(couponForm.supplier_id)) {
       toast.error('Este mês já está fechado. Não é possível lançar novos cupons.');
       return;
     }
     createCoupon.mutate(couponForm);
   };
 
-  // Close month mutation
-  const closeMonth = useMutation({
-    mutationFn: async () => {
+  // Close supplier month mutation
+  const closeSupplierMonth = useMutation({
+    mutationFn: async (supplierId: string) => {
       if (!tenant?.id) throw new Error('Tenant não encontrado');
+      
+      const supplierData = supplierGroups.find(g => g.supplier.id === supplierId);
+      if (!supplierData) throw new Error('Fornecedor não encontrado');
       
       const { error } = await supabase
         .from('fechamentos_mensais')
         .insert({
           tenant_id: tenant.id,
+          supplier_id: supplierId,
           reference_month: selectedMonth,
           reference_year: selectedYear,
-          total_value: totalValue,
-          suppliers_count: supplierGroups.length,
-          coupons_count: coupons?.length || 0,
+          total_value: supplierData.total,
+          coupons_count: supplierData.coupons.length,
         });
       
       if (error) throw error;
+      return supplierData;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fechamento_mensal'] });
+    onSuccess: (supplierData) => {
+      queryClient.invalidateQueries({ queryKey: ['fechamentos_mensais'] });
       const monthName = months.find(m => m.value === selectedMonth)?.label;
-      toast.success(`Mês fechado com sucesso!`, {
-        description: `${monthName}/${selectedYear} - Total: ${formatCurrency(totalValue)} (${supplierGroups.length} fornecedores)`,
+      toast.success(`Fornecedor fechado com sucesso!`, {
+        description: `${supplierData.supplier.name} - ${monthName}/${selectedYear} - ${formatCurrency(supplierData.total)}`,
         duration: 5000,
       });
       setIsClosingDialogOpen(false);
-      setShowSupplierDetails(false);
     },
     onError: (error) => {
-      toast.error('Erro ao fechar mês: ' + error.message);
+      toast.error('Erro ao fechar fornecedor: ' + error.message);
     },
   });
 
-  const handleCloseMonth = () => {
-    if (isMonthClosed) {
-      toast.error('Este mês já está fechado.');
+  const handleCloseSupplier = () => {
+    if (!selectedSupplier) {
+      toast.error('Selecione um fornecedor para fechar.');
       return;
     }
-    closeMonth.mutate();
+    if (isSelectedSupplierClosed) {
+      toast.error('Este fornecedor já está fechado neste mês.');
+      return;
+    }
+    closeSupplierMonth.mutate(selectedSupplier);
   };
 
-  // Reopen month mutation
-  const reopenMonth = useMutation({
-    mutationFn: async () => {
-      if (!tenant?.id || !closedMonth?.id) throw new Error('Fechamento não encontrado');
+  // Reopen supplier month mutation
+  const reopenSupplierMonth = useMutation({
+    mutationFn: async (supplierId: string) => {
+      const closedRecord = getClosedRecord(supplierId);
+      if (!tenant?.id || !closedRecord?.id) throw new Error('Fechamento não encontrado');
       
       const { error } = await supabase
         .from('fechamentos_mensais')
         .delete()
-        .eq('id', closedMonth.id);
+        .eq('id', closedRecord.id);
       
       if (error) throw error;
+      return supplierId;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fechamento_mensal'] });
+    onSuccess: (supplierId) => {
+      queryClient.invalidateQueries({ queryKey: ['fechamentos_mensais'] });
+      const supplierData = supplierGroups.find(g => g.supplier.id === supplierId);
       const monthName = months.find(m => m.value === selectedMonth)?.label;
-      toast.success(`Mês reaberto com sucesso!`, {
-        description: `${monthName}/${selectedYear} está disponível para novos lançamentos.`,
+      toast.success(`Fornecedor reaberto com sucesso!`, {
+        description: `${supplierData?.supplier.name || 'Fornecedor'} - ${monthName}/${selectedYear} está disponível para novos lançamentos.`,
       });
       setIsReopenDialogOpen(false);
     },
     onError: (error) => {
-      toast.error('Erro ao reabrir mês: ' + error.message);
+      toast.error('Erro ao reabrir fornecedor: ' + error.message);
     },
   });
 
@@ -404,12 +424,24 @@ export default function Fechamento() {
             {selectedSupplier ? (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-xl bg-sidebar-primary/20 flex items-center justify-center">
-                    <Building2 className="h-8 w-8 text-sidebar-primary" />
+                  <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
+                    isSelectedSupplierClosed 
+                      ? 'bg-green-500/20' 
+                      : 'bg-sidebar-primary/20'
+                  }`}>
+                    {isSelectedSupplierClosed ? (
+                      <Lock className="h-8 w-8 text-green-400" />
+                    ) : (
+                      <Building2 className="h-8 w-8 text-sidebar-primary" />
+                    )}
                   </div>
                   <div>
-                    <p className="text-xs text-sidebar-foreground/60 uppercase tracking-wide">
-                      Fornecedor
+                    <p className={`text-xs uppercase tracking-wide ${
+                      isSelectedSupplierClosed 
+                        ? 'text-green-400 font-semibold' 
+                        : 'text-sidebar-foreground/60'
+                    }`}>
+                      {isSelectedSupplierClosed ? 'FECHADO' : 'Fornecedor'}
                     </p>
                     <p className="text-xl font-semibold">
                       {selectedSupplierData?.supplier.name}
@@ -439,12 +471,17 @@ export default function Fechamento() {
                     <Receipt className="h-10 w-10 text-sidebar-primary" />
                   </div>
                   <div>
-                    <p className={`text-xs uppercase tracking-wider ${isMonthClosed ? 'text-green-400 font-semibold' : 'text-sidebar-foreground/60'}`}>
-                      {isMonthClosed ? 'FECHADO' : 'Fechamento'}
+                    <p className="text-xs uppercase tracking-wider text-sidebar-foreground/60">
+                      Fechamento
                     </p>
                     <p className="text-2xl font-semibold">
                       {months.find(m => m.value === selectedMonth)?.label} de {selectedYear}
                     </p>
+                    {closedSuppliers.length > 0 && (
+                      <p className="text-xs text-green-400 mt-1">
+                        {closedSuppliers.length} fornecedor(es) fechado(s)
+                      </p>
+                    )}
                   </div>
                 </div>
                 
@@ -503,14 +540,14 @@ export default function Fechamento() {
 
           {!isReadOnly && (
             <div className="flex flex-wrap items-center gap-2">
-              {isMonthClosed && (
+              {selectedSupplier && isSelectedSupplierClosed && (
                 <Badge 
                   variant="secondary" 
                   className="bg-green-100 text-green-700 border-green-300 cursor-pointer hover:bg-green-200 transition-colors"
                   onClick={() => setIsReopenDialogOpen(true)}
                 >
                   <Lock className="h-3 w-3 mr-1" />
-                  Mês Fechado
+                  Fornecedor Fechado
                 </Badge>
               )}
               <Button 
@@ -521,15 +558,15 @@ export default function Fechamento() {
                   }
                   setIsCouponDialogOpen(true);
                 }}
-                disabled={isMonthClosed}
+                disabled={selectedSupplier ? isSelectedSupplierClosed : false}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Lançar Cupom
               </Button>
-              {!isMonthClosed && (
+              {selectedSupplier && !isSelectedSupplierClosed && (
                 <Button onClick={() => setIsClosingDialogOpen(true)}>
                   <Lock className="h-4 w-4 mr-2" />
-                  Fechar Mês
+                  Fechar Fornecedor
                 </Button>
               )}
             </div>
@@ -584,30 +621,46 @@ export default function Fechamento() {
                       </p>
                     ) : (
                       <>
-                        {paginatedSidebarSuppliers.map((group) => (
-                          <button
-                            key={group.supplier.id}
-                            onClick={() => setSelectedSupplier(group.supplier.id)}
-                            className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between ${
-                              selectedSupplier === group.supplier.id 
-                                ? 'bg-primary text-primary-foreground' 
-                                : 'hover:bg-muted'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <Building2 className="h-4 w-4 shrink-0" />
-                              <span className="text-sm font-medium truncate">
-                                {group.supplier.name}
-                              </span>
-                            </div>
-                            <Badge 
-                              variant={selectedSupplier === group.supplier.id ? "secondary" : "outline"} 
-                              className="ml-2 shrink-0"
+                        {paginatedSidebarSuppliers.map((group) => {
+                          const isClosed = isSupplierClosed(group.supplier.id);
+                          return (
+                            <button
+                              key={group.supplier.id}
+                              onClick={() => setSelectedSupplier(group.supplier.id)}
+                              className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between ${
+                                selectedSupplier === group.supplier.id 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : isClosed
+                                    ? 'bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
+                                    : 'hover:bg-muted'
+                              }`}
                             >
-                              {group.coupons.length}
-                            </Badge>
-                          </button>
-                        ))}
+                              <div className="flex items-center gap-2 min-w-0">
+                                {isClosed ? (
+                                  <Lock className={`h-4 w-4 shrink-0 ${selectedSupplier === group.supplier.id ? '' : 'text-green-600 dark:text-green-400'}`} />
+                                ) : (
+                                  <Building2 className="h-4 w-4 shrink-0" />
+                                )}
+                                <span className="text-sm font-medium truncate">
+                                  {group.supplier.name}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 ml-2 shrink-0">
+                                {isClosed && selectedSupplier !== group.supplier.id && (
+                                  <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs px-1">
+                                    Fechado
+                                  </Badge>
+                                )}
+                                <Badge 
+                                  variant={selectedSupplier === group.supplier.id ? "secondary" : "outline"} 
+                                  className="shrink-0"
+                                >
+                                  {group.coupons.length}
+                                </Badge>
+                              </div>
+                            </button>
+                          );
+                        })}
                       </>
                     )}
                   </div>
@@ -877,10 +930,10 @@ export default function Fechamento() {
           <DialogContent className="max-w-lg mx-2 sm:mx-auto">
             <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
               <DialogTitle className="text-primary-foreground">
-                {confirmClosingStep ? 'Confirmar Fechamento' : 'Fechar Mês'}
+                {confirmClosingStep ? 'Confirmar Fechamento' : 'Fechar Fornecedor'}
               </DialogTitle>
               <DialogDescription className="text-primary-foreground/80">
-                {confirmClosingStep ? 'Esta ação não pode ser desfeita facilmente' : 'Confirme o fechamento do período'}
+                {confirmClosingStep ? 'Esta ação não pode ser desfeita facilmente' : 'Confirme o fechamento do fornecedor'}
               </DialogDescription>
             </DialogHeader>
             
@@ -891,13 +944,16 @@ export default function Fechamento() {
                     <Lock className="h-8 w-8 text-destructive" />
                   </div>
                   <p className="text-lg font-semibold">
-                    Tem certeza que deseja fechar o mês?
+                    Tem certeza que deseja fechar este fornecedor?
                   </p>
                   <p className="text-muted-foreground text-sm mt-2">
-                    {months.find(m => m.value === selectedMonth)?.label}/{selectedYear} - {formatCurrency(totalValue)}
+                    {selectedSupplierData?.supplier.name} - {months.find(m => m.value === selectedMonth)?.label}/{selectedYear}
+                  </p>
+                  <p className="text-lg font-bold text-primary mt-2">
+                    {formatCurrency(selectedSupplierData?.total)}
                   </p>
                   <p className="text-sm text-muted-foreground mt-4">
-                    Após o fechamento, não será possível lançar novos cupons neste período.
+                    Após o fechamento, não será possível lançar novos cupons para este fornecedor neste período.
                   </p>
                 </div>
               </div>
@@ -905,56 +961,22 @@ export default function Fechamento() {
               <div className="py-4 space-y-4">
                 <div className="text-center">
                   <p className="text-lg font-semibold">
-                    {months.find(m => m.value === selectedMonth)?.label} de {selectedYear}
+                    {selectedSupplierData?.supplier.name}
                   </p>
                   <p className="text-muted-foreground text-sm mt-1">
-                    {supplierGroups.length} fornecedores • {coupons?.length || 0} cupons
+                    {months.find(m => m.value === selectedMonth)?.label} de {selectedYear} • {selectedSupplierData?.coupons.length || 0} cupons
                   </p>
                 </div>
                 
                 <div className="bg-sidebar rounded-lg p-4 text-center">
-                  <p className="text-sm text-sidebar-foreground/60">Total Geral</p>
+                  <p className="text-sm text-sidebar-foreground/60">Total do Fornecedor</p>
                   <p className="text-3xl font-bold text-sidebar-primary">
-                    {formatCurrency(totalValue)}
+                    {formatCurrency(selectedSupplierData?.total)}
                   </p>
                 </div>
                 
-                {/* Supplier List Toggle */}
-                {supplierGroups.length > 0 && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setShowSupplierDetails(!showSupplierDetails)}
-                      className="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors"
-                    >
-                      <span className="text-sm font-medium">Detalhes por fornecedor</span>
-                      {showSupplierDetails ? (
-                        <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </button>
-                    
-                    {showSupplierDetails && (
-                      <div className="divide-y max-h-[200px] overflow-y-auto">
-                        {supplierGroups.map((group) => (
-                          <div key={group.supplier.id} className="flex items-center justify-between px-4 py-3">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                              <span className="text-sm font-medium truncate">{group.supplier.name}</span>
-                              <Badge variant="outline" className="shrink-0">{group.coupons.length}</Badge>
-                            </div>
-                            <span className="text-sm font-semibold text-primary ml-2">
-                              {formatCurrency(group.total)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-                
                 <p className="text-sm text-muted-foreground text-center">
-                  Após o fechamento, os dados do período não poderão ser alterados.
+                  Após o fechamento, os dados deste fornecedor no período não poderão ser alterados.
                 </p>
               </div>
             )}
@@ -970,10 +992,10 @@ export default function Fechamento() {
                 {confirmClosingStep ? 'Voltar' : 'Cancelar'}
               </Button>
               {confirmClosingStep ? (
-                <Button variant="destructive" onClick={handleCloseMonth} disabled={closeMonth.isPending}>
-                  {closeMonth.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                <Button variant="destructive" onClick={handleCloseSupplier} disabled={closeSupplierMonth.isPending}>
+                  {closeSupplierMonth.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                   <Lock className="h-4 w-4 mr-2" />
-                  Fechar Mês
+                  Fechar Fornecedor
                 </Button>
               ) : (
                 <Button onClick={() => setConfirmClosingStep(true)}>
@@ -985,18 +1007,18 @@ export default function Fechamento() {
           </DialogContent>
         </Dialog>
 
-        {/* Reopen Month Confirmation Dialog */}
+        {/* Reopen Supplier Confirmation Dialog */}
         <Dialog open={isReopenDialogOpen} onOpenChange={setIsReopenDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Reabrir Mês</DialogTitle>
+              <DialogTitle>Reabrir Fornecedor</DialogTitle>
               <DialogDescription>
-                Tem certeza que deseja reabrir {months.find(m => m.value === selectedMonth)?.label}/{selectedYear}?
+                Tem certeza que deseja reabrir {selectedSupplierData?.supplier.name} em {months.find(m => m.value === selectedMonth)?.label}/{selectedYear}?
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
               <p className="text-sm text-muted-foreground">
-                Ao reabrir o mês, será possível lançar novos cupons e fazer alterações nos dados do período.
+                Ao reabrir o fornecedor, será possível lançar novos cupons e fazer alterações nos dados do período.
               </p>
             </div>
             <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
@@ -1005,15 +1027,15 @@ export default function Fechamento() {
               </Button>
               <Button 
                 variant="destructive"
-                onClick={() => reopenMonth.mutate()}
-                disabled={reopenMonth.isPending}
+                onClick={() => selectedSupplier && reopenSupplierMonth.mutate(selectedSupplier)}
+                disabled={reopenSupplierMonth.isPending}
               >
-                {reopenMonth.isPending ? (
+                {reopenSupplierMonth.isPending ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
                   <Unlock className="h-4 w-4 mr-2" />
                 )}
-                Reabrir Mês
+                Reabrir Fornecedor
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1083,7 +1105,7 @@ export default function Fechamento() {
               </div>
             )}
             <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
-              {!isMonthClosed && (
+              {selectedCoupon && !isSupplierClosed((selectedCoupon.supplier as any)?.id) && (
                 <Button 
                   variant="destructive" 
                   onClick={() => selectedCoupon && deleteCoupon.mutate(selectedCoupon.id)}

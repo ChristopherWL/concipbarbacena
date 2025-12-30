@@ -1128,6 +1128,7 @@ export type Database = {
           id: string
           reference_month: number
           reference_year: number
+          supplier_id: string | null
           suppliers_count: number | null
           tenant_id: string
           total_value: number | null
@@ -1140,6 +1141,7 @@ export type Database = {
           id?: string
           reference_month: number
           reference_year: number
+          supplier_id?: string | null
           suppliers_count?: number | null
           tenant_id: string
           total_value?: number | null
@@ -1152,11 +1154,19 @@ export type Database = {
           id?: string
           reference_month?: number
           reference_year?: number
+          supplier_id?: string | null
           suppliers_count?: number | null
           tenant_id?: string
           total_value?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fechamentos_mensais_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fechamentos_mensais_tenant_id_fkey"
             columns: ["tenant_id"]
