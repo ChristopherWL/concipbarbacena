@@ -73,15 +73,15 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   'globe': Globe,
 };
 
-// Theme colors from template
+// Futuristic theme colors
 const theme = {
-  primaryBlue: '#002B49',
-  secondaryBlue: '#004e80',
-  accentGold: '#C5A059',
-  accentGoldHover: '#b08d4b',
-  textDark: '#1A1A1A',
-  textGray: '#666666',
-  bgLight: '#F8F9FA',
+  neonBlue: '#0984E3',
+  neonPurple: '#6C5CE7',
+  accentCyan: '#00d2ff',
+  darkBg: '#050b14',
+  darkBgSecondary: '#0A1F3D',
+  glassBg: 'rgba(255, 255, 255, 0.05)',
+  borderColor: 'rgba(255, 255, 255, 0.1)',
   white: '#FFFFFF',
 };
 
@@ -91,7 +91,6 @@ export default function GenericLandingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -127,10 +126,10 @@ export default function GenericLandingPage() {
             logoUrl: data.logo_url || generic.logoUrl || '',
             logoDarkUrl: generic.logoDarkUrl || '',
             badge: generic.badge || 'Soluções em Tecnologia',
-            heroTitle: generic.heroTitle || 'Infraestrutura',
-            heroTitleHighlight: generic.heroTitleHighlight || 'Tecnológica Completa',
-            heroDescription: generic.heroDescription || 'Especialistas em Iluminação Pública, Redes Wi-Fi, Sistemas de Câmeras, Link Dedicado e Usinas Fotovoltaicas.',
-            ctaPrimary: generic.ctaPrimary || 'Acessar Sistema',
+            heroTitle: generic.heroTitle || 'ILUMINANDO O',
+            heroTitleHighlight: generic.heroTitleHighlight || 'FUTURO DE BARBACENA',
+            heroDescription: generic.heroDescription || 'Parceria Público-Privada avançada entregando iluminação urbana de última geração, conectividade e infraestrutura de monitoramento inteligente para um amanhã mais seguro e brilhante.',
+            ctaPrimary: generic.ctaPrimary || 'Iniciar Transformação',
             ctaSecondary: generic.ctaSecondary || '',
             stats: generic.stats || [],
             showStats: generic.showStats !== false,
@@ -140,8 +139,8 @@ export default function GenericLandingPage() {
             showFeatures: generic.showFeatures !== false,
             ctaTitle: generic.ctaTitle || 'Pronto para transformar sua gestão?',
             ctaDescription: generic.ctaDescription || 'Acesse agora e descubra como podemos ajudar seu negócio a crescer.',
-            primaryColor: data.primary_color || generic.primaryColor || theme.primaryBlue,
-            secondaryColor: data.secondary_color || generic.secondaryColor || theme.secondaryBlue,
+            primaryColor: data.primary_color || generic.primaryColor || theme.neonBlue,
+            secondaryColor: data.secondary_color || generic.secondaryColor || theme.neonPurple,
           });
         } else {
           setContent({
@@ -149,47 +148,47 @@ export default function GenericLandingPage() {
             companySubtitle: '',
             logoUrl: '',
             logoDarkUrl: '',
-            badge: 'Soluções em Tecnologia',
-            heroTitle: 'Infraestrutura',
-            heroTitleHighlight: 'Tecnológica Completa',
-            heroDescription: 'Especialistas em Iluminação Pública, Redes Wi-Fi, Sistemas de Câmeras, Link Dedicado e Usinas Fotovoltaicas.',
-            ctaPrimary: 'Acessar Sistema',
+            badge: 'Soluções para Cidades Inteligentes',
+            heroTitle: 'ILUMINANDO O',
+            heroTitleHighlight: 'FUTURO DE BARBACENA',
+            heroDescription: 'Parceria Público-Privada avançada entregando iluminação urbana de última geração, conectividade e infraestrutura de monitoramento inteligente para um amanhã mais seguro e brilhante.',
+            ctaPrimary: 'Iniciar Transformação',
             ctaSecondary: '',
             stats: [],
-            showStats: false,
+            showStats: true,
             modules: [],
             features: [],
-            showModules: false,
+            showModules: true,
             showFeatures: false,
-            ctaTitle: 'Pronto para transformar sua gestão?',
-            ctaDescription: 'Acesse agora e descubra como podemos ajudar.',
-            primaryColor: theme.primaryBlue,
-            secondaryColor: theme.secondaryBlue,
+            ctaTitle: '',
+            ctaDescription: '',
+            primaryColor: theme.neonBlue,
+            secondaryColor: theme.neonPurple,
           });
         }
       } catch (error) {
         console.error('Error fetching landing page content:', error);
         setContent({
-          companyName: 'Sistema ERP',
+          companyName: 'LUMINA PPP',
           companySubtitle: '',
           logoUrl: '',
           logoDarkUrl: '',
-          badge: 'Soluções em Tecnologia',
-          heroTitle: 'Infraestrutura',
-          heroTitleHighlight: 'Tecnológica Completa',
-          heroDescription: 'Especialistas em Iluminação Pública, Redes Wi-Fi, Sistemas de Câmeras, Link Dedicado e Usinas Fotovoltaicas.',
-          ctaPrimary: 'Acessar Sistema',
+          badge: 'Soluções para Cidades Inteligentes',
+          heroTitle: 'ILUMINANDO O',
+          heroTitleHighlight: 'FUTURO DE BARBACENA',
+          heroDescription: 'Parceria Público-Privada avançada entregando iluminação urbana de última geração, conectividade e infraestrutura de monitoramento inteligente para um amanhã mais seguro e brilhante.',
+          ctaPrimary: 'Iniciar Transformação',
           ctaSecondary: '',
           stats: [],
-          showStats: false,
+          showStats: true,
           modules: [],
           features: [],
-          showModules: false,
+          showModules: true,
           showFeatures: false,
-          ctaTitle: 'Pronto para transformar sua gestão?',
-          ctaDescription: 'Acesse agora e descubra como podemos ajudar.',
-          primaryColor: theme.primaryBlue,
-          secondaryColor: theme.secondaryBlue,
+          ctaTitle: '',
+          ctaDescription: '',
+          primaryColor: theme.neonBlue,
+          secondaryColor: theme.neonPurple,
         });
       } finally {
         setIsLoading(false);
@@ -212,209 +211,297 @@ export default function GenericLandingPage() {
   };
 
   const navItems = [
-    { label: 'Início', id: 'hero' },
     { label: 'Serviços', id: 'services' },
-    { label: 'Projetos', id: 'gallery' },
+    { label: 'Projetos', id: 'projects' },
+    { label: 'Tecnologia', id: 'technology' },
     { label: 'Sobre', id: 'about' },
   ];
 
   const defaultServices = [
-    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Modernização do parque de iluminação com tecnologia LED de alta eficiência, reduzindo custos operacionais e aumentando a luminosidade das vias.' },
-    { icon: Building2, title: 'Gestão de PPP', description: 'Estruturação e gestão completa de Parcerias Público-Privadas, garantindo viabilidade econômica, jurídica e técnica para o município.' },
-    { icon: Camera, title: 'Câmeras Wi-Fi', description: 'Sistemas de monitoramento urbano integrados à rede de iluminação, promovendo segurança pública inteligente e em tempo real.' },
-    { icon: Globe, title: 'Link Dedicado', description: 'Infraestrutura de conectividade robusta para órgãos públicos e serviços municipais, com alta disponibilidade e velocidade.' },
-    { icon: Sun, title: 'Usina Fotovoltaica (UFV)', description: 'Implantação de usinas solares para geração de energia limpa, abastecendo prédios públicos e reduzindo a pegada de carbono.' },
-    { icon: Radio, title: 'Iluminação Inteligente', description: 'Telegestão e sensores IoT integrados às luminárias, permitindo controle remoto, dimerização e manutenção preditiva.' },
+    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Sistemas de iluminação LED de alta eficiência com capacidades de gerenciamento remoto para garantir brilho e segurança ideais.' },
+    { icon: Building2, title: 'Gestão de PPP', description: 'Modelos sustentáveis de Parceria Público-Privada garantindo manutenção de longo prazo, modernização e eficiência operacional.' },
+    { icon: Camera, title: 'Câmeras Wi-Fi', description: 'Rede de câmeras de segurança integrada utilizando postes de iluminação para vigilância urbana aprimorada e monitoramento de tráfego.' },
+    { icon: Globe, title: 'Link Dedicado', description: 'Links de fibra óptica dedicados de alta velocidade conectando infraestrutura pública e permitindo transmissão de dados para cidades inteligentes.' },
+    { icon: Sun, title: 'Usina UFV', description: 'Integração de Usinas Fotovoltaicas para compensar o consumo de energia e promover o uso de energia renovável.' },
+    { icon: Radio, title: 'Iluminação Inteligente', description: 'Sensores inteligentes habilitados para IoT para iluminação adaptativa, monitoramento ambiental e alertas de manutenção preditiva.' },
   ];
 
   const stats = [
-    { value: '+50', label: 'Cidades Atendidas' },
-    { value: '+200k', label: 'Pontos de Luz' },
-    { value: '15', label: 'Anos de Experiência' },
+    { value: '12.000+', label: 'Pontos LED Inteligentes' },
+    { value: '24/7', label: 'Centro de Monitoramento' },
+    { value: '45%', label: 'Economia de Energia' },
+    { value: '100%', label: 'Cobertura da Cidade' },
   ];
 
   const galleryItems = [
-    { image: 'https://images.unsplash.com/photo-1617150119111-09bbb85611df?q=80&w=600&auto=format&fit=crop', title: 'Modernização LED', location: 'São Paulo, SP' },
-    { image: 'https://images.unsplash.com/photo-1495539406979-bf61750d38ad?q=80&w=600&auto=format&fit=crop', title: 'Iluminação Viária', location: 'Curitiba, PR' },
-    { image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=600&auto=format&fit=crop', title: 'Smart City Hub', location: 'Florianópolis, SC' },
-    { image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop', title: 'Centro de Controle', location: 'Belo Horizonte, MG' },
-    { image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=600&auto=format&fit=crop', title: 'Parque Solar', location: 'Recife, PE' },
-    { image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=600&auto=format&fit=crop', title: 'Revitalização Urbana', location: 'Porto Alegre, RS' },
+    { 
+      type: 'image', 
+      image: barbacenaHero, 
+      title: 'Centro de Barbacena', 
+      description: 'Transição LED Completa - 2023',
+      large: true 
+    },
+    { 
+      type: 'tech', 
+      icon: BarChart3, 
+      title: 'Centro de Controle', 
+      description: 'Dados em Tempo Real' 
+    },
+    { 
+      type: 'tech', 
+      icon: Wifi, 
+      title: 'Conectividade', 
+      description: '99.9% de Disponibilidade' 
+    },
+    { 
+      type: 'wide', 
+      icon: MapPin, 
+      title: 'Topologia da Rede Inteligente', 
+      description: 'Mapeamento otimizado da rede de distribuição de energia.',
+      progress: 75 
+    },
   ];
 
   return (
-    <div className="min-h-screen antialiased" style={{ backgroundColor: theme.white, color: theme.textDark, fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen antialiased" style={{ backgroundColor: theme.darkBg, color: theme.white, fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md ${
-          scrolled 
-            ? 'py-3 border-b border-white/10' 
-            : 'py-4'
-        }`}
-        style={{ backgroundColor: scrolled ? 'rgba(0, 43, 73, 0.95)' : 'rgba(0, 43, 73, 0.85)' }}
+        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 lg:px-16 py-6 sm:py-8 flex justify-between items-center"
+        style={{ background: 'linear-gradient(to bottom, rgba(5,11,20,0.9), transparent)' }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              {content.logoUrl ? (
-                <img src={content.logoUrl} alt={content.companyName} className="h-10 object-contain" />
-              ) : (
-                <>
-                  <Lightbulb className="w-8 h-8" style={{ color: theme.accentGold }} />
-                  <span className="font-bold text-2xl text-white">{content.companyName}</span>
-                </>
-              )}
-            </div>
-
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className="text-sm font-bold uppercase tracking-wide transition-colors text-white/80 hover:text-white"
-                >
-                  {item.label}
-                </button>
-              ))}
-              <Button
-                onClick={() => scrollToSection('contact')}
-                className="text-sm font-bold uppercase tracking-wide px-6 shadow-lg hover:shadow-xl transition-all duration-300"
-                style={{ backgroundColor: theme.white, color: theme.primaryBlue }}
-              >
-                Fale Conosco
-              </Button>
-            </nav>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-white"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
+        {/* Logo */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {content.logoUrl ? (
+            <img src={content.logoUrl} alt={content.companyName} className="h-8 sm:h-10 object-contain" />
+          ) : (
+            <>
+              <Lightbulb className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: theme.accentCyan }} />
+              <span className="font-bold text-xl sm:text-2xl text-white tracking-wider">
+                {content.companyName}
+                <span className="font-light opacity-80 ml-1">PPP</span>
+              </span>
+            </>
+          )}
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div 
-            className="md:hidden absolute top-full left-0 right-0 shadow-lg border-t"
-            style={{ backgroundColor: theme.white }}
-          >
-            <nav className="max-w-7xl mx-auto px-4 py-4 space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className="block w-full text-left px-4 py-3 text-sm font-bold uppercase rounded-lg transition-colors hover:bg-gray-100"
-                  style={{ color: theme.primaryBlue }}
-                >
-                  {item.label}
-                </button>
-              ))}
-              <div className="pt-4 space-y-3">
-                <Button
-                  onClick={() => { setMobileMenuOpen(false); scrollToSection('contact'); }}
-                  className="w-full font-bold uppercase text-sm py-3"
-                  style={{ backgroundColor: '#87CEEB', color: theme.white }}
-                >
-                  Fale Conosco
-                </Button>
-                <Button
-                  onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
-                  className="w-full font-bold uppercase text-sm py-3"
-                  style={{ backgroundColor: theme.primaryBlue, color: theme.white }}
-                >
-                  Acessar Sistema
-                </Button>
-              </div>
-            </nav>
-          </div>
-        )}
+        {/* Desktop Nav */}
+        <nav className="hidden lg:flex items-center gap-10">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => scrollToSection(item.id)}
+              className="text-sm font-medium uppercase tracking-widest transition-colors text-white/80 hover:text-white relative group"
+            >
+              {item.label}
+              <span 
+                className="absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full"
+                style={{ backgroundColor: theme.accentCyan }}
+              />
+            </button>
+          ))}
+        </nav>
+
+        {/* CTA Button Desktop */}
+        <button
+          onClick={() => navigate('/auth')}
+          className="hidden lg:flex items-center px-6 sm:px-8 py-3 font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:shadow-lg"
+          style={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: `1px solid ${theme.accentCyan}`,
+            color: theme.accentCyan,
+            clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = theme.accentCyan;
+            e.currentTarget.style.color = '#000';
+            e.currentTarget.style.boxShadow = '0 0 20px rgba(0, 210, 255, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.color = theme.accentCyan;
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          Portal do Parceiro
+        </button>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden p-2 rounded-lg text-white"
+        >
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </header>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 z-40 pt-20"
+          style={{ backgroundColor: 'rgba(5,11,20,0.98)', backdropFilter: 'blur(10px)' }}
+        >
+          <nav className="flex flex-col items-center justify-center gap-8 h-full">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className="text-xl font-medium uppercase tracking-widest text-white/80 hover:text-white transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
+            <button
+              onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
+              className="mt-8 px-10 py-4 font-bold text-sm uppercase tracking-wider"
+              style={{ 
+                backgroundColor: theme.accentCyan,
+                color: '#000',
+                clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
+              }}
+            >
+              Portal do Parceiro
+            </button>
+          </nav>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section 
         id="hero" 
-        ref={heroRef} 
-        className="relative min-h-screen flex items-center"
+        className="relative w-full min-h-screen flex items-center justify-center text-center"
         style={{
-          background: `linear-gradient(90deg, rgba(0, 43, 73, 0.9) 0%, rgba(0, 43, 73, 0.6) 100%), url(${barbacenaHero})`,
+          backgroundImage: `url(${barbacenaHero})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        {/* Gradient overlay at bottom - removed for cleaner edge */}
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="max-w-3xl">
-            {/* Badge */}
-            {content.badge && (
-              <span 
-                className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6 border"
-                style={{ 
-                  backgroundColor: 'rgba(135, 206, 250, 0.3)', 
-                  borderColor: '#87CEEB',
-                  color: '#FFFFFF' 
-                }}
+        {/* Overlay */}
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            background: `linear-gradient(135deg, rgba(10, 31, 61, 0.9) 0%, rgba(5, 11, 20, 0.7) 50%, rgba(108, 92, 231, 0.3) 100%)`,
+          }}
+        />
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            background: 'radial-gradient(circle at 50% 50%, transparent 0%, #050b14 120%)',
+          }}
+        />
+
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-20">
+          {/* Tag */}
+          <span 
+            className="inline-block px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-widest mb-6 sm:mb-8"
+            style={{ 
+              backgroundColor: 'rgba(9, 132, 227, 0.2)',
+              border: `1px solid ${theme.neonBlue}`,
+              color: theme.accentCyan,
+              backdropFilter: 'blur(5px)',
+            }}
+          >
+            {content.badge}
+          </span>
+
+          {/* Headline */}
+          <h1 
+            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 sm:mb-10"
+            style={{ 
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #A0A0A0 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            }}
+          >
+            {content.heroTitle}
+            <br />
+            <span 
+              style={{ 
+                color: theme.neonBlue,
+                WebkitTextFillColor: theme.neonBlue,
+                textShadow: `0 0 40px rgba(9, 132, 227, 0.6)`,
+              }}
+            >
+              {content.heroTitleHighlight}
+            </span>
+          </h1>
+
+          {/* Description */}
+          <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-3xl mx-auto mb-10 sm:mb-14 leading-relaxed px-4">
+            {content.heroDescription}
+          </p>
+
+          {/* CTA Button */}
+          <button
+            onClick={() => scrollToSection('contact')}
+            className="inline-flex items-center gap-3 px-10 sm:px-14 py-5 sm:py-6 font-bold text-base sm:text-lg uppercase tracking-wide text-white transition-all duration-300 hover:-translate-y-1"
+            style={{ 
+              background: `linear-gradient(90deg, ${theme.neonPurple}, ${theme.neonBlue})`,
+              clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
+              boxShadow: '0 0 30px rgba(108, 92, 231, 0.4)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 50px rgba(9, 132, 227, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 30px rgba(108, 92, 231, 0.4)';
+            }}
+          >
+            {content.ctaPrimary}
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Stats Strip */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 py-6 sm:py-8 flex flex-wrap justify-center gap-8 sm:gap-16 lg:gap-24 z-20"
+          style={{ 
+            backgroundColor: 'rgba(10, 31, 61, 0.8)',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(20px)',
+          }}
+        >
+          {stats.map((stat, i) => (
+            <div key={i} className="text-center">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">
+                {stat.value}
+              </div>
+              <div 
+                className="text-xs sm:text-sm uppercase tracking-wider"
+                style={{ color: theme.accentCyan }}
               >
-                {content.badge}
-              </span>
-            )}
-
-            {/* Headline */}
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6 text-white">
-              {content.heroTitle}
-              {content.heroTitleHighlight && (
-                <span className="block">{content.heroTitleHighlight}</span>
-              )}
-            </h1>
-
-            {/* Description */}
-            <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed mb-6 sm:mb-10 max-w-2xl">
-              {content.heroDescription}
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4">
-              <Button
-                size="lg"
-                onClick={() => navigate('/auth')}
-                className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white hover:bg-white/90"
-                style={{ color: theme.primaryBlue }}
-              >
-                {content.ctaPrimary}
-              </Button>
-              {content.ctaSecondary && (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 border-2 text-white hover:bg-white hover:text-primary-blue w-full sm:w-auto transition-all duration-300"
-                  style={{ borderColor: theme.white }}
-                >
-                  {content.ctaSecondary}
-                </Button>
-              )}
+                {stat.label}
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.white }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4" style={{ color: theme.primaryBlue }}>
-              Soluções Completas
+      <section id="services" className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-8 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+        {/* Decorative glow */}
+        <div 
+          className="absolute top-1/4 right-0 w-72 h-96 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(9, 132, 227, 0.05) 0%, transparent 70%)' }}
+        />
+        
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16 sm:mb-20">
+            <span 
+              className="text-sm font-bold uppercase tracking-widest mb-4 block"
+              style={{ color: theme.neonPurple }}
+            >
+              Nossa Expertise
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+              INFRAESTRUTURA INTEGRADA
             </h2>
-            <p className="text-base sm:text-lg lg:text-xl max-w-3xl mx-auto px-4" style={{ color: theme.textGray }}>
-              Oferecemos um ecossistema de infraestrutura para modernizar a gestão pública e melhorar a qualidade de vida urbana.
-            </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+          {/* Services Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {(content.modules.length > 0 ? content.modules : defaultServices).map((service, i) => {
               const IconComponent = 'icon' in service && typeof service.icon === 'string' 
                 ? iconMap[service.icon] || Building2 
@@ -423,39 +510,79 @@ export default function GenericLandingPage() {
               return (
                 <div 
                   key={i}
-                  className="group rounded-2xl p-6 sm:p-8 lg:p-10 border-2 transition-all duration-300 hover:-translate-y-2 relative overflow-hidden bg-gradient-to-br from-white to-slate-50 shadow-sm hover:shadow-2xl"
+                  className="group relative p-8 sm:p-10 transition-all duration-400 overflow-hidden"
                   style={{ 
-                    borderColor: 'rgba(0, 43, 73, 0.08)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-10px)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.borderColor = 'rgba(9, 132, 227, 0.3)';
+                    e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.3)';
+                    const bar = e.currentTarget.querySelector('.gradient-bar') as HTMLElement;
+                    if (bar) bar.style.opacity = '1';
+                    const icon = e.currentTarget.querySelector('.service-icon') as HTMLElement;
+                    if (icon) {
+                      icon.style.transform = 'scale(1.1)';
+                      icon.style.color = '#fff';
+                      icon.style.textShadow = `0 0 20px ${theme.neonBlue}`;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.boxShadow = 'none';
+                    const bar = e.currentTarget.querySelector('.gradient-bar') as HTMLElement;
+                    if (bar) bar.style.opacity = '0';
+                    const icon = e.currentTarget.querySelector('.service-icon') as HTMLElement;
+                    if (icon) {
+                      icon.style.transform = 'scale(1)';
+                      icon.style.color = theme.accentCyan;
+                      icon.style.textShadow = 'none';
+                    }
                   }}
                 >
-                  {/* Gradient overlay on hover */}
+                  {/* Top gradient bar */}
                   <div 
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{ background: `linear-gradient(135deg, ${theme.primaryBlue}05 0%, ${theme.accentGold}10 100%)` }}
-                  />
-                  
-                  {/* Bottom accent bar */}
-                  <div 
-                    className="absolute bottom-0 left-0 right-0 h-1.5 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"
-                    style={{ background: `linear-gradient(90deg, ${theme.primaryBlue}, ${theme.accentGold})` }}
-                  />
-                  
-                  <div 
-                    className="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 transition-all duration-300 group-hover:scale-110 shadow-md group-hover:shadow-lg"
+                    className="gradient-bar absolute top-0 left-0 right-0 h-1 transition-opacity duration-300"
                     style={{ 
-                      background: `linear-gradient(135deg, ${theme.primaryBlue} 0%, ${theme.secondaryBlue} 100%)`,
-                      color: theme.white,
+                      background: `linear-gradient(90deg, ${theme.neonPurple}, ${theme.neonBlue})`,
+                      opacity: 0,
                     }}
-                  >
-                    <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 lg:w-9 lg:h-9" />
-                  </div>
+                  />
                   
-                  <h3 className="relative text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 lg:mb-4" style={{ color: theme.primaryBlue }}>
+                  <IconComponent 
+                    className="service-icon w-10 h-10 sm:w-12 sm:h-12 mb-6 transition-all duration-300"
+                    style={{ color: theme.accentCyan }}
+                  />
+                  
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">
                     {service.title}
                   </h3>
-                  <p className="relative text-sm sm:text-base leading-relaxed" style={{ color: theme.textGray }}>
+                  <p className="text-white/60 leading-relaxed text-sm sm:text-base mb-6">
                     {service.description}
                   </p>
+                  
+                  <button 
+                    className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide transition-colors"
+                    style={{ color: theme.neonPurple }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = theme.accentCyan;
+                      const arrow = e.currentTarget.querySelector('svg');
+                      if (arrow) arrow.style.marginLeft = '10px';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = theme.neonPurple;
+                      const arrow = e.currentTarget.querySelector('svg');
+                      if (arrow) arrow.style.marginLeft = '0';
+                    }}
+                  >
+                    Saiba Mais
+                    <ArrowRight className="w-4 h-4 transition-all duration-300" />
+                  </button>
                 </div>
               );
             })}
@@ -463,110 +590,208 @@ export default function GenericLandingPage() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.bgLight }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-20 items-center">
-            {/* Content */}
-            <div className="order-2 lg:order-1">
-              <span 
-                className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-3 block"
-                style={{ color: theme.accentGold }}
+      {/* Gallery/Projects Section */}
+      <section id="projects" className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16 sm:mb-20">
+            <span 
+              className="text-sm font-bold uppercase tracking-widest mb-4 block"
+              style={{ color: theme.neonPurple }}
+            >
+              Portfólio
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+              VISUALIZAÇÃO DE PROJETOS
+            </h2>
+          </div>
+
+          {/* Gallery Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {/* Large Image */}
+            <div 
+              className="col-span-2 row-span-2 relative overflow-hidden rounded-md group cursor-pointer"
+              style={{ minHeight: '400px' }}
+            >
+              <img 
+                src={barbacenaHero}
+                alt="Centro de Barbacena"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div 
+                className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 opacity-0 group-hover:opacity-100 translate-y-5 group-hover:translate-y-0 transition-all duration-300"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)' }}
               >
-                Quem Somos
-              </span>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 lg:mb-8 leading-tight" style={{ color: theme.primaryBlue }}>
-                Liderança em Infraestrutura Urbana Sustentável
-              </h2>
-              <p className="text-base sm:text-lg leading-relaxed mb-4 sm:mb-6" style={{ color: theme.textGray }}>
-                Nascemos com a missão de transformar a realidade das cidades brasileiras através da tecnologia e da eficiência. Somos especialistas em estruturar projetos complexos que unem o setor público e privado em prol do cidadão.
-              </p>
-              <p className="text-base sm:text-lg leading-relaxed mb-6 sm:mb-8 lg:mb-10" style={{ color: theme.textGray }}>
-                Com um corpo técnico altamente qualificado, atuamos desde o estudo de viabilidade até a operação e manutenção de ativos de iluminação e conectividade, sempre focados em transparência, inovação e sustentabilidade.
-              </p>
-              
-              {/* Stats Row */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-6 sm:gap-8 lg:gap-12 pt-6 sm:pt-8 lg:pt-10 border-t" style={{ borderColor: '#ddd' }}>
-                {stats.map((stat, i) => (
-                  <div key={i}>
-                    <h4 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2" style={{ color: theme.accentGold }}>
-                      {stat.value}
-                    </h4>
-                    <span className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
-                      {stat.label}
-                    </span>
-                  </div>
-                ))}
+                <h4 className="text-lg sm:text-xl font-bold text-white mb-1">Centro de Barbacena</h4>
+                <p style={{ color: theme.accentCyan }} className="text-sm">Transição LED Completa - 2023</p>
               </div>
             </div>
 
-            {/* Image */}
-            <div className="relative order-1 lg:order-2">
-              <div 
-                className="relative rounded-lg overflow-hidden shadow-2xl"
-                style={{ height: 'clamp(300px, 50vw, 600px)' }}
-              >
-                <img 
-                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop" 
-                  alt="Edifícios corporativos modernos"
-                  className="w-full h-full object-cover"
-                />
+            {/* Tech Pattern 1 */}
+            <div 
+              className="col-span-1 aspect-square flex flex-col items-center justify-center rounded-md"
+              style={{ 
+                backgroundColor: '#0d121d',
+                backgroundImage: `radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 20%),
+                  linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.02) 75%, rgba(255, 255, 255, 0.02))`,
+                backgroundSize: '100% 100%, 20px 20px',
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
+              <BarChart3 className="w-12 h-12 sm:w-16 sm:h-16 text-white/10 mb-4" />
+              <h4 className="text-lg sm:text-xl font-bold mb-1" style={{ color: theme.neonBlue }}>Centro de Controle</h4>
+              <p className="text-white/50 text-sm">Dados em Tempo Real</p>
+            </div>
+
+            {/* Tech Pattern 2 */}
+            <div 
+              className="col-span-1 aspect-square flex flex-col items-center justify-center rounded-md"
+              style={{ 
+                backgroundColor: '#0d121d',
+                backgroundImage: `radial-gradient(circle at 80% 80%, rgba(9, 132, 227, 0.1) 0%, transparent 20%)`,
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
+              <Wifi className="w-12 h-12 sm:w-16 sm:h-16 text-white/10 mb-4" />
+              <h4 className="text-lg sm:text-xl font-bold mb-1" style={{ color: theme.neonBlue }}>Conectividade</h4>
+              <p className="text-white/50 text-sm">99.9% de Disponibilidade</p>
+            </div>
+
+            {/* Wide Tech Card */}
+            <div 
+              className="col-span-2 flex items-start justify-between p-6 sm:p-10 rounded-md"
+              style={{ 
+                background: `linear-gradient(90deg, ${theme.darkBgSecondary} 0%, #0d1a2f 100%)`,
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
+              <div className="flex-1">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Topologia da Rede Inteligente</h3>
+                <p className="text-white/60 text-sm sm:text-base mb-6">Mapeamento otimizado da rede de distribuição de energia.</p>
+                
+                {/* Progress bar */}
+                <div 
+                  className="w-full h-1 rounded-full relative"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                >
+                  <div 
+                    className="absolute left-0 top-0 h-full rounded-full"
+                    style={{ 
+                      width: '75%', 
+                      backgroundColor: theme.neonBlue,
+                      boxShadow: `0 0 10px ${theme.neonBlue}`,
+                    }}
+                  />
+                </div>
               </div>
-              {/* Decorative border - hidden on mobile */}
-              <div 
-                className="absolute -top-5 -left-5 w-full h-full rounded-lg border-4 -z-10 hidden sm:block"
-                style={{ borderColor: theme.accentGold }}
-              />
+              <MapPin className="w-10 h-10 sm:w-12 sm:h-12 ml-6 flex-shrink-0" style={{ color: theme.neonPurple }} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Gallery Section */}
-      <section id="gallery" className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.white }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16">
-            <div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4" style={{ color: theme.primaryBlue }}>
-                Nossos Projetos
-              </h2>
-              <p className="text-base sm:text-lg lg:text-xl" style={{ color: theme.textGray }}>
-                Veja como estamos iluminando o futuro das cidades.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              className="font-bold uppercase tracking-wide border-2 text-sm sm:text-base w-full md:w-auto hover:scale-105 transition-all duration-300"
-              style={{ borderColor: theme.accentGold, color: theme.accentGold, backgroundColor: 'transparent' }}
-            >
-              Ver Galeria Completa
-            </Button>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {galleryItems.map((item, i) => (
+      {/* Technology/About Section */}
+      <section id="technology" className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Image */}
+            <div className="relative">
               <div 
-                key={i} 
-                className="group relative h-[250px] sm:h-[300px] lg:h-[350px] rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
+                className="relative overflow-hidden rounded-lg"
+                style={{ aspectRatio: '4/3' }}
               >
                 <img 
-                  src={item.image} 
-                  alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop" 
+                  alt="Tecnologia Smart City"
+                  className="w-full h-full object-cover"
                 />
-                {/* Overlay */}
+                {/* Overlay effect */}
                 <div 
-                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300"
+                  className="absolute inset-0"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${theme.neonBlue}20 0%, transparent 50%, ${theme.neonPurple}20 100%)`,
+                  }}
                 />
-                <div 
-                  className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 text-white translate-y-0 sm:translate-y-4 sm:group-hover:translate-y-0 transition-transform duration-300"
+              </div>
+              {/* Decorative frame */}
+              <div 
+                className="absolute -inset-4 rounded-lg -z-10"
+                style={{ 
+                  border: `1px solid ${theme.neonBlue}30`,
+                }}
+              />
+            </div>
+
+            {/* Content */}
+            <div>
+              <span 
+                className="text-sm font-bold uppercase tracking-widest mb-4 block"
+                style={{ color: theme.neonPurple }}
+              >
+                Tecnologia
+              </span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-8 leading-tight">
+                INOVAÇÃO QUE<br />
+                <span style={{ color: theme.accentCyan }}>TRANSFORMA</span>
+              </h2>
+              <p className="text-white/70 leading-relaxed text-base sm:text-lg mb-8">
+                Utilizamos as tecnologias mais avançadas do mercado para criar soluções de infraestrutura urbana que não apenas atendem às necessidades de hoje, mas antecipam os desafios do futuro.
+              </p>
+              <p className="text-white/70 leading-relaxed text-base sm:text-lg mb-10">
+                Nossos sistemas integram IoT, inteligência artificial e análise de dados em tempo real para otimizar o desempenho e garantir a máxima eficiência energética.
+              </p>
+              
+              {/* Features list */}
+              <div className="space-y-4">
+                {['Telegestão Avançada', 'Manutenção Preditiva', 'Análise de Dados', 'Integração IoT'].map((feature, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div 
+                      className="w-8 h-8 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: `${theme.neonBlue}20` }}
+                    >
+                      <CheckCircle className="w-4 h-4" style={{ color: theme.accentCyan }} />
+                    </div>
+                    <span className="text-white font-medium">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16" style={{ backgroundColor: theme.darkBgSecondary }}>
+        <div className="max-w-6xl mx-auto text-center">
+          <span 
+            className="text-sm font-bold uppercase tracking-widest mb-4 block"
+            style={{ color: theme.neonPurple }}
+          >
+            Quem Somos
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-8">
+            LIDERANÇA EM CIDADES INTELIGENTES
+          </h2>
+          <p className="text-white/70 leading-relaxed text-base sm:text-lg max-w-4xl mx-auto mb-16">
+            Nascemos com a missão de transformar a realidade das cidades brasileiras através da tecnologia e da eficiência. Somos especialistas em estruturar projetos complexos que unem o setor público e privado em prol do cidadão, sempre focados em transparência, inovação e sustentabilidade.
+          </p>
+          
+          {/* Stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+            {[
+              { value: '+50', label: 'Cidades Atendidas' },
+              { value: '+200k', label: 'Pontos de Luz' },
+              { value: '15', label: 'Anos de Experiência' },
+              { value: '100%', label: 'Compromisso' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <h3 
+                  className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-3"
+                  style={{ color: theme.accentCyan }}
                 >
-                  <h4 className="text-base sm:text-lg lg:text-xl font-bold">{item.title}</h4>
-                  <p className="text-sm sm:text-base text-white/80 flex items-center gap-1">
-                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-                    {item.location}
-                  </p>
-                </div>
+                  {stat.value}
+                </h3>
+                <span className="text-white/60 text-sm uppercase tracking-wider">{stat.label}</span>
               </div>
             ))}
           </div>
@@ -574,192 +799,203 @@ export default function GenericLandingPage() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style={{ backgroundColor: theme.primaryBlue }}>
-        {/* Decorative circle */}
+      <section 
+        id="contact" 
+        className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-8 lg:px-16"
+        style={{ background: `linear-gradient(180deg, ${theme.darkBg} 0%, ${theme.darkBgSecondary} 100%)` }}
+      >
+        {/* Decorative glow */}
         <div 
-          className="absolute -top-24 sm:-top-48 -right-24 sm:-right-48 w-[300px] sm:w-[400px] lg:w-[600px] h-[300px] sm:h-[400px] lg:h-[600px] rounded-full"
-          style={{ background: `radial-gradient(circle, ${theme.accentGold}20 0%, transparent 70%)` }}
+          className="absolute bottom-1/4 left-0 w-96 h-96 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.05) 0%, transparent 70%)' }}
         />
         
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 sm:gap-12 lg:gap-24">
-            {/* Contact Info */}
-            <div className="text-white">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
-                Vamos Transformar Sua Cidade?
-              </h2>
-              <p className="text-base sm:text-lg opacity-80 leading-relaxed mb-8 sm:mb-12">
-                Entre em contato com nossa equipe de especialistas para discutir como podemos implementar soluções de iluminação e tecnologia no seu município.
-              </p>
-              
-              <div className="space-y-4 sm:space-y-6">
-                <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-xl transition-all duration-300 hover:bg-white/5">
-                  <div 
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
-                    style={{ background: `linear-gradient(135deg, ${theme.accentGold}, ${theme.accentGoldHover})` }}
-                  >
-                    <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Ligue para nós</p>
-                    <span className="text-base sm:text-lg font-bold">(11) 3000-0000</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-xl transition-all duration-300 hover:bg-white/5">
-                  <div 
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
-                    style={{ background: `linear-gradient(135deg, ${theme.accentGold}, ${theme.accentGoldHover})` }}
-                  >
-                    <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Envie um e-mail</p>
-                    <span className="text-base sm:text-lg font-bold break-all">contato@empresa.com.br</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-xl transition-all duration-300 hover:bg-white/5">
-                  <div 
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
-                    style={{ background: `linear-gradient(135deg, ${theme.accentGold}, ${theme.accentGoldHover})` }}
-                  >
-                    <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Sede Corporativa</p>
-                    <span className="text-base sm:text-lg font-bold">Av. Paulista, 1000 - São Paulo, SP</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="max-w-4xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16 sm:mb-20">
+            <span 
+              className="text-sm font-bold uppercase tracking-widest mb-4 block"
+              style={{ color: theme.neonPurple }}
+            >
+              Fale Conosco
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+              INICIE A CONVERSA
+            </h2>
+          </div>
 
-            {/* Contact Form */}
-            <div className="rounded-2xl p-6 sm:p-8 lg:p-12 relative z-10 shadow-2xl" style={{ backgroundColor: theme.white }}>
-              <form className="space-y-4 sm:space-y-6">
-                <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
-                      Nome Completo
-                    </label>
-                    <Input 
-                      placeholder="Digite seu nome"
-                      className="h-10 sm:h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
-                    />
-                  </div>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
-                      E-mail Corporativo
-                    </label>
-                    <Input 
-                      type="email"
-                      placeholder="nome@empresa.com"
-                      className="h-10 sm:h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
-                      Telefone
-                    </label>
-                    <Input 
-                      placeholder="(00) 00000-0000"
-                      className="h-10 sm:h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
-                    />
-                  </div>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
-                      Assunto
-                    </label>
-                    <Input 
-                      placeholder="Motivo do contato"
-                      className="h-10 sm:h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-1.5 sm:space-y-2">
-                  <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
-                    Mensagem
-                  </label>
-                  <Textarea 
-                    placeholder="Descreva sua necessidade..."
-                    className="min-h-[120px] sm:min-h-[150px] border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500 resize-none"
-                  />
-                </div>
-                
-                <Button
-                  type="button"
-                  className="w-full h-12 sm:h-14 font-bold uppercase tracking-wide text-sm sm:text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-                  style={{ background: `linear-gradient(135deg, ${theme.accentGold}, ${theme.accentGoldHover})`, color: theme.white }}
+          {/* Contact Form Container */}
+          <div 
+            className="relative p-8 sm:p-12 lg:p-16 rounded-2xl overflow-hidden"
+            style={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            {/* Decorative purple glow */}
+            <div 
+              className="absolute -top-1/2 -right-1/4 w-[600px] h-[600px] pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.15) 0%, transparent 70%)' }}
+            />
+
+            <form className="relative z-10 grid sm:grid-cols-2 gap-8 sm:gap-10">
+              {/* Name */}
+              <div className="relative">
+                <input 
+                  type="text" 
+                  placeholder=" "
+                  className="w-full bg-transparent border-b py-4 text-white text-base focus:outline-none transition-colors peer"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                />
+                <label 
+                  className="absolute top-4 left-0 text-white/50 text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
                 >
-                  Enviar Mensagem
-                </Button>
-              </form>
-            </div>
+                  Nome Completo
+                </label>
+              </div>
+
+              {/* Email */}
+              <div className="relative">
+                <input 
+                  type="email" 
+                  placeholder=" "
+                  className="w-full bg-transparent border-b py-4 text-white text-base focus:outline-none transition-colors peer"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                />
+                <label 
+                  className="absolute top-4 left-0 text-white/50 text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                >
+                  Endereço de E-mail
+                </label>
+              </div>
+
+              {/* Subject */}
+              <div className="relative sm:col-span-2">
+                <input 
+                  type="text" 
+                  placeholder=" "
+                  className="w-full bg-transparent border-b py-4 text-white text-base focus:outline-none transition-colors peer"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                />
+                <label 
+                  className="absolute top-4 left-0 text-white/50 text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                >
+                  Assunto
+                </label>
+              </div>
+
+              {/* Message */}
+              <div className="relative sm:col-span-2">
+                <input 
+                  type="text" 
+                  placeholder=" "
+                  className="w-full bg-transparent border-b py-4 pb-12 text-white text-base focus:outline-none transition-colors peer"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                />
+                <label 
+                  className="absolute top-4 left-0 text-white/50 text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                >
+                  Mensagem
+                </label>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="sm:col-span-2 w-full py-5 font-bold text-base uppercase tracking-widest text-white transition-all duration-300 mt-6"
+                style={{ 
+                  backgroundColor: theme.neonBlue,
+                  clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = theme.neonPurple;
+                  e.currentTarget.style.boxShadow = '0 0 20px rgba(108, 92, 231, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = theme.neonBlue;
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                Enviar Mensagem
+              </button>
+            </form>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 border-t" style={{ backgroundColor: '#001f35', borderColor: 'rgba(255,255,255,0.1)' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row justify-between gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
+      <footer 
+        className="py-12 sm:py-16 px-4 sm:px-8 lg:px-16"
+        style={{ 
+          backgroundColor: '#020408',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+        }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row justify-between gap-12 lg:gap-20 mb-12">
             {/* Brand */}
-            <div className="max-w-md">
-              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="max-w-xs">
+              <h2 className="text-2xl font-bold text-white mb-3 flex items-center gap-2">
                 {content.logoUrl ? (
-                  <img src={content.logoUrl} alt={content.companyName} className="h-6 sm:h-8 object-contain brightness-200" />
+                  <img src={content.logoUrl} alt={content.companyName} className="h-8 object-contain" />
                 ) : (
                   <>
-                    <Lightbulb className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: theme.accentGold }} />
-                    <span className="font-bold text-xl sm:text-2xl text-white">{content.companyName}</span>
+                    <Lightbulb className="w-6 h-6" style={{ color: theme.accentCyan }} />
+                    {content.companyName} PPP
                   </>
                 )}
-              </div>
-              <p className="text-sm sm:text-base text-white/60 leading-relaxed">
-                Líder em concessões de iluminação pública e soluções smart city. Compromisso com a eficiência, transparência e o desenvolvimento urbano sustentável.
+              </h2>
+              <p className="text-white/40 text-sm leading-relaxed">
+                Inovando espaços urbanos através da luz, tecnologia e parcerias sustentáveis.
               </p>
             </div>
 
             {/* Links */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-20">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 lg:gap-16">
               <div>
-                <h4 className="font-bold text-white mb-4 sm:mb-6 text-sm sm:text-base">Empresa</h4>
-                <ul className="space-y-2 sm:space-y-3 text-white/60 text-sm">
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Sobre Nós</a></li>
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Carreiras</a></li>
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Imprensa</a></li>
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Compliance</a></li>
+                <h4 className="font-bold text-white mb-5 text-sm">Soluções</h4>
+                <ul className="space-y-3 text-white/50 text-sm">
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Iluminação Pública</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Smart City IoT</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Usinas de Energia</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Sistemas de Segurança</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-bold text-white mb-4 sm:mb-6 text-sm sm:text-base">Soluções</h4>
-                <ul className="space-y-2 sm:space-y-3 text-white/60 text-sm">
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Iluminação Pública</a></li>
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Cidades Inteligentes</a></li>
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Energia Solar</a></li>
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Consultoria PPP</a></li>
+                <h4 className="font-bold text-white mb-5 text-sm">Empresa</h4>
+                <ul className="space-y-3 text-white/50 text-sm">
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Sobre Nós</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Projetos</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Notícias</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Contato</a></li>
                 </ul>
               </div>
-              <div className="col-span-2 sm:col-span-1">
-                <h4 className="font-bold text-white mb-4 sm:mb-6 text-sm sm:text-base">Legal</h4>
-                <ul className="space-y-2 sm:space-y-3 text-white/60 text-sm">
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Termos de Uso</a></li>
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Privacidade</a></li>
-                  <li><a href="#" className="hover:text-amber-400 transition-colors">Política de Cookies</a></li>
+              <div>
+                <h4 className="font-bold text-white mb-5 text-sm">Conecte-se</h4>
+                <ul className="space-y-3 text-white/50 text-sm">
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">LinkedIn</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Instagram</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Twitter</a></li>
                 </ul>
               </div>
             </div>
           </div>
 
           {/* Copyright */}
-          <div className="pt-6 sm:pt-8 border-t text-center" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-            <p className="text-xs sm:text-sm text-white/40">
-              © {new Date().getFullYear()} {content.companyName}. Todos os direitos reservados.
-            </p>
+          <div 
+            className="text-center pt-8 text-white/30 text-xs"
+            style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}
+          >
+            &copy; 2023 {content.companyName} PPP Solutions. Todos os direitos reservados. Projetado para o Futuro.
           </div>
         </div>
       </footer>
