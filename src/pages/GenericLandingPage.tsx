@@ -89,6 +89,8 @@ const theme = {
 export default function GenericLandingPage() {
   const navigate = useNavigate();
   const [content, setContent] = useState<GenericContent | null>(null);
+  const [tenantId, setTenantId] = useState<string | null>(null);
+  const [branchId, setBranchId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -116,6 +118,14 @@ export default function GenericLandingPage() {
         if (error) throw error;
         
         const data = result?.branding;
+        
+        // Store tenant and branch IDs for ticket form
+        if (result?.tenantId) {
+          setTenantId(result.tenantId);
+        }
+        if (result?.branchId) {
+          setBranchId(result.branchId);
+        }
 
         if (data) {
           const lp = (data.landing_page_content as any) || {};
@@ -923,7 +933,7 @@ export default function GenericLandingPage() {
               border: '1px solid rgba(255, 255, 255, 0.1)',
             }}
           >
-            <TicketForm accentColor={theme.neonBlue} />
+            <TicketForm accentColor={theme.neonBlue} tenantId={tenantId || undefined} branchId={branchId || undefined} />
           </div>
         </div>
       </section>

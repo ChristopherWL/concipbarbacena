@@ -43,11 +43,12 @@ Deno.serve(async (req) => {
     // Fetch matriz branch logo (is_main = true)
     let matrizLogo = null
     let matrizLogoDark = null
+    let matrizBranchId = null
     
     if (tenantData?.id) {
       const { data: matrizData, error: matrizError } = await supabase
         .from('branches')
-        .select('logo_url, logo_dark_url')
+        .select('id, logo_url, logo_dark_url')
         .eq('tenant_id', tenantData.id)
         .eq('is_main', true)
         .eq('is_active', true)
@@ -58,6 +59,7 @@ Deno.serve(async (req) => {
       } else if (matrizData) {
         matrizLogo = matrizData.logo_url
         matrizLogoDark = matrizData.logo_dark_url
+        matrizBranchId = matrizData.id
       }
     }
 
@@ -83,7 +85,11 @@ Deno.serve(async (req) => {
         }
       : null
 
-    return new Response(JSON.stringify({ branding }), {
+    return new Response(JSON.stringify({ 
+      branding,
+      tenantId: tenantData?.id || null,
+      branchId: matrizBranchId,
+    }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

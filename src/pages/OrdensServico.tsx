@@ -26,12 +26,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { SERVICE_ORDER_STATUS_LABELS, PRIORITY_LABELS, PRIORITY_COLORS, ServiceOrderStatus, PriorityLevel, ServiceOrder } from '@/types/serviceOrders';
-import { Loader2, ClipboardList, Plus, UserPlus, Clock, CheckCircle, AlertTriangle, Search, Trash2, Settings, Edit, Calendar, MapPin, User, FileText, Upload, X, Image, Download } from 'lucide-react';
+import { Loader2, ClipboardList, Plus, UserPlus, Clock, CheckCircle, AlertTriangle, Search, Trash2, Settings, Edit, Calendar, MapPin, User, FileText, Upload, X, Image, Download, Phone, Megaphone } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { toast } from 'sonner';
 
 import { ServiceOrderEditDialog } from '@/components/service-orders/ServiceOrderEditDialog';
 import { ServiceOrderCardProgress } from '@/components/service-orders/ServiceOrderCardProgress';
+import ServiceOrderMap from '@/components/service-orders/ServiceOrderMap';
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { supabase } from '@/integrations/supabase/client';
 import { useBranchFilter } from '@/hooks/useBranchFilter';
@@ -53,6 +54,7 @@ export default function OrdensServico() {
   const deleteOrder = useDeleteServiceOrder();
 
   const [statusFilter, setStatusFilter] = useState<ServiceOrderStatus | 'all'>('all');
+  const [origemFilter, setOrigemFilter] = useState<'all' | 'interno' | 'chamado_publico'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
   const [customerDialogOpen, setCustomerDialogOpen] = useState(false);
@@ -92,11 +94,16 @@ export default function OrdensServico() {
 
   const filteredOrders = orders.filter(o => {
     const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
+    const matchesOrigem = origemFilter === 'all' || (o as any).origem === origemFilter;
     const matchesSearch = o.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           o.customer?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          o.order_number.toString().includes(searchQuery);
-    return matchesStatus && matchesSearch;
+                          o.order_number.toString().includes(searchQuery) ||
+                          ((o as any).placa_poste || '').toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesOrigem && matchesSearch;
   });
+
+  const chamadosCount = orders.filter(o => (o as any).origem === 'chamado_publico').length;
+  const chamadosPendentes = orders.filter(o => (o as any).origem === 'chamado_publico' && o.status === 'aberta').length;
 
   const handleCreateOrder = async () => {
     if (!orderForm.customer_id || !orderForm.title) { toast.error('Preencha os campos obrigatórios'); return; }
@@ -337,6 +344,20 @@ export default function OrdensServico() {
                 />
               </div>
               <div className="flex items-center gap-2">
+                <Select value={origemFilter} onValueChange={v => setOrigemFilter(v as 'all' | 'interno' | 'chamado_publico')}>
+                  <SelectTrigger className="w-28 sm:w-36 h-8 sm:h-9 text-xs sm:text-sm">
+                    <SelectValue placeholder="Origem" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="interno">Interno</SelectItem>
+                    <SelectItem value="chamado_publico">
+                      <span className="flex items-center gap-1">
+                        Chamados {chamadosPendentes > 0 && <Badge variant="destructive" className="text-xs px-1">{chamadosPendentes}</Badge>}
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
                 <Select value={statusFilter} onValueChange={v => setStatusFilter(v as ServiceOrderStatus | 'all')}>
                   <SelectTrigger className="w-28 sm:w-40 h-8 sm:h-9 text-xs sm:text-sm">
                     <SelectValue placeholder="Status" />
@@ -477,9 +498,52 @@ export default function OrdensServico() {
                 {/* Order Info */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Informações da OS</CardTitle>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      Informações da OS
+                      {(selectedOrder as any)?.origem === 'chamado_publico' && (
+                        <Badge variant="secondary" className="bg-orange-500/20 text-orange-600">
+                          <Megaphone className="w-3 h-3 mr-1" />
+                          Chamado Público
+                        </Badge>
+                      )}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
+                  <CardContent className="space-y-3 text-sm">
+                    {/* Map for chamados with coordinates */}
+                    {(selectedOrder as any)?.latitude && (selectedOrder as any)?.longitude && (
+                      <ServiceOrderMap 
+                        latitude={Number((selectedOrder as any).latitude)} 
+                        longitude={Number((selectedOrder as any).longitude)}
+                        address={selectedOrder?.address}
+                        height="200px"
+                        className="mb-3"
+                      />
+                    )}
+                    
+                    {/* Chamado specific info */}
+                    {(selectedOrder as any)?.origem === 'chamado_publico' && (
+                      <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 space-y-2">
+                        {(selectedOrder as any)?.placa_poste && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">Placa Poste:</span>
+                            <span className="font-mono font-semibold">{(selectedOrder as any).placa_poste}</span>
+                          </div>
+                        )}
+                        {(selectedOrder as any)?.solicitante_nome && (
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            <span>{(selectedOrder as any).solicitante_nome}</span>
+                          </div>
+                        )}
+                        {(selectedOrder as any)?.solicitante_telefone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span>{(selectedOrder as any).solicitante_telefone}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     {selectedOrder?.customer?.name && (
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
