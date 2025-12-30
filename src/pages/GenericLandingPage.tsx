@@ -386,8 +386,8 @@ export default function GenericLandingPage() {
               <Button
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                style={{ backgroundColor: theme.accentGold, color: theme.white }}
+                className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white hover:bg-white/90"
+                style={{ color: theme.primaryBlue }}
               >
                 {content.ctaPrimary}
               </Button>
