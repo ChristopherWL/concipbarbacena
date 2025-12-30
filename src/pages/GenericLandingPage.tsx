@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Building2, ArrowRight, Menu, X,
   Package, Truck, Users, ClipboardList, BarChart3, FileText, Shield, Zap, Clock,
@@ -70,6 +72,18 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   'globe': Globe,
 };
 
+// Theme colors from template
+const theme = {
+  primaryBlue: '#002B49',
+  secondaryBlue: '#004e80',
+  accentGold: '#C5A059',
+  accentGoldHover: '#b08d4b',
+  textDark: '#1A1A1A',
+  textGray: '#666666',
+  bgLight: '#F8F9FA',
+  white: '#FFFFFF',
+};
+
 export default function GenericLandingPage() {
   const navigate = useNavigate();
   const [content, setContent] = useState<GenericContent | null>(null);
@@ -125,8 +139,8 @@ export default function GenericLandingPage() {
             showFeatures: generic.showFeatures !== false,
             ctaTitle: generic.ctaTitle || 'Pronto para transformar sua gestão?',
             ctaDescription: generic.ctaDescription || 'Acesse agora e descubra como podemos ajudar seu negócio a crescer.',
-            primaryColor: data.primary_color || generic.primaryColor || '#3b82f6',
-            secondaryColor: data.secondary_color || generic.secondaryColor || '#1e40af',
+            primaryColor: data.primary_color || generic.primaryColor || theme.primaryBlue,
+            secondaryColor: data.secondary_color || generic.secondaryColor || theme.secondaryBlue,
           });
         } else {
           setContent({
@@ -148,8 +162,8 @@ export default function GenericLandingPage() {
             showFeatures: false,
             ctaTitle: 'Pronto para transformar sua gestão?',
             ctaDescription: 'Acesse agora e descubra como podemos ajudar.',
-            primaryColor: '#3b82f6',
-            secondaryColor: '#1e40af',
+            primaryColor: theme.primaryBlue,
+            secondaryColor: theme.secondaryBlue,
           });
         }
       } catch (error) {
@@ -173,8 +187,8 @@ export default function GenericLandingPage() {
           showFeatures: false,
           ctaTitle: 'Pronto para transformar sua gestão?',
           ctaDescription: 'Acesse agora e descubra como podemos ajudar.',
-          primaryColor: '#3b82f6',
-          secondaryColor: '#1e40af',
+          primaryColor: theme.primaryBlue,
+          secondaryColor: theme.secondaryBlue,
         });
       } finally {
         setIsLoading(false);
@@ -199,97 +213,44 @@ export default function GenericLandingPage() {
   const navItems = [
     { label: 'Início', id: 'hero' },
     { label: 'Serviços', id: 'services' },
+    { label: 'Projetos', id: 'gallery' },
     { label: 'Sobre', id: 'about' },
-    { label: 'Contato', id: 'contact' },
   ];
 
   const defaultServices = [
-    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Modernização e manutenção de sistemas LED para cidades inteligentes' },
-    { icon: Camera, title: 'Videomonitoramento', description: 'Sistemas de CFTV com tecnologia IP e monitoramento 24 horas' },
-    { icon: Wifi, title: 'Conectividade WiFi', description: 'Infraestrutura de internet sem fio para espaços públicos e privados' },
-    { icon: Sun, title: 'Energia Solar', description: 'Projetos de usinas fotovoltaicas para geração de energia limpa' },
-    { icon: Globe, title: 'Link Dedicado', description: 'Conexões de alta velocidade com disponibilidade garantida' },
-    { icon: Radio, title: 'Telecomunicações', description: 'Infraestrutura de fibra óptica e equipamentos de comunicação' },
+    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Modernização do parque de iluminação com tecnologia LED de alta eficiência, reduzindo custos operacionais e aumentando a luminosidade das vias.' },
+    { icon: Building2, title: 'Gestão de PPP', description: 'Estruturação e gestão completa de Parcerias Público-Privadas, garantindo viabilidade econômica, jurídica e técnica para o município.' },
+    { icon: Camera, title: 'Câmeras Wi-Fi', description: 'Sistemas de monitoramento urbano integrados à rede de iluminação, promovendo segurança pública inteligente e em tempo real.' },
+    { icon: Globe, title: 'Link Dedicado', description: 'Infraestrutura de conectividade robusta para órgãos públicos e serviços municipais, com alta disponibilidade e velocidade.' },
+    { icon: Sun, title: 'Usina Fotovoltaica (UFV)', description: 'Implantação de usinas solares para geração de energia limpa, abastecendo prédios públicos e reduzindo a pegada de carbono.' },
+    { icon: Radio, title: 'Iluminação Inteligente', description: 'Telegestão e sensores IoT integrados às luminárias, permitindo controle remoto, dimerização e manutenção preditiva.' },
   ];
 
   const stats = [
-    { value: '50K+', label: 'Pontos de Luz', icon: Lightbulb },
-    { value: '5K+', label: 'Câmeras Instaladas', icon: Camera },
-    { value: '30+', label: 'Cidades Atendidas', icon: MapPin },
-    { value: '10+', label: 'Anos de Experiência', icon: Award },
+    { value: '+50', label: 'Cidades Atendidas' },
+    { value: '+200k', label: 'Pontos de Luz' },
+    { value: '15', label: 'Anos de Experiência' },
   ];
 
-  // Dark blue theme colors
-  const bgPrimary = '#0f172a'; // slate-900
-  const bgSecondary = '#1e293b'; // slate-800
-  const bgCard = '#1e293b';
+  const galleryItems = [
+    { image: 'https://images.unsplash.com/photo-1617150119111-09bbb85611df?q=80&w=600&auto=format&fit=crop', title: 'Modernização LED', location: 'São Paulo, SP' },
+    { image: 'https://images.unsplash.com/photo-1495539406979-bf61750d38ad?q=80&w=600&auto=format&fit=crop', title: 'Iluminação Viária', location: 'Curitiba, PR' },
+    { image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=600&auto=format&fit=crop', title: 'Smart City Hub', location: 'Florianópolis, SC' },
+    { image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop', title: 'Centro de Controle', location: 'Belo Horizonte, MG' },
+    { image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=600&auto=format&fit=crop', title: 'Parque Solar', location: 'Recife, PE' },
+    { image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=600&auto=format&fit=crop', title: 'Revitalização Urbana', location: 'Porto Alegre, RS' },
+  ];
 
   return (
-    <div className="min-h-screen antialiased text-white" style={{ backgroundColor: bgPrimary }}>
-      {/* Background Effects - Always visible */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {/* Main light orbs - always visible */}
-        <div 
-          className="absolute -top-32 -right-32 w-[800px] h-[800px] rounded-full blur-[180px]"
-          style={{ background: `radial-gradient(circle, ${content.primaryColor} 0%, transparent 60%)`, opacity: 0.35 }}
-        />
-        <div 
-          className="absolute -bottom-32 -left-32 w-[700px] h-[700px] rounded-full blur-[160px]"
-          style={{ background: `radial-gradient(circle, ${content.secondaryColor} 0%, transparent 60%)`, opacity: 0.3 }}
-        />
-        
-        {/* Secondary floating lights */}
-        <div 
-          className="absolute top-[20%] left-[20%] w-[500px] h-[500px] rounded-full blur-[120px]"
-          style={{ background: `radial-gradient(circle, ${content.primaryColor} 0%, transparent 50%)`, opacity: 0.2 }}
-        />
-        <div 
-          className="absolute bottom-[25%] right-[15%] w-[400px] h-[400px] rounded-full blur-[100px]"
-          style={{ background: `radial-gradient(circle, #60a5fa 0%, transparent 50%)`, opacity: 0.18 }}
-        />
-        <div 
-          className="absolute top-[50%] right-[30%] w-[300px] h-[300px] rounded-full blur-[80px]"
-          style={{ background: `radial-gradient(circle, ${content.secondaryColor} 0%, transparent 50%)`, opacity: 0.15 }}
-        />
-        
-        {/* Central horizontal glow */}
-        <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] rounded-full blur-[150px]"
-          style={{ background: `linear-gradient(90deg, transparent, ${content.primaryColor}, ${content.secondaryColor}, transparent)`, opacity: 0.12 }}
-        />
-        
-        {/* Light beams */}
-        <div 
-          className="absolute top-0 left-[30%] w-[2px] h-[70%]"
-          style={{ background: `linear-gradient(to bottom, ${content.primaryColor}40, transparent)` }}
-        />
-        <div 
-          className="absolute top-0 right-[25%] w-[1px] h-[50%]"
-          style={{ background: `linear-gradient(to bottom, ${content.secondaryColor}30, transparent)` }}
-        />
-        <div 
-          className="absolute top-0 left-[60%] w-[1px] h-[35%]"
-          style={{ background: `linear-gradient(to bottom, #60a5fa20, transparent)` }}
-        />
-        
-        {/* Grid pattern */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)`,
-            backgroundSize: '80px 80px'
-          }}
-        />
-      </div>
-
+    <div className="min-h-screen antialiased" style={{ backgroundColor: theme.white, color: theme.textDark, fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header 
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled 
-            ? 'py-3 backdrop-blur-xl border-b border-white/10' 
-            : 'py-5'
+            ? 'py-3 shadow-lg' 
+            : 'py-4'
         }`}
-        style={{ backgroundColor: scrolled ? `${bgPrimary}ee` : 'transparent' }}
+        style={{ backgroundColor: theme.white }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
@@ -299,52 +260,38 @@ export default function GenericLandingPage() {
                 <img src={content.logoUrl} alt={content.companyName} className="h-10 object-contain" />
               ) : (
                 <>
-                  <div 
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryColor}, ${content.secondaryColor})` }}
-                  >
-                    <Building2 className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="font-bold text-xl hidden sm:block">{content.companyName}</span>
+                  <Lightbulb className="w-8 h-8" style={{ color: theme.accentGold }} />
+                  <span className="font-bold text-2xl" style={{ color: theme.primaryBlue }}>{content.companyName}</span>
                 </>
               )}
             </div>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-8">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+                  className="text-sm font-bold uppercase tracking-wide transition-colors hover:opacity-70"
+                  style={{ color: theme.primaryBlue }}
                 >
                   {item.label}
                 </button>
               ))}
+              <Button
+                onClick={() => scrollToSection('contact')}
+                className="text-sm font-bold uppercase tracking-wide px-6"
+                style={{ backgroundColor: theme.accentGold, color: theme.white }}
+              >
+                Fale Conosco
+              </Button>
             </nav>
-
-            {/* Desktop CTA */}
-            <div className="hidden md:flex items-center gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/auth')}
-                className="text-sm font-medium text-white/70 hover:text-white hover:bg-white/10"
-              >
-                Entrar
-              </Button>
-              <Button
-                onClick={() => navigate('/auth')}
-                className="text-sm font-medium px-6 text-white border-0"
-                style={{ background: `linear-gradient(135deg, ${content.primaryColor}, ${content.secondaryColor})` }}
-              >
-                {content.ctaPrimary}
-              </Button>
-            </div>
 
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10"
+              className="md:hidden p-2 rounded-lg"
+              style={{ color: theme.primaryBlue }}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -354,26 +301,27 @@ export default function GenericLandingPage() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div 
-            className="md:hidden absolute top-full left-0 right-0 backdrop-blur-xl border-b border-white/10"
-            style={{ backgroundColor: `${bgPrimary}f5` }}
+            className="md:hidden absolute top-full left-0 right-0 shadow-lg border-t"
+            style={{ backgroundColor: theme.white }}
           >
             <nav className="max-w-7xl mx-auto px-4 py-4 space-y-1">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="block w-full text-left px-4 py-3 text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  className="block w-full text-left px-4 py-3 text-sm font-bold uppercase rounded-lg transition-colors hover:bg-gray-100"
+                  style={{ color: theme.primaryBlue }}
                 >
                   {item.label}
                 </button>
               ))}
-              <div className="pt-4 border-t border-white/10">
+              <div className="pt-4">
                 <Button
-                  onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
-                  className="w-full text-white border-0"
-                  style={{ background: `linear-gradient(135deg, ${content.primaryColor}, ${content.secondaryColor})` }}
+                  onClick={() => { setMobileMenuOpen(false); scrollToSection('contact'); }}
+                  className="w-full font-bold uppercase"
+                  style={{ backgroundColor: theme.accentGold, color: theme.white }}
                 >
-                  {content.ctaPrimary}
+                  Fale Conosco
                 </Button>
               </div>
             </nav>
@@ -382,38 +330,48 @@ export default function GenericLandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" ref={heroRef} className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section 
+        id="hero" 
+        ref={heroRef} 
+        className="relative min-h-[700px] flex items-center pt-24"
+        style={{
+          background: `linear-gradient(90deg, rgba(0, 43, 73, 0.9) 0%, rgba(0, 43, 73, 0.6) 100%), url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1920&auto=format&fit=crop')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Gradient overlay at bottom */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-36"
+          style={{ background: `linear-gradient(to top, ${theme.white}, transparent)` }}
+        />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl">
             {/* Badge */}
             {content.badge && (
-              <div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8 border border-white/10"
-                style={{ backgroundColor: `${content.primaryColor}20` }}
+              <span 
+                className="inline-block px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border"
+                style={{ 
+                  backgroundColor: 'rgba(197, 160, 89, 0.2)', 
+                  borderColor: theme.accentGold,
+                  color: theme.accentGold 
+                }}
               >
-                <span 
-                  className="w-2 h-2 rounded-full animate-pulse"
-                  style={{ backgroundColor: content.primaryColor }}
-                />
-                <span className="text-white/90">{content.badge}</span>
-              </div>
+                {content.badge}
+              </span>
             )}
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight mb-6">
-              <span className="text-white">{content.heroTitle}</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white">
+              {content.heroTitle}
               {content.heroTitleHighlight && (
-                <span 
-                  className="block mt-2 bg-clip-text text-transparent"
-                  style={{ backgroundImage: `linear-gradient(135deg, ${content.primaryColor}, #60a5fa)` }}
-                >
-                  {content.heroTitleHighlight}
-                </span>
+                <span className="block">{content.heroTitleHighlight}</span>
               )}
             </h1>
 
             {/* Description */}
-            <p className="text-lg sm:text-xl text-white/60 leading-relaxed mb-10 max-w-2xl">
+            <p className="text-xl text-white/90 leading-relaxed mb-10 max-w-2xl">
               {content.heroDescription}
             </p>
 
@@ -422,62 +380,39 @@ export default function GenericLandingPage() {
               <Button
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="group text-base px-8 h-14 text-white border-0 shadow-lg transition-all hover:scale-105"
-                style={{ 
-                  background: `linear-gradient(135deg, ${content.primaryColor}, ${content.secondaryColor})`,
-                  boxShadow: `0 10px 40px ${content.primaryColor}40`
-                }}
+                className="text-base font-bold uppercase tracking-wide px-10 py-6"
+                style={{ backgroundColor: theme.accentGold, color: theme.white }}
               >
                 {content.ctaPrimary}
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               {content.ctaSecondary && (
                 <Button
                   size="lg"
                   variant="outline"
-                  className="text-base px-8 h-14 border-white/20 text-white hover:bg-white/10 hover:border-white/30"
+                  className="text-base font-bold uppercase tracking-wide px-10 py-6 border-2 text-white hover:bg-white/10"
+                  style={{ borderColor: theme.white }}
                 >
                   {content.ctaSecondary}
                 </Button>
               )}
             </div>
           </div>
-
-          {/* Stats Row */}
-          <div className="mt-20 pt-10 border-t border-white/10">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-              {stats.map((stat, i) => (
-                <div key={i} className="text-center lg:text-left">
-                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-2">
-                    <div 
-                      className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ backgroundColor: `${content.primaryColor}20` }}
-                    >
-                      <stat.icon className="w-5 h-5" style={{ color: content.primaryColor }} />
-                    </div>
-                    <span className="text-3xl sm:text-4xl font-bold text-white">{stat.value}</span>
-                  </div>
-                  <p className="text-sm text-white/50 font-medium">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: bgSecondary }}>
+      <section id="services" className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.white }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Nossos Serviços
+            <h2 className="text-4xl font-bold mb-4" style={{ color: theme.primaryBlue }}>
+              Soluções Completas
             </h2>
-            <p className="text-lg text-white/60 max-w-2xl mx-auto">
-              Soluções completas para transformar e modernizar sua infraestrutura
+            <p className="text-xl max-w-3xl mx-auto" style={{ color: theme.textGray }}>
+              Oferecemos um ecossistema de infraestrutura para modernizar a gestão pública e melhorar a qualidade de vida urbana.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
             {(content.modules.length > 0 ? content.modules : defaultServices).map((service, i) => {
               const IconComponent = 'icon' in service && typeof service.icon === 'string' 
                 ? iconMap[service.icon] || Building2 
@@ -486,19 +421,36 @@ export default function GenericLandingPage() {
               return (
                 <div 
                   key={i}
-                  className="group rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300 hover:-translate-y-1"
-                  style={{ backgroundColor: bgPrimary }}
+                  className="group rounded-lg p-10 border transition-all duration-300 hover:-translate-y-2 hover:shadow-xl relative overflow-hidden"
+                  style={{ 
+                    backgroundColor: theme.white,
+                    borderColor: '#E5E5E5',
+                  }}
                 >
+                  {/* Bottom accent bar */}
                   <div 
-                    className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryColor}30, ${content.secondaryColor}20)` }}
+                    className="absolute bottom-0 left-0 right-0 h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"
+                    style={{ backgroundColor: theme.accentGold }}
+                  />
+                  
+                  <div 
+                    className="w-20 h-20 rounded-full flex items-center justify-center mb-8 transition-all group-hover:text-white"
+                    style={{ 
+                      backgroundColor: `${theme.primaryBlue}10`,
+                      color: theme.primaryBlue,
+                    }}
                   >
-                    <IconComponent className="w-7 h-7" style={{ color: content.primaryColor }} />
+                    <IconComponent className="w-9 h-9 transition-colors group-hover:text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">
+                  <style>{`
+                    .group:hover .service-icon-bg {
+                      background-color: ${theme.primaryBlue} !important;
+                    }
+                  `}</style>
+                  <h3 className="text-2xl font-bold mb-4" style={{ color: theme.primaryBlue }}>
                     {service.title}
                   </h3>
-                  <p className="text-white/60 leading-relaxed">
+                  <p className="leading-relaxed" style={{ color: theme.textGray }}>
                     {service.description}
                   </p>
                 </div>
@@ -509,223 +461,294 @@ export default function GenericLandingPage() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 px-4 sm:px-6 lg:px-8">
+      <section id="about" className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.bgLight }}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            {/* Content */}
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                Por que escolher nossa plataforma?
+              <span 
+                className="text-sm font-bold uppercase tracking-widest mb-3 block"
+                style={{ color: theme.accentGold }}
+              >
+                Quem Somos
+              </span>
+              <h2 className="text-4xl font-bold mb-8 leading-tight" style={{ color: theme.primaryBlue }}>
+                Liderança em Infraestrutura Urbana Sustentável
               </h2>
-              <p className="text-lg text-white/60 mb-8 leading-relaxed">
-                Oferecemos uma solução completa e integrada para gestão empresarial, 
-                desenvolvida com as melhores práticas do mercado e tecnologia de ponta.
+              <p className="text-lg leading-relaxed mb-6" style={{ color: theme.textGray }}>
+                Nascemos com a missão de transformar a realidade das cidades brasileiras através da tecnologia e da eficiência. Somos especialistas em estruturar projetos complexos que unem o setor público e privado em prol do cidadão.
+              </p>
+              <p className="text-lg leading-relaxed mb-10" style={{ color: theme.textGray }}>
+                Com um corpo técnico altamente qualificado, atuamos desde o estudo de viabilidade até a operação e manutenção de ativos de iluminação e conectividade, sempre focados em transparência, inovação e sustentabilidade.
               </p>
               
-              <div className="space-y-5">
-                {[
-                  { icon: Shield, title: 'Segurança Garantida', desc: 'Dados protegidos com criptografia de ponta' },
-                  { icon: Zap, title: 'Alta Performance', desc: 'Sistema rápido e responsivo em qualquer dispositivo' },
-                  { icon: Users, title: 'Suporte Dedicado', desc: 'Equipe especializada pronta para ajudar' },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: `linear-gradient(135deg, ${content.primaryColor}30, ${content.secondaryColor}20)` }}
-                    >
-                      <item.icon className="w-6 h-6" style={{ color: content.primaryColor }} />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-white mb-1">{item.title}</h4>
-                      <p className="text-white/60 text-sm">{item.desc}</p>
-                    </div>
+              {/* Stats Row */}
+              <div className="flex flex-wrap gap-12 pt-10 border-t" style={{ borderColor: '#ddd' }}>
+                {stats.map((stat, i) => (
+                  <div key={i}>
+                    <h4 className="text-4xl font-bold mb-2" style={{ color: theme.accentGold }}>
+                      {stat.value}
+                    </h4>
+                    <span className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                      {stat.label}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Image */}
             <div className="relative">
               <div 
-                className="aspect-square rounded-3xl border border-white/10"
-                style={{ backgroundColor: bgSecondary }}
+                className="relative rounded-lg overflow-hidden shadow-2xl"
+                style={{ height: '600px' }}
               >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div 
-                      className="w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6"
-                      style={{ background: `linear-gradient(135deg, ${content.primaryColor}, ${content.secondaryColor})` }}
-                    >
-                      <Building2 className="w-12 h-12 text-white" />
-                    </div>
-                    <p className="text-2xl font-bold text-white">{content.companyName}</p>
-                    {content.companySubtitle && (
-                      <p className="text-white/60 mt-2">{content.companySubtitle}</p>
-                    )}
-                  </div>
-                </div>
-                {/* Decorative elements */}
-                <div 
-                  className="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-50 blur-2xl"
-                  style={{ background: content.primaryColor }}
-                />
-                <div 
-                  className="absolute -bottom-4 -left-4 w-32 h-32 rounded-full opacity-30 blur-2xl"
-                  style={{ background: content.secondaryColor }}
+                <img 
+                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop" 
+                  alt="Edifícios corporativos modernos"
+                  className="w-full h-full object-cover"
                 />
               </div>
+              {/* Decorative border */}
+              <div 
+                className="absolute -top-5 -left-5 w-full h-full rounded-lg border-4 -z-10"
+                style={{ borderColor: theme.accentGold }}
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      {content.showFeatures && content.features.length > 0 && (
-        <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: bgSecondary }}>
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Recursos do Sistema
+      {/* Gallery Section */}
+      <section id="gallery" className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.white }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
+            <div>
+              <h2 className="text-4xl font-bold mb-4" style={{ color: theme.primaryBlue }}>
+                Nossos Projetos
               </h2>
-              <p className="text-lg text-white/60 max-w-2xl mx-auto">
-                Funcionalidades pensadas para otimizar sua operação
+              <p className="text-xl" style={{ color: theme.textGray }}>
+                Veja como estamos iluminando o futuro das cidades.
               </p>
             </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {content.features.map((feature, i) => {
-                const IconComponent = iconMap[feature.icon] || CheckCircle;
-                return (
-                  <div 
-                    key={i} 
-                    className="rounded-xl p-6 border border-white/10"
-                    style={{ backgroundColor: bgPrimary }}
-                  >
-                    <div 
-                      className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-                      style={{ backgroundColor: `${content.primaryColor}20` }}
-                    >
-                      <IconComponent className="w-6 h-6" style={{ color: content.primaryColor }} />
-                    </div>
-                    <h4 className="font-semibold text-white mb-2">{feature.title}</h4>
-                    <p className="text-sm text-white/60">{feature.description}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Contact Section */}
-      <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Entre em Contato
-            </h2>
-            <p className="text-lg text-white/60 max-w-2xl mx-auto">
-              Estamos prontos para atender você
-            </p>
+            <Button
+              variant="outline"
+              className="font-bold uppercase tracking-wide border-2"
+              style={{ borderColor: theme.accentGold, color: theme.accentGold }}
+            >
+              Ver Galeria Completa
+            </Button>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              { icon: Phone, label: 'Telefone', value: '(11) 9999-9999', href: 'tel:+5511999999999' },
-              { icon: Mail, label: 'E-mail', value: 'contato@empresa.com', href: 'mailto:contato@empresa.com' },
-              { icon: MapPin, label: 'Endereço', value: 'São Paulo, SP', href: null },
-            ].map((item, i) => (
-              <div key={i} className="text-center">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {galleryItems.map((item, i) => (
+              <div 
+                key={i} 
+                className="group relative h-[350px] rounded-lg overflow-hidden cursor-pointer"
+              >
+                <img 
+                  src={item.image} 
+                  alt={item.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                {/* Overlay */}
                 <div 
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                  style={{ background: `linear-gradient(135deg, ${content.primaryColor}30, ${content.secondaryColor}20)` }}
+                  className="absolute bottom-0 left-0 right-0 p-8 text-white opacity-0 translate-y-5 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}
                 >
-                  <item.icon className="w-7 h-7" style={{ color: content.primaryColor }} />
+                  <h4 className="text-xl font-bold">{item.title}</h4>
+                  <p className="text-white/80">{item.location}</p>
                 </div>
-                <p className="text-sm text-white/50 mb-1">{item.label}</p>
-                {item.href ? (
-                  <a 
-                    href={item.href}
-                    className="font-semibold text-white hover:underline"
-                  >
-                    {item.value}
-                  </a>
-                ) : (
-                  <p className="font-semibold text-white">{item.value}</p>
-                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <div 
-            className="rounded-3xl p-12 sm:p-16 text-center text-white relative overflow-hidden"
-            style={{ 
-              background: `linear-gradient(135deg, ${content.primaryColor}, ${content.secondaryColor})` 
-            }}
-          >
-            {/* Decorative */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
-            
-            <div className="relative z-10">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                {content.ctaTitle}
+      {/* Contact Section */}
+      <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style={{ backgroundColor: theme.primaryBlue }}>
+        {/* Decorative circle */}
+        <div 
+          className="absolute -top-48 -right-48 w-[600px] h-[600px] rounded-full"
+          style={{ background: `radial-gradient(circle, ${theme.accentGold}20 0%, transparent 70%)` }}
+        />
+        
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-[400px_1fr] gap-16 lg:gap-24">
+            {/* Contact Info */}
+            <div className="text-white">
+              <h2 className="text-4xl font-bold mb-6">
+                Vamos Transformar Sua Cidade?
               </h2>
-              <p className="text-lg text-white/80 mb-8 max-w-xl mx-auto">
-                {content.ctaDescription}
+              <p className="text-lg opacity-80 leading-relaxed mb-12">
+                Entre em contato com nossa equipe de especialistas para discutir como podemos implementar soluções de iluminação e tecnologia no seu município.
               </p>
-              <Button
-                size="lg"
-                onClick={() => navigate('/auth')}
-                className="bg-white hover:bg-white/90 text-base px-8 h-14 shadow-lg"
-                style={{ color: content.primaryColor }}
-              >
-                {content.ctaPrimary}
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+              
+              <div className="space-y-8">
+                <div className="flex items-center gap-5">
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                  >
+                    <Phone className="w-6 h-6" style={{ color: theme.accentGold }} />
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider opacity-60 mb-1">Ligue para nós</p>
+                    <span className="text-lg font-bold">(11) 3000-0000</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-5">
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                  >
+                    <Mail className="w-6 h-6" style={{ color: theme.accentGold }} />
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider opacity-60 mb-1">Envie um e-mail</p>
+                    <span className="text-lg font-bold">contato@empresa.com.br</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-5">
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                  >
+                    <MapPin className="w-6 h-6" style={{ color: theme.accentGold }} />
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider opacity-60 mb-1">Sede Corporativa</p>
+                    <span className="text-lg font-bold">Av. Paulista, 1000 - São Paulo, SP</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <div className="rounded-xl p-8 sm:p-12 relative z-10" style={{ backgroundColor: theme.white }}>
+              <form className="space-y-6">
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                      Nome Completo
+                    </label>
+                    <Input 
+                      placeholder="Digite seu nome"
+                      className="h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                      E-mail Corporativo
+                    </label>
+                    <Input 
+                      type="email"
+                      placeholder="nome@empresa.com"
+                      className="h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                      Telefone
+                    </label>
+                    <Input 
+                      placeholder="(00) 00000-0000"
+                      className="h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                      Assunto
+                    </label>
+                    <Input 
+                      placeholder="Motivo do contato"
+                      className="h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                    Mensagem
+                  </label>
+                  <Textarea 
+                    placeholder="Descreva sua necessidade..."
+                    className="min-h-[150px] border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500 resize-none"
+                  />
+                </div>
+                
+                <Button
+                  type="button"
+                  className="w-full h-14 font-bold uppercase tracking-wide"
+                  style={{ backgroundColor: theme.primaryBlue, color: theme.white }}
+                >
+                  Enviar Mensagem
+                </Button>
+              </form>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+      <footer className="py-16 px-4 sm:px-6 lg:px-8 border-t" style={{ backgroundColor: '#001f35', borderColor: 'rgba(255,255,255,0.1)' }}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              {content.logoUrl ? (
-                <img src={content.logoUrl} alt={content.companyName} className="h-8 object-contain" />
-              ) : (
-                <>
-                  <div 
-                    className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryColor}, ${content.secondaryColor})` }}
-                  >
-                    <Building2 className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="font-semibold text-white">{content.companyName}</span>
-                </>
-              )}
+          <div className="flex flex-col lg:flex-row justify-between gap-12 mb-12">
+            {/* Brand */}
+            <div className="max-w-md">
+              <div className="flex items-center gap-3 mb-6">
+                {content.logoUrl ? (
+                  <img src={content.logoUrl} alt={content.companyName} className="h-8 object-contain brightness-200" />
+                ) : (
+                  <>
+                    <Lightbulb className="w-7 h-7" style={{ color: theme.accentGold }} />
+                    <span className="font-bold text-2xl text-white">{content.companyName}</span>
+                  </>
+                )}
+              </div>
+              <p className="text-white/60 leading-relaxed">
+                Líder em concessões de iluminação pública e soluções smart city. Compromisso com a eficiência, transparência e o desenvolvimento urbano sustentável.
+              </p>
             </div>
 
-            {/* Nav */}
-            <nav className="flex items-center gap-6">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className="text-sm text-white/50 hover:text-white transition-colors"
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
+            {/* Links */}
+            <div className="flex flex-wrap gap-12 lg:gap-20">
+              <div>
+                <h4 className="font-bold text-white mb-6">Empresa</h4>
+                <ul className="space-y-3 text-white/60">
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Sobre Nós</a></li>
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Carreiras</a></li>
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Imprensa</a></li>
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Compliance</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-bold text-white mb-6">Soluções</h4>
+                <ul className="space-y-3 text-white/60">
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Iluminação Pública</a></li>
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Cidades Inteligentes</a></li>
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Energia Solar</a></li>
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Consultoria PPP</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-bold text-white mb-6">Legal</h4>
+                <ul className="space-y-3 text-white/60">
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Termos de Uso</a></li>
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Privacidade</a></li>
+                  <li><a href="#" className="hover:text-amber-400 transition-colors">Política de Cookies</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
-            {/* Copyright */}
+          {/* Copyright */}
+          <div className="pt-8 border-t text-center" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
             <p className="text-sm text-white/40">
               © {new Date().getFullYear()} {content.companyName}. Todos os direitos reservados.
             </p>
