@@ -10,7 +10,7 @@ import {
 import { PageLoading } from '@/components/ui/page-loading';
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import barbacenaHero from '@/assets/barbacena-hero.jpg';
+import barbacenaHero from '@/assets/barbacena-praca.jpg';
 
 interface Stat {
   id?: string;
