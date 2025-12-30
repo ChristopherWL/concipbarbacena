@@ -245,12 +245,12 @@ export default function GenericLandingPage() {
     <div className="min-h-screen antialiased" style={{ backgroundColor: theme.white, color: theme.textDark, fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md ${
           scrolled 
-            ? 'py-3 shadow-lg' 
+            ? 'py-3 border-b border-white/10' 
             : 'py-4'
         }`}
-        style={{ backgroundColor: theme.white }}
+        style={{ backgroundColor: scrolled ? 'rgba(0, 43, 73, 0.95)' : 'rgba(0, 43, 73, 0.85)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
@@ -261,7 +261,7 @@ export default function GenericLandingPage() {
               ) : (
                 <>
                   <Lightbulb className="w-8 h-8" style={{ color: theme.accentGold }} />
-                  <span className="font-bold text-2xl" style={{ color: theme.primaryBlue }}>{content.companyName}</span>
+                  <span className="font-bold text-2xl text-white">{content.companyName}</span>
                 </>
               )}
             </div>
@@ -272,8 +272,7 @@ export default function GenericLandingPage() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="text-sm font-bold uppercase tracking-wide transition-colors hover:opacity-70"
-                  style={{ color: theme.primaryBlue }}
+                  className="text-sm font-bold uppercase tracking-wide transition-colors text-white/80 hover:text-white"
                 >
                   {item.label}
                 </button>
@@ -290,8 +289,7 @@ export default function GenericLandingPage() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg"
-              style={{ color: theme.primaryBlue }}
+              className="md:hidden p-2 rounded-lg text-white"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
