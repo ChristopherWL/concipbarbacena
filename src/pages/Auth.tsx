@@ -40,39 +40,6 @@ interface TenantBranding {
   secondary_color: string | null;
 }
 
-const hexToHSL = (hex: string) => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return { h: 207, s: 50, l: 50 };
-  
-  let r = parseInt(result[1], 16) / 255;
-  let g = parseInt(result[2], 16) / 255;
-  let b = parseInt(result[3], 16) / 255;
-  
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s = 0, l = (max + min) / 2;
-  
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-      case g: h = ((b - r) / d + 2) / 6; break;
-      case b: h = ((r - g) / d + 4) / 6; break;
-    }
-  }
-  
-  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
-};
-
-const applyThemeColors = (primaryColor: string, secondaryColor: string) => {
-  const primary = hexToHSL(primaryColor);
-  document.documentElement.style.setProperty('--primary', `${primary.h} ${primary.s}% ${primary.l}%`);
-  document.documentElement.style.setProperty('--ring', `${primary.h} ${primary.s}% ${primary.l}%`);
-  
-  const secondary = hexToHSL(secondaryColor);
-  document.documentElement.style.setProperty('--background', `${secondary.h} ${Math.round(secondary.s * 0.2)}% ${secondary.l}%`);
-};
-
 export default function Auth() {
   const [isValidatingLocation, setIsValidatingLocation] = useState(false);
   const navigate = useNavigate();
@@ -83,7 +50,6 @@ export default function Auth() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string>('geral');
   const [isLoadingBranches, setIsLoadingBranches] = useState(true);
-  const [isBackgroundLoaded, setIsBackgroundLoaded] = useState(false);
   const [isPageReady, setIsPageReady] = useState(false);
 
   const loginForm = useForm<LoginFormData>({
@@ -111,31 +77,10 @@ export default function Auth() {
         const tenantData = brandingRes?.branding as TenantBranding | null;
         if (tenantData) {
           setBranding(tenantData);
-          if (tenantData.primary_color && tenantData.secondary_color) {
-            applyThemeColors(tenantData.primary_color, tenantData.secondary_color);
-          }
-          if (tenantData.background_url) {
-            const img = new Image();
-            img.onload = () => {
-              setIsBackgroundLoaded(true);
-              setIsPageReady(true);
-            };
-            img.onerror = () => {
-              setIsBackgroundLoaded(true);
-              setIsPageReady(true);
-            };
-            img.src = tenantData.background_url;
-          } else {
-            setIsBackgroundLoaded(true);
-            setIsPageReady(true);
-          }
-        } else {
-          setIsBackgroundLoaded(true);
-          setIsPageReady(true);
         }
+        setIsPageReady(true);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setIsBackgroundLoaded(true);
         setIsPageReady(true);
       } finally {
         setIsLoadingBranches(false);
@@ -156,12 +101,6 @@ export default function Auth() {
       });
     }
   }, [userTenant]);
-
-  useEffect(() => {
-    if (branding?.primary_color && branding?.secondary_color) {
-      applyThemeColors(branding.primary_color, branding.secondary_color);
-    }
-  }, [branding?.primary_color, branding?.secondary_color]);
 
   useEffect(() => {
     if (!authLoading && user && roles.length > 0 && !isValidatingLocation) {
@@ -272,29 +211,34 @@ export default function Auth() {
 
   const primaryColor = branding?.primary_color || '#3b82f6';
   const secondaryColor = branding?.secondary_color || '#1e40af';
+  const bgPrimary = '#0f172a';
+  const bgSecondary = '#1e293b';
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" style={{ backgroundColor: bgPrimary }}>
       {/* Left Panel - Branding */}
-      <div 
-        className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
-        }}
-      >
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-full h-full" 
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }}
-          />
-        </div>
+      <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden">
+        {/* Background gradient */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+          }}
+        />
 
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-white/10 blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/4 w-40 h-40 rounded-full bg-white/10 blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
+        {/* Decorative elements */}
+        <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute bottom-20 right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
+        <div className="absolute top-1/2 left-1/4 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
+
+        {/* Grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px'
+          }}
+        />
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between w-full p-12 xl:p-16">
@@ -366,10 +310,10 @@ export default function Auth() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="w-full lg:w-1/2 xl:w-[45%] flex flex-col bg-background">
+      <div className="w-full lg:w-1/2 xl:w-[45%] flex flex-col" style={{ backgroundColor: bgSecondary }}>
         {/* Mobile Header */}
-        <div className="lg:hidden flex items-center justify-between p-4 border-b border-border">
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+        <div className="lg:hidden flex items-center justify-between p-4 border-b border-white/10">
+          <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Voltar</span>
           </Link>
@@ -384,7 +328,7 @@ export default function Auth() {
                 <Building2 className="w-4 h-4" />
               </div>
             )}
-            <span className="font-semibold text-foreground">{branding?.name || 'Sistema'}</span>
+            <span className="font-semibold text-white">{branding?.name || 'Sistema'}</span>
           </div>
         </div>
 
@@ -396,14 +340,14 @@ export default function Auth() {
               <div 
                 className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6"
                 style={{ 
-                  background: `linear-gradient(135deg, ${primaryColor}20, ${secondaryColor}20)`,
-                  border: `1px solid ${primaryColor}30`
+                  background: `linear-gradient(135deg, ${primaryColor}30, ${secondaryColor}20)`,
+                  border: `1px solid ${primaryColor}40`
                 }}
               >
                 <Lock className="w-7 h-7" style={{ color: primaryColor }} />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Fazer Login</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Fazer Login</h2>
+              <p className="text-white/60">
                 Insira suas credenciais para acessar
               </p>
             </div>
@@ -411,63 +355,71 @@ export default function Auth() {
             {/* Form */}
             <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="login-email" className="text-sm font-medium text-foreground">
+                <Label htmlFor="login-email" className="text-sm font-medium text-white/90">
                   E-mail
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
                   <Input
                     id="login-email"
                     type="email"
                     placeholder="seu@email.com"
-                    className="pl-12 h-12 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all rounded-xl"
+                    className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all rounded-xl"
                     {...loginForm.register('email')}
                   />
                 </div>
                 {loginForm.formState.errors.email && (
-                  <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>
+                  <p className="text-sm text-red-400">{loginForm.formState.errors.email.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="login-password" className="text-sm font-medium text-foreground">
+                <Label htmlFor="login-password" className="text-sm font-medium text-white/90">
                   Senha
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
                   <Input
                     id="login-password"
                     type="password"
                     placeholder="••••••••"
-                    className="pl-12 h-12 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all rounded-xl"
+                    className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all rounded-xl"
                     {...loginForm.register('password')}
                   />
                 </div>
                 {loginForm.formState.errors.password && (
-                  <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>
+                  <p className="text-sm text-red-400">{loginForm.formState.errors.password.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location" className="text-sm font-medium text-foreground">
+                <Label htmlFor="login-location" className="text-sm font-medium text-white/90">
                   Local de Acesso
                 </Label>
                 <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 z-10 pointer-events-none" />
+                  <Select
+                    value={selectedLocation}
+                    onValueChange={setSelectedLocation}
+                    disabled={isLoadingBranches}
+                  >
                     <SelectTrigger 
-                      id="location"
-                      className="pl-12 h-12 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all rounded-xl"
+                      id="login-location"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white focus:ring-2 focus:ring-white/10 rounded-xl [&>span]:text-white"
                     >
                       <SelectValue placeholder="Selecione o local" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="geral">
-                        Geral (Matriz/Diretoria)
+                    <SelectContent className="bg-slate-800 border-white/10">
+                      <SelectItem value="geral" className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">
+                        Geral (Admin/Diretor)
                       </SelectItem>
                       {branches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id}>
-                          {branch.name} {branch.is_main ? '(Matriz)' : ''}
+                        <SelectItem 
+                          key={branch.id} 
+                          value={branch.id}
+                          className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white"
+                        >
+                          {branch.name} {branch.is_main && '(Matriz)'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -477,11 +429,11 @@ export default function Auth() {
 
               <Button
                 type="submit"
-                disabled={isSubmitting || isLoadingBranches}
-                className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 rounded-xl text-white"
+                disabled={isSubmitting}
+                className="w-full h-12 text-base font-medium text-white rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
                 style={{ 
                   background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
-                  boxShadow: `0 4px 14px ${primaryColor}40`
+                  boxShadow: `0 10px 40px ${primaryColor}30`
                 }}
               >
                 {isSubmitting ? (
@@ -490,25 +442,16 @@ export default function Auth() {
                     Entrando...
                   </>
                 ) : (
-                  'Acessar Sistema'
+                  'Entrar'
                 )}
               </Button>
             </form>
 
-            {/* Footer */}
-            <div className="mt-8 text-center">
-              <p className="text-sm text-muted-foreground">
-                Problemas para acessar? Entre em contato com o administrador.
-              </p>
-            </div>
+            {/* Help text */}
+            <p className="mt-8 text-center text-sm text-white/40">
+              Problemas para acessar? Entre em contato com o administrador.
+            </p>
           </div>
-        </div>
-
-        {/* Mobile Footer */}
-        <div className="lg:hidden p-4 border-t border-border text-center">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} {branding?.name || 'Sistema'}
-          </p>
         </div>
       </div>
     </div>
