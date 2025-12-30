@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, Building2, Mail, Lock, Sparkles, MapPin, ArrowRight, ArrowLeft, Menu, X, Play } from 'lucide-react';
+import { Loader2, Building2, Mail, Lock, MapPin, ArrowLeft, Shield, Zap } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import {
   Select,
@@ -40,7 +40,6 @@ interface TenantBranding {
   secondary_color: string | null;
 }
 
-// Helper to convert hex to HSL
 const hexToHSL = (hex: string) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return { h: 207, s: 50, l: 50 };
@@ -65,18 +64,6 @@ const hexToHSL = (hex: string) => {
   return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
 };
 
-// Create a darker version of a color for gradients
-const getDarkerGradientColor = (hex: string, primaryHex: string) => {
-  const hsl = hexToHSL(hex);
-  // If color is too light (lightness > 70%), create a dark version based on primary hue
-  if (hsl.l > 70) {
-    const primaryHsl = hexToHSL(primaryHex);
-    return `hsl(${primaryHsl.h}, ${Math.min(primaryHsl.s + 20, 100)}%, 25%)`;
-  }
-  return hex;
-};
-
-// Apply theme colors to CSS variables
 const applyThemeColors = (primaryColor: string, secondaryColor: string) => {
   const primary = hexToHSL(primaryColor);
   document.documentElement.style.setProperty('--primary', `${primary.h} ${primary.s}% ${primary.l}%`);
@@ -98,29 +85,16 @@ export default function Auth() {
   const [isLoadingBranches, setIsLoadingBranches] = useState(true);
   const [isBackgroundLoaded, setIsBackgroundLoaded] = useState(false);
   const [isPageReady, setIsPageReady] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
 
-  // Scroll handler for header
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Fetch branches and branding
   useEffect(() => {
     const fetchData = async () => {
       setIsLoadingBranches(true);
       try {
-        // Fetch active branches
         const { data: branchesData, error: branchesError } = await supabase
           .from('branches')
           .select('id, name, is_main')
@@ -131,7 +105,6 @@ export default function Auth() {
         if (branchesError) throw branchesError;
         setBranches(branchesData || []);
 
-        // Fetch public branding (matriz logo/background) via backend function (works before login)
         const { data: brandingRes, error: brandingError } = await supabase.functions.invoke('get-public-branding');
         if (brandingError) throw brandingError;
 
@@ -141,7 +114,6 @@ export default function Auth() {
           if (tenantData.primary_color && tenantData.secondary_color) {
             applyThemeColors(tenantData.primary_color, tenantData.secondary_color);
           }
-          // Preload background image
           if (tenantData.background_url) {
             const img = new Image();
             img.onload = () => {
@@ -173,7 +145,6 @@ export default function Auth() {
     fetchData();
   }, []);
 
-  // Use user's tenant branding if available
   useEffect(() => {
     if (userTenant) {
       setBranding({
@@ -186,14 +157,12 @@ export default function Auth() {
     }
   }, [userTenant]);
 
-  // Apply theme colors when branding changes
   useEffect(() => {
     if (branding?.primary_color && branding?.secondary_color) {
       applyThemeColors(branding.primary_color, branding.secondary_color);
     }
   }, [branding?.primary_color, branding?.secondary_color]);
 
-  // Redirect after login (only if not validating location)
   useEffect(() => {
     if (!authLoading && user && roles.length > 0 && !isValidatingLocation) {
       const isSuperAdminOnly = isSuperAdmin() && roles.length === 1 && roles[0].role === 'superadmin';
@@ -224,20 +193,17 @@ export default function Auth() {
         return;
       }
 
-      // Get user data and roles to validate location
       const { data: userData } = await supabase.auth.getUser();
       if (!userData?.user) {
         toast.error('Erro ao obter dados do usuário');
         return;
       }
 
-      // Fetch user roles
       const { data: userRoles } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userData.user.id);
 
-      // Fetch user profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('selected_branch_id, branch_id')
@@ -245,13 +211,11 @@ export default function Auth() {
         .single();
 
       const isSuperAdminUser = userRoles?.some(r => r.role === 'superadmin');
-      // Director is admin/manager with no branch assigned
       const isAdminOrManager = userRoles?.some(r => r.role === 'admin' || r.role === 'manager');
       const hasNoBranchAssigned = !profile?.branch_id && !profile?.selected_branch_id;
       const isDirectorUser = isAdminOrManager && hasNoBranchAssigned && !isSuperAdminUser;
       const isGeneralAccessUser = isSuperAdminUser || isDirectorUser;
 
-      // Validate location selection
       if (selectedLocation === 'geral') {
         if (!isGeneralAccessUser) {
           toast.error('Acesso negado. Selecione sua filial para fazer login.');
@@ -268,7 +232,6 @@ export default function Auth() {
         }
 
         if (!isGeneralAccessUser) {
-          // Check if the user is assigned to this branch
           const assignedBranchId = profile?.branch_id;
           
           if (assignedBranchId && assignedBranchId !== selectedLocation) {
@@ -280,7 +243,6 @@ export default function Auth() {
         }
       }
 
-      // Save selected branch to user profile
       if (selectedLocation !== 'geral') {
         await supabase
           .from('profiles')
@@ -310,355 +272,245 @@ export default function Auth() {
 
   const primaryColor = branding?.primary_color || '#3b82f6';
   const secondaryColor = branding?.secondary_color || '#1e40af';
-  // For gradients, use a darker version if secondary is too light
-  const gradientSecondary = getDarkerGradientColor(secondaryColor, primaryColor);
-
-  // Use dark background colors like GenericLandingPage
-  const backgroundGradientFrom = '#020617';
-  const backgroundGradientTo = '#0f172a';
-  // Light effect color - use a purple/violet like the landing page
-  const lightEffectColor = '#8b5cf6';
 
   return (
-    <div 
-      className="min-h-screen text-white overflow-hidden relative"
-      style={{
-        '--primary-color': primaryColor,
-        '--secondary-color': secondaryColor,
-        background: `linear-gradient(135deg, ${backgroundGradientFrom} 0%, ${backgroundGradientTo} 100%)`,
-      } as React.CSSProperties}
-    >
-
-      {/* Moving Light Focus Effects - Using lightEffectColor */}
+    <div className="min-h-screen flex">
+      {/* Left Panel - Branding */}
       <div 
-        className="absolute top-[10%] left-[5%] w-[40vw] h-[40vw] sm:w-[35vw] sm:h-[35vw] rounded-full blur-[80px] sm:blur-[120px] animate-float-slow z-[1]"
-        style={{ background: lightEffectColor, opacity: 0.25 }}
-      />
-      <div 
-        className="absolute top-[5%] right-[8%] w-[38vw] h-[38vw] sm:w-[32vw] sm:h-[32vw] rounded-full blur-[80px] sm:blur-[120px] animate-float-slower z-[1]"
-        style={{ background: lightEffectColor, opacity: 0.2 }}
-      />
-      <div 
-        className="absolute bottom-[10%] right-[5%] w-[45vw] h-[45vw] sm:w-[40vw] sm:h-[40vw] rounded-full blur-[80px] sm:blur-[120px] animate-float-slow z-[1]"
-        style={{ background: lightEffectColor, opacity: 0.25 }}
-      />
-      <div 
-        className="absolute top-[50%] left-[40%] w-[50vw] h-[50vw] sm:w-[45vw] sm:h-[45vw] rounded-full blur-[100px] sm:blur-[150px] animate-float-slower z-[1]"
-        style={{ background: lightEffectColor, opacity: 0.15 }}
-      />
-
-      {/* Drifting Particles */}
-      <div className="hidden sm:block absolute top-[20%] left-[20%] w-2 h-2 rounded-full bg-white/20 animate-pulse-slow z-[2]" />
-      <div className="hidden sm:block absolute top-[30%] right-[25%] w-1.5 h-1.5 rounded-full bg-white/15 animate-pulse-slow z-[2]" style={{ animationDelay: '1s' }} />
-      <div className="hidden md:block absolute top-[60%] left-[15%] w-1 h-1 rounded-full bg-white/20 animate-pulse-slow z-[2]" style={{ animationDelay: '2s' }} />
-
-      {/* Header */}
-      <header 
-        className="relative z-50 bg-transparent"
+        className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+        }}
       >
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Mobile: Back button */}
-            <Link 
-              to="/" 
-              className="lg:hidden flex items-center gap-2 text-white hover:text-white/80 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="text-sm font-medium">Voltar</span>
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full" 
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          />
+        </div>
+
+        {/* Floating Elements */}
+        <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-white/10 blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/4 w-40 h-40 rounded-full bg-white/10 blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-between w-full p-12 xl:p-16">
+          {/* Header */}
+          <div>
+            <Link to="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors mb-8 group">
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              <span className="text-sm font-medium">Voltar ao início</span>
             </Link>
-
-            {/* Logo - visible on all sizes */}
-            <div className="flex items-center gap-3">
+            
+            <div className="flex items-center gap-4">
               {branding?.logo_url ? (
-                <img src={branding.logo_url} alt={branding.name} className="h-10 lg:h-12 w-auto" />
+                <img src={branding.logo_url} alt={branding.name} className="h-14 w-auto" />
               ) : (
-                <>
-                  <div 
-                    className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-xl text-white shadow-lg"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
-                      boxShadow: `0 4px 14px ${primaryColor}40`
-                    }}
-                  >
-                    <Building2 className="w-5 h-5 lg:w-6 lg:h-6" />
-                  </div>
-                  <span className="text-lg lg:text-xl font-bold text-white hidden sm:block">{branding?.name || 'Sistema'}</span>
-                </>
+                <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm">
+                  <Building2 className="w-7 h-7 text-white" />
+                </div>
               )}
+              <span className="text-2xl font-bold text-white">{branding?.name || 'Sistema'}</span>
             </div>
+          </div>
 
-            {/* Desktop: Empty for balance */}
-            <div className="hidden lg:block" />
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col justify-center py-12">
+            <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
+              Bem-vindo de volta
+            </h1>
+            <p className="text-lg xl:text-xl text-white/80 leading-relaxed max-w-lg mb-12">
+              Acesse sua conta para gerenciar suas operações de forma eficiente e segura.
+            </p>
+
+            {/* Features */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold">Acesso Seguro</h3>
+                  <p className="text-white/70 text-sm">Seus dados protegidos com criptografia</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold">Gestão Completa</h3>
+                  <p className="text-white/70 text-sm">Todas as ferramentas em um só lugar</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold">Multi-Filiais</h3>
+                  <p className="text-white/70 text-sm">Gerencie todas as unidades facilmente</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="text-white/60 text-sm">
+            © {new Date().getFullYear()} {branding?.name || 'Sistema'}. Todos os direitos reservados.
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* Hero Section with Login Form */}
-      <section className="relative min-h-[calc(100vh-4rem)] lg:min-h-screen flex items-start lg:items-center justify-center pt-4 lg:pt-12 pb-8 lg:pb-12 z-10">
-        <div className="container mx-auto px-4 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-start max-w-6xl mx-auto">
-            {/* Left side - Welcome text (hidden on mobile) */}
-            <div className="hidden lg:block text-left lg:mt-8">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-white/80 text-sm mb-8 animate-fade-in-up">
-                <Sparkles className="w-4 h-4 text-yellow-400" />
-                <span>Acesso ao sistema</span>
+      {/* Right Panel - Login Form */}
+      <div className="w-full lg:w-1/2 xl:w-[45%] flex flex-col bg-background">
+        {/* Mobile Header */}
+        <div className="lg:hidden flex items-center justify-between p-4 border-b border-border">
+          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Voltar</span>
+          </Link>
+          <div className="flex items-center gap-3">
+            {branding?.logo_url ? (
+              <img src={branding.logo_url} alt={branding.name} className="h-8 w-auto" />
+            ) : (
+              <div 
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-white"
+                style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+              >
+                <Building2 className="w-4 h-4" />
               </div>
+            )}
+            <span className="font-semibold text-foreground">{branding?.name || 'Sistema'}</span>
+          </div>
+        </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight animate-fade-in-up animation-delay-100">
-                Bem-vindo de volta
-              </h1>
-              
-              <p className="text-lg sm:text-xl text-slate-300 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
-                Entre com suas credenciais para acessar o sistema e gerenciar suas operações.
+        {/* Form Container */}
+        <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12">
+          <div className="w-full max-w-md">
+            {/* Form Header */}
+            <div className="text-center mb-8">
+              <div 
+                className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6"
+                style={{ 
+                  background: `linear-gradient(135deg, ${primaryColor}20, ${secondaryColor}20)`,
+                  border: `1px solid ${primaryColor}30`
+                }}
+              >
+                <Lock className="w-7 h-7" style={{ color: primaryColor }} />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Fazer Login</h2>
+              <p className="text-muted-foreground">
+                Insira suas credenciais para acessar
               </p>
-
-              <div className="hidden lg:flex items-center gap-6 animate-fade-in-up animation-delay-300">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-white/70">Gestão completa</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-white/70">Multi-filiais</span>
-                </div>
-              </div>
             </div>
 
-            {/* Right side - Login Form */}
-            <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up animation-delay-200">
-              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl relative overflow-visible">
-                {/* Decorative top gradient line */}
-                <div 
-                  className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
-                  style={{ background: `linear-gradient(90deg, transparent, ${primaryColor}, transparent)` }}
-                />
-                
-                {/* Decorative floating dots */}
-                <div className="absolute top-4 right-4 flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-white/20" />
-                  <div className="w-2 h-2 rounded-full bg-white/30" />
-                  <div className="w-2 h-2 rounded-full bg-white/40" />
+            {/* Form */}
+            <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="login-email" className="text-sm font-medium text-foreground">
+                  E-mail
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="login-email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    className="pl-12 h-12 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all rounded-xl"
+                    {...loginForm.register('email')}
+                  />
                 </div>
-                
-                {/* Card Header - Static, no scroll */}
-                <div className="p-6 sm:p-8 pb-4">
-                  <div className="text-center">
-                    {/* Logo/Icon */}
-                    <div 
-                      className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${primaryColor}30, ${primaryColor}10)`,
-                        border: `1px solid ${primaryColor}40`
-                      }}
-                    >
-                      <Lock className="w-7 h-7 text-white" />
-                    </div>
-                    
-                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Fazer Login</h2>
-                    <p className="text-sm sm:text-base text-white/60 mb-1">
-                      Insira seus dados para continuar
-                    </p>
-                    <p className="text-xs text-white/40">
-                      Acesso seguro ao sistema
-                    </p>
-                  </div>
+                {loginForm.formState.errors.email && (
+                  <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="login-password" className="text-sm font-medium text-foreground">
+                  Senha
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="login-password"
+                    type="password"
+                    placeholder="••••••••"
+                    className="pl-12 h-12 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all rounded-xl"
+                    {...loginForm.register('password')}
+                  />
                 </div>
-                
-                {/* Divider */}
-                <div className="mx-6 sm:mx-8 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                {loginForm.formState.errors.password && (
+                  <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>
+                )}
+              </div>
 
-                {/* Form */}
-                <div className="p-6 sm:p-8 pt-4">
-                  <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="login-email" className="text-sm font-medium text-white">
-                        E-mail
-                      </Label>
-                      <div className="relative group">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50 group-focus-within:text-white transition-colors" />
-                        <Input
-                          id="login-email"
-                          type="email"
-                          placeholder="seu@email.com"
-                          data-auth-input
-                          className="pl-12 h-12 bg-white/5 text-white border-white/20 placeholder:text-white/40 focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all rounded-xl"
-                          {...loginForm.register('email')}
-                        />
-                      </div>
-                      {loginForm.formState.errors.email && (
-                        <p className="text-sm text-red-300">{loginForm.formState.errors.email.message}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="login-password" className="text-sm font-medium text-white">
-                        Senha
-                      </Label>
-                      <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50 group-focus-within:text-white transition-colors" />
-                        <Input
-                          id="login-password"
-                          type="password"
-                          placeholder="••••••••"
-                          data-auth-input
-                          className="pl-12 h-12 bg-white/5 text-white border-white/20 placeholder:text-white/40 focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all rounded-xl"
-                          {...loginForm.register('password')}
-                        />
-                      </div>
-                      {loginForm.formState.errors.password && (
-                        <p className="text-sm text-red-300">{loginForm.formState.errors.password.message}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="location" className="text-sm font-medium text-white">
-                        Local
-                      </Label>
-                      <div className="relative group">
-                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50 z-10 pointer-events-none" />
-                        <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                          <SelectTrigger 
-                            id="location"
-                            className="pl-12 h-12 bg-white/5 text-white border-white/20 focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all rounded-xl [&>span]:text-white"
-                          >
-                            <SelectValue placeholder="Selecione o local" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-800 border-white/20">
-                            <SelectItem value="geral" className="text-white hover:bg-white/10">
-                              Geral (Matriz/Diretoria)
-                            </SelectItem>
-                            {branches.map((branch) => (
-                              <SelectItem 
-                                key={branch.id} 
-                                value={branch.id}
-                                className="text-white hover:bg-white/10"
-                              >
-                                {branch.name} {branch.is_main ? '(Matriz)' : ''}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting || isLoadingBranches}
-                      className="w-full h-12 text-base font-semibold shadow-lg hover:scale-[1.02] transition-all duration-300 rounded-xl text-white"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
-                        boxShadow: `0 4px 14px ${primaryColor}40`
-                      }}
+              <div className="space-y-2">
+                <Label htmlFor="location" className="text-sm font-medium text-foreground">
+                  Local de Acesso
+                </Label>
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
+                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                    <SelectTrigger 
+                      id="location"
+                      className="pl-12 h-12 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all rounded-xl"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Entrando...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="mr-2 h-5 w-5" />
-                          Acessar Sistema
-                        </>
-                      )}
-                    </Button>
-                  </form>
+                      <SelectValue placeholder="Selecione o local" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="geral">
+                        Geral (Matriz/Diretoria)
+                      </SelectItem>
+                      {branches.map((branch) => (
+                        <SelectItem key={branch.id} value={branch.id}>
+                          {branch.name} {branch.is_main ? '(Matriz)' : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              {/* Back to home link */}
-              <div className="mt-6 text-center">
-                <Link 
-                  to="/" 
-                  className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-                >
-                  <ArrowRight className="w-4 h-4 rotate-180" />
-                  <span>Voltar para o início</span>
-                </Link>
-              </div>
+              <Button
+                type="submit"
+                disabled={isSubmitting || isLoadingBranches}
+                className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 rounded-xl text-white"
+                style={{ 
+                  background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+                  boxShadow: `0 4px 14px ${primaryColor}40`
+                }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  'Acessar Sistema'
+                )}
+              </Button>
+            </form>
+
+            {/* Footer */}
+            <div className="mt-8 text-center">
+              <p className="text-sm text-muted-foreground">
+                Problemas para acessar? Entre em contato com o administrador.
+              </p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        
-        .animate-gradient-shift {
-          animation: gradient-shift 15s ease infinite;
-        }
-        
-        @keyframes float-slow {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        
-        @keyframes float-slower {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-30px) rotate(-5deg); }
-        }
-        
-        .animate-float-slow {
-          animation: float-slow 8s ease-in-out infinite;
-        }
-        
-        .animate-float-slower {
-          animation: float-slower 12s ease-in-out infinite;
-        }
-        
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.2); }
-        }
-        
-        .animate-pulse-slow {
-          animation: pulse-slow 4s ease-in-out infinite;
-        }
-        
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in-up {
-          animation: fade-in-up 0.8s ease-out forwards;
-          opacity: 0;
-        }
-        
-        .animation-delay-100 { animation-delay: 0.1s; }
-        .animation-delay-200 { animation-delay: 0.2s; }
-        .animation-delay-300 { animation-delay: 0.3s; }
-        
-        @keyframes slide-down {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-slide-down {
-          animation: slide-down 0.3s ease-out;
-        }
-      `}</style>
+        {/* Mobile Footer */}
+        <div className="lg:hidden p-4 border-t border-border text-center">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} {branding?.name || 'Sistema'}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
