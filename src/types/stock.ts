@@ -25,6 +25,18 @@ export const MOVEMENT_TYPE_LABELS: Record<MovementType, string> = {
   devolucao: 'Devolução',
 };
 
+export type SupplierCategory = 'geral' | 'combustivel' | 'pecas' | 'materiais' | 'servicos' | 'epi' | 'ferramentas';
+
+export const SUPPLIER_CATEGORY_LABELS: Record<SupplierCategory, string> = {
+  geral: 'Geral',
+  combustivel: 'Combustível',
+  pecas: 'Peças e Acessórios',
+  materiais: 'Materiais',
+  servicos: 'Serviços',
+  epi: 'EPI/EPC',
+  ferramentas: 'Ferramentas',
+};
+
 export interface Supplier {
   id: string;
   tenant_id: string;
@@ -37,6 +49,7 @@ export interface Supplier {
   state?: string;
   contact_name?: string;
   notes?: string;
+  category?: SupplierCategory;
   is_active: boolean;
   created_at: string;
   updated_at: string;

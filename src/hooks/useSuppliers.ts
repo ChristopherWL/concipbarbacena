@@ -1,32 +1,37 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Supplier } from '@/types/stock';
+import { Supplier, SupplierCategory } from '@/types/stock';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export function useSuppliers() {
+export function useSuppliers(category?: SupplierCategory) {
   const { tenant } = useAuthContext();
 
   return useQuery({
-    queryKey: ['suppliers', tenant?.id],
+    queryKey: ['suppliers', tenant?.id, category],
     queryFn: async () => {
       if (!tenant?.id) return [];
       
-      const { data, error } = await supabase
+      let query = supabase
         .from('suppliers')
         .select('*')
         .eq('tenant_id', tenant.id)
-        .eq('is_active', true)
-        .order('name');
+        .eq('is_active', true);
       
-      console.log('[useSuppliers] tenant_id:', tenant.id, 'data:', data, 'error:', error);
+      if (category) {
+        query = query.eq('category', category);
+      }
+      
+      const { data, error } = await query.order('name');
+      
+      console.log('[useSuppliers] tenant_id:', tenant.id, 'category:', category, 'data:', data, 'error:', error);
       
       if (error) throw error;
       return data as Supplier[];
     },
     enabled: !!tenant?.id,
-    staleTime: 5 * 60 * 1000, // 5 minutes - suppliers don't change often
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 

@@ -41,7 +41,7 @@ export default function Frota() {
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: maintenances = [], isLoading: maintenancesLoading } = useMaintenances();
   const { data: fuelLogs = [], isLoading: fuelLogsLoading } = useFuelLogs();
-  const { data: suppliers = [] } = useSuppliers();
+  const { data: suppliers = [] } = useSuppliers('combustivel');
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();
   const createMaintenance = useCreateMaintenance();
