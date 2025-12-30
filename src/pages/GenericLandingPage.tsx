@@ -279,8 +279,8 @@ export default function GenericLandingPage() {
               ))}
               <Button
                 onClick={() => scrollToSection('contact')}
-                className="text-sm font-bold uppercase tracking-wide px-6"
-                style={{ backgroundColor: theme.accentGold, color: theme.white }}
+                className="text-sm font-bold uppercase tracking-wide px-6 bg-white hover:bg-white/90"
+                style={{ color: theme.primaryBlue }}
               >
                 Fale Conosco
               </Button>
@@ -378,8 +378,8 @@ export default function GenericLandingPage() {
               <Button
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="text-base font-bold uppercase tracking-wide px-10 py-6"
-                style={{ backgroundColor: theme.accentGold, color: theme.white }}
+                className="text-base font-bold uppercase tracking-wide px-10 py-6 bg-white hover:bg-white/90"
+                style={{ color: theme.primaryBlue }}
               >
                 {content.ctaPrimary}
               </Button>
