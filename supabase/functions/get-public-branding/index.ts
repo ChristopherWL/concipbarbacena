@@ -40,12 +40,27 @@ Deno.serve(async (req) => {
       throw tenantError
     }
 
-    // Fetch matriz branch logo (is_main = true)
+    // Fetch branch data - prioritize Barbacena branch for tickets, use matriz for logo
     let matrizLogo = null
     let matrizLogoDark = null
-    let matrizBranchId = null
+    let ticketBranchId = null
     
     if (tenantData?.id) {
+      // First, try to get Barbacena branch for tickets
+      const { data: barbacenaData, error: barbacenaError } = await supabase
+        .from('branches')
+        .select('id')
+        .eq('tenant_id', tenantData.id)
+        .ilike('name', '%barbacena%')
+        .eq('is_active', true)
+        .maybeSingle()
+
+      if (!barbacenaError && barbacenaData) {
+        ticketBranchId = barbacenaData.id
+        console.log('Using Barbacena branch for tickets:', ticketBranchId)
+      }
+
+      // Get matriz branch for logo
       const { data: matrizData, error: matrizError } = await supabase
         .from('branches')
         .select('id, logo_url, logo_dark_url')
@@ -59,7 +74,10 @@ Deno.serve(async (req) => {
       } else if (matrizData) {
         matrizLogo = matrizData.logo_url
         matrizLogoDark = matrizData.logo_dark_url
-        matrizBranchId = matrizData.id
+        // If no Barbacena branch found, fall back to matriz
+        if (!ticketBranchId) {
+          ticketBranchId = matrizData.id
+        }
       }
     }
 
@@ -88,7 +106,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ 
       branding,
       tenantId: tenantData?.id || null,
-      branchId: matrizBranchId,
+      branchId: ticketBranchId,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
