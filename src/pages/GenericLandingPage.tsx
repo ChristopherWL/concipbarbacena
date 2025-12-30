@@ -332,25 +332,25 @@ export default function GenericLandingPage() {
       <section 
         id="hero" 
         ref={heroRef} 
-        className="relative min-h-[700px] flex items-center pt-24"
+        className="relative min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center pt-20 sm:pt-24"
         style={{
-          background: `linear-gradient(90deg, rgba(0, 43, 73, 0.85) 0%, rgba(0, 43, 73, 0.5) 100%), url(${barbacenaHero})`,
+          background: `linear-gradient(90deg, rgba(0, 43, 73, 0.9) 0%, rgba(0, 43, 73, 0.6) 100%), url(${barbacenaHero})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
         {/* Gradient overlay at bottom */}
         <div 
-          className="absolute bottom-0 left-0 right-0 h-36"
+          className="absolute bottom-0 left-0 right-0 h-24 sm:h-36"
           style={{ background: `linear-gradient(to top, ${theme.white}, transparent)` }}
         />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
           <div className="max-w-3xl">
             {/* Badge */}
             {content.badge && (
               <span 
-                className="inline-block px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border"
+                className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6 border"
                 style={{ 
                   backgroundColor: 'rgba(197, 160, 89, 0.2)', 
                   borderColor: theme.accentGold,
@@ -362,7 +362,7 @@ export default function GenericLandingPage() {
             )}
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6 text-white">
               {content.heroTitle}
               {content.heroTitleHighlight && (
                 <span className="block">{content.heroTitleHighlight}</span>
@@ -370,16 +370,16 @@ export default function GenericLandingPage() {
             </h1>
 
             {/* Description */}
-            <p className="text-xl text-white/90 leading-relaxed mb-10 max-w-2xl">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed mb-6 sm:mb-10 max-w-2xl">
               {content.heroDescription}
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-start gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4">
               <Button
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="text-base font-bold uppercase tracking-wide px-10 py-6 bg-white hover:bg-white/90"
+                className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 bg-white hover:bg-white/90 w-full sm:w-auto"
                 style={{ color: theme.primaryBlue }}
               >
                 {content.ctaPrimary}
@@ -388,7 +388,7 @@ export default function GenericLandingPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="text-base font-bold uppercase tracking-wide px-10 py-6 border-2 text-white hover:bg-white/10"
+                  className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 border-2 text-white hover:bg-white/10 w-full sm:w-auto"
                   style={{ borderColor: theme.white }}
                 >
                   {content.ctaSecondary}
@@ -400,18 +400,18 @@ export default function GenericLandingPage() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.white }}>
+      <section id="services" className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.white }}>
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4" style={{ color: theme.primaryBlue }}>
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4" style={{ color: theme.primaryBlue }}>
               Soluções Completas
             </h2>
-            <p className="text-xl max-w-3xl mx-auto" style={{ color: theme.textGray }}>
+            <p className="text-base sm:text-lg lg:text-xl max-w-3xl mx-auto px-4" style={{ color: theme.textGray }}>
               Oferecemos um ecossistema de infraestrutura para modernizar a gestão pública e melhorar a qualidade de vida urbana.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
             {(content.modules.length > 0 ? content.modules : defaultServices).map((service, i) => {
               const IconComponent = 'icon' in service && typeof service.icon === 'string' 
                 ? iconMap[service.icon] || Building2 
@@ -420,7 +420,7 @@ export default function GenericLandingPage() {
               return (
                 <div 
                   key={i}
-                  className="group rounded-lg p-10 border transition-all duration-300 hover:-translate-y-2 hover:shadow-xl relative overflow-hidden"
+                  className="group rounded-lg p-6 sm:p-8 lg:p-10 border transition-all duration-300 hover:-translate-y-2 hover:shadow-xl relative overflow-hidden"
                   style={{ 
                     backgroundColor: theme.white,
                     borderColor: '#E5E5E5',
@@ -433,23 +433,23 @@ export default function GenericLandingPage() {
                   />
                   
                   <div 
-                    className="w-20 h-20 rounded-full flex items-center justify-center mb-8 transition-all group-hover:text-white"
+                    className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 transition-all group-hover:text-white"
                     style={{ 
                       backgroundColor: `${theme.primaryBlue}10`,
                       color: theme.primaryBlue,
                     }}
                   >
-                    <IconComponent className="w-9 h-9 transition-colors group-hover:text-white" />
+                    <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 lg:w-9 lg:h-9 transition-colors group-hover:text-white" />
                   </div>
                   <style>{`
                     .group:hover .service-icon-bg {
                       background-color: ${theme.primaryBlue} !important;
                     }
                   `}</style>
-                  <h3 className="text-2xl font-bold mb-4" style={{ color: theme.primaryBlue }}>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 lg:mb-4" style={{ color: theme.primaryBlue }}>
                     {service.title}
                   </h3>
-                  <p className="leading-relaxed" style={{ color: theme.textGray }}>
+                  <p className="text-sm sm:text-base leading-relaxed" style={{ color: theme.textGray }}>
                     {service.description}
                   </p>
                 </div>
@@ -460,35 +460,35 @@ export default function GenericLandingPage() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.bgLight }}>
+      <section id="about" className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.bgLight }}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-20 items-center">
             {/* Content */}
-            <div>
+            <div className="order-2 lg:order-1">
               <span 
-                className="text-sm font-bold uppercase tracking-widest mb-3 block"
+                className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-3 block"
                 style={{ color: theme.accentGold }}
               >
                 Quem Somos
               </span>
-              <h2 className="text-4xl font-bold mb-8 leading-tight" style={{ color: theme.primaryBlue }}>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 lg:mb-8 leading-tight" style={{ color: theme.primaryBlue }}>
                 Liderança em Infraestrutura Urbana Sustentável
               </h2>
-              <p className="text-lg leading-relaxed mb-6" style={{ color: theme.textGray }}>
+              <p className="text-base sm:text-lg leading-relaxed mb-4 sm:mb-6" style={{ color: theme.textGray }}>
                 Nascemos com a missão de transformar a realidade das cidades brasileiras através da tecnologia e da eficiência. Somos especialistas em estruturar projetos complexos que unem o setor público e privado em prol do cidadão.
               </p>
-              <p className="text-lg leading-relaxed mb-10" style={{ color: theme.textGray }}>
+              <p className="text-base sm:text-lg leading-relaxed mb-6 sm:mb-8 lg:mb-10" style={{ color: theme.textGray }}>
                 Com um corpo técnico altamente qualificado, atuamos desde o estudo de viabilidade até a operação e manutenção de ativos de iluminação e conectividade, sempre focados em transparência, inovação e sustentabilidade.
               </p>
               
               {/* Stats Row */}
-              <div className="flex flex-wrap gap-12 pt-10 border-t" style={{ borderColor: '#ddd' }}>
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-6 sm:gap-8 lg:gap-12 pt-6 sm:pt-8 lg:pt-10 border-t" style={{ borderColor: '#ddd' }}>
                 {stats.map((stat, i) => (
                   <div key={i}>
-                    <h4 className="text-4xl font-bold mb-2" style={{ color: theme.accentGold }}>
+                    <h4 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2" style={{ color: theme.accentGold }}>
                       {stat.value}
                     </h4>
-                    <span className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                    <span className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
                       {stat.label}
                     </span>
                   </div>
@@ -497,10 +497,10 @@ export default function GenericLandingPage() {
             </div>
 
             {/* Image */}
-            <div className="relative">
+            <div className="relative order-1 lg:order-2">
               <div 
                 className="relative rounded-lg overflow-hidden shadow-2xl"
-                style={{ height: '600px' }}
+                style={{ height: 'clamp(300px, 50vw, 600px)' }}
               >
                 <img 
                   src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop" 
@@ -508,9 +508,9 @@ export default function GenericLandingPage() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              {/* Decorative border */}
+              {/* Decorative border - hidden on mobile */}
               <div 
-                className="absolute -top-5 -left-5 w-full h-full rounded-lg border-4 -z-10"
+                className="absolute -top-5 -left-5 w-full h-full rounded-lg border-4 -z-10 hidden sm:block"
                 style={{ borderColor: theme.accentGold }}
               />
             </div>
@@ -519,31 +519,31 @@ export default function GenericLandingPage() {
       </section>
 
       {/* Gallery Section */}
-      <section id="gallery" className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.white }}>
+      <section id="gallery" className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: theme.white }}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16">
             <div>
-              <h2 className="text-4xl font-bold mb-4" style={{ color: theme.primaryBlue }}>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4" style={{ color: theme.primaryBlue }}>
                 Nossos Projetos
               </h2>
-              <p className="text-xl" style={{ color: theme.textGray }}>
+              <p className="text-base sm:text-lg lg:text-xl" style={{ color: theme.textGray }}>
                 Veja como estamos iluminando o futuro das cidades.
               </p>
             </div>
             <Button
               variant="outline"
-              className="font-bold uppercase tracking-wide border-2"
+              className="font-bold uppercase tracking-wide border-2 text-sm sm:text-base w-full md:w-auto"
               style={{ borderColor: theme.accentGold, color: theme.accentGold }}
             >
               Ver Galeria Completa
             </Button>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {galleryItems.map((item, i) => (
               <div 
                 key={i} 
-                className="group relative h-[350px] rounded-lg overflow-hidden cursor-pointer"
+                className="group relative h-[250px] sm:h-[300px] lg:h-[350px] rounded-lg overflow-hidden cursor-pointer"
               >
                 <img 
                   src={item.image} 
@@ -552,11 +552,11 @@ export default function GenericLandingPage() {
                 />
                 {/* Overlay */}
                 <div 
-                  className="absolute bottom-0 left-0 right-0 p-8 text-white opacity-0 translate-y-5 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
+                  className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 text-white opacity-100 sm:opacity-0 sm:translate-y-5 transition-all duration-300 sm:group-hover:opacity-100 sm:group-hover:translate-y-0"
                   style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}
                 >
-                  <h4 className="text-xl font-bold">{item.title}</h4>
-                  <p className="text-white/80">{item.location}</p>
+                  <h4 className="text-base sm:text-lg lg:text-xl font-bold">{item.title}</h4>
+                  <p className="text-sm sm:text-base text-white/80">{item.location}</p>
                 </div>
               </div>
             ))}
@@ -565,125 +565,125 @@ export default function GenericLandingPage() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style={{ backgroundColor: theme.primaryBlue }}>
+      <section id="contact" className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style={{ backgroundColor: theme.primaryBlue }}>
         {/* Decorative circle */}
         <div 
-          className="absolute -top-48 -right-48 w-[600px] h-[600px] rounded-full"
+          className="absolute -top-24 sm:-top-48 -right-24 sm:-right-48 w-[300px] sm:w-[400px] lg:w-[600px] h-[300px] sm:h-[400px] lg:h-[600px] rounded-full"
           style={{ background: `radial-gradient(circle, ${theme.accentGold}20 0%, transparent 70%)` }}
         />
         
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-[400px_1fr] gap-16 lg:gap-24">
+          <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 sm:gap-12 lg:gap-24">
             {/* Contact Info */}
             <div className="text-white">
-              <h2 className="text-4xl font-bold mb-6">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
                 Vamos Transformar Sua Cidade?
               </h2>
-              <p className="text-lg opacity-80 leading-relaxed mb-12">
+              <p className="text-base sm:text-lg opacity-80 leading-relaxed mb-8 sm:mb-12">
                 Entre em contato com nossa equipe de especialistas para discutir como podemos implementar soluções de iluminação e tecnologia no seu município.
               </p>
               
-              <div className="space-y-8">
-                <div className="flex items-center gap-5">
+              <div className="space-y-6 sm:space-y-8">
+                <div className="flex items-center gap-4 sm:gap-5">
                   <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
                   >
-                    <Phone className="w-6 h-6" style={{ color: theme.accentGold }} />
+                    <Phone className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: theme.accentGold }} />
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wider opacity-60 mb-1">Ligue para nós</p>
-                    <span className="text-lg font-bold">(11) 3000-0000</span>
+                    <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Ligue para nós</p>
+                    <span className="text-base sm:text-lg font-bold">(11) 3000-0000</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-4 sm:gap-5">
                   <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
                   >
-                    <Mail className="w-6 h-6" style={{ color: theme.accentGold }} />
+                    <Mail className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: theme.accentGold }} />
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wider opacity-60 mb-1">Envie um e-mail</p>
-                    <span className="text-lg font-bold">contato@empresa.com.br</span>
+                    <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Envie um e-mail</p>
+                    <span className="text-base sm:text-lg font-bold break-all">contato@empresa.com.br</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-4 sm:gap-5">
                   <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
                   >
-                    <MapPin className="w-6 h-6" style={{ color: theme.accentGold }} />
+                    <MapPin className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: theme.accentGold }} />
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wider opacity-60 mb-1">Sede Corporativa</p>
-                    <span className="text-lg font-bold">Av. Paulista, 1000 - São Paulo, SP</span>
+                    <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Sede Corporativa</p>
+                    <span className="text-base sm:text-lg font-bold">Av. Paulista, 1000 - São Paulo, SP</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Contact Form */}
-            <div className="rounded-xl p-8 sm:p-12 relative z-10" style={{ backgroundColor: theme.white }}>
-              <form className="space-y-6">
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+            <div className="rounded-xl p-6 sm:p-8 lg:p-12 relative z-10" style={{ backgroundColor: theme.white }}>
+              <form className="space-y-4 sm:space-y-6">
+                <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
                       Nome Completo
                     </label>
                     <Input 
                       placeholder="Digite seu nome"
-                      className="h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
+                      className="h-10 sm:h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
                       E-mail Corporativo
                     </label>
                     <Input 
                       type="email"
                       placeholder="nome@empresa.com"
-                      className="h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
+                      className="h-10 sm:h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
                     />
                   </div>
                 </div>
                 
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
                       Telefone
                     </label>
                     <Input 
                       placeholder="(00) 00000-0000"
-                      className="h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
+                      className="h-10 sm:h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
                       Assunto
                     </label>
                     <Input 
                       placeholder="Motivo do contato"
-                      className="h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
+                      className="h-10 sm:h-12 border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500"
                     />
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-bold uppercase" style={{ color: theme.primaryBlue }}>
                     Mensagem
                   </label>
                   <Textarea 
                     placeholder="Descreva sua necessidade..."
-                    className="min-h-[150px] border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500 resize-none"
+                    className="min-h-[120px] sm:min-h-[150px] border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-500 resize-none"
                   />
                 </div>
                 
                 <Button
                   type="button"
-                  className="w-full h-14 font-bold uppercase tracking-wide"
+                  className="w-full h-12 sm:h-14 font-bold uppercase tracking-wide text-sm sm:text-base"
                   style={{ backgroundColor: theme.primaryBlue, color: theme.white }}
                 >
                   Enviar Mensagem
@@ -695,31 +695,31 @@ export default function GenericLandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-4 sm:px-6 lg:px-8 border-t" style={{ backgroundColor: '#001f35', borderColor: 'rgba(255,255,255,0.1)' }}>
+      <footer className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 border-t" style={{ backgroundColor: '#001f35', borderColor: 'rgba(255,255,255,0.1)' }}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row justify-between gap-12 mb-12">
+          <div className="flex flex-col lg:flex-row justify-between gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
             {/* Brand */}
             <div className="max-w-md">
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 {content.logoUrl ? (
-                  <img src={content.logoUrl} alt={content.companyName} className="h-8 object-contain brightness-200" />
+                  <img src={content.logoUrl} alt={content.companyName} className="h-6 sm:h-8 object-contain brightness-200" />
                 ) : (
                   <>
-                    <Lightbulb className="w-7 h-7" style={{ color: theme.accentGold }} />
-                    <span className="font-bold text-2xl text-white">{content.companyName}</span>
+                    <Lightbulb className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: theme.accentGold }} />
+                    <span className="font-bold text-xl sm:text-2xl text-white">{content.companyName}</span>
                   </>
                 )}
               </div>
-              <p className="text-white/60 leading-relaxed">
+              <p className="text-sm sm:text-base text-white/60 leading-relaxed">
                 Líder em concessões de iluminação pública e soluções smart city. Compromisso com a eficiência, transparência e o desenvolvimento urbano sustentável.
               </p>
             </div>
 
             {/* Links */}
-            <div className="flex flex-wrap gap-12 lg:gap-20">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-20">
               <div>
-                <h4 className="font-bold text-white mb-6">Empresa</h4>
-                <ul className="space-y-3 text-white/60">
+                <h4 className="font-bold text-white mb-4 sm:mb-6 text-sm sm:text-base">Empresa</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/60 text-sm">
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Sobre Nós</a></li>
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Carreiras</a></li>
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Imprensa</a></li>
@@ -727,17 +727,17 @@ export default function GenericLandingPage() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-bold text-white mb-6">Soluções</h4>
-                <ul className="space-y-3 text-white/60">
+                <h4 className="font-bold text-white mb-4 sm:mb-6 text-sm sm:text-base">Soluções</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/60 text-sm">
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Iluminação Pública</a></li>
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Cidades Inteligentes</a></li>
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Energia Solar</a></li>
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Consultoria PPP</a></li>
                 </ul>
               </div>
-              <div>
-                <h4 className="font-bold text-white mb-6">Legal</h4>
-                <ul className="space-y-3 text-white/60">
+              <div className="col-span-2 sm:col-span-1">
+                <h4 className="font-bold text-white mb-4 sm:mb-6 text-sm sm:text-base">Legal</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/60 text-sm">
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Termos de Uso</a></li>
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Privacidade</a></li>
                   <li><a href="#" className="hover:text-amber-400 transition-colors">Política de Cookies</a></li>
@@ -747,8 +747,8 @@ export default function GenericLandingPage() {
           </div>
 
           {/* Copyright */}
-          <div className="pt-8 border-t text-center" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-            <p className="text-sm text-white/40">
+          <div className="pt-6 sm:pt-8 border-t text-center" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+            <p className="text-xs sm:text-sm text-white/40">
               © {new Date().getFullYear()} {content.companyName}. Todos os direitos reservados.
             </p>
           </div>
