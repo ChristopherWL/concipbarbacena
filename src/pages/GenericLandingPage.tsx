@@ -812,7 +812,7 @@ export default function GenericLandingPage() {
           style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.05) 0%, transparent 70%)' }}
         />
         
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-10 sm:mb-16 lg:mb-20">
             <span 
@@ -826,110 +826,218 @@ export default function GenericLandingPage() {
             </h2>
           </div>
 
-          {/* Contact Form Container */}
-          <div 
-            className="relative p-5 sm:p-8 lg:p-12 xl:p-16 rounded-xl sm:rounded-2xl overflow-hidden"
-            style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.03)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-          >
-            {/* Decorative purple glow */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            {/* Call Center Info */}
             <div 
-              className="absolute -top-1/2 -right-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.15) 0%, transparent 70%)' }}
-            />
+              className="relative p-5 sm:p-8 lg:p-10 rounded-xl sm:rounded-2xl overflow-hidden"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              {/* Decorative glow */}
+              <div 
+                className="absolute -top-1/2 -left-1/4 w-[300px] h-[300px] pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(0, 210, 255, 0.1) 0%, transparent 70%)' }}
+              />
 
-            <form className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
-              {/* Name */}
-              <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder=" "
-                  className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
-                  style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
-                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
-                />
-                <label 
-                  className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div 
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${theme.neonBlue}20`, border: `1px solid ${theme.neonBlue}30` }}
+                  >
+                    <Phone className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: theme.accentCyan }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white">Call Center</h3>
+                    <p className="text-white/60 text-sm">Central de Atendimento</p>
+                  </div>
+                </div>
+
+                {/* Phone Number */}
+                <div 
+                  className="p-4 sm:p-5 rounded-xl mb-6"
+                  style={{ backgroundColor: 'rgba(9, 132, 227, 0.1)', border: `1px solid ${theme.neonBlue}30` }}
                 >
-                  Nome Completo
-                </label>
+                  <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Ligue Grátis</p>
+                  <p 
+                    className="text-2xl sm:text-3xl font-bold"
+                    style={{ color: theme.accentCyan }}
+                  >
+                    0800-006-1737
+                  </p>
+                </div>
+
+                {/* Schedule */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: theme.neonPurple }} />
+                    <div>
+                      <p className="text-white font-medium text-sm sm:text-base">Segunda à Sexta</p>
+                      <p className="text-white/60 text-sm">7:30 às 23:00</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: theme.neonPurple }} />
+                    <div>
+                      <p className="text-white font-medium text-sm sm:text-base">Sábados</p>
+                      <p className="text-white/60 text-sm">8:00 às 20:00</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* App Info */}
+                <div 
+                  className="p-4 rounded-xl mb-6"
+                  style={{ backgroundColor: 'rgba(108, 92, 231, 0.1)', border: `1px solid ${theme.neonPurple}30` }}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <Globe className="w-5 h-5" style={{ color: theme.neonPurple }} />
+                    <p className="text-white font-medium text-sm sm:text-base">Aplicativo Cidade Iluminada</p>
+                  </div>
+                  <p className="text-white/60 text-xs sm:text-sm">
+                    Registre solicitações também pelo nosso aplicativo disponível para download.
+                  </p>
+                </div>
+
+                {/* Description */}
+                <p className="text-white/60 text-xs sm:text-sm leading-relaxed mb-4">
+                  Para registros, solicitações e reparos que envolvam a iluminação pública de Barbacena, os munícipes têm à disposição nosso Call Center. Todos os registros informados pelos usuários são gerenciados e armazenados pelo software de gestão fornecido pela CONCIP, que permite acompanhamento em tempo integral do andamento das atividades.
+                </p>
+
+                <div 
+                  className="p-3 rounded-lg text-xs"
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+                >
+                  <p className="text-white/40">
+                    <strong className="text-white/60">Início das Atividades:</strong> A CONCIP recebeu formalmente a OS no dia 09/03/2022 para início das atividades no dia 20/03/2023, conforme alinhado com o poder concedente.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Form Container */}
+            <div 
+              className="relative p-5 sm:p-8 lg:p-10 rounded-xl sm:rounded-2xl overflow-hidden"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              {/* Decorative purple glow */}
+              <div 
+                className="absolute -top-1/2 -right-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.15) 0%, transparent 70%)' }}
+              />
+
+              <div className="relative z-10 mb-6">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${theme.neonPurple}20`, border: `1px solid ${theme.neonPurple}30` }}
+                  >
+                    <Mail className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: theme.neonPurple }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white">Envie uma Mensagem</h3>
+                    <p className="text-white/60 text-sm">Responderemos em breve</p>
+                  </div>
+                </div>
               </div>
 
-              {/* Email */}
-              <div className="relative">
-                <input 
-                  type="email" 
-                  placeholder=" "
-                  className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
-                  style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
-                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
-                />
-                <label 
-                  className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
-                >
-                  E-mail
-                </label>
-              </div>
+              <form className="relative z-10 space-y-6">
+                {/* Name */}
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder=" "
+                    className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                  />
+                  <label 
+                    className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  >
+                    Nome Completo
+                  </label>
+                </div>
 
-              {/* Subject */}
-              <div className="relative sm:col-span-2">
-                <input 
-                  type="text" 
-                  placeholder=" "
-                  className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
-                  style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
-                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
-                />
-                <label 
-                  className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
-                >
-                  Assunto
-                </label>
-              </div>
+                {/* Email */}
+                <div className="relative">
+                  <input 
+                    type="email" 
+                    placeholder=" "
+                    className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                  />
+                  <label 
+                    className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  >
+                    E-mail
+                  </label>
+                </div>
 
-              {/* Message */}
-              <div className="relative sm:col-span-2">
-                <textarea 
-                  placeholder=" "
-                  rows={3}
-                  className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer resize-none"
-                  style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
-                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
-                />
-                <label 
-                  className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
-                >
-                  Mensagem
-                </label>
-              </div>
+                {/* Subject */}
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder=" "
+                    className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                  />
+                  <label 
+                    className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  >
+                    Assunto
+                  </label>
+                </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="sm:col-span-2 w-full py-4 sm:py-5 font-bold text-sm sm:text-base uppercase tracking-widest text-white transition-all duration-300 mt-2 sm:mt-6"
-                style={{ 
-                  backgroundColor: theme.neonBlue,
-                  clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = theme.neonPurple;
-                  e.currentTarget.style.boxShadow = '0 0 20px rgba(108, 92, 231, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = theme.neonBlue;
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                Enviar Mensagem
-              </button>
-            </form>
+                {/* Message */}
+                <div className="relative">
+                  <textarea 
+                    placeholder=" "
+                    rows={3}
+                    className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer resize-none"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                  />
+                  <label 
+                    className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  >
+                    Mensagem
+                  </label>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  className="w-full py-4 sm:py-5 font-bold text-sm sm:text-base uppercase tracking-widest text-white transition-all duration-300 mt-2"
+                  style={{ 
+                    backgroundColor: theme.neonBlue,
+                    clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme.neonPurple;
+                    e.currentTarget.style.boxShadow = '0 0 20px rgba(108, 92, 231, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme.neonBlue;
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  Enviar Mensagem
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </section>
