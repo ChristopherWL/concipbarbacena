@@ -5,12 +5,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
   Building2, ArrowRight, Menu, X,
   Package, Truck, Users, ClipboardList, BarChart3, FileText, Shield, Zap, Clock,
-  Lightbulb, Wifi, Camera, Sun, Radio, Globe, MapPin, CheckCircle, Award, Phone, Mail
+  Lightbulb, Wifi, Camera, Sun, Radio, Globe, MapPin, CheckCircle, Award, Phone, Mail, AlertCircle
 } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import barbacenaHero from '@/assets/barbacena-praca.jpg';
+import TicketForm from '@/components/landing/TicketForm';
 
 interface Stat {
   id?: string;
@@ -796,6 +797,107 @@ export default function GenericLandingPage() {
                 <span className="text-white/60 text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider">{stat.label}</span>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Ticket/Chamado Section */}
+      <section 
+        id="chamado" 
+        className="relative py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16"
+        style={{ backgroundColor: theme.darkBg }}
+      >
+        {/* Decorative elements */}
+        <div 
+          className="absolute top-1/4 right-0 w-48 sm:w-96 h-48 sm:h-96 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(9, 132, 227, 0.08) 0%, transparent 70%)' }}
+        />
+        <div 
+          className="absolute bottom-1/4 left-0 w-48 sm:w-96 h-48 sm:h-96 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.05) 0%, transparent 70%)' }}
+        />
+
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-10 sm:mb-16">
+            <span 
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
+              style={{ color: theme.neonPurple }}
+            >
+              Registrar Ocorrência
+            </span>
+            <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4">
+              ABRA SEU <span style={{ color: theme.accentCyan }}>CHAMADO</span>
+            </h2>
+            <p className="text-white/70 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
+              Identificou um problema na iluminação pública? Registre sua ocorrência e nossa equipe irá atender prontamente.
+            </p>
+          </div>
+
+          {/* Info Cards */}
+          <div className="grid sm:grid-cols-3 gap-4 mb-10">
+            <div 
+              className="p-4 sm:p-6 rounded-xl text-center"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <div 
+                className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+                style={{ backgroundColor: `${theme.neonBlue}20` }}
+              >
+                <MapPin className="w-6 h-6" style={{ color: theme.neonBlue }} />
+              </div>
+              <h4 className="text-white font-semibold mb-1">Localize no Mapa</h4>
+              <p className="text-white/60 text-sm">Clique no mapa para marcar a localização exata</p>
+            </div>
+
+            <div 
+              className="p-4 sm:p-6 rounded-xl text-center"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <div 
+                className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+                style={{ backgroundColor: `${theme.neonPurple}20` }}
+              >
+                <AlertCircle className="w-6 h-6" style={{ color: theme.neonPurple }} />
+              </div>
+              <h4 className="text-white font-semibold mb-1">Informe a Plaqueta</h4>
+              <p className="text-white/60 text-sm">Todo poste possui uma plaqueta de identificação</p>
+            </div>
+
+            <div 
+              className="p-4 sm:p-6 rounded-xl text-center"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <div 
+                className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+                style={{ backgroundColor: `${theme.accentCyan}20` }}
+              >
+                <Zap className="w-6 h-6" style={{ color: theme.accentCyan }} />
+              </div>
+              <h4 className="text-white font-semibold mb-1">Atendimento Rápido</h4>
+              <p className="text-white/60 text-sm">Acompanhe o status da sua solicitação</p>
+            </div>
+          </div>
+
+          {/* Ticket Form */}
+          <div 
+            className="relative p-5 sm:p-8 lg:p-10 rounded-xl sm:rounded-2xl overflow-hidden"
+            style={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <TicketForm accentColor={theme.neonBlue} />
           </div>
         </div>
       </section>
