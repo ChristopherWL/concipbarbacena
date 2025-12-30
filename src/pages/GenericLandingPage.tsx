@@ -281,7 +281,7 @@ export default function GenericLandingPage() {
               <Button
                 onClick={() => scrollToSection('contact')}
                 className="text-sm font-bold uppercase tracking-wide px-6 shadow-lg hover:shadow-xl transition-all duration-300"
-                style={{ backgroundColor: theme.accentGold, color: theme.white }}
+                style={{ backgroundColor: theme.white, color: theme.primaryBlue }}
               >
                 Fale Conosco
               </Button>
@@ -318,7 +318,7 @@ export default function GenericLandingPage() {
                 <Button
                   onClick={() => { setMobileMenuOpen(false); scrollToSection('contact'); }}
                   className="w-full font-bold uppercase text-sm py-3"
-                  style={{ backgroundColor: theme.accentGold, color: theme.white }}
+                  style={{ backgroundColor: '#87CEEB', color: theme.white }}
                 >
                   Fale Conosco
                 </Button>
