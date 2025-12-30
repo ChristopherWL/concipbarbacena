@@ -318,30 +318,20 @@ export default function Auth() {
               <span className="text-sm font-medium">Voltar ao início</span>
             </Link>
             
-            <div className="flex items-center gap-4 mt-8">
+            <div className="flex items-center justify-center mt-8">
               {branding?.logo_url ? (
-                <img src={branding.logo_url} alt={branding.name} className="h-16 w-auto" />
+                <img src={branding.logo_url} alt={branding.name} className="h-20 w-auto" />
               ) : (
                 <div 
-                  className="flex items-center justify-center w-16 h-16 rounded-2xl"
+                  className="flex items-center justify-center w-20 h-20 rounded-2xl"
                   style={{ 
                     background: theme.gradientPrimary,
                     boxShadow: `0 0 30px ${theme.primaryBlue}40`
                   }}
                 >
-                  <Building2 className="w-8 h-8 text-white" />
+                  <Building2 className="w-10 h-10 text-white" />
                 </div>
               )}
-              <span 
-                className="text-3xl font-bold"
-                style={{ 
-                  background: theme.gradientPrimary,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
-                {branding?.name || 'Sistema'}
-              </span>
             </div>
           </div>
 
