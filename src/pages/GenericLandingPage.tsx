@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
-  Building2, ArrowRight, Sparkles, Menu, X,
+  Building2, ArrowRight, Menu, X, ChevronRight,
   Package, Truck, Users, ClipboardList, BarChart3, FileText, Shield, Zap, Clock,
-  Lightbulb, Wifi, Camera, Sun, Radio, Globe, MapPin, CheckCircle, Award, Phone, Mail, ArrowUpRight
+  Lightbulb, Wifi, Camera, Sun, Radio, Globe, MapPin, CheckCircle, Award, Phone, Mail
 } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Stat {
@@ -81,15 +81,14 @@ export default function GenericLandingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
 
-  // Handle scroll for header effect
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Sign out user when they return to the landing page
   useEffect(() => {
     const signOutUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -118,9 +117,9 @@ export default function GenericLandingPage() {
             logoUrl: data.logo_url || generic.logoUrl || '',
             logoDarkUrl: generic.logoDarkUrl || '',
             badge: generic.badge || '',
-            heroTitle: generic.heroTitle || 'Bem-vindo',
-            heroTitleHighlight: generic.heroTitleHighlight || '',
-            heroDescription: generic.heroDescription || 'Sistema de gestão empresarial',
+            heroTitle: generic.heroTitle || 'Gestão Inteligente',
+            heroTitleHighlight: generic.heroTitleHighlight || 'para sua Empresa',
+            heroDescription: generic.heroDescription || 'Plataforma completa de gestão empresarial com tecnologia de ponta para impulsionar seus resultados.',
             ctaPrimary: generic.ctaPrimary || 'Acessar Sistema',
             ctaSecondary: generic.ctaSecondary || '',
             stats: generic.stats || [],
@@ -129,15 +128,15 @@ export default function GenericLandingPage() {
             features: generic.features || [],
             showModules: generic.showModules !== false,
             showFeatures: generic.showFeatures !== false,
-            ctaTitle: generic.ctaTitle || 'Pronto para começar?',
-            ctaDescription: generic.ctaDescription || 'Acesse o sistema e transforme sua gestão.',
+            ctaTitle: generic.ctaTitle || 'Pronto para transformar sua gestão?',
+            ctaDescription: generic.ctaDescription || 'Acesse agora e descubra como podemos ajudar seu negócio a crescer.',
             primaryButtonColor: generic.primaryButtonColor || '#3b82f6',
             secondaryButtonColor: generic.secondaryButtonColor || '#1e40af',
             highlightColor: generic.highlightColor || '#60a5fa',
             accentColor: generic.accentColor || '#3b82f6',
-            backgroundGradientFrom: generic.backgroundGradientFrom || '#020617',
-            backgroundGradientTo: generic.backgroundGradientTo || '#0f172a',
-            lightEffectColor: generic.lightEffectColor || '#8b5cf6',
+            backgroundGradientFrom: generic.backgroundGradientFrom || '#0a0a0f',
+            backgroundGradientTo: generic.backgroundGradientTo || '#111827',
+            lightEffectColor: generic.lightEffectColor || '#3b82f6',
           });
         } else {
           setContent({
@@ -145,10 +144,10 @@ export default function GenericLandingPage() {
             companySubtitle: '',
             logoUrl: '',
             logoDarkUrl: '',
-            badge: '',
-            heroTitle: 'Bem-vindo',
-            heroTitleHighlight: 'ao Sistema',
-            heroDescription: 'Sistema de gestão empresarial completo',
+            badge: 'Plataforma de Gestão',
+            heroTitle: 'Gestão Inteligente',
+            heroTitleHighlight: 'para sua Empresa',
+            heroDescription: 'Plataforma completa de gestão empresarial com tecnologia de ponta para impulsionar seus resultados.',
             ctaPrimary: 'Acessar Sistema',
             ctaSecondary: '',
             stats: [],
@@ -157,15 +156,15 @@ export default function GenericLandingPage() {
             features: [],
             showModules: false,
             showFeatures: false,
-            ctaTitle: 'Pronto para começar?',
-            ctaDescription: 'Acesse o sistema e transforme sua gestão.',
+            ctaTitle: 'Pronto para transformar sua gestão?',
+            ctaDescription: 'Acesse agora e descubra como podemos ajudar.',
             primaryButtonColor: '#3b82f6',
             secondaryButtonColor: '#1e40af',
             highlightColor: '#60a5fa',
             accentColor: '#3b82f6',
-            backgroundGradientFrom: '#020617',
-            backgroundGradientTo: '#0f172a',
-            lightEffectColor: '#8b5cf6',
+            backgroundGradientFrom: '#0a0a0f',
+            backgroundGradientTo: '#111827',
+            lightEffectColor: '#3b82f6',
           });
         }
       } catch (error) {
@@ -175,10 +174,10 @@ export default function GenericLandingPage() {
           companySubtitle: '',
           logoUrl: '',
           logoDarkUrl: '',
-          badge: '',
-          heroTitle: 'Bem-vindo',
-          heroTitleHighlight: 'ao Sistema',
-          heroDescription: 'Sistema de gestão empresarial completo',
+          badge: 'Plataforma de Gestão',
+          heroTitle: 'Gestão Inteligente',
+          heroTitleHighlight: 'para sua Empresa',
+          heroDescription: 'Plataforma completa de gestão empresarial com tecnologia de ponta para impulsionar seus resultados.',
           ctaPrimary: 'Acessar Sistema',
           ctaSecondary: '',
           stats: [],
@@ -187,15 +186,15 @@ export default function GenericLandingPage() {
           features: [],
           showModules: false,
           showFeatures: false,
-          ctaTitle: 'Pronto para começar?',
-          ctaDescription: 'Acesse o sistema e transforme sua gestão.',
+          ctaTitle: 'Pronto para transformar sua gestão?',
+          ctaDescription: 'Acesse agora e descubra como podemos ajudar.',
           primaryButtonColor: '#3b82f6',
           secondaryButtonColor: '#1e40af',
           highlightColor: '#60a5fa',
           accentColor: '#3b82f6',
-          backgroundGradientFrom: '#020617',
-          backgroundGradientTo: '#0f172a',
-          lightEffectColor: '#8b5cf6',
+          backgroundGradientFrom: '#0a0a0f',
+          backgroundGradientTo: '#111827',
+          lightEffectColor: '#3b82f6',
         });
       } finally {
         setIsLoading(false);
@@ -212,109 +211,133 @@ export default function GenericLandingPage() {
     return null;
   }
 
-  const defaultModules = [
-    { icon: 'lightbulb', title: 'Iluminação Pública', description: 'Instalação e manutenção de sistemas LED', color: 'from-amber-500 to-orange-600', bg: 'amber' },
-    { icon: 'camera', title: 'Videomonitoramento', description: 'Sistemas de câmeras IP 24h', color: 'from-blue-500 to-indigo-600', bg: 'blue' },
-    { icon: 'wifi', title: 'WiFi Público', description: 'Internet sem fio para espaços públicos', color: 'from-cyan-500 to-teal-600', bg: 'cyan' },
-    { icon: 'sun', title: 'Usinas Fotovoltaicas', description: 'Energia solar limpa e sustentável', color: 'from-green-500 to-emerald-600', bg: 'green' },
-    { icon: 'globe', title: 'Link Dedicado', description: 'Conexões de alta velocidade', color: 'from-purple-500 to-violet-600', bg: 'purple' },
-    { icon: 'radio', title: 'Infraestrutura Telecom', description: 'Fibra óptica e telecomunicações', color: 'from-orange-500 to-red-600', bg: 'orange' },
-  ];
-
-  const getColorClasses = (bg: string) => {
-    const colors: Record<string, { hover: string; border: string; text: string }> = {
-      amber: { hover: 'hover:bg-amber-500/10', border: 'hover:border-amber-500/30', text: 'text-amber-400' },
-      blue: { hover: 'hover:bg-blue-500/10', border: 'hover:border-blue-500/30', text: 'text-blue-400' },
-      cyan: { hover: 'hover:bg-cyan-500/10', border: 'hover:border-cyan-500/30', text: 'text-cyan-400' },
-      green: { hover: 'hover:bg-green-500/10', border: 'hover:border-green-500/30', text: 'text-green-400' },
-      purple: { hover: 'hover:bg-purple-500/10', border: 'hover:border-purple-500/30', text: 'text-purple-400' },
-      orange: { hover: 'hover:bg-orange-500/10', border: 'hover:border-orange-500/30', text: 'text-orange-400' },
-    };
-    return colors[bg] || colors.blue;
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setMobileMenuOpen(false);
   };
 
-  return (
-    <div className="min-h-screen text-white overflow-x-hidden">
-      {/* Background */}
-      <div 
-        className="fixed inset-0 -z-10"
-        style={{ background: `linear-gradient(180deg, ${content.backgroundGradientFrom} 0%, ${content.backgroundGradientTo} 100%)` }}
-      />
-      
-      {/* Subtle grid overlay */}
-      <div 
-        className="fixed inset-0 -z-10 opacity-[0.02]"
-        style={{ 
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-          backgroundSize: '64px 64px'
-        }}
-      />
+  const navItems = [
+    { label: 'Início', id: 'hero' },
+    { label: 'Serviços', id: 'services' },
+    { label: 'Sobre', id: 'about' },
+    { label: 'Contato', id: 'contact' },
+  ];
 
-      {/* Gradient orbs */}
-      <div 
-        className="fixed top-0 right-0 w-[600px] h-[600px] rounded-full -z-10 blur-[150px] opacity-20"
-        style={{ background: content.lightEffectColor }}
-      />
-      <div 
-        className="fixed bottom-0 left-0 w-[500px] h-[500px] rounded-full -z-10 blur-[150px] opacity-15"
-        style={{ background: content.primaryButtonColor }}
-      />
+  const defaultServices = [
+    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Modernização e manutenção de sistemas LED para cidades inteligentes', gradient: 'from-amber-500 to-orange-500' },
+    { icon: Camera, title: 'Videomonitoramento', description: 'Sistemas de CFTV com tecnologia IP e monitoramento 24 horas', gradient: 'from-blue-500 to-cyan-500' },
+    { icon: Wifi, title: 'Conectividade WiFi', description: 'Infraestrutura de internet sem fio para espaços públicos e privados', gradient: 'from-cyan-500 to-teal-500' },
+    { icon: Sun, title: 'Energia Solar', description: 'Projetos de usinas fotovoltaicas para geração de energia limpa', gradient: 'from-green-500 to-emerald-500' },
+    { icon: Globe, title: 'Link Dedicado', description: 'Conexões de alta velocidade com disponibilidade garantida', gradient: 'from-violet-500 to-purple-500' },
+    { icon: Radio, title: 'Telecomunicações', description: 'Infraestrutura de fibra óptica e equipamentos de comunicação', gradient: 'from-rose-500 to-pink-500' },
+  ];
+
+  const stats = [
+    { value: '50K+', label: 'Pontos de Luz', icon: Lightbulb },
+    { value: '5K+', label: 'Câmeras Instaladas', icon: Camera },
+    { value: '30+', label: 'Cidades Atendidas', icon: MapPin },
+    { value: '10+', label: 'Anos de Experiência', icon: Award },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-white antialiased">
+      {/* CSS */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes glow {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+        }
+        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        .animate-fade-in-delay-1 { animation: fadeIn 0.8s ease-out 0.1s forwards; opacity: 0; }
+        .animate-fade-in-delay-2 { animation: fadeIn 0.8s ease-out 0.2s forwards; opacity: 0; }
+        .animate-fade-in-delay-3 { animation: fadeIn 0.8s ease-out 0.3s forwards; opacity: 0; }
+        .animate-glow { animation: glow 4s ease-in-out infinite; }
+        .gradient-text {
+          background: linear-gradient(135deg, ${content.highlightColor}, ${content.primaryButtonColor});
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+      `}</style>
+
+      {/* Background Effects */}
+      <div className="fixed inset-0 -z-10">
+        <div 
+          className="absolute inset-0"
+          style={{ background: `radial-gradient(ellipse 80% 50% at 50% -20%, ${content.lightEffectColor}15, transparent)` }}
+        />
+        <div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] animate-glow"
+          style={{ background: `radial-gradient(circle, ${content.primaryButtonColor}08, transparent 70%)` }}
+        />
+      </div>
 
       {/* Header */}
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? 'bg-black/50 backdrop-blur-xl border-b border-white/10' : ''
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled 
+            ? 'py-3 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5' 
+            : 'py-5 bg-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
               {content.logoUrl ? (
-                <img src={content.logoUrl} alt="Logo" className="h-8 lg:h-10 object-contain" />
+                <img src={content.logoUrl} alt={content.companyName} className="h-9 object-contain" />
               ) : (
-                <div 
-                  className="flex items-center justify-center w-10 h-10 rounded-xl text-white"
-                  style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-                >
-                  <Building2 className="w-5 h-5" />
-                </div>
-              )}
-              {content.companyName && !content.logoUrl && (
-                <span className="ml-3 font-semibold text-lg hidden sm:block">{content.companyName}</span>
+                <>
+                  <div 
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                  >
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="font-semibold text-lg tracking-tight hidden sm:block">{content.companyName}</span>
+                </>
               )}
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1">
-              {['Início', 'Serviços', 'Sobre', 'Contato'].map((item) => (
-                <button 
-                  key={item}
-                  onClick={() => {
-                    const id = item === 'Início' ? 'hero' : item === 'Serviços' ? 'modules' : item.toLowerCase();
-                    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-colors rounded-lg hover:bg-white/5"
                 >
-                  {item}
+                  {item.label}
                 </button>
               ))}
             </nav>
 
             {/* Desktop CTA */}
-            <Button
-              onClick={() => navigate('/auth')}
-              className="hidden md:flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white border-0 transition-all hover:scale-105"
-              style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
-            >
-              Acessar
-              <ArrowRight className="w-4 h-4" />
-            </Button>
+            <div className="hidden md:flex items-center gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/auth')}
+                className="text-sm font-medium text-white/70 hover:text-white hover:bg-white/5"
+              >
+                Entrar
+              </Button>
+              <Button
+                onClick={() => navigate('/auth')}
+                className="text-sm font-medium px-5 text-white border-0"
+                style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+              >
+                {content.ctaPrimary}
+              </Button>
+            </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+              className="md:hidden p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/5"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -323,28 +346,24 @@ export default function GenericLandingPage() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-black/90 backdrop-blur-xl border-b border-white/10">
-            <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
-              {['Início', 'Serviços', 'Sobre', 'Contato'].map((item) => (
-                <button 
-                  key={item}
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    const id = item === 'Início' ? 'hero' : item === 'Serviços' ? 'modules' : item.toLowerCase();
-                    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-colors text-left"
+          <div className="md:hidden absolute top-full left-0 right-0 bg-[#0a0a0f]/95 backdrop-blur-xl border-b border-white/5">
+            <nav className="max-w-7xl mx-auto px-6 py-4 space-y-1">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="block w-full text-left px-4 py-3 text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 >
-                  {item}
+                  {item.label}
                 </button>
               ))}
-              <div className="pt-3 mt-2 border-t border-white/10">
+              <div className="pt-4 border-t border-white/10">
                 <Button
                   onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
                   className="w-full text-white border-0"
                   style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
                 >
-                  Acessar Sistema
+                  {content.ctaPrimary}
                 </Button>
               </div>
             </nav>
@@ -353,107 +372,84 @@ export default function GenericLandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="relative min-h-screen flex items-center justify-center pt-20 pb-16 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Badge */}
-          {content.badge && (
-            <div 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm mb-8 border"
-              style={{ 
-                background: `${content.primaryButtonColor}15`,
-                borderColor: `${content.primaryButtonColor}30`,
-                color: content.highlightColor
-              }}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>{content.badge}</span>
-            </div>
-          )}
-
-          {/* Title */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-            <span className="text-white">{content.heroTitle}</span>
-            {content.heroTitleHighlight && (
-              <span className="block mt-2" style={{ color: content.highlightColor }}>
-                {content.heroTitleHighlight}
-              </span>
+      <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center pt-24 pb-20 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="max-w-4xl">
+            {/* Badge */}
+            {content.badge && (
+              <div className="animate-fade-in inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-white/70 mb-8">
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: content.highlightColor }} />
+                {content.badge}
+              </div>
             )}
-          </h1>
 
-          {/* Description */}
-          <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed">
-            {content.heroDescription}
-          </p>
+            {/* Headline */}
+            <h1 className="animate-fade-in-delay-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight mb-8">
+              {content.heroTitle}
+              {content.heroTitleHighlight && (
+                <span className="block gradient-text mt-2">
+                  {content.heroTitleHighlight}
+                </span>
+              )}
+            </h1>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              size="lg"
-              onClick={() => navigate('/auth')}
-              className="w-full sm:w-auto text-lg px-8 py-6 text-white border-0 shadow-2xl hover:scale-105 transition-all"
-              style={{ 
-                background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`,
-                boxShadow: `0 20px 40px -15px ${content.primaryButtonColor}60`
-              }}
-            >
-              {content.ctaPrimary}
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            {content.ctaSecondary && (
+            {/* Description */}
+            <p className="animate-fade-in-delay-2 text-lg sm:text-xl text-white/50 max-w-2xl leading-relaxed mb-10">
+              {content.heroDescription}
+            </p>
+
+            {/* CTAs */}
+            <div className="animate-fade-in-delay-3 flex flex-col sm:flex-row items-start gap-4">
               <Button
                 size="lg"
-                variant="outline"
-                className="w-full sm:w-auto text-lg px-8 py-6 bg-white/5 border-white/20 text-white hover:bg-white/10"
+                onClick={() => navigate('/auth')}
+                className="group text-base px-8 py-6 text-white border-0 transition-all duration-300 hover:scale-[1.02]"
+                style={{ 
+                  background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`,
+                  boxShadow: `0 0 40px ${content.primaryButtonColor}30`
+                }}
               >
-                {content.ctaSecondary}
+                {content.ctaPrimary}
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-            )}
+              {content.ctaSecondary && (
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="text-base px-8 py-6 text-white/70 hover:text-white border border-white/10 hover:bg-white/5"
+                >
+                  {content.ctaSecondary}
+                </Button>
+              )}
+            </div>
           </div>
 
-          {/* Stats Preview */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-16 max-w-3xl mx-auto">
-            {[
-              { icon: Lightbulb, value: '+50K', label: 'Pontos de Luz', color: 'text-amber-400' },
-              { icon: Camera, value: '+5K', label: 'Câmeras', color: 'text-blue-400' },
-              { icon: Sun, value: '+10', label: 'Usinas UFV', color: 'text-green-400' },
-              { icon: MapPin, value: '+30', label: 'Cidades', color: 'text-purple-400' },
-            ].map((stat, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center group hover:bg-white/10 transition-colors">
-                <stat.icon className={`w-5 h-5 mx-auto mb-2 ${stat.color} group-hover:scale-110 transition-transform`} />
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-xs text-white/50 uppercase tracking-wider">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Trust Badges */}
-          <div className="flex items-center justify-center gap-6 mt-10">
-            {[
-              { icon: CheckCircle, label: 'ISO 9001', color: 'text-green-400' },
-              { icon: Award, label: '+10 Anos', color: 'text-amber-400' },
-              { icon: Shield, label: 'Garantia', color: 'text-blue-400' },
-            ].map((badge, i) => (
-              <div key={i} className="flex items-center gap-2 text-white/50 text-sm">
-                <badge.icon className={`w-4 h-4 ${badge.color}`} />
-                <span>{badge.label}</span>
-              </div>
-            ))}
+          {/* Stats Row */}
+          <div className="mt-20 pt-10 border-t border-white/5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+              {stats.map((stat, i) => (
+                <div key={i} className="group">
+                  <div className="flex items-center gap-3 mb-2">
+                    <stat.icon className="w-5 h-5 text-white/30 group-hover:text-white/50 transition-colors" />
+                    <span className="text-3xl sm:text-4xl font-bold text-white tracking-tight">{stat.value}</span>
+                  </div>
+                  <p className="text-sm text-white/40 uppercase tracking-wider">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section (Custom) */}
       {content.showStats && content.stats.length > 0 && (
-        <section className="py-20 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {content.stats.slice(0, 4).map((stat, index) => (
-                <div 
-                  key={stat.id || index} 
-                  className="p-8 rounded-3xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors"
-                >
-                  <div className="text-4xl lg:text-5xl font-bold text-white mb-2">{stat.value}</div>
-                  <div className="text-sm text-white/50 uppercase tracking-wider">{stat.label}</div>
+        <section className="py-20 px-6 lg:px-8 border-y border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+              {content.stats.slice(0, 4).map((stat, i) => (
+                <div key={stat.id || i} className="text-center">
+                  <div className="text-4xl sm:text-5xl font-bold text-white mb-2">{stat.value}</div>
+                  <p className="text-sm text-white/40 uppercase tracking-wider">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -461,33 +457,41 @@ export default function GenericLandingPage() {
         </section>
       )}
 
-      {/* Services/Modules Section */}
-      <section id="modules" className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Nossos Serviços</h2>
-            <p className="text-lg text-white/50 max-w-2xl mx-auto">
-              Soluções completas em infraestrutura urbana e tecnologia
+      {/* Services Section */}
+      <section id="services" className="py-24 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="max-w-2xl mb-16">
+            <p className="text-sm font-medium uppercase tracking-wider mb-4" style={{ color: content.highlightColor }}>
+              Nossos Serviços
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+              Soluções completas em infraestrutura
+            </h2>
+            <p className="text-lg text-white/50">
+              Oferecemos um portfólio diversificado de serviços para atender todas as suas necessidades.
             </p>
           </div>
 
+          {/* Services Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(content.showModules && content.modules.length > 0 ? content.modules : defaultModules).map((module, index) => {
-              const IconComponent = iconMap[(module as any).icon] || Package;
-              const colorInfo = getColorClasses((module as any).bg || 'blue');
+            {(content.showModules && content.modules.length > 0 ? content.modules : defaultServices).map((service, i) => {
+              const IconComponent = 'icon' in service && typeof service.icon === 'string' 
+                ? iconMap[service.icon] || Package 
+                : (service as any).icon || Package;
+              const gradient = (service as any).gradient || 'from-blue-500 to-cyan-500';
               
               return (
                 <div 
-                  key={(module as any).id || index} 
-                  className={`group p-6 rounded-2xl bg-white/5 border border-white/10 ${colorInfo.hover} ${colorInfo.border} transition-all duration-300`}
+                  key={i}
+                  className="group relative p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-300"
                 >
-                  <div 
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-gradient-to-br ${(module as any).color || `from-blue-500 to-indigo-600`} group-hover:scale-110 transition-transform`}
-                  >
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                     <IconComponent className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{module.title}</h3>
-                  <p className="text-sm text-white/50 leading-relaxed">{module.description}</p>
+                  <h3 className="text-lg font-semibold text-white mb-3">{service.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed">{service.description}</p>
+                  <ChevronRight className="absolute top-8 right-8 w-5 h-5 text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all" />
                 </div>
               );
             })}
@@ -497,26 +501,30 @@ export default function GenericLandingPage() {
 
       {/* Features Section */}
       {content.showFeatures && content.features.length > 0 && (
-        <section className="py-20 px-4">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Por que nos escolher?</h2>
-              <p className="text-lg text-white/50">Diferenciais que fazem a diferença</p>
+        <section className="py-24 px-6 lg:px-8 bg-white/[0.01]">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <p className="text-sm font-medium uppercase tracking-wider mb-4" style={{ color: content.highlightColor }}>
+                Diferenciais
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                Por que nos escolher?
+              </h2>
             </div>
 
             <div className="grid sm:grid-cols-3 gap-8">
-              {content.features.map((feature, index) => {
+              {content.features.map((feature, i) => {
                 const IconComponent = iconMap[feature.icon] || Shield;
                 return (
-                  <div key={feature.id || index} className="text-center">
+                  <div key={feature.id || i} className="text-center">
                     <div 
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                      style={{ background: `${content.primaryButtonColor}20` }}
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
+                      style={{ background: `${content.primaryButtonColor}15` }}
                     >
                       <IconComponent className="w-8 h-8" style={{ color: content.highlightColor }} />
                     </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-                    <p className="text-sm text-white/50">{feature.description}</p>
+                    <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+                    <p className="text-sm text-white/50 leading-relaxed">{feature.description}</p>
                   </div>
                 );
               })}
@@ -526,135 +534,172 @@ export default function GenericLandingPage() {
       )}
 
       {/* About Section */}
-      <section id="sobre" className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="p-8 sm:p-12 rounded-3xl bg-white/5 border border-white/10">
-            <div className="grid lg:grid-cols-2 gap-10 items-center">
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+      <section id="about" className="py-24 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Content */}
+            <div>
+              <p className="text-sm font-medium uppercase tracking-wider mb-4" style={{ color: content.highlightColor }}>
+                Sobre Nós
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                Transformando cidades com tecnologia
+              </h2>
+              <p className="text-lg text-white/50 mb-6 leading-relaxed">
+                Com mais de uma década de experiência, somos referência em soluções de infraestrutura urbana, telecomunicações e energia renovável.
+              </p>
+              <p className="text-white/50 mb-8 leading-relaxed">
+                Nossa equipe altamente qualificada atua em todas as etapas do projeto, desde o planejamento até a execução e manutenção, garantindo excelência em cada entrega.
+              </p>
+
+              <div className="flex flex-wrap gap-3">
+                {['ISO 9001', 'Garantia Total', 'Suporte 24h', 'Equipe Certificada'].map((tag, i) => (
+                  <span 
+                    key={i}
+                    className="px-4 py-2 rounded-full text-sm border border-white/10 text-white/60 bg-white/5"
                   >
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white">Sobre Nós</h2>
-                </div>
-                
-                <p className="text-white/60 mb-4 leading-relaxed">
-                  Somos especialistas em <span className="text-amber-400 font-medium">iluminação pública</span>, <span className="text-blue-400 font-medium">telecomunicações</span> e <span className="text-green-400 font-medium">energia solar fotovoltaica</span>.
-                </p>
-                <p className="text-white/60 mb-6 leading-relaxed">
-                  Com mais de uma década de experiência, já instalamos milhares de pontos de luz LED, sistemas de videomonitoramento e usinas solares em dezenas de municípios.
-                </p>
-
-                <div className="flex flex-wrap gap-2">
-                  {['Iluminação LED', 'CFTV', 'WiFi', 'Solar UFV', 'Fibra Óptica'].map((tag, i) => (
-                    <span key={i} className="px-3 py-1.5 rounded-full bg-white/10 text-white/70 text-xs border border-white/10">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: Award, title: 'Qualidade', desc: 'Equipamentos de primeira linha' },
-                  { icon: Shield, title: 'Garantia', desc: 'Suporte técnico completo' },
-                  { icon: Clock, title: 'Agilidade', desc: 'Cumprimento de prazos' },
-                  { icon: Users, title: 'Experiência', desc: '+10 anos no mercado' },
-                ].map((item, i) => (
-                  <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                    <item.icon className="w-6 h-6 text-white/70 mb-3" />
-                    <h4 className="font-semibold text-white text-sm mb-1">{item.title}</h4>
-                    <p className="text-xs text-white/50">{item.desc}</p>
-                  </div>
+                    {tag}
+                  </span>
                 ))}
               </div>
+            </div>
+
+            {/* Values Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { icon: Award, title: 'Qualidade', desc: 'Equipamentos de primeira linha e processos certificados' },
+                { icon: Shield, title: 'Segurança', desc: 'Protocolos rigorosos em todas as operações' },
+                { icon: Clock, title: 'Pontualidade', desc: 'Compromisso absoluto com prazos de entrega' },
+                { icon: Users, title: 'Experiência', desc: 'Equipe técnica com anos de mercado' },
+              ].map((item, i) => (
+                <div 
+                  key={i}
+                  className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-colors"
+                >
+                  <item.icon className="w-8 h-8 text-white/30 mb-4" />
+                  <h4 className="font-semibold text-white mb-2">{item.title}</h4>
+                  <p className="text-sm text-white/40 leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contato" className="py-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Entre em Contato</h2>
-            <p className="text-lg text-white/50">Estamos prontos para ajudar sua empresa</p>
+      <section id="contact" className="py-24 px-6 lg:px-8 bg-white/[0.01]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-sm font-medium uppercase tracking-wider mb-4" style={{ color: content.highlightColor }}>
+              Contato
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+              Fale conosco
+            </h2>
+            <p className="text-lg text-white/50">
+              Estamos prontos para atender sua demanda
+            </p>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { icon: Mail, title: 'E-mail', value: 'contato@sistema.com.br' },
-              { icon: Phone, title: 'Telefone', value: '(31) 9999-9999' },
-              { icon: MapPin, title: 'Endereço', value: 'Belo Horizonte, MG' },
+              { icon: Mail, title: 'E-mail', value: 'contato@empresa.com.br', link: 'mailto:contato@empresa.com.br' },
+              { icon: Phone, title: 'Telefone', value: '(31) 9999-9999', link: 'tel:+553199999999' },
+              { icon: MapPin, title: 'Localização', value: 'Belo Horizonte, MG', link: '#' },
             ].map((contact, i) => (
-              <div 
-                key={i} 
-                className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors group"
+              <a 
+                key={i}
+                href={contact.link}
+                className="group p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all text-center"
               >
                 <div 
-                  className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"
+                  className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform"
                   style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
                 >
                   <contact.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-white mb-1">{contact.title}</h3>
+                <h3 className="font-semibold text-white mb-2">{contact.title}</h3>
                 <p className="text-sm text-white/50">{contact.value}</p>
-              </div>
+              </a>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      <section className="py-24 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div 
-            className="p-10 sm:p-16 rounded-3xl text-center border"
+            className="relative overflow-hidden rounded-3xl p-12 sm:p-16 text-center"
             style={{ 
-              background: `linear-gradient(135deg, ${content.primaryButtonColor}15, ${content.highlightColor}10)`,
-              borderColor: `${content.primaryButtonColor}25`
+              background: `linear-gradient(135deg, ${content.primaryButtonColor}10, ${content.highlightColor}05)`,
+              border: `1px solid ${content.primaryButtonColor}20`
             }}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">{content.ctaTitle}</h2>
-            <p className="text-lg text-white/60 mb-8 max-w-xl mx-auto">{content.ctaDescription}</p>
-            <Button
-              size="lg"
-              onClick={() => navigate('/auth')}
-              className="text-lg px-10 py-6 text-white border-0 shadow-2xl hover:scale-105 transition-all"
-              style={{ 
-                background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`,
-                boxShadow: `0 20px 40px -15px ${content.primaryButtonColor}60`
-              }}
-            >
-              {content.ctaPrimary}
-              <ArrowUpRight className="ml-2 w-5 h-5" />
-            </Button>
+            {/* Glow Effect */}
+            <div 
+              className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-32 blur-[100px]"
+              style={{ background: content.primaryButtonColor }}
+            />
+            
+            <div className="relative">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">{content.ctaTitle}</h2>
+              <p className="text-lg text-white/50 mb-10 max-w-xl mx-auto">{content.ctaDescription}</p>
+              <Button
+                size="lg"
+                onClick={() => navigate('/auth')}
+                className="group text-base px-10 py-6 text-white border-0 transition-all hover:scale-[1.02]"
+                style={{ 
+                  background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`,
+                  boxShadow: `0 0 50px ${content.primaryButtonColor}40`
+                }}
+              >
+                {content.ctaPrimary}
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-white/40">
-            © {new Date().getFullYear()} {content.companyName}. Todos os direitos reservados.
-          </p>
-          <div className="flex items-center gap-6">
-            {['Início', 'Serviços', 'Sobre', 'Contato'].map((item) => (
-              <button 
-                key={item}
-                onClick={() => {
-                  const id = item === 'Início' ? 'hero' : item === 'Serviços' ? 'modules' : item.toLowerCase();
-                  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="text-sm text-white/40 hover:text-white/70 transition-colors"
-              >
-                {item}
-              </button>
-            ))}
+      <footer className="py-12 px-6 lg:px-8 border-t border-white/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            {/* Logo & Copyright */}
+            <div className="flex items-center gap-4">
+              {content.logoUrl ? (
+                <img src={content.logoUrl} alt={content.companyName} className="h-8 object-contain opacity-60" />
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-8 h-8 rounded-lg flex items-center justify-center opacity-60"
+                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                  >
+                    <Building2 className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm text-white/40">{content.companyName}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Nav Links */}
+            <nav className="flex items-center gap-8">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="text-sm text-white/40 hover:text-white/70 transition-colors"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+
+            {/* Copyright */}
+            <p className="text-sm text-white/30">
+              © {new Date().getFullYear()} Todos os direitos reservados
+            </p>
           </div>
         </div>
       </footer>
