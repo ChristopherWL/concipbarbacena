@@ -446,7 +446,7 @@ export default function GenericLandingPage() {
 
           {/* CTA Button */}
           <button
-            onClick={() => scrollToSection('contact')}
+            onClick={() => scrollToSection('ticket-form')}
             className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-10 lg:px-14 py-3 sm:py-4 lg:py-5 font-bold text-sm sm:text-base lg:text-lg uppercase tracking-wide text-white transition-all duration-300 hover:-translate-y-1"
             style={{ 
               background: `linear-gradient(90deg, ${theme.neonPurple}, ${theme.neonBlue})`,
@@ -460,7 +460,7 @@ export default function GenericLandingPage() {
               e.currentTarget.style.boxShadow = '0 0 30px rgba(108, 92, 231, 0.4)';
             }}
           >
-            {content.ctaPrimary}
+            Abrir Chamado
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
@@ -926,6 +926,7 @@ export default function GenericLandingPage() {
 
           {/* Ticket Form */}
           <div 
+            id="ticket-form"
             className="relative p-5 sm:p-8 lg:p-10 rounded-xl sm:rounded-2xl overflow-hidden"
             style={{ 
               backgroundColor: 'rgba(255, 255, 255, 0.03)',
