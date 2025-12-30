@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
-  Building2, ArrowRight, Menu, X, ChevronRight,
+  Building2, ArrowRight, Menu, X,
   Package, Truck, Users, ClipboardList, BarChart3, FileText, Shield, Zap, Clock,
   Lightbulb, Wifi, Camera, Sun, Radio, Globe, MapPin, CheckCircle, Award, Phone, Mail
 } from 'lucide-react';
@@ -48,13 +48,8 @@ interface GenericContent {
   showFeatures: boolean;
   ctaTitle: string;
   ctaDescription: string;
-  primaryButtonColor: string;
-  secondaryButtonColor: string;
-  highlightColor: string;
-  accentColor: string;
-  backgroundGradientFrom: string;
-  backgroundGradientTo: string;
-  lightEffectColor: string;
+  primaryColor: string;
+  secondaryColor: string;
 }
 
 const iconMap: Record<string, React.ComponentType<any>> = {
@@ -130,13 +125,8 @@ export default function GenericLandingPage() {
             showFeatures: generic.showFeatures !== false,
             ctaTitle: generic.ctaTitle || 'Pronto para transformar sua gestão?',
             ctaDescription: generic.ctaDescription || 'Acesse agora e descubra como podemos ajudar seu negócio a crescer.',
-            primaryButtonColor: generic.primaryButtonColor || '#3b82f6',
-            secondaryButtonColor: generic.secondaryButtonColor || '#1e40af',
-            highlightColor: generic.highlightColor || '#60a5fa',
-            accentColor: generic.accentColor || '#3b82f6',
-            backgroundGradientFrom: generic.backgroundGradientFrom || '#0a0a0f',
-            backgroundGradientTo: generic.backgroundGradientTo || '#111827',
-            lightEffectColor: generic.lightEffectColor || '#3b82f6',
+            primaryColor: data.primary_color || generic.primaryColor || '#2563eb',
+            secondaryColor: data.secondary_color || generic.secondaryColor || '#1e40af',
           });
         } else {
           setContent({
@@ -158,13 +148,8 @@ export default function GenericLandingPage() {
             showFeatures: false,
             ctaTitle: 'Pronto para transformar sua gestão?',
             ctaDescription: 'Acesse agora e descubra como podemos ajudar.',
-            primaryButtonColor: '#3b82f6',
-            secondaryButtonColor: '#1e40af',
-            highlightColor: '#60a5fa',
-            accentColor: '#3b82f6',
-            backgroundGradientFrom: '#0a0a0f',
-            backgroundGradientTo: '#111827',
-            lightEffectColor: '#3b82f6',
+            primaryColor: '#2563eb',
+            secondaryColor: '#1e40af',
           });
         }
       } catch (error) {
@@ -188,13 +173,8 @@ export default function GenericLandingPage() {
           showFeatures: false,
           ctaTitle: 'Pronto para transformar sua gestão?',
           ctaDescription: 'Acesse agora e descubra como podemos ajudar.',
-          primaryButtonColor: '#3b82f6',
-          secondaryButtonColor: '#1e40af',
-          highlightColor: '#60a5fa',
-          accentColor: '#3b82f6',
-          backgroundGradientFrom: '#0a0a0f',
-          backgroundGradientTo: '#111827',
-          lightEffectColor: '#3b82f6',
+          primaryColor: '#2563eb',
+          secondaryColor: '#1e40af',
         });
       } finally {
         setIsLoading(false);
@@ -224,12 +204,12 @@ export default function GenericLandingPage() {
   ];
 
   const defaultServices = [
-    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Modernização e manutenção de sistemas LED para cidades inteligentes', gradient: 'from-amber-500 to-orange-500' },
-    { icon: Camera, title: 'Videomonitoramento', description: 'Sistemas de CFTV com tecnologia IP e monitoramento 24 horas', gradient: 'from-blue-500 to-cyan-500' },
-    { icon: Wifi, title: 'Conectividade WiFi', description: 'Infraestrutura de internet sem fio para espaços públicos e privados', gradient: 'from-cyan-500 to-teal-500' },
-    { icon: Sun, title: 'Energia Solar', description: 'Projetos de usinas fotovoltaicas para geração de energia limpa', gradient: 'from-green-500 to-emerald-500' },
-    { icon: Globe, title: 'Link Dedicado', description: 'Conexões de alta velocidade com disponibilidade garantida', gradient: 'from-violet-500 to-purple-500' },
-    { icon: Radio, title: 'Telecomunicações', description: 'Infraestrutura de fibra óptica e equipamentos de comunicação', gradient: 'from-rose-500 to-pink-500' },
+    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Modernização e manutenção de sistemas LED para cidades inteligentes' },
+    { icon: Camera, title: 'Videomonitoramento', description: 'Sistemas de CFTV com tecnologia IP e monitoramento 24 horas' },
+    { icon: Wifi, title: 'Conectividade WiFi', description: 'Infraestrutura de internet sem fio para espaços públicos e privados' },
+    { icon: Sun, title: 'Energia Solar', description: 'Projetos de usinas fotovoltaicas para geração de energia limpa' },
+    { icon: Globe, title: 'Link Dedicado', description: 'Conexões de alta velocidade com disponibilidade garantida' },
+    { icon: Radio, title: 'Telecomunicações', description: 'Infraestrutura de fibra óptica e equipamentos de comunicação' },
   ];
 
   const stats = [
@@ -240,65 +220,30 @@ export default function GenericLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white antialiased">
-      {/* CSS */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes glow {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.8; }
-        }
-        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
-        .animate-fade-in-delay-1 { animation: fadeIn 0.8s ease-out 0.1s forwards; opacity: 0; }
-        .animate-fade-in-delay-2 { animation: fadeIn 0.8s ease-out 0.2s forwards; opacity: 0; }
-        .animate-fade-in-delay-3 { animation: fadeIn 0.8s ease-out 0.3s forwards; opacity: 0; }
-        .animate-glow { animation: glow 4s ease-in-out infinite; }
-        .gradient-text {
-          background: linear-gradient(135deg, ${content.highlightColor}, ${content.primaryButtonColor});
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-      `}</style>
-
-      {/* Background Effects */}
-      <div className="fixed inset-0 -z-10">
-        <div 
-          className="absolute inset-0"
-          style={{ background: `radial-gradient(ellipse 80% 50% at 50% -20%, ${content.lightEffectColor}15, transparent)` }}
-        />
-        <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] animate-glow"
-          style={{ background: `radial-gradient(circle, ${content.primaryButtonColor}08, transparent 70%)` }}
-        />
-      </div>
-
+    <div className="min-h-screen bg-white text-gray-900 antialiased">
       {/* Header */}
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled 
-            ? 'py-3 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5' 
-            : 'py-5 bg-transparent'
+            ? 'py-3 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100' 
+            : 'py-4 bg-white'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-3">
               {content.logoUrl ? (
-                <img src={content.logoUrl} alt={content.companyName} className="h-9 object-contain" />
+                <img src={content.logoUrl} alt={content.companyName} className="h-10 object-contain" />
               ) : (
                 <>
                   <div 
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: content.primaryColor }}
                   >
                     <Building2 className="w-5 h-5 text-white" />
                   </div>
-                  <span className="font-semibold text-lg tracking-tight hidden sm:block">{content.companyName}</span>
+                  <span className="font-bold text-xl hidden sm:block">{content.companyName}</span>
                 </>
               )}
             </div>
@@ -309,7 +254,7 @@ export default function GenericLandingPage() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-50"
                 >
                   {item.label}
                 </button>
@@ -321,14 +266,14 @@ export default function GenericLandingPage() {
               <Button
                 variant="ghost"
                 onClick={() => navigate('/auth')}
-                className="text-sm font-medium text-white/70 hover:text-white hover:bg-white/5"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900"
               >
                 Entrar
               </Button>
               <Button
                 onClick={() => navigate('/auth')}
-                className="text-sm font-medium px-5 text-white border-0"
-                style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                className="text-sm font-medium px-6 text-white"
+                style={{ backgroundColor: content.primaryColor }}
               >
                 {content.ctaPrimary}
               </Button>
@@ -337,31 +282,31 @@ export default function GenericLandingPage() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/5"
+              className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-[#0a0a0f]/95 backdrop-blur-xl border-b border-white/5">
-            <nav className="max-w-7xl mx-auto px-6 py-4 space-y-1">
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg">
+            <nav className="max-w-7xl mx-auto px-4 py-4 space-y-1">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="block w-full text-left px-4 py-3 text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   {item.label}
                 </button>
               ))}
-              <div className="pt-4 border-t border-white/10">
+              <div className="pt-4 border-t border-gray-100">
                 <Button
                   onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
-                  className="w-full text-white border-0"
-                  style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                  className="w-full text-white"
+                  style={{ backgroundColor: content.primaryColor }}
                 >
                   {content.ctaPrimary}
                 </Button>
@@ -372,42 +317,63 @@ export default function GenericLandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center pt-24 pb-20 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto w-full">
-          <div className="max-w-4xl">
+      <section id="hero" ref={heroRef} className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white" />
+          <div 
+            className="absolute top-0 right-0 w-1/2 h-full opacity-[0.03]"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, ${content.primaryColor} 1px, transparent 0)`,
+              backgroundSize: '40px 40px'
+            }}
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto">
+          <div className="max-w-3xl">
             {/* Badge */}
             {content.badge && (
-              <div className="animate-fade-in inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-white/70 mb-8">
-                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: content.highlightColor }} />
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8"
+                style={{ 
+                  backgroundColor: `${content.primaryColor}10`,
+                  color: content.primaryColor
+                }}
+              >
+                <span 
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: content.primaryColor }}
+                />
                 {content.badge}
               </div>
             )}
 
             {/* Headline */}
-            <h1 className="animate-fade-in-delay-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight mb-8">
-              {content.heroTitle}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight mb-6">
+              <span className="text-gray-900">{content.heroTitle}</span>
               {content.heroTitleHighlight && (
-                <span className="block gradient-text mt-2">
+                <span 
+                  className="block mt-2"
+                  style={{ color: content.primaryColor }}
+                >
                   {content.heroTitleHighlight}
                 </span>
               )}
             </h1>
 
             {/* Description */}
-            <p className="animate-fade-in-delay-2 text-lg sm:text-xl text-white/50 max-w-2xl leading-relaxed mb-10">
+            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed mb-10 max-w-2xl">
               {content.heroDescription}
             </p>
 
             {/* CTAs */}
-            <div className="animate-fade-in-delay-3 flex flex-col sm:flex-row items-start gap-4">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
               <Button
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="group text-base px-8 py-6 text-white border-0 transition-all duration-300 hover:scale-[1.02]"
-                style={{ 
-                  background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`,
-                  boxShadow: `0 0 40px ${content.primaryButtonColor}30`
-                }}
+                className="group text-base px-8 h-14 text-white shadow-lg transition-all hover:shadow-xl"
+                style={{ backgroundColor: content.primaryColor }}
               >
                 {content.ctaPrimary}
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -415,8 +381,8 @@ export default function GenericLandingPage() {
               {content.ctaSecondary && (
                 <Button
                   size="lg"
-                  variant="ghost"
-                  className="text-base px-8 py-6 text-white/70 hover:text-white border border-white/10 hover:bg-white/5"
+                  variant="outline"
+                  className="text-base px-8 h-14 border-2"
                 >
                   {content.ctaSecondary}
                 </Button>
@@ -425,15 +391,20 @@ export default function GenericLandingPage() {
           </div>
 
           {/* Stats Row */}
-          <div className="mt-20 pt-10 border-t border-white/5">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="mt-20 pt-10 border-t border-gray-100">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
               {stats.map((stat, i) => (
-                <div key={i} className="group">
-                  <div className="flex items-center gap-3 mb-2">
-                    <stat.icon className="w-5 h-5 text-white/30 group-hover:text-white/50 transition-colors" />
-                    <span className="text-3xl sm:text-4xl font-bold text-white tracking-tight">{stat.value}</span>
+                <div key={i} className="text-center lg:text-left">
+                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-2">
+                    <div 
+                      className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: `${content.primaryColor}10` }}
+                    >
+                      <stat.icon className="w-5 h-5" style={{ color: content.primaryColor }} />
+                    </div>
+                    <span className="text-3xl sm:text-4xl font-bold text-gray-900">{stat.value}</span>
                   </div>
-                  <p className="text-sm text-white/40 uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -441,57 +412,41 @@ export default function GenericLandingPage() {
         </div>
       </section>
 
-      {/* Stats Section (Custom) */}
-      {content.showStats && content.stats.length > 0 && (
-        <section className="py-20 px-6 lg:px-8 border-y border-white/5">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              {content.stats.slice(0, 4).map((stat, i) => (
-                <div key={stat.id || i} className="text-center">
-                  <div className="text-4xl sm:text-5xl font-bold text-white mb-2">{stat.value}</div>
-                  <p className="text-sm text-white/40 uppercase tracking-wider">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Services Section */}
-      <section id="services" className="py-24 px-6 lg:px-8">
+      <section id="services" className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="max-w-2xl mb-16">
-            <p className="text-sm font-medium uppercase tracking-wider mb-4" style={{ color: content.highlightColor }}>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Nossos Serviços
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-              Soluções completas em infraestrutura
             </h2>
-            <p className="text-lg text-white/50">
-              Oferecemos um portfólio diversificado de serviços para atender todas as suas necessidades.
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Soluções completas para transformar e modernizar sua infraestrutura
             </p>
           </div>
 
-          {/* Services Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(content.showModules && content.modules.length > 0 ? content.modules : defaultServices).map((service, i) => {
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(content.modules.length > 0 ? content.modules : defaultServices).map((service, i) => {
               const IconComponent = 'icon' in service && typeof service.icon === 'string' 
-                ? iconMap[service.icon] || Package 
-                : (service as any).icon || Package;
-              const gradient = (service as any).gradient || 'from-blue-500 to-cyan-500';
+                ? iconMap[service.icon] || Building2 
+                : ('icon' in service ? service.icon : Building2);
               
               return (
                 <div 
                   key={i}
-                  className="group relative p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-300"
+                  className="group bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300"
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                    <IconComponent className="w-6 h-6 text-white" />
+                  <div 
+                    className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110"
+                    style={{ backgroundColor: `${content.primaryColor}10` }}
+                  >
+                    <IconComponent className="w-7 h-7" style={{ color: content.primaryColor }} />
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-3">{service.title}</h3>
-                  <p className="text-sm text-white/50 leading-relaxed">{service.description}</p>
-                  <ChevronRight className="absolute top-8 right-8 w-5 h-5 text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    {service.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {service.description}
+                  </p>
                 </div>
               );
             })}
@@ -499,32 +454,94 @@ export default function GenericLandingPage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      {content.showFeatures && content.features.length > 0 && (
-        <section className="py-24 px-6 lg:px-8 bg-white/[0.01]">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center max-w-2xl mx-auto mb-16">
-              <p className="text-sm font-medium uppercase tracking-wider mb-4" style={{ color: content.highlightColor }}>
-                Diferenciais
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                Por que nos escolher?
+      {/* About Section */}
+      <section id="about" className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+                Por que escolher nossa plataforma?
               </h2>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Oferecemos uma solução completa e integrada para gestão empresarial, 
+                desenvolvida com as melhores práticas do mercado e tecnologia de ponta.
+              </p>
+              
+              <div className="space-y-5">
+                {[
+                  { icon: Shield, title: 'Segurança Garantida', desc: 'Dados protegidos com criptografia de ponta' },
+                  { icon: Zap, title: 'Alta Performance', desc: 'Sistema rápido e responsivo em qualquer dispositivo' },
+                  { icon: Users, title: 'Suporte Dedicado', desc: 'Equipe especializada pronta para ajudar' },
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div 
+                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: `${content.primaryColor}10` }}
+                    >
+                      <item.icon className="w-6 h-6" style={{ color: content.primaryColor }} />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
+                      <p className="text-gray-600 text-sm">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-8">
-              {content.features.map((feature, i) => {
-                const IconComponent = iconMap[feature.icon] || Shield;
-                return (
-                  <div key={feature.id || i} className="text-center">
+            <div className="relative">
+              <div 
+                className="aspect-square rounded-3xl"
+                style={{ 
+                  background: `linear-gradient(135deg, ${content.primaryColor}15, ${content.secondaryColor}10)`,
+                }}
+              >
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
                     <div 
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
-                      style={{ background: `${content.primaryButtonColor}15` }}
+                      className="w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6"
+                      style={{ backgroundColor: content.primaryColor }}
                     >
-                      <IconComponent className="w-8 h-8" style={{ color: content.highlightColor }} />
+                      <Building2 className="w-12 h-12 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
-                    <p className="text-sm text-white/50 leading-relaxed">{feature.description}</p>
+                    <p className="text-2xl font-bold text-gray-900">{content.companyName}</p>
+                    {content.companySubtitle && (
+                      <p className="text-gray-600 mt-2">{content.companySubtitle}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      {content.showFeatures && content.features.length > 0 && (
+        <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                Recursos do Sistema
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Funcionalidades pensadas para otimizar sua operação
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {content.features.map((feature, i) => {
+                const IconComponent = iconMap[feature.icon] || CheckCircle;
+                return (
+                  <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <div 
+                      className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+                      style={{ backgroundColor: `${content.primaryColor}10` }}
+                    >
+                      <IconComponent className="w-6 h-6" style={{ color: content.primaryColor }} />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-2">{feature.title}</h4>
+                    <p className="text-sm text-gray-600">{feature.description}</p>
                   </div>
                 );
               })}
@@ -533,163 +550,104 @@ export default function GenericLandingPage() {
         </section>
       )}
 
-      {/* About Section */}
-      <section id="about" className="py-24 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Content */}
-            <div>
-              <p className="text-sm font-medium uppercase tracking-wider mb-4" style={{ color: content.highlightColor }}>
-                Sobre Nós
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                Transformando cidades com tecnologia
-              </h2>
-              <p className="text-lg text-white/50 mb-6 leading-relaxed">
-                Com mais de uma década de experiência, somos referência em soluções de infraestrutura urbana, telecomunicações e energia renovável.
-              </p>
-              <p className="text-white/50 mb-8 leading-relaxed">
-                Nossa equipe altamente qualificada atua em todas as etapas do projeto, desde o planejamento até a execução e manutenção, garantindo excelência em cada entrega.
-              </p>
-
-              <div className="flex flex-wrap gap-3">
-                {['ISO 9001', 'Garantia Total', 'Suporte 24h', 'Equipe Certificada'].map((tag, i) => (
-                  <span 
-                    key={i}
-                    className="px-4 py-2 rounded-full text-sm border border-white/10 text-white/60 bg-white/5"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Values Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { icon: Award, title: 'Qualidade', desc: 'Equipamentos de primeira linha e processos certificados' },
-                { icon: Shield, title: 'Segurança', desc: 'Protocolos rigorosos em todas as operações' },
-                { icon: Clock, title: 'Pontualidade', desc: 'Compromisso absoluto com prazos de entrega' },
-                { icon: Users, title: 'Experiência', desc: 'Equipe técnica com anos de mercado' },
-              ].map((item, i) => (
-                <div 
-                  key={i}
-                  className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-colors"
-                >
-                  <item.icon className="w-8 h-8 text-white/30 mb-4" />
-                  <h4 className="font-semibold text-white mb-2">{item.title}</h4>
-                  <p className="text-sm text-white/40 leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-6 lg:px-8 bg-white/[0.01]">
-        <div className="max-w-5xl mx-auto">
+      <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-sm font-medium uppercase tracking-wider mb-4" style={{ color: content.highlightColor }}>
-              Contato
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-              Fale conosco
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Entre em Contato
             </h2>
-            <p className="text-lg text-white/50">
-              Estamos prontos para atender sua demanda
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Estamos prontos para atender você
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
-              { icon: Mail, title: 'E-mail', value: 'contato@empresa.com.br', link: 'mailto:contato@empresa.com.br' },
-              { icon: Phone, title: 'Telefone', value: '(31) 9999-9999', link: 'tel:+553199999999' },
-              { icon: MapPin, title: 'Localização', value: 'Belo Horizonte, MG', link: '#' },
-            ].map((contact, i) => (
-              <a 
-                key={i}
-                href={contact.link}
-                className="group p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all text-center"
-              >
+              { icon: Phone, label: 'Telefone', value: '(11) 9999-9999', href: 'tel:+5511999999999' },
+              { icon: Mail, label: 'E-mail', value: 'contato@empresa.com', href: 'mailto:contato@empresa.com' },
+              { icon: MapPin, label: 'Endereço', value: 'São Paulo, SP', href: null },
+            ].map((item, i) => (
+              <div key={i} className="text-center">
                 <div 
-                  className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform"
-                  style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                  style={{ backgroundColor: `${content.primaryColor}10` }}
                 >
-                  <contact.icon className="w-6 h-6 text-white" />
+                  <item.icon className="w-7 h-7" style={{ color: content.primaryColor }} />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{contact.title}</h3>
-                <p className="text-sm text-white/50">{contact.value}</p>
-              </a>
+                <p className="text-sm text-gray-500 mb-1">{item.label}</p>
+                {item.href ? (
+                  <a 
+                    href={item.href}
+                    className="font-semibold text-gray-900 hover:underline"
+                  >
+                    {item.value}
+                  </a>
+                ) : (
+                  <p className="font-semibold text-gray-900">{item.value}</p>
+                )}
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 lg:px-8">
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div 
-            className="relative overflow-hidden rounded-3xl p-12 sm:p-16 text-center"
+            className="rounded-3xl p-12 sm:p-16 text-center text-white"
             style={{ 
-              background: `linear-gradient(135deg, ${content.primaryButtonColor}10, ${content.highlightColor}05)`,
-              border: `1px solid ${content.primaryButtonColor}20`
+              background: `linear-gradient(135deg, ${content.primaryColor}, ${content.secondaryColor})` 
             }}
           >
-            {/* Glow Effect */}
-            <div 
-              className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-32 blur-[100px]"
-              style={{ background: content.primaryButtonColor }}
-            />
-            
-            <div className="relative">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">{content.ctaTitle}</h2>
-              <p className="text-lg text-white/50 mb-10 max-w-xl mx-auto">{content.ctaDescription}</p>
-              <Button
-                size="lg"
-                onClick={() => navigate('/auth')}
-                className="group text-base px-10 py-6 text-white border-0 transition-all hover:scale-[1.02]"
-                style={{ 
-                  background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})`,
-                  boxShadow: `0 0 50px ${content.primaryButtonColor}40`
-                }}
-              >
-                {content.ctaPrimary}
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              {content.ctaTitle}
+            </h2>
+            <p className="text-lg text-white/80 mb-8 max-w-xl mx-auto">
+              {content.ctaDescription}
+            </p>
+            <Button
+              size="lg"
+              onClick={() => navigate('/auth')}
+              className="bg-white hover:bg-gray-100 text-base px-8 h-14 shadow-lg"
+              style={{ color: content.primaryColor }}
+            >
+              {content.ctaPrimary}
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 lg:px-8 border-t border-white/5">
+      <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-            {/* Logo & Copyright */}
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
               {content.logoUrl ? (
-                <img src={content.logoUrl} alt={content.companyName} className="h-8 object-contain opacity-60" />
+                <img src={content.logoUrl} alt={content.companyName} className="h-8 object-contain" />
               ) : (
-                <div className="flex items-center gap-3">
+                <>
                   <div 
-                    className="w-8 h-8 rounded-lg flex items-center justify-center opacity-60"
-                    style={{ background: `linear-gradient(135deg, ${content.primaryButtonColor}, ${content.highlightColor})` }}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: content.primaryColor }}
                   >
                     <Building2 className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm text-white/40">{content.companyName}</span>
-                </div>
+                  <span className="font-semibold text-gray-900">{content.companyName}</span>
+                </>
               )}
             </div>
 
-            {/* Nav Links */}
-            <nav className="flex items-center gap-8">
+            {/* Nav */}
+            <nav className="flex items-center gap-6">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="text-sm text-white/40 hover:text-white/70 transition-colors"
+                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
                 >
                   {item.label}
                 </button>
@@ -697,8 +655,8 @@ export default function GenericLandingPage() {
             </nav>
 
             {/* Copyright */}
-            <p className="text-sm text-white/30">
-              © {new Date().getFullYear()} Todos os direitos reservados
+            <p className="text-sm text-gray-400">
+              © {new Date().getFullYear()} {content.companyName}. Todos os direitos reservados.
             </p>
           </div>
         </div>
