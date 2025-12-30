@@ -280,8 +280,8 @@ export default function GenericLandingPage() {
               ))}
               <Button
                 onClick={() => scrollToSection('contact')}
-                className="text-sm font-bold uppercase tracking-wide px-6 bg-white hover:bg-white/90"
-                style={{ color: theme.primaryBlue }}
+                className="text-sm font-bold uppercase tracking-wide px-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                style={{ backgroundColor: theme.accentGold, color: theme.white }}
               >
                 Fale Conosco
               </Button>
@@ -314,13 +314,20 @@ export default function GenericLandingPage() {
                   {item.label}
                 </button>
               ))}
-              <div className="pt-4">
+              <div className="pt-4 space-y-3">
                 <Button
                   onClick={() => { setMobileMenuOpen(false); scrollToSection('contact'); }}
-                  className="w-full font-bold uppercase"
+                  className="w-full font-bold uppercase text-sm py-3"
                   style={{ backgroundColor: theme.accentGold, color: theme.white }}
                 >
                   Fale Conosco
+                </Button>
+                <Button
+                  onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
+                  className="w-full font-bold uppercase text-sm py-3"
+                  style={{ backgroundColor: theme.primaryBlue, color: theme.white }}
+                >
+                  Acessar Sistema
                 </Button>
               </div>
             </nav>
@@ -379,8 +386,8 @@ export default function GenericLandingPage() {
               <Button
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 bg-white hover:bg-white/90 w-full sm:w-auto"
-                style={{ color: theme.primaryBlue }}
+                className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                style={{ backgroundColor: theme.accentGold, color: theme.white }}
               >
                 {content.ctaPrimary}
               </Button>
@@ -388,7 +395,7 @@ export default function GenericLandingPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 border-2 text-white hover:bg-white/10 w-full sm:w-auto"
+                  className="text-sm sm:text-base font-bold uppercase tracking-wide px-6 sm:px-10 py-4 sm:py-6 border-2 text-white hover:bg-white hover:text-primary-blue w-full sm:w-auto transition-all duration-300"
                   style={{ borderColor: theme.white }}
                 >
                   {content.ctaSecondary}
@@ -420,36 +427,37 @@ export default function GenericLandingPage() {
               return (
                 <div 
                   key={i}
-                  className="group rounded-lg p-6 sm:p-8 lg:p-10 border transition-all duration-300 hover:-translate-y-2 hover:shadow-xl relative overflow-hidden"
+                  className="group rounded-2xl p-6 sm:p-8 lg:p-10 border-2 transition-all duration-300 hover:-translate-y-2 relative overflow-hidden bg-gradient-to-br from-white to-slate-50 shadow-sm hover:shadow-2xl"
                   style={{ 
-                    backgroundColor: theme.white,
-                    borderColor: '#E5E5E5',
+                    borderColor: 'rgba(0, 43, 73, 0.08)',
                   }}
                 >
+                  {/* Gradient overlay on hover */}
+                  <div 
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ background: `linear-gradient(135deg, ${theme.primaryBlue}05 0%, ${theme.accentGold}10 100%)` }}
+                  />
+                  
                   {/* Bottom accent bar */}
                   <div 
-                    className="absolute bottom-0 left-0 right-0 h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"
-                    style={{ backgroundColor: theme.accentGold }}
+                    className="absolute bottom-0 left-0 right-0 h-1.5 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"
+                    style={{ background: `linear-gradient(90deg, ${theme.primaryBlue}, ${theme.accentGold})` }}
                   />
                   
                   <div 
-                    className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 transition-all group-hover:text-white"
+                    className="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 transition-all duration-300 group-hover:scale-110 shadow-md group-hover:shadow-lg"
                     style={{ 
-                      backgroundColor: `${theme.primaryBlue}10`,
-                      color: theme.primaryBlue,
+                      background: `linear-gradient(135deg, ${theme.primaryBlue} 0%, ${theme.secondaryBlue} 100%)`,
+                      color: theme.white,
                     }}
                   >
-                    <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 lg:w-9 lg:h-9 transition-colors group-hover:text-white" />
+                    <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 lg:w-9 lg:h-9" />
                   </div>
-                  <style>{`
-                    .group:hover .service-icon-bg {
-                      background-color: ${theme.primaryBlue} !important;
-                    }
-                  `}</style>
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 lg:mb-4" style={{ color: theme.primaryBlue }}>
+                  
+                  <h3 className="relative text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 lg:mb-4" style={{ color: theme.primaryBlue }}>
                     {service.title}
                   </h3>
-                  <p className="text-sm sm:text-base leading-relaxed" style={{ color: theme.textGray }}>
+                  <p className="relative text-sm sm:text-base leading-relaxed" style={{ color: theme.textGray }}>
                     {service.description}
                   </p>
                 </div>
@@ -532,8 +540,8 @@ export default function GenericLandingPage() {
             </div>
             <Button
               variant="outline"
-              className="font-bold uppercase tracking-wide border-2 text-sm sm:text-base w-full md:w-auto"
-              style={{ borderColor: theme.accentGold, color: theme.accentGold }}
+              className="font-bold uppercase tracking-wide border-2 text-sm sm:text-base w-full md:w-auto hover:scale-105 transition-all duration-300"
+              style={{ borderColor: theme.accentGold, color: theme.accentGold, backgroundColor: 'transparent' }}
             >
               Ver Galeria Completa
             </Button>
@@ -543,20 +551,25 @@ export default function GenericLandingPage() {
             {galleryItems.map((item, i) => (
               <div 
                 key={i} 
-                className="group relative h-[250px] sm:h-[300px] lg:h-[350px] rounded-lg overflow-hidden cursor-pointer"
+                className="group relative h-[250px] sm:h-[300px] lg:h-[350px] rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
               >
                 <img 
                   src={item.image} 
                   alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 {/* Overlay */}
                 <div 
-                  className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 text-white opacity-100 sm:opacity-0 sm:translate-y-5 transition-all duration-300 sm:group-hover:opacity-100 sm:group-hover:translate-y-0"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}
+                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300"
+                />
+                <div 
+                  className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 text-white translate-y-0 sm:translate-y-4 sm:group-hover:translate-y-0 transition-transform duration-300"
                 >
                   <h4 className="text-base sm:text-lg lg:text-xl font-bold">{item.title}</h4>
-                  <p className="text-sm sm:text-base text-white/80">{item.location}</p>
+                  <p className="text-sm sm:text-base text-white/80 flex items-center gap-1">
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                    {item.location}
+                  </p>
                 </div>
               </div>
             ))}
@@ -583,13 +596,13 @@ export default function GenericLandingPage() {
                 Entre em contato com nossa equipe de especialistas para discutir como podemos implementar soluções de iluminação e tecnologia no seu município.
               </p>
               
-              <div className="space-y-6 sm:space-y-8">
-                <div className="flex items-center gap-4 sm:gap-5">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-xl transition-all duration-300 hover:bg-white/5">
                   <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
+                    style={{ background: `linear-gradient(135deg, ${theme.accentGold}, ${theme.accentGoldHover})` }}
                   >
-                    <Phone className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: theme.accentGold }} />
+                    <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
                     <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Ligue para nós</p>
@@ -597,12 +610,12 @@ export default function GenericLandingPage() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 sm:gap-5">
+                <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-xl transition-all duration-300 hover:bg-white/5">
                   <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
+                    style={{ background: `linear-gradient(135deg, ${theme.accentGold}, ${theme.accentGoldHover})` }}
                   >
-                    <Mail className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: theme.accentGold }} />
+                    <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
                     <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Envie um e-mail</p>
@@ -610,12 +623,12 @@ export default function GenericLandingPage() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 sm:gap-5">
+                <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-xl transition-all duration-300 hover:bg-white/5">
                   <div 
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
+                    style={{ background: `linear-gradient(135deg, ${theme.accentGold}, ${theme.accentGoldHover})` }}
                   >
-                    <MapPin className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: theme.accentGold }} />
+                    <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
                     <p className="text-[10px] sm:text-xs uppercase tracking-wider opacity-60 mb-0.5 sm:mb-1">Sede Corporativa</p>
@@ -626,7 +639,7 @@ export default function GenericLandingPage() {
             </div>
 
             {/* Contact Form */}
-            <div className="rounded-xl p-6 sm:p-8 lg:p-12 relative z-10" style={{ backgroundColor: theme.white }}>
+            <div className="rounded-2xl p-6 sm:p-8 lg:p-12 relative z-10 shadow-2xl" style={{ backgroundColor: theme.white }}>
               <form className="space-y-4 sm:space-y-6">
                 <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-1.5 sm:space-y-2">
@@ -683,8 +696,8 @@ export default function GenericLandingPage() {
                 
                 <Button
                   type="button"
-                  className="w-full h-12 sm:h-14 font-bold uppercase tracking-wide text-sm sm:text-base"
-                  style={{ backgroundColor: theme.primaryBlue, color: theme.white }}
+                  className="w-full h-12 sm:h-14 font-bold uppercase tracking-wide text-sm sm:text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                  style={{ background: `linear-gradient(135deg, ${theme.accentGold}, ${theme.accentGoldHover})`, color: theme.white }}
                 >
                   Enviar Mensagem
                 </Button>
