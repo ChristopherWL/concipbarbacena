@@ -216,39 +216,43 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex relative overflow-hidden" style={{ backgroundColor: bgPrimary }}>
-      {/* Background light effects */}
+      {/* Background light effects - Always visible */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {/* Main light orbs */}
+        {/* Main light orbs - always visible */}
         <div 
-          className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-25 blur-[150px] animate-pulse"
-          style={{ background: `radial-gradient(circle, ${primaryColor} 0%, transparent 70%)` }}
+          className="absolute -top-32 -right-32 w-[700px] h-[700px] rounded-full blur-[180px]"
+          style={{ background: `radial-gradient(circle, ${primaryColor} 0%, transparent 60%)`, opacity: 0.3 }}
         />
         <div 
-          className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full opacity-20 blur-[130px] animate-pulse"
-          style={{ background: `radial-gradient(circle, ${secondaryColor} 0%, transparent 70%)`, animationDelay: '1s' }}
+          className="absolute -bottom-32 -left-32 w-[600px] h-[600px] rounded-full blur-[160px]"
+          style={{ background: `radial-gradient(circle, ${secondaryColor} 0%, transparent 60%)`, opacity: 0.25 }}
         />
         
-        {/* Floating light spots */}
+        {/* Secondary floating lights */}
         <div 
-          className="absolute top-1/3 right-1/3 w-[300px] h-[300px] rounded-full opacity-15 blur-[100px]"
-          style={{ background: `radial-gradient(circle, #60a5fa 0%, transparent 60%)`, animation: 'pulse 4s ease-in-out infinite' }}
+          className="absolute top-[30%] right-[25%] w-[400px] h-[400px] rounded-full blur-[120px]"
+          style={{ background: `radial-gradient(circle, #60a5fa 0%, transparent 50%)`, opacity: 0.18 }}
         />
         <div 
-          className="absolute bottom-1/4 left-1/3 w-[250px] h-[250px] rounded-full opacity-10 blur-[90px]"
-          style={{ background: `radial-gradient(circle, ${primaryColor} 0%, transparent 60%)`, animation: 'pulse 5s ease-in-out infinite 0.5s' }}
+          className="absolute bottom-[20%] left-[25%] w-[350px] h-[350px] rounded-full blur-[100px]"
+          style={{ background: `radial-gradient(circle, ${primaryColor} 0%, transparent 50%)`, opacity: 0.15 }}
         />
         
         {/* Light beams */}
         <div 
-          className="absolute top-0 right-1/3 w-[1px] h-[50%] opacity-10"
-          style={{ background: `linear-gradient(to bottom, ${primaryColor}, transparent)` }}
+          className="absolute top-0 right-[35%] w-[1px] h-[60%]"
+          style={{ background: `linear-gradient(to bottom, ${primaryColor}35, transparent)` }}
+        />
+        <div 
+          className="absolute top-0 left-[45%] w-[1px] h-[40%]"
+          style={{ background: `linear-gradient(to bottom, #60a5fa20, transparent)` }}
         />
         
         {/* Grid pattern */}
         <div 
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0"
           style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
             backgroundSize: '60px 60px'
           }}
         />
