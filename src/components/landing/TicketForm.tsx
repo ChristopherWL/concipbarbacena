@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Send, Lightbulb, AlertTriangle, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 // Fix for default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -19,6 +20,8 @@ L.Icon.Default.mergeOptions({
 
 interface TicketFormProps {
   accentColor?: string;
+  tenantId?: string;
+  branchId?: string;
 }
 
 interface LocationData {
@@ -27,7 +30,7 @@ interface LocationData {
   address?: string;
 }
 
-const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
+const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316', tenantId, branchId }) => {
   const [formData, setFormData] = useState({
     nome: '',
     telefone: '',
@@ -44,6 +47,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
   const [position, setPosition] = useState<LocationData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<number | null>(null);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -221,36 +225,79 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
       return;
     }
 
+    if (!tenantId) {
+      toast.error('Erro de configuração. Por favor, tente novamente.');
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setSubmitted(true);
-    toast.success('Chamado registrado com sucesso!');
-    
-    // Reset after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        nome: '',
-        telefone: '',
-        email: '',
-        rua: '',
-        numero: '',
-        bairro: '',
-        referencia: '',
-        placaPoste: '',
-        tipoProblema: '',
-        descricao: '',
+    try {
+      const payload = {
+        nome: formData.nome.trim(),
+        telefone: formData.telefone.trim(),
+        email: formData.email?.trim() || undefined,
+        rua: formData.rua.trim(),
+        numero: formData.numero?.trim() || undefined,
+        bairro: formData.bairro.trim(),
+        referencia: formData.referencia?.trim() || undefined,
+        placaPoste: formData.placaPoste.trim(),
+        tipoProblema: formData.tipoProblema,
+        descricao: formData.descricao?.trim() || undefined,
+        latitude: position?.lat,
+        longitude: position?.lng,
+        tenantId,
+        branchId,
+      };
+
+      const { data, error } = await supabase.functions.invoke('create-public-ticket', {
+        body: payload,
       });
-      setPosition(null);
-      if (markerRef.current) {
-        markerRef.current.remove();
-        markerRef.current = null;
+
+      if (error) {
+        throw error;
       }
-    }, 3000);
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      setOrderNumber(data.orderNumber);
+      setSubmitted(true);
+      toast.success(data.message || 'Chamado registrado com sucesso!');
+      
+    } catch (error: any) {
+      console.error('Error submitting ticket:', error);
+      toast.error(error.message || 'Erro ao registrar chamado. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setSubmitted(false);
+    setOrderNumber(null);
+    setFormData({
+      nome: '',
+      telefone: '',
+      email: '',
+      rua: '',
+      numero: '',
+      bairro: '',
+      referencia: '',
+      placaPoste: '',
+      tipoProblema: '',
+      descricao: '',
+    });
+    setPosition(null);
+    if (markerRef.current) {
+      markerRef.current.remove();
+      markerRef.current = null;
+    }
+    // Reset map view
+    if (mapRef.current) {
+      mapRef.current.setView(barbacenaCenter, 14);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -264,9 +311,21 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
           <CheckCircle className="w-10 h-10 text-green-500" />
         </div>
         <h3 className="text-2xl font-bold text-white mb-2">Chamado Registrado!</h3>
-        <p className="text-white/70">
+        {orderNumber && (
+          <p className="text-lg font-semibold mb-2" style={{ color: accentColor }}>
+            Protocolo: #{orderNumber}
+          </p>
+        )}
+        <p className="text-white/70 mb-6">
           Sua solicitação foi enviada com sucesso. Em breve nossa equipe irá verificar.
         </p>
+        <Button
+          onClick={resetForm}
+          variant="outline"
+          className="border-white/20 text-white hover:bg-white/10"
+        >
+          Abrir Novo Chamado
+        </Button>
       </div>
     );
   }

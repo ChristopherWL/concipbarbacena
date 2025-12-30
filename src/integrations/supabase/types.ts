@@ -3558,6 +3558,9 @@ export type Database = {
         Row: {
           actual_hours: number | null
           address: string | null
+          aprovado_em: string | null
+          aprovado_por: string | null
+          bairro: string | null
           branch_id: string | null
           city: string | null
           completed_at: string | null
@@ -3569,20 +3572,31 @@ export type Database = {
           id: string
           internal_notes: string | null
           labor_cost: number | null
+          latitude: number | null
+          longitude: number | null
           materials_cost: number | null
+          motivo_rejeicao: string | null
           notes: string | null
+          numero: string | null
           order_number: number
+          origem: string | null
           photos: Json | null
+          placa_poste: string | null
           priority: Database["public"]["Enums"]["priority_level"] | null
           progresso: number
+          referencia: string | null
           scheduled_date: string | null
           scheduled_time: string | null
           signature_url: string | null
+          solicitante_email: string | null
+          solicitante_nome: string | null
+          solicitante_telefone: string | null
           started_at: string | null
           state: string | null
           status: Database["public"]["Enums"]["service_order_status"] | null
           team_id: string | null
           tenant_id: string
+          tipo_problema: string | null
           title: string
           total_cost: number | null
           updated_at: string | null
@@ -3590,6 +3604,9 @@ export type Database = {
         Insert: {
           actual_hours?: number | null
           address?: string | null
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          bairro?: string | null
           branch_id?: string | null
           city?: string | null
           completed_at?: string | null
@@ -3601,20 +3618,31 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           labor_cost?: number | null
+          latitude?: number | null
+          longitude?: number | null
           materials_cost?: number | null
+          motivo_rejeicao?: string | null
           notes?: string | null
+          numero?: string | null
           order_number?: number
+          origem?: string | null
           photos?: Json | null
+          placa_poste?: string | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
           progresso?: number
+          referencia?: string | null
           scheduled_date?: string | null
           scheduled_time?: string | null
           signature_url?: string | null
+          solicitante_email?: string | null
+          solicitante_nome?: string | null
+          solicitante_telefone?: string | null
           started_at?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["service_order_status"] | null
           team_id?: string | null
           tenant_id: string
+          tipo_problema?: string | null
           title: string
           total_cost?: number | null
           updated_at?: string | null
@@ -3622,6 +3650,9 @@ export type Database = {
         Update: {
           actual_hours?: number | null
           address?: string | null
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          bairro?: string | null
           branch_id?: string | null
           city?: string | null
           completed_at?: string | null
@@ -3633,20 +3664,31 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           labor_cost?: number | null
+          latitude?: number | null
+          longitude?: number | null
           materials_cost?: number | null
+          motivo_rejeicao?: string | null
           notes?: string | null
+          numero?: string | null
           order_number?: number
+          origem?: string | null
           photos?: Json | null
+          placa_poste?: string | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
           progresso?: number
+          referencia?: string | null
           scheduled_date?: string | null
           scheduled_time?: string | null
           signature_url?: string | null
+          solicitante_email?: string | null
+          solicitante_nome?: string | null
+          solicitante_telefone?: string | null
           started_at?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["service_order_status"] | null
           team_id?: string | null
           tenant_id?: string
+          tipo_problema?: string | null
           title?: string
           total_cost?: number | null
           updated_at?: string | null
