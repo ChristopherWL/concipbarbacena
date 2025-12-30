@@ -333,7 +333,7 @@ export default function GenericLandingPage() {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          Acesso Funcionários
+          Acesso
         </button>
 
         {/* Mobile Menu Toggle */}
@@ -370,7 +370,7 @@ export default function GenericLandingPage() {
                 clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
               }}
             >
-              Acesso Funcionários
+              Acesso
             </button>
           </nav>
         </div>
