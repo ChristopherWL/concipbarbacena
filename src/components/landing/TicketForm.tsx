@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import React, { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
@@ -28,13 +27,60 @@ interface LocationData {
   address?: string;
 }
 
-function LocationMarker({ position, setPosition }: { 
-  position: LocationData | null; 
-  setPosition: (pos: LocationData) => void;
-}) {
-  useMapEvents({
-    click(e) {
+const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
+  const [formData, setFormData] = useState({
+    nome: '',
+    telefone: '',
+    email: '',
+    rua: '',
+    numero: '',
+    bairro: '',
+    referencia: '',
+    placaPoste: '',
+    tipoProblema: '',
+    descricao: '',
+  });
+  
+  const [position, setPosition] = useState<LocationData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+
+  // Barbacena center coordinates
+  const barbacenaCenter: [number, number] = [-21.2256, -43.7711];
+
+  // Initialize Leaflet map directly (without react-leaflet)
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+
+    // Create map instance
+    const map = L.map(mapContainerRef.current, {
+      center: barbacenaCenter,
+      zoom: 14,
+      scrollWheelZoom: true,
+    });
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    // Handle click events
+    map.on('click', (e: L.LeafletMouseEvent) => {
       const { lat, lng } = e.latlng;
+      
+      // Remove existing marker
+      if (markerRef.current) {
+        markerRef.current.remove();
+      }
+
+      // Add new marker
+      markerRef.current = L.marker([lat, lng]).addTo(map);
+      
+      // Update position state
       setPosition({ lat, lng });
       
       // Reverse geocoding using Nominatim (free)
@@ -58,32 +104,17 @@ function LocationMarker({ position, setPosition }: {
         .catch(() => {
           // Keep position without address if geocoding fails
         });
-    },
-  });
+    });
 
-  return position ? <Marker position={[position.lat, position.lng]} /> : null;
-}
+    mapRef.current = map;
 
-const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
-  const [formData, setFormData] = useState({
-    nome: '',
-    telefone: '',
-    email: '',
-    rua: '',
-    numero: '',
-    bairro: '',
-    referencia: '',
-    placaPoste: '',
-    tipoProblema: '',
-    descricao: '',
-  });
-  
-  const [position, setPosition] = useState<LocationData | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  // Barbacena center coordinates
-  const barbacenaCenter: [number, number] = [-21.2256, -43.7711];
+    // Cleanup on unmount
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (position?.address) {
@@ -139,6 +170,10 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
         descricao: '',
       });
       setPosition(null);
+      if (markerRef.current) {
+        markerRef.current.remove();
+        markerRef.current = null;
+      }
     }, 3000);
   };
 
@@ -172,20 +207,10 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
           Clique no mapa para marcar a localização exata do poste com problema
         </p>
         
-        <div className="rounded-xl overflow-hidden border border-white/10 h-[400px]">
-          <MapContainer
-            center={barbacenaCenter}
-            zoom={14}
-            style={{ height: '100%', width: '100%' }}
-            scrollWheelZoom={true}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <LocationMarker position={position} setPosition={setPosition} />
-          </MapContainer>
-        </div>
+        <div 
+          ref={mapContainerRef}
+          className="rounded-xl overflow-hidden border border-white/10 h-[400px]"
+        />
 
         {position && (
           <div className="p-4 rounded-lg bg-white/5 border border-white/10">
