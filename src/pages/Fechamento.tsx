@@ -55,6 +55,7 @@ import {
   ChevronsRight,
   Search,
   Trash2,
+  Percent,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -68,6 +69,7 @@ export default function Fechamento() {
   const [isCouponDialogOpen, setIsCouponDialogOpen] = useState(false);
   const [isClosingDialogOpen, setIsClosingDialogOpen] = useState(false);
   const [isReopenDialogOpen, setIsReopenDialogOpen] = useState(false);
+  const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false);
   const [confirmClosingStep, setConfirmClosingStep] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<any | null>(null);
   const [isCouponDetailsOpen, setIsCouponDetailsOpen] = useState(false);
@@ -75,6 +77,7 @@ export default function Fechamento() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [supplierSearch, setSupplierSearch] = useState('');
+  const [discountValue, setDiscountValue] = useState('');
   
   const [couponForm, setCouponForm] = useState({
     supplier_id: '',
@@ -113,8 +116,15 @@ export default function Fechamento() {
     return closedSuppliers.find((f: any) => f.supplier_id === supplierId);
   };
 
+  // Get discount value for a supplier
+  const getSupplierDiscount = (supplierId: string): number => {
+    const record = getClosedRecord(supplierId);
+    return record?.discount_value || 0;
+  };
+
   // Check if selected supplier is closed
   const isSelectedSupplierClosed = selectedSupplier ? isSupplierClosed(selectedSupplier) : false;
+  const selectedSupplierDiscount = selectedSupplier ? getSupplierDiscount(selectedSupplier) : 0;
 
   // Fetch fiscal coupons from fiscal_coupons table (NOT invoices)
   const { data: coupons, isLoading } = useQuery({
@@ -295,6 +305,44 @@ export default function Fechamento() {
     },
   });
 
+  // Update discount mutation
+  const updateDiscount = useMutation({
+    mutationFn: async ({ supplierId, discount }: { supplierId: string; discount: number }) => {
+      const closedRecord = getClosedRecord(supplierId);
+      if (!closedRecord?.id) throw new Error('Fornecedor não está fechado');
+      
+      const { error } = await supabase
+        .from('fechamentos_mensais')
+        .update({ discount_value: discount })
+        .eq('id', closedRecord.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fechamentos_mensais'] });
+      toast.success('Desconto atualizado com sucesso!');
+      setIsDiscountDialogOpen(false);
+      setDiscountValue('');
+    },
+    onError: (error) => {
+      toast.error('Erro ao atualizar desconto: ' + error.message);
+    },
+  });
+
+  const handleOpenDiscountDialog = () => {
+    if (selectedSupplier) {
+      const currentDiscount = getSupplierDiscount(selectedSupplier);
+      setDiscountValue(currentDiscount > 0 ? String(currentDiscount) : '');
+      setIsDiscountDialogOpen(true);
+    }
+  };
+
+  const handleSaveDiscount = () => {
+    if (!selectedSupplier) return;
+    const discount = parseFloat(discountValue) || 0;
+    updateDiscount.mutate({ supplierId: selectedSupplier, discount });
+  };
+
   const supplierGroups = useMemo(() => {
     if (!coupons) return [];
     
@@ -449,19 +497,35 @@ export default function Fechamento() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-10">
+                <div className="flex items-center gap-6 sm:gap-10">
                   <div className="text-center">
                     <p className="text-xs text-sidebar-foreground/60">Notas</p>
                     <p className="text-3xl font-bold text-sidebar-primary">
                       {selectedSupplierData?.coupons.length}
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-center">
                     <p className="text-xs text-sidebar-foreground/60">Total</p>
-                    <p className="text-4xl font-bold text-sidebar-primary">
+                    <p className="text-2xl font-bold text-sidebar-primary">
                       {formatCurrency(selectedSupplierData?.total)}
                     </p>
                   </div>
+                  {isSelectedSupplierClosed && (
+                    <>
+                      <div className="text-center">
+                        <p className="text-xs text-sidebar-foreground/60">Desconto</p>
+                        <p className="text-2xl font-bold text-orange-400">
+                          {selectedSupplierDiscount > 0 ? `- ${formatCurrency(selectedSupplierDiscount)}` : '-'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-sidebar-foreground/60">Líquido</p>
+                        <p className="text-3xl font-bold text-green-400">
+                          {formatCurrency((selectedSupplierData?.total || 0) - selectedSupplierDiscount)}
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
@@ -567,6 +631,12 @@ export default function Fechamento() {
                 <Button onClick={() => setIsClosingDialogOpen(true)}>
                   <Lock className="h-4 w-4 mr-2" />
                   Fechar Fornecedor
+                </Button>
+              )}
+              {selectedSupplier && isSelectedSupplierClosed && (
+                <Button variant="outline" onClick={handleOpenDiscountDialog}>
+                  <Percent className="h-4 w-4 mr-2" />
+                  Desconto
                 </Button>
               )}
             </div>
@@ -1121,6 +1191,54 @@ export default function Fechamento() {
               )}
               <Button variant="outline" onClick={() => setIsCouponDetailsOpen(false)}>
                 Fechar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        {/* Discount Dialog */}
+        <Dialog open={isDiscountDialogOpen} onOpenChange={setIsDiscountDialogOpen}>
+          <DialogContent className="max-w-sm mx-2 sm:mx-auto">
+            <DialogHeader className="bg-orange-500 rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
+              <DialogTitle className="text-white">Desconto do Fornecedor</DialogTitle>
+              <DialogDescription className="text-white/80">
+                {selectedSupplierData?.supplier.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="bg-muted rounded-lg p-4 text-center">
+                <p className="text-sm text-muted-foreground">Total Bruto</p>
+                <p className="text-2xl font-bold text-primary">
+                  {formatCurrency(selectedSupplierData?.total)}
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Valor do Desconto (R$)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="0,00"
+                  value={discountValue}
+                  onChange={(e) => setDiscountValue(e.target.value)}
+                />
+              </div>
+              
+              {discountValue && parseFloat(discountValue) > 0 && (
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+                  <p className="text-sm text-green-600 dark:text-green-400">Valor Líquido</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {formatCurrency((selectedSupplierData?.total || 0) - (parseFloat(discountValue) || 0))}
+                  </p>
+                </div>
+              )}
+            </div>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+              <Button variant="outline" onClick={() => setIsDiscountDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveDiscount} disabled={updateDiscount.isPending}>
+                {updateDiscount.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Salvar Desconto
               </Button>
             </DialogFooter>
           </DialogContent>

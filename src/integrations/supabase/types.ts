@@ -1125,6 +1125,7 @@ export type Database = {
           closed_by: string | null
           coupons_count: number | null
           created_at: string
+          discount_value: number | null
           id: string
           reference_month: number
           reference_year: number
@@ -1138,6 +1139,7 @@ export type Database = {
           closed_by?: string | null
           coupons_count?: number | null
           created_at?: string
+          discount_value?: number | null
           id?: string
           reference_month: number
           reference_year: number
@@ -1151,6 +1153,7 @@ export type Database = {
           closed_by?: string | null
           coupons_count?: number | null
           created_at?: string
+          discount_value?: number | null
           id?: string
           reference_month?: number
           reference_year?: number
