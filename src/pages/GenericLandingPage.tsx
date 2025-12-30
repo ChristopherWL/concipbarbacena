@@ -10,6 +10,7 @@ import {
 import { PageLoading } from '@/components/ui/page-loading';
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import barbacenaHero from '@/assets/barbacena-hero.jpg';
 
 interface Stat {
   id?: string;
@@ -333,7 +334,7 @@ export default function GenericLandingPage() {
         ref={heroRef} 
         className="relative min-h-[700px] flex items-center pt-24"
         style={{
-          background: `linear-gradient(90deg, rgba(0, 43, 73, 0.9) 0%, rgba(0, 43, 73, 0.6) 100%), url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1920&auto=format&fit=crop')`,
+          background: `linear-gradient(90deg, rgba(0, 43, 73, 0.85) 0%, rgba(0, 43, 73, 0.5) 100%), url(${barbacenaHero})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
