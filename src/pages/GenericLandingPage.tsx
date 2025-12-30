@@ -339,18 +339,14 @@ export default function GenericLandingPage() {
       <section 
         id="hero" 
         ref={heroRef} 
-        className="relative min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center pt-20 sm:pt-24"
+        className="relative min-h-screen flex items-center"
         style={{
           background: `linear-gradient(90deg, rgba(0, 43, 73, 0.9) 0%, rgba(0, 43, 73, 0.6) 100%), url(${barbacenaHero})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        {/* Gradient overlay at bottom */}
-        <div 
-          className="absolute bottom-0 left-0 right-0 h-24 sm:h-36"
-          style={{ background: `linear-gradient(to top, ${theme.white}, transparent)` }}
-        />
+        {/* Gradient overlay at bottom - removed for cleaner edge */}
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
           <div className="max-w-3xl">
