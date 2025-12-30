@@ -44,13 +44,68 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
   const [position, setPosition] = useState<LocationData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
+  const geocodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isUpdatingFromMap = useRef(false);
 
   // Barbacena center coordinates
   const barbacenaCenter: [number, number] = [-21.2256, -43.7711];
+
+  // Update marker on map
+  const updateMapMarker = (lat: number, lng: number, flyTo: boolean = true) => {
+    if (!mapRef.current) return;
+    
+    // Remove existing marker
+    if (markerRef.current) {
+      markerRef.current.remove();
+    }
+
+    // Add new marker
+    markerRef.current = L.marker([lat, lng]).addTo(mapRef.current);
+    
+    // Fly to location
+    if (flyTo) {
+      mapRef.current.flyTo([lat, lng], 17, { duration: 1 });
+    }
+  };
+
+  // Geocode address to coordinates (address -> map)
+  const geocodeAddress = async (rua: string, numero: string, bairro: string) => {
+    if (!rua || rua.length < 3) return;
+    
+    setIsSearchingAddress(true);
+    
+    try {
+      // Build search query
+      const query = `${rua}${numero ? ' ' + numero : ''}${bairro ? ', ' + bairro : ''}, Barbacena, MG, Brasil`;
+      const encodedQuery = encodeURIComponent(query);
+      
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodedQuery}&limit=1&addressdetails=1`
+      );
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const result = data[0];
+        const lat = parseFloat(result.lat);
+        const lng = parseFloat(result.lon);
+        
+        // Update map marker
+        updateMapMarker(lat, lng, true);
+        
+        // Update position state without triggering reverse geocoding
+        setPosition({ lat, lng, address: query });
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+    } finally {
+      setIsSearchingAddress(false);
+    }
+  };
 
   // Initialize Leaflet map directly (without react-leaflet)
   useEffect(() => {
@@ -83,6 +138,9 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
       // Update position state
       setPosition({ lat, lng });
       
+      // Flag that we're updating from map click
+      isUpdatingFromMap.current = true;
+      
       // Reverse geocoding using Nominatim (free)
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
         .then(res => res.json())
@@ -94,15 +152,28 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
             const neighborhood = addr.suburb || addr.neighbourhood || '';
             const city = addr.city || addr.town || addr.village || '';
             
+            // Update form fields directly
+            setFormData(prev => ({
+              ...prev,
+              rua: street,
+              numero: number,
+              bairro: neighborhood,
+            }));
+            
             setPosition({
               lat,
               lng,
               address: `${street}${number ? ', ' + number : ''} - ${neighborhood}, ${city}`
             });
           }
+          
+          // Reset flag after a delay
+          setTimeout(() => {
+            isUpdatingFromMap.current = false;
+          }, 500);
         })
         .catch(() => {
-          // Keep position without address if geocoding fails
+          isUpdatingFromMap.current = false;
         });
     });
 
@@ -116,21 +187,26 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (position?.address) {
-      // Parse address to fill form fields
-      const parts = position.address.split(' - ');
-      if (parts.length >= 1) {
-        const streetParts = parts[0].split(', ');
-        setFormData(prev => ({
-          ...prev,
-          rua: streetParts[0] || '',
-          numero: streetParts[1] || '',
-          bairro: parts[1]?.split(',')[0] || '',
-        }));
-      }
+  // Debounced geocoding when address fields change
+  const handleAddressChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Don't trigger geocoding if the change came from map click
+    if (isUpdatingFromMap.current) return;
+    
+    // Clear previous timeout
+    if (geocodeTimeoutRef.current) {
+      clearTimeout(geocodeTimeoutRef.current);
     }
-  }, [position]);
+    
+    // Set new timeout for debounced geocoding
+    geocodeTimeoutRef.current = setTimeout(() => {
+      const updatedFormData = { ...formData, [field]: value };
+      if (updatedFormData.rua && updatedFormData.rua.length >= 3) {
+        geocodeAddress(updatedFormData.rua, updatedFormData.numero, updatedFormData.bairro);
+      }
+    }, 800);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -270,12 +346,20 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
         {/* Address Info */}
         <div className="grid sm:grid-cols-3 gap-4">
           <div className="sm:col-span-2 space-y-2">
-            <Label htmlFor="rua" className="text-white/80">Rua *</Label>
+            <Label htmlFor="rua" className="text-white/80 flex items-center gap-2">
+              Rua *
+              {isSearchingAddress && (
+                <span className="text-xs text-white/50 flex items-center gap-1">
+                  <div className="w-3 h-3 border border-white/30 border-t-white/70 rounded-full animate-spin" />
+                  Buscando...
+                </span>
+              )}
+            </Label>
             <Input
               id="rua"
               value={formData.rua}
-              onChange={(e) => handleInputChange('rua', e.target.value)}
-              placeholder="Nome da rua"
+              onChange={(e) => handleAddressChange('rua', e.target.value)}
+              placeholder="Digite o nome da rua para localizar no mapa"
               required
               className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
             />
@@ -285,7 +369,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
             <Input
               id="numero"
               value={formData.numero}
-              onChange={(e) => handleInputChange('numero', e.target.value)}
+              onChange={(e) => handleAddressChange('numero', e.target.value)}
               placeholder="Nº"
               className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
             />
@@ -298,7 +382,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316' }) => {
             <Input
               id="bairro"
               value={formData.bairro}
-              onChange={(e) => handleInputChange('bairro', e.target.value)}
+              onChange={(e) => handleAddressChange('bairro', e.target.value)}
               placeholder="Bairro"
               required
               className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
