@@ -263,29 +263,29 @@ export default function GenericLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen antialiased" style={{ backgroundColor: theme.darkBg, color: theme.white, fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen antialiased overflow-x-hidden" style={{ backgroundColor: theme.darkBg, color: theme.white, fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
       <header 
-        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 lg:px-16 py-6 sm:py-8 flex justify-between items-center"
-        style={{ background: 'linear-gradient(to bottom, rgba(5,11,20,0.9), transparent)' }}
+        className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 lg:px-16 py-4 sm:py-6 flex justify-between items-center"
+        style={{ background: 'linear-gradient(to bottom, rgba(5,11,20,0.95), transparent)' }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2">
           {content.logoUrl ? (
-            <img src={content.logoUrl} alt={content.companyName} className="h-8 sm:h-10 object-contain" />
+            <img src={content.logoUrl} alt={content.companyName} className="h-7 sm:h-10 object-contain" />
           ) : (
             <>
-              <Lightbulb className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: theme.accentCyan }} />
-              <span className="font-bold text-xl sm:text-2xl text-white tracking-wider">
+              <Lightbulb className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: theme.accentCyan }} />
+              <span className="font-bold text-lg sm:text-2xl text-white tracking-wider">
                 {content.companyName}
-                <span className="font-light opacity-80 ml-1">PPP</span>
+                <span className="font-light opacity-80 ml-1 hidden sm:inline">PPP</span>
               </span>
             </>
           )}
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-10">
+        <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -304,7 +304,7 @@ export default function GenericLandingPage() {
         {/* CTA Button Desktop */}
         <button
           onClick={() => navigate('/auth')}
-          className="hidden lg:flex items-center px-6 sm:px-8 py-3 font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:shadow-lg"
+          className="hidden lg:flex items-center px-5 xl:px-8 py-2.5 font-bold text-xs xl:text-sm uppercase tracking-wider transition-all duration-300 hover:shadow-lg"
           style={{ 
             backgroundColor: 'rgba(255, 255, 255, 0.1)',
             border: `1px solid ${theme.accentCyan}`,
@@ -337,22 +337,22 @@ export default function GenericLandingPage() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div 
-          className="lg:hidden fixed inset-0 z-40 pt-20"
+          className="lg:hidden fixed inset-0 z-40 pt-16"
           style={{ backgroundColor: 'rgba(5,11,20,0.98)', backdropFilter: 'blur(10px)' }}
         >
-          <nav className="flex flex-col items-center justify-center gap-8 h-full">
+          <nav className="flex flex-col items-center justify-center gap-6 h-full px-6">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className="text-xl font-medium uppercase tracking-widest text-white/80 hover:text-white transition-colors"
+                className="text-lg font-medium uppercase tracking-widest text-white/80 hover:text-white transition-colors"
               >
                 {item.label}
               </button>
             ))}
             <button
               onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
-              className="mt-8 px-10 py-4 font-bold text-sm uppercase tracking-wider"
+              className="mt-6 px-8 py-3 font-bold text-sm uppercase tracking-wider"
               style={{ 
                 backgroundColor: theme.accentCyan,
                 color: '#000',
@@ -368,7 +368,7 @@ export default function GenericLandingPage() {
       {/* Hero Section */}
       <section 
         id="hero" 
-        className="relative w-full min-h-screen flex items-center justify-center text-center"
+        className="relative w-full min-h-screen flex items-center justify-center text-center pb-24 sm:pb-28"
         style={{
           backgroundImage: `url(${barbacenaHero})`,
           backgroundSize: 'cover',
@@ -379,7 +379,7 @@ export default function GenericLandingPage() {
         <div 
           className="absolute inset-0"
           style={{ 
-            background: `linear-gradient(135deg, rgba(10, 31, 61, 0.9) 0%, rgba(5, 11, 20, 0.7) 50%, rgba(108, 92, 231, 0.3) 100%)`,
+            background: `linear-gradient(135deg, rgba(10, 31, 61, 0.92) 0%, rgba(5, 11, 20, 0.75) 50%, rgba(108, 92, 231, 0.3) 100%)`,
           }}
         />
         <div 
@@ -390,10 +390,10 @@ export default function GenericLandingPage() {
         />
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-20">
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24">
           {/* Tag */}
           <span 
-            className="inline-block px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-widest mb-6 sm:mb-8"
+            className="inline-block px-3 sm:px-5 py-1.5 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6"
             style={{ 
               backgroundColor: 'rgba(9, 132, 227, 0.2)',
               border: `1px solid ${theme.neonBlue}`,
@@ -406,7 +406,7 @@ export default function GenericLandingPage() {
 
           {/* Headline */}
           <h1 
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 sm:mb-10"
+            className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-4 sm:mb-8"
             style={{ 
               background: 'linear-gradient(180deg, #FFFFFF 0%, #A0A0A0 100%)',
               WebkitBackgroundClip: 'text',
@@ -417,6 +417,7 @@ export default function GenericLandingPage() {
             {content.heroTitle}
             <br />
             <span 
+              className="text-xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl"
               style={{ 
                 color: theme.neonBlue,
                 WebkitTextFillColor: theme.neonBlue,
@@ -428,17 +429,17 @@ export default function GenericLandingPage() {
           </h1>
 
           {/* Description */}
-          <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-3xl mx-auto mb-10 sm:mb-14 leading-relaxed px-4">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/70 max-w-3xl mx-auto mb-6 sm:mb-10 leading-relaxed px-2">
             {content.heroDescription}
           </p>
 
           {/* CTA Button */}
           <button
             onClick={() => scrollToSection('contact')}
-            className="inline-flex items-center gap-3 px-10 sm:px-14 py-5 sm:py-6 font-bold text-base sm:text-lg uppercase tracking-wide text-white transition-all duration-300 hover:-translate-y-1"
+            className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-10 lg:px-14 py-3 sm:py-4 lg:py-5 font-bold text-sm sm:text-base lg:text-lg uppercase tracking-wide text-white transition-all duration-300 hover:-translate-y-1"
             style={{ 
               background: `linear-gradient(90deg, ${theme.neonPurple}, ${theme.neonBlue})`,
-              clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
+              clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
               boxShadow: '0 0 30px rgba(108, 92, 231, 0.4)',
             }}
             onMouseEnter={(e) => {
@@ -449,26 +450,26 @@ export default function GenericLandingPage() {
             }}
           >
             {content.ctaPrimary}
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* Stats Strip */}
         <div 
-          className="absolute bottom-0 left-0 right-0 py-6 sm:py-8 flex flex-wrap justify-center gap-8 sm:gap-16 lg:gap-24 z-20"
+          className="absolute bottom-0 left-0 right-0 py-4 sm:py-6 lg:py-8 grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-4 sm:gap-8 lg:gap-16 xl:gap-24 z-20 px-4"
           style={{ 
-            backgroundColor: 'rgba(10, 31, 61, 0.8)',
+            backgroundColor: 'rgba(10, 31, 61, 0.85)',
             borderTop: '1px solid rgba(255, 255, 255, 0.1)',
             backdropFilter: 'blur(20px)',
           }}
         >
           {stats.map((stat, i) => (
             <div key={i} className="text-center">
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">
+              <div className="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-white mb-0.5 sm:mb-1">
                 {stat.value}
               </div>
               <div 
-                className="text-xs sm:text-sm uppercase tracking-wider"
+                className="text-[10px] sm:text-xs uppercase tracking-wider leading-tight"
                 style={{ color: theme.accentCyan }}
               >
                 {stat.label}
@@ -479,29 +480,29 @@ export default function GenericLandingPage() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-8 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+      <section id="services" className="relative py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
         {/* Decorative glow */}
         <div 
-          className="absolute top-1/4 right-0 w-72 h-96 pointer-events-none"
+          className="absolute top-1/4 right-0 w-48 sm:w-72 h-64 sm:h-96 pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(9, 132, 227, 0.05) 0%, transparent 70%)' }}
         />
         
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
-          <div className="text-center mb-16 sm:mb-20">
+          <div className="text-center mb-10 sm:mb-16 lg:mb-20">
             <span 
-              className="text-sm font-bold uppercase tracking-widest mb-4 block"
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
               style={{ color: theme.neonPurple }}
             >
               Nossa Expertise
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+            <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">
               INFRAESTRUTURA INTEGRADA
             </h2>
           </div>
 
           {/* Services Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {(content.modules.length > 0 ? content.modules : defaultServices).map((service, i) => {
               const IconComponent = 'icon' in service && typeof service.icon === 'string' 
                 ? iconMap[service.icon] || Building2 
@@ -510,7 +511,7 @@ export default function GenericLandingPage() {
               return (
                 <div 
                   key={i}
-                  className="group relative p-8 sm:p-10 transition-all duration-400 overflow-hidden"
+                  className="group relative p-5 sm:p-8 lg:p-10 transition-all duration-400 overflow-hidden"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.02)',
                     border: '1px solid rgba(255, 255, 255, 0.05)',
@@ -555,19 +556,19 @@ export default function GenericLandingPage() {
                   />
                   
                   <IconComponent 
-                    className="service-icon w-10 h-10 sm:w-12 sm:h-12 mb-6 transition-all duration-300"
+                    className="service-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mb-4 sm:mb-6 transition-all duration-300"
                     style={{ color: theme.accentCyan }}
                   />
                   
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">
+                  <h3 className="text-base sm:text-xl lg:text-2xl font-bold text-white mb-2 sm:mb-4">
                     {service.title}
                   </h3>
-                  <p className="text-white/60 leading-relaxed text-sm sm:text-base mb-6">
+                  <p className="text-white/60 leading-relaxed text-xs sm:text-sm lg:text-base mb-4 sm:mb-6">
                     {service.description}
                   </p>
                   
                   <button 
-                    className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide transition-colors"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-wide transition-colors"
                     style={{ color: theme.neonPurple }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.color = theme.accentCyan;
@@ -581,7 +582,7 @@ export default function GenericLandingPage() {
                     }}
                   >
                     Saiba Mais
-                    <ArrowRight className="w-4 h-4 transition-all duration-300" />
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 transition-all duration-300" />
                   </button>
                 </div>
               );
@@ -591,45 +592,46 @@ export default function GenericLandingPage() {
       </section>
 
       {/* Gallery/Projects Section */}
-      <section id="projects" className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+      <section id="projects" className="py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
-          <div className="text-center mb-16 sm:mb-20">
+          <div className="text-center mb-10 sm:mb-16 lg:mb-20">
             <span 
-              className="text-sm font-bold uppercase tracking-widest mb-4 block"
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
               style={{ color: theme.neonPurple }}
             >
               Portfólio
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+            <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">
               VISUALIZAÇÃO DE PROJETOS
             </h2>
           </div>
 
-          {/* Gallery Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {/* Gallery Grid - Mobile: stack, Desktop: complex grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
             {/* Large Image */}
             <div 
-              className="col-span-2 row-span-2 relative overflow-hidden rounded-md group cursor-pointer"
-              style={{ minHeight: '400px' }}
+              className="sm:col-span-2 sm:row-span-2 relative overflow-hidden rounded-md group cursor-pointer"
+              style={{ minHeight: '250px' }}
             >
               <img 
                 src={barbacenaHero}
                 alt="Centro de Barbacena"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                style={{ minHeight: '250px' }}
               />
               <div 
-                className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 opacity-0 group-hover:opacity-100 translate-y-5 group-hover:translate-y-0 transition-all duration-300"
+                className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-y-0 sm:translate-y-5 sm:group-hover:translate-y-0 transition-all duration-300"
                 style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)' }}
               >
-                <h4 className="text-lg sm:text-xl font-bold text-white mb-1">Centro de Barbacena</h4>
-                <p style={{ color: theme.accentCyan }} className="text-sm">Transição LED Completa - 2023</p>
+                <h4 className="text-base sm:text-lg lg:text-xl font-bold text-white mb-1">Centro de Barbacena</h4>
+                <p style={{ color: theme.accentCyan }} className="text-xs sm:text-sm">Transição LED Completa - 2023</p>
               </div>
             </div>
 
             {/* Tech Pattern 1 */}
             <div 
-              className="col-span-1 aspect-square flex flex-col items-center justify-center rounded-md"
+              className="aspect-[16/9] sm:aspect-square flex flex-col items-center justify-center rounded-md p-4"
               style={{ 
                 backgroundColor: '#0d121d',
                 backgroundImage: `radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 20%),
@@ -638,36 +640,36 @@ export default function GenericLandingPage() {
                 border: '1px solid rgba(255,255,255,0.05)',
               }}
             >
-              <BarChart3 className="w-12 h-12 sm:w-16 sm:h-16 text-white/10 mb-4" />
-              <h4 className="text-lg sm:text-xl font-bold mb-1" style={{ color: theme.neonBlue }}>Centro de Controle</h4>
-              <p className="text-white/50 text-sm">Dados em Tempo Real</p>
+              <BarChart3 className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-white/10 mb-2 sm:mb-4" />
+              <h4 className="text-sm sm:text-lg lg:text-xl font-bold mb-1" style={{ color: theme.neonBlue }}>Centro de Controle</h4>
+              <p className="text-white/50 text-xs sm:text-sm">Dados em Tempo Real</p>
             </div>
 
             {/* Tech Pattern 2 */}
             <div 
-              className="col-span-1 aspect-square flex flex-col items-center justify-center rounded-md"
+              className="aspect-[16/9] sm:aspect-square flex flex-col items-center justify-center rounded-md p-4"
               style={{ 
                 backgroundColor: '#0d121d',
                 backgroundImage: `radial-gradient(circle at 80% 80%, rgba(9, 132, 227, 0.1) 0%, transparent 20%)`,
                 border: '1px solid rgba(255,255,255,0.05)',
               }}
             >
-              <Wifi className="w-12 h-12 sm:w-16 sm:h-16 text-white/10 mb-4" />
-              <h4 className="text-lg sm:text-xl font-bold mb-1" style={{ color: theme.neonBlue }}>Conectividade</h4>
-              <p className="text-white/50 text-sm">99.9% de Disponibilidade</p>
+              <Wifi className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-white/10 mb-2 sm:mb-4" />
+              <h4 className="text-sm sm:text-lg lg:text-xl font-bold mb-1" style={{ color: theme.neonBlue }}>Conectividade</h4>
+              <p className="text-white/50 text-xs sm:text-sm">99.9% de Disponibilidade</p>
             </div>
 
             {/* Wide Tech Card */}
             <div 
-              className="col-span-2 flex items-start justify-between p-6 sm:p-10 rounded-md"
+              className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row items-start justify-between p-4 sm:p-6 lg:p-10 rounded-md gap-4"
               style={{ 
                 background: `linear-gradient(90deg, ${theme.darkBgSecondary} 0%, #0d1a2f 100%)`,
                 border: '1px solid rgba(255,255,255,0.05)',
               }}
             >
               <div className="flex-1">
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Topologia da Rede Inteligente</h3>
-                <p className="text-white/60 text-sm sm:text-base mb-6">Mapeamento otimizado da rede de distribuição de energia.</p>
+                <h3 className="text-base sm:text-xl lg:text-2xl font-bold text-white mb-2">Topologia da Rede Inteligente</h3>
+                <p className="text-white/60 text-xs sm:text-sm lg:text-base mb-4 sm:mb-6">Mapeamento otimizado da rede de distribuição de energia.</p>
                 
                 {/* Progress bar */}
                 <div 
@@ -684,18 +686,18 @@ export default function GenericLandingPage() {
                   />
                 </div>
               </div>
-              <MapPin className="w-10 h-10 sm:w-12 sm:h-12 ml-6 flex-shrink-0" style={{ color: theme.neonPurple }} />
+              <MapPin className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 flex-shrink-0" style={{ color: theme.neonPurple }} />
             </div>
           </div>
         </div>
       </section>
 
       {/* Technology/About Section */}
-      <section id="technology" className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+      <section id="technology" className="py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-20 items-center">
             {/* Image */}
-            <div className="relative">
+            <div className="relative order-2 lg:order-1">
               <div 
                 className="relative overflow-hidden rounded-lg"
                 style={{ aspectRatio: '4/3' }}
@@ -713,9 +715,9 @@ export default function GenericLandingPage() {
                   }}
                 />
               </div>
-              {/* Decorative frame */}
+              {/* Decorative frame - hidden on mobile */}
               <div 
-                className="absolute -inset-4 rounded-lg -z-10"
+                className="absolute -inset-3 sm:-inset-4 rounded-lg -z-10 hidden sm:block"
                 style={{ 
                   border: `1px solid ${theme.neonBlue}30`,
                 }}
@@ -723,35 +725,35 @@ export default function GenericLandingPage() {
             </div>
 
             {/* Content */}
-            <div>
+            <div className="order-1 lg:order-2">
               <span 
-                className="text-sm font-bold uppercase tracking-widest mb-4 block"
+                className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
                 style={{ color: theme.neonPurple }}
               >
                 Tecnologia
               </span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-8 leading-tight">
+              <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-8 leading-tight">
                 INOVAÇÃO QUE<br />
                 <span style={{ color: theme.accentCyan }}>TRANSFORMA</span>
               </h2>
-              <p className="text-white/70 leading-relaxed text-base sm:text-lg mb-8">
+              <p className="text-white/70 leading-relaxed text-sm sm:text-base lg:text-lg mb-4 sm:mb-8">
                 Utilizamos as tecnologias mais avançadas do mercado para criar soluções de infraestrutura urbana que não apenas atendem às necessidades de hoje, mas antecipam os desafios do futuro.
               </p>
-              <p className="text-white/70 leading-relaxed text-base sm:text-lg mb-10">
+              <p className="text-white/70 leading-relaxed text-sm sm:text-base lg:text-lg mb-6 sm:mb-10 hidden sm:block">
                 Nossos sistemas integram IoT, inteligência artificial e análise de dados em tempo real para otimizar o desempenho e garantir a máxima eficiência energética.
               </p>
               
               {/* Features list */}
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:space-y-4">
                 {['Telegestão Avançada', 'Manutenção Preditiva', 'Análise de Dados', 'Integração IoT'].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-4">
+                  <div key={i} className="flex items-center gap-2 sm:gap-4">
                     <div 
-                      className="w-8 h-8 rounded-full flex items-center justify-center"
+                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: `${theme.neonBlue}20` }}
                     >
-                      <CheckCircle className="w-4 h-4" style={{ color: theme.accentCyan }} />
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: theme.accentCyan }} />
                     </div>
-                    <span className="text-white font-medium">{feature}</span>
+                    <span className="text-white font-medium text-xs sm:text-base">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -761,23 +763,23 @@ export default function GenericLandingPage() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16" style={{ backgroundColor: theme.darkBgSecondary }}>
+      <section id="about" className="py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16" style={{ backgroundColor: theme.darkBgSecondary }}>
         <div className="max-w-6xl mx-auto text-center">
           <span 
-            className="text-sm font-bold uppercase tracking-widest mb-4 block"
+            className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
             style={{ color: theme.neonPurple }}
           >
             Quem Somos
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-8">
+          <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-8">
             LIDERANÇA EM CIDADES INTELIGENTES
           </h2>
-          <p className="text-white/70 leading-relaxed text-base sm:text-lg max-w-4xl mx-auto mb-16">
-            Nascemos com a missão de transformar a realidade das cidades brasileiras através da tecnologia e da eficiência. Somos especialistas em estruturar projetos complexos que unem o setor público e privado em prol do cidadão, sempre focados em transparência, inovação e sustentabilidade.
+          <p className="text-white/70 leading-relaxed text-sm sm:text-base lg:text-lg max-w-4xl mx-auto mb-10 sm:mb-16 px-2">
+            Nascemos com a missão de transformar a realidade das cidades brasileiras através da tecnologia e da eficiência. Somos especialistas em estruturar projetos complexos que unem o setor público e privado em prol do cidadão.
           </p>
           
           {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
             {[
               { value: '+50', label: 'Cidades Atendidas' },
               { value: '+200k', label: 'Pontos de Luz' },
@@ -786,12 +788,12 @@ export default function GenericLandingPage() {
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <h3 
-                  className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-3"
+                  className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-1 sm:mb-3"
                   style={{ color: theme.accentCyan }}
                 >
                   {stat.value}
                 </h3>
-                <span className="text-white/60 text-sm uppercase tracking-wider">{stat.label}</span>
+                <span className="text-white/60 text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider">{stat.label}</span>
               </div>
             ))}
           </div>
@@ -801,32 +803,32 @@ export default function GenericLandingPage() {
       {/* Contact Section */}
       <section 
         id="contact" 
-        className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-8 lg:px-16"
+        className="relative py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16"
         style={{ background: `linear-gradient(180deg, ${theme.darkBg} 0%, ${theme.darkBgSecondary} 100%)` }}
       >
         {/* Decorative glow */}
         <div 
-          className="absolute bottom-1/4 left-0 w-96 h-96 pointer-events-none"
+          className="absolute bottom-1/4 left-0 w-48 sm:w-96 h-48 sm:h-96 pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.05) 0%, transparent 70%)' }}
         />
         
         <div className="max-w-4xl mx-auto">
           {/* Section Header */}
-          <div className="text-center mb-16 sm:mb-20">
+          <div className="text-center mb-10 sm:mb-16 lg:mb-20">
             <span 
-              className="text-sm font-bold uppercase tracking-widest mb-4 block"
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
               style={{ color: theme.neonPurple }}
             >
               Fale Conosco
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+            <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">
               INICIE A CONVERSA
             </h2>
           </div>
 
           {/* Contact Form Container */}
           <div 
-            className="relative p-8 sm:p-12 lg:p-16 rounded-2xl overflow-hidden"
+            className="relative p-5 sm:p-8 lg:p-12 xl:p-16 rounded-xl sm:rounded-2xl overflow-hidden"
             style={{ 
               backgroundColor: 'rgba(255, 255, 255, 0.03)',
               backdropFilter: 'blur(20px)',
@@ -835,23 +837,23 @@ export default function GenericLandingPage() {
           >
             {/* Decorative purple glow */}
             <div 
-              className="absolute -top-1/2 -right-1/4 w-[600px] h-[600px] pointer-events-none"
+              className="absolute -top-1/2 -right-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] pointer-events-none"
               style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.15) 0%, transparent 70%)' }}
             />
 
-            <form className="relative z-10 grid sm:grid-cols-2 gap-8 sm:gap-10">
+            <form className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
               {/* Name */}
               <div className="relative">
                 <input 
                   type="text" 
                   placeholder=" "
-                  className="w-full bg-transparent border-b py-4 text-white text-base focus:outline-none transition-colors peer"
+                  className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
                   style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                   onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
                   onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
                 />
                 <label 
-                  className="absolute top-4 left-0 text-white/50 text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   Nome Completo
                 </label>
@@ -862,15 +864,15 @@ export default function GenericLandingPage() {
                 <input 
                   type="email" 
                   placeholder=" "
-                  className="w-full bg-transparent border-b py-4 text-white text-base focus:outline-none transition-colors peer"
+                  className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
                   style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                   onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
                   onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
                 />
                 <label 
-                  className="absolute top-4 left-0 text-white/50 text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
                 >
-                  Endereço de E-mail
+                  E-mail
                 </label>
               </div>
 
@@ -879,13 +881,13 @@ export default function GenericLandingPage() {
                 <input 
                   type="text" 
                   placeholder=" "
-                  className="w-full bg-transparent border-b py-4 text-white text-base focus:outline-none transition-colors peer"
+                  className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
                   style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                   onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
                   onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
                 />
                 <label 
-                  className="absolute top-4 left-0 text-white/50 text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   Assunto
                 </label>
@@ -893,16 +895,16 @@ export default function GenericLandingPage() {
 
               {/* Message */}
               <div className="relative sm:col-span-2">
-                <input 
-                  type="text" 
+                <textarea 
                   placeholder=" "
-                  className="w-full bg-transparent border-b py-4 pb-12 text-white text-base focus:outline-none transition-colors peer"
+                  rows={3}
+                  className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer resize-none"
                   style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                   onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
                   onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
                 />
                 <label 
-                  className="absolute top-4 left-0 text-white/50 text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   Mensagem
                 </label>
@@ -911,10 +913,10 @@ export default function GenericLandingPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="sm:col-span-2 w-full py-5 font-bold text-base uppercase tracking-widest text-white transition-all duration-300 mt-6"
+                className="sm:col-span-2 w-full py-4 sm:py-5 font-bold text-sm sm:text-base uppercase tracking-widest text-white transition-all duration-300 mt-2 sm:mt-6"
                 style={{ 
                   backgroundColor: theme.neonBlue,
-                  clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
+                  clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = theme.neonPurple;
@@ -934,36 +936,36 @@ export default function GenericLandingPage() {
 
       {/* Footer */}
       <footer 
-        className="py-12 sm:py-16 px-4 sm:px-8 lg:px-16"
+        className="py-8 sm:py-12 lg:py-16 px-3 sm:px-6 lg:px-16"
         style={{ 
           backgroundColor: '#020408',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
         }}
       >
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col lg:flex-row justify-between gap-12 lg:gap-20 mb-12">
+          <div className="flex flex-col lg:flex-row justify-between gap-8 lg:gap-20 mb-8 sm:mb-12">
             {/* Brand */}
             <div className="max-w-xs">
-              <h2 className="text-2xl font-bold text-white mb-3 flex items-center gap-2">
+              <h2 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3 flex items-center gap-2">
                 {content.logoUrl ? (
-                  <img src={content.logoUrl} alt={content.companyName} className="h-8 object-contain" />
+                  <img src={content.logoUrl} alt={content.companyName} className="h-6 sm:h-8 object-contain" />
                 ) : (
                   <>
-                    <Lightbulb className="w-6 h-6" style={{ color: theme.accentCyan }} />
+                    <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: theme.accentCyan }} />
                     {content.companyName} PPP
                   </>
                 )}
               </h2>
-              <p className="text-white/40 text-sm leading-relaxed">
+              <p className="text-white/40 text-xs sm:text-sm leading-relaxed">
                 Inovando espaços urbanos através da luz, tecnologia e parcerias sustentáveis.
               </p>
             </div>
 
             {/* Links */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 lg:gap-16">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-16">
               <div>
-                <h4 className="font-bold text-white mb-5 text-sm">Soluções</h4>
-                <ul className="space-y-3 text-white/50 text-sm">
+                <h4 className="font-bold text-white mb-3 sm:mb-5 text-xs sm:text-sm">Soluções</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/50 text-xs sm:text-sm">
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Iluminação Pública</a></li>
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Smart City IoT</a></li>
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Usinas de Energia</a></li>
@@ -971,17 +973,17 @@ export default function GenericLandingPage() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-bold text-white mb-5 text-sm">Empresa</h4>
-                <ul className="space-y-3 text-white/50 text-sm">
+                <h4 className="font-bold text-white mb-3 sm:mb-5 text-xs sm:text-sm">Empresa</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/50 text-xs sm:text-sm">
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Sobre Nós</a></li>
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Projetos</a></li>
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Notícias</a></li>
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Contato</a></li>
                 </ul>
               </div>
-              <div>
-                <h4 className="font-bold text-white mb-5 text-sm">Conecte-se</h4>
-                <ul className="space-y-3 text-white/50 text-sm">
+              <div className="col-span-2 sm:col-span-1">
+                <h4 className="font-bold text-white mb-3 sm:mb-5 text-xs sm:text-sm">Conecte-se</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/50 text-xs sm:text-sm">
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">LinkedIn</a></li>
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Instagram</a></li>
                   <li><a href="#" className="hover:text-cyan-400 transition-colors">Twitter</a></li>
@@ -992,10 +994,10 @@ export default function GenericLandingPage() {
 
           {/* Copyright */}
           <div 
-            className="text-center pt-8 text-white/30 text-xs"
+            className="text-center pt-6 sm:pt-8 text-white/30 text-[10px] sm:text-xs"
             style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}
           >
-            &copy; 2023 {content.companyName} PPP Solutions. Todos os direitos reservados. Projetado para o Futuro.
+            &copy; 2023 {content.companyName} PPP Solutions. Todos os direitos reservados.
           </div>
         </div>
       </footer>
