@@ -38,7 +38,7 @@ export function FuelOrderReport({ vehicle, fuelLog, orderNumber }: FuelOrderRepo
       </div>
 
       {/* Title */}
-      <div className="title-box bg-gray-200 text-center py-2 mb-4 sm:mb-6 border border-black">
+      <div className="title-box bg-blue-100 text-center py-2 mb-4 sm:mb-6 border border-black">
         <h2 className="text-sm sm:text-base md:text-lg font-bold px-2">ORDEM DE ABASTECIMENTO Nº {formattedOrderNumber}/{year}</h2>
       </div>
 
@@ -76,7 +76,8 @@ export function FuelOrderReport({ vehicle, fuelLog, orderNumber }: FuelOrderRepo
       <div className="overflow-x-auto mb-8 mt-6">
         <table className="w-full border-collapse border border-black min-w-[600px]">
           <thead>
-            <tr className="bg-gray-100">
+            
+            <tr className="bg-blue-50">
               <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Fornecedor</th>
               <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Preço Unit. (R$)</th>
               <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Quantid.</th>
