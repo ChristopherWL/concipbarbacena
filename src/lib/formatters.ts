@@ -56,3 +56,43 @@ export const formatCurrency = (value: number): string => {
 export const formatNumber = (value: string): string => {
   return value.replace(/\D/g, '');
 };
+
+/**
+ * Formats a date string (YYYY-MM-DD) to Brazilian format (DD/MM/YYYY)
+ * without timezone conversion issues.
+ * 
+ * IMPORTANT: Do NOT use `new Date(dateString).toLocaleDateString()` for date-only strings
+ * as it interprets them as UTC midnight, causing day shift issues.
+ */
+export const formatDateBR = (dateString: string | null | undefined): string => {
+  if (!dateString) return '-';
+  
+  // Handle ISO date strings (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss)
+  const datePart = dateString.split('T')[0];
+  const parts = datePart.split('-');
+  
+  if (parts.length !== 3) return dateString;
+  
+  const [year, month, day] = parts;
+  return `${day}/${month}/${year}`;
+};
+
+/**
+ * Parses a date string (YYYY-MM-DD) to a Date object
+ * using local timezone to avoid day shift issues.
+ */
+export const parseDateString = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+/**
+ * Formats a Date object to YYYY-MM-DD string for storage/API
+ * using local timezone components.
+ */
+export const formatDateToISO = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};

@@ -18,6 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDateBR } from '@/lib/formatters';
 
 export default function EmissaoNotasFiscais() {
   const [activeTab, setActiveTab] = useState<FiscalNoteType>('nfe');
@@ -580,7 +581,7 @@ export default function EmissaoNotasFiscais() {
                   </p>
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <span className="text-muted-foreground">
-                      {new Date(note.issue_date).toLocaleDateString('pt-BR')}
+                      {formatDateBR(note.issue_date)}
                     </span>
                     <span className="font-semibold text-foreground">
                       {Number(note.total_value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -635,7 +636,7 @@ export default function EmissaoNotasFiscais() {
                     {note.customer_name || note.customer_document || 'Não identificado'}
                   </TableCell>
                   <TableCell>
-                    {new Date(note.issue_date).toLocaleDateString('pt-BR')}
+                    {formatDateBR(note.issue_date)}
                   </TableCell>
                   <TableCell className="text-right">
                     {Number(note.total_value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -802,7 +803,7 @@ export default function EmissaoNotasFiscais() {
                   <div>
                     <Label className="text-muted-foreground">Data de Emissão</Label>
                     <p className="font-medium">
-                      {new Date(selectedNote.issue_date).toLocaleDateString('pt-BR')}
+                      {formatDateBR(selectedNote.issue_date)}
                     </p>
                   </div>
                   <div>
