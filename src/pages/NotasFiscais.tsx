@@ -50,6 +50,7 @@ import { Plus, FileText, Download, Eye, Search, X, Upload, Loader2, Trash2, Aler
 import { toast } from 'sonner';
 import { PdfInlineViewer } from '@/components/invoices/PdfInlineViewer';
 import { Invoice } from '@/types/stock';
+import { formatDateBR, parseDateString } from '@/lib/formatters';
 import { TablePagination, usePagination } from '@/components/ui/table-pagination';
 
 export default function NotasFiscais() {
@@ -824,7 +825,7 @@ export default function NotasFiscais() {
                     </p>
                     <div className="flex items-center justify-between gap-2 text-sm">
                       <span className="text-muted-foreground">
-                        {format(new Date(invoice.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
+                        {formatDateBR(invoice.issue_date)}
                       </span>
                       <span className="font-semibold text-foreground">
                         {formatCurrency(invoice.total_value)}
@@ -947,7 +948,7 @@ export default function NotasFiscais() {
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
                           <span className="text-muted-foreground">
-                            {format(new Date(invoice.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
+                            {formatDateBR(invoice.issue_date)}
                           </span>
                         </TableCell>
                         <TableCell>
