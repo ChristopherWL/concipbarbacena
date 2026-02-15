@@ -1,0 +1,4 @@
+project_id = "tobmxnfwfggjqvhnzypw"
+
+[functions.create-public-ticket]
+verify_jwt = false
