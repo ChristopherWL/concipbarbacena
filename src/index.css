@@ -361,6 +361,7 @@
     @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-md;
   }
 
+<<<<<<< HEAD
   /* Dashboard page layout */
   .dashboard-page {
     @apply min-h-0 flex flex-col gap-6 sm:gap-8;
@@ -387,17 +388,31 @@
     overflow: hidden;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: var(--shadow-sm);
+=======
+  /* Futuristic Dashboard Cards */
+  .futuristic-card {
+    position: relative;
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.9) 100%);
+    border: 1px solid hsl(var(--border) / 0.5);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   }
 
   .futuristic-card::before {
     content: '';
     position: absolute;
     inset: 0;
+<<<<<<< HEAD
     background: linear-gradient(160deg, transparent 50%, hsl(var(--primary) / 0.02) 100%);
+=======
+    background: linear-gradient(135deg, transparent 40%, hsl(var(--primary) / 0.03) 100%);
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
     pointer-events: none;
   }
 
   .futuristic-card:hover {
+<<<<<<< HEAD
     border-color: hsl(var(--border));
     box-shadow: var(--shadow-md), 0 0 0 1px hsl(var(--border) / 0.5);
   }
@@ -414,6 +429,18 @@
   .dark .futuristic-card:hover {
     border-color: hsl(var(--border));
     box-shadow: var(--shadow-md);
+=======
+    border-color: hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.1), 0 4px 16px hsl(0 0% 0% / 0.1);
+  }
+
+  .dark .futuristic-card {
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.95) 100%);
+  }
+
+  .dark .futuristic-card::before {
+    background: linear-gradient(135deg, transparent 40%, hsl(var(--primary) / 0.05) 100%);
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   }
 
   /* Glow accent line */

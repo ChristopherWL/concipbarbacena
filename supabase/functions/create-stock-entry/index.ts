@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
+<<<<<<< HEAD
 function getCorsHeaders(req: Request) {
   const raw = Deno.env.get("ALLOWED_ORIGINS") ?? "*";
   const origins = raw.split(",").map((s) => s.trim()).filter(Boolean);
@@ -12,6 +13,12 @@ function getCorsHeaders(req: Request) {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   };
 }
+=======
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 
 // Zod schemas for input validation
 const StockEntryItemSchema = z.object({
@@ -47,7 +54,10 @@ type StockEntryInput = z.infer<typeof StockEntryInputSchema>;
 type StockEntryItem = z.infer<typeof StockEntryItemSchema>;
 
 serve(async (req) => {
+<<<<<<< HEAD
   const corsHeaders = getCorsHeaders(req);
+=======
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

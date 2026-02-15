@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 # Environment (nunca commitar credenciais)
 .env
 .env.local
 .env.*.local
 
+=======
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 # Logs
 logs
 *.log

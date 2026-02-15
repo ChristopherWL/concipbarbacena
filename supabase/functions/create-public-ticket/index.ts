@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+<<<<<<< HEAD
 function getCorsHeaders(req: Request) {
   const raw = Deno.env.get('ALLOWED_ORIGINS') ?? '*'
   const origins = raw.split(',').map((s) => s.trim()).filter(Boolean)
@@ -31,6 +32,11 @@ function checkRateLimit(ip: string): boolean {
   if (entry.count >= RATE_LIMIT_MAX) return false
   entry.count++
   return true
+=======
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 }
 
 interface TicketPayload {
@@ -61,12 +67,17 @@ const TIPO_PROBLEMA_LABELS: Record<string, string> = {
 }
 
 serve(async (req) => {
+<<<<<<< HEAD
   const corsHeaders = getCorsHeaders(req)
+=======
+  // Handle CORS preflight requests
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
+<<<<<<< HEAD
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? req.headers.get('x-real-ip') ?? 'unknown'
     if (!checkRateLimit(ip)) {
       return new Response(
@@ -83,12 +94,30 @@ serve(async (req) => {
     console.log('Received ticket payload:', JSON.stringify(payload, null, 2))
 
     if (!payload.nome || !payload.telefone || !payload.rua || !payload.bairro || !payload.placaPoste || !payload.tipoProblema || !payload.tenantId) {
+=======
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    const payload: TicketPayload = await req.json()
+    
+    console.log('Received ticket payload:', JSON.stringify(payload, null, 2))
+
+    // Validate required fields
+    if (!payload.nome || !payload.telefone || !payload.rua || !payload.bairro || !payload.placaPoste || !payload.tipoProblema || !payload.tenantId) {
+      console.error('Missing required fields')
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
       return new Response(
         JSON.stringify({ error: 'Campos obrigatórios não preenchidos' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+<<<<<<< HEAD
+=======
+    // Input validation
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
     if (payload.nome.length > 255 || payload.telefone.length > 50 || payload.rua.length > 255) {
       return new Response(
         JSON.stringify({ error: 'Dados excedem o tamanho máximo permitido' }),
@@ -96,6 +125,7 @@ serve(async (req) => {
       )
     }
 
+<<<<<<< HEAD
     // Validar que o tenant existe e está ativo
     const { data: tenant, error: tenantError } = await supabase
       .from('tenants')
@@ -134,6 +164,8 @@ serve(async (req) => {
       }
     }
 
+=======
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
     // Get or create a default customer for public tickets
     const { data: existingCustomer, error: customerSearchError } = await supabase
       .from('customers')

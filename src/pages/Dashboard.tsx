@@ -4,7 +4,11 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { PageLoading } from '@/components/ui/page-loading';
 import { supabase } from '@/integrations/supabase/client';
+<<<<<<< HEAD
 import { LayoutDashboard } from 'lucide-react';
+=======
+
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { DashboardVendas } from '@/components/dashboard/DashboardVendas';
@@ -119,17 +123,26 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
+<<<<<<< HEAD
       <div className="dashboard-page" data-tour="dashboard-content">
         <PageHeader
           variant="dashboard"
           icon={<LayoutDashboard className="h-5 w-5" />}
+=======
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6" data-tour="dashboard-content">
+        <PageHeader
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
           title={`Bem-vindo, ${profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Usuário'}!`}
           description={tenant ? `Visão geral de ${tenant.name}` : 'Entre em contato com o administrador'}
         />
 
+<<<<<<< HEAD
         <div className="dashboard-content">
           {renderDashboard()}
         </div>
+=======
+        {renderDashboard()}
+>>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
       </div>
     </DashboardLayout>
   );
