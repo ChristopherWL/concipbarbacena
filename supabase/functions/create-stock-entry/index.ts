@@ -2,23 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
-<<<<<<< HEAD
-function getCorsHeaders(req: Request) {
-  const raw = Deno.env.get("ALLOWED_ORIGINS") ?? "*";
-  const origins = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  const origin = req.headers.get("Origin");
-  const allowOrigin = (origin && origins.includes(origin)) ? origin : (raw === "*" ? "*" : (origins[0] ?? "*"));
-  return {
-    "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
-=======
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 
 // Zod schemas for input validation
 const StockEntryItemSchema = z.object({
@@ -54,10 +41,6 @@ type StockEntryInput = z.infer<typeof StockEntryInputSchema>;
 type StockEntryItem = z.infer<typeof StockEntryItemSchema>;
 
 serve(async (req) => {
-<<<<<<< HEAD
-  const corsHeaders = getCorsHeaders(req);
-=======
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -71,21 +54,17 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    // Client with user auth for RLS
     const supabaseUser = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    // Service client for transaction
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get user info
     const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
     if (userError || !user) {
       throw new Error("User not authenticated");
     }
 
-    // Get user's tenant and branch
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
       .select("tenant_id, selected_branch_id")
@@ -97,10 +76,8 @@ serve(async (req) => {
     }
 
     const tenantId = profile.tenant_id;
-    // Use provided branch_id or fall back to user's selected_branch_id
     const userBranchId = profile.selected_branch_id;
     
-    // Parse and validate input with Zod
     let parsedInput: StockEntryInput;
     try {
       const rawInput = await req.json();
@@ -120,14 +97,12 @@ serve(async (req) => {
     const { invoice, items, signature_data } = parsedInput;
     const effectiveBranchId = invoice.branch_id ?? userBranchId;
 
-    // VALIDATION PHASE - Check everything before making any changes
     const validatedItems: Array<{
       product: any;
       item: StockEntryItem;
     }> = [];
 
     for (const item of items) {
-      // Validate product exists
       const { data: product, error: productError } = await supabaseAdmin
         .from("products")
         .select("*")
@@ -139,22 +114,18 @@ serve(async (req) => {
         throw new Error(`Produto não encontrado: ${item.product_id}`);
       }
 
-      // Validate serial numbers are unique
       if (product.is_serialized && item.serial_numbers?.length) {
-        // Check quantity matches serial numbers
         if (item.serial_numbers.length !== item.quantity) {
           throw new Error(
             `Quantidade de números de série (${item.serial_numbers.length}) não corresponde à quantidade (${item.quantity}) para ${product.name}`
           );
         }
 
-        // Check for duplicates in the input
         const uniqueSerials = new Set(item.serial_numbers);
         if (uniqueSerials.size !== item.serial_numbers.length) {
           throw new Error(`Números de série duplicados na entrada para ${product.name}`);
         }
 
-        // Check for existing serial numbers
         for (const serial of item.serial_numbers) {
           const { data: existing } = await supabaseAdmin
             .from("serial_numbers")
@@ -173,8 +144,6 @@ serve(async (req) => {
       validatedItems.push({ product, item });
     }
 
-    // EXECUTION PHASE - All validations passed, now create records
-    // We'll create everything and if any step fails, we'll rollback manually
     const createdIds: {
       invoice_id?: string;
       invoice_item_ids: string[];
@@ -189,7 +158,6 @@ serve(async (req) => {
     };
 
     try {
-      // 1. Create invoice
       const { data: newInvoice, error: invoiceError } = await supabaseAdmin
         .from("invoices")
         .insert({
@@ -204,9 +172,7 @@ serve(async (req) => {
       if (invoiceError) throw invoiceError;
       createdIds.invoice_id = newInvoice.id;
 
-      // 2. Process each item
       for (const { product, item } of validatedItems) {
-        // Create invoice item
         const { data: invoiceItem, error: itemError } = await supabaseAdmin
           .from("invoice_items")
           .insert({
@@ -224,7 +190,6 @@ serve(async (req) => {
         if (itemError) throw itemError;
         createdIds.invoice_item_ids.push(invoiceItem.id);
 
-        // Create serial numbers if applicable
         if (product.is_serialized && item.serial_numbers?.length) {
           for (const serial of item.serial_numbers) {
             const { data: serialRecord, error: serialError } = await supabaseAdmin
@@ -245,14 +210,12 @@ serve(async (req) => {
           }
         }
 
-        // Store previous stock for rollback
         const previousStock = product.current_stock || 0;
         createdIds.product_stock_updates.push({
           id: product.id,
           previous_stock: previousStock,
         });
 
-        // Create stock movement
         const newStock = previousStock + item.quantity;
         const { data: movement, error: movementError } = await supabaseAdmin
           .from("stock_movements")
@@ -275,7 +238,6 @@ serve(async (req) => {
         if (movementError) throw movementError;
         createdIds.movement_ids.push(movement.id);
 
-        // Update product stock
         const { error: updateError } = await supabaseAdmin
           .from("products")
           .update({
@@ -292,10 +254,8 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } catch (executionError) {
-      // ROLLBACK - Delete everything in reverse order
       console.error("Execution error, rolling back:", executionError);
 
-      // Restore product stocks
       for (const update of createdIds.product_stock_updates) {
         await supabaseAdmin
           .from("products")
@@ -303,7 +263,6 @@ serve(async (req) => {
           .eq("id", update.id);
       }
 
-      // Delete movements
       if (createdIds.movement_ids.length) {
         await supabaseAdmin
           .from("stock_movements")
@@ -311,7 +270,6 @@ serve(async (req) => {
           .in("id", createdIds.movement_ids);
       }
 
-      // Delete serial numbers
       if (createdIds.serial_number_ids.length) {
         await supabaseAdmin
           .from("serial_numbers")
@@ -319,7 +277,6 @@ serve(async (req) => {
           .in("id", createdIds.serial_number_ids);
       }
 
-      // Delete invoice items
       if (createdIds.invoice_item_ids.length) {
         await supabaseAdmin
           .from("invoice_items")
@@ -327,7 +284,6 @@ serve(async (req) => {
           .in("id", createdIds.invoice_item_ids);
       }
 
-      // Delete invoice
       if (createdIds.invoice_id) {
         await supabaseAdmin
           .from("invoices")

@@ -1,42 +1,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-<<<<<<< HEAD
-function getCorsHeaders(req: Request) {
-  const raw = Deno.env.get('ALLOWED_ORIGINS') ?? '*'
-  const origins = raw.split(',').map((s) => s.trim()).filter(Boolean)
-  const origin = req.headers.get('Origin')
-  const allowOrigin = (origin && origins.includes(origin)) ? origin : (raw === '*' ? '*' : (origins[0] ?? '*'))
-  return {
-    'Access-Control-Allow-Origin': allowOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  }
-}
-
-// Rate limit: máx 10 requisições por IP por minuto
-const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = 10
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-  if (!entry) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return true
-  }
-  if (now >= entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return true
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return false
-  entry.count++
-  return true
-=======
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 }
 
 interface TicketPayload {
@@ -67,34 +34,11 @@ const TIPO_PROBLEMA_LABELS: Record<string, string> = {
 }
 
 serve(async (req) => {
-<<<<<<< HEAD
-  const corsHeaders = getCorsHeaders(req)
-=======
-  // Handle CORS preflight requests
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-<<<<<<< HEAD
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? req.headers.get('x-real-ip') ?? 'unknown'
-    if (!checkRateLimit(ip)) {
-      return new Response(
-        JSON.stringify({ error: 'Muitas requisições. Tente novamente em alguns minutos.' }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-    const payload: TicketPayload = await req.json()
-    console.log('Received ticket payload:', JSON.stringify(payload, null, 2))
-
-    if (!payload.nome || !payload.telefone || !payload.rua || !payload.bairro || !payload.placaPoste || !payload.tipoProblema || !payload.tenantId) {
-=======
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     
@@ -107,17 +51,13 @@ serve(async (req) => {
     // Validate required fields
     if (!payload.nome || !payload.telefone || !payload.rua || !payload.bairro || !payload.placaPoste || !payload.tipoProblema || !payload.tenantId) {
       console.error('Missing required fields')
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
       return new Response(
         JSON.stringify({ error: 'Campos obrigatórios não preenchidos' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-<<<<<<< HEAD
-=======
     // Input validation
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
     if (payload.nome.length > 255 || payload.telefone.length > 50 || payload.rua.length > 255) {
       return new Response(
         JSON.stringify({ error: 'Dados excedem o tamanho máximo permitido' }),
@@ -125,47 +65,6 @@ serve(async (req) => {
       )
     }
 
-<<<<<<< HEAD
-    // Validar que o tenant existe e está ativo
-    const { data: tenant, error: tenantError } = await supabase
-      .from('tenants')
-      .select('id, status')
-      .eq('id', payload.tenantId)
-      .maybeSingle()
-
-    if (tenantError || !tenant) {
-      return new Response(
-        JSON.stringify({ error: 'Empresa não encontrada' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-    if (tenant.status !== 'active' && tenant.status !== 'trial') {
-      return new Response(
-        JSON.stringify({ error: 'Empresa não está habilitada para receber chamados' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Se branchId informado, validar que existe e pertence ao tenant
-    if (payload.branchId) {
-      const { data: branch, error: branchError } = await supabase
-        .from('branches')
-        .select('id')
-        .eq('id', payload.branchId)
-        .eq('tenant_id', payload.tenantId)
-        .eq('is_active', true)
-        .maybeSingle()
-
-      if (branchError || !branch) {
-        return new Response(
-          JSON.stringify({ error: 'Filial não encontrada ou inativa' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-    }
-
-=======
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
     // Get or create a default customer for public tickets
     const { data: existingCustomer, error: customerSearchError } = await supabase
       .from('customers')

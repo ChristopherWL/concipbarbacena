@@ -1,24 +1,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-<<<<<<< HEAD
-function getCorsHeaders(req: Request) {
-  const raw = Deno.env.get('ALLOWED_ORIGINS') ?? '*';
-  const origins = raw.split(',').map((s) => s.trim()).filter(Boolean);
-  const origin = req.headers.get('Origin');
-  const allowOrigin = (origin && origins.includes(origin)) ? origin : (raw === '*' ? '*' : (origins[0] ?? '*'));
-  return {
-    'Access-Control-Allow-Origin': allowOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  };
-}
-=======
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 
 // Default superadmin credentials
 const DEFAULT_SUPERADMIN = {
@@ -42,7 +28,6 @@ async function createDefaultSuperadmin(supabase: any): Promise<{ success: boolea
   try {
     console.log('Creating default superadmin...');
 
-    // Check if user already exists
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
     const existingUser = existingUsers?.users?.find((u: any) => u.email === DEFAULT_SUPERADMIN.email);
     
@@ -57,7 +42,6 @@ async function createDefaultSuperadmin(supabase: any): Promise<{ success: boolea
       if (updateError) throw updateError;
       userId = existingUser.id;
     } else {
-      // Create new user
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: DEFAULT_SUPERADMIN.email,
         password: DEFAULT_SUPERADMIN.password,
@@ -69,7 +53,6 @@ async function createDefaultSuperadmin(supabase: any): Promise<{ success: boolea
       console.log('User created:', userId);
     }
 
-    // Create or get system tenant
     const { data: existingTenant } = await supabase
       .from('tenants')
       .select('id')
@@ -93,7 +76,6 @@ async function createDefaultSuperadmin(supabase: any): Promise<{ success: boolea
       }
     }
 
-    // Update profile
     if (tenantId) {
       await supabase
         .from('profiles')
@@ -101,7 +83,6 @@ async function createDefaultSuperadmin(supabase: any): Promise<{ success: boolea
         .eq('id', userId);
     }
 
-    // Check/add superadmin role
     const { data: existingRole } = await supabase
       .from('user_roles')
       .select('id')
@@ -129,11 +110,6 @@ async function createDefaultSuperadmin(supabase: any): Promise<{ success: boolea
 }
 
 Deno.serve(async (req) => {
-<<<<<<< HEAD
-  const corsHeaders = getCorsHeaders(req);
-=======
-  // Handle CORS preflight and all requests (this is a public endpoint)
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -146,7 +122,6 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
-    // Check if any superadmin exists
     const { data: superadmins, error: superadminError } = await supabase
       .from('user_roles')
       .select('id')
@@ -167,7 +142,6 @@ Deno.serve(async (req) => {
 
     const hasSuperadmin = superadmins && superadmins.length > 0;
 
-    // If no superadmin exists, create one automatically
     if (!hasSuperadmin) {
       console.log('No superadmin found, creating default superadmin...');
       const result = await createDefaultSuperadmin(supabase);
@@ -198,7 +172,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Check if any tenant exists (besides system)
     const { data: tenants } = await supabase
       .from('tenants')
       .select('id, slug')

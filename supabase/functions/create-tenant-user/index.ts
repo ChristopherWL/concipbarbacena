@@ -2,23 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
-<<<<<<< HEAD
-function getCorsHeaders(req: Request) {
-  const raw = Deno.env.get("ALLOWED_ORIGINS") ?? "*";
-  const origins = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  const origin = req.headers.get("Origin");
-  const allowOrigin = (origin && origins.includes(origin)) ? origin : (raw === "*" ? "*" : (origins[0] ?? "*"));
-  return {
-    "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
-=======
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 
 // Strong password regex patterns
 const hasUppercase = /[A-Z]/;
@@ -26,7 +13,6 @@ const hasLowercase = /[a-z]/;
 const hasNumber = /[0-9]/;
 const hasSpecial = /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/`~;']/;
 
-// Zod schema for input validation with strong password
 const TenantUserInputSchema = z.object({
   tenant_id: z.string().uuid("ID da empresa inválido"),
   email: z.string().email("Email inválido"),
@@ -45,11 +31,6 @@ const TenantUserInputSchema = z.object({
 type TenantUserInput = z.infer<typeof TenantUserInputSchema>;
 
 serve(async (req) => {
-<<<<<<< HEAD
-  const corsHeaders = getCorsHeaders(req);
-=======
-  // Handle CORS preflight requests
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -58,7 +39,6 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-    // Create admin client with service role
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
@@ -66,7 +46,6 @@ serve(async (req) => {
       },
     });
 
-    // Get the authorization header to verify the caller is an admin
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       console.error('No authorization header');
@@ -76,7 +55,6 @@ serve(async (req) => {
       );
     }
 
-    // Verify the caller's token
     const token = authHeader.replace('Bearer ', '');
     const { data: { user: callerUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
     
@@ -88,7 +66,6 @@ serve(async (req) => {
       );
     }
 
-    // Check if caller is admin, superadmin, manager, or has can_manage_users permission
     const { data: callerRoles } = await supabaseAdmin
       .from('user_roles')
       .select('role')
@@ -101,7 +78,6 @@ serve(async (req) => {
       .eq('user_id', callerUser.id)
       .maybeSingle();
 
-    // Check template permissions if user has a template assigned
     let templateCanManageUsers = false;
     if (callerPermissions?.template_id) {
       const { data: templateData } = await supabaseAdmin
@@ -123,7 +99,6 @@ serve(async (req) => {
       );
     }
 
-    // Parse and validate input with Zod
     let parsedInput: TenantUserInput;
     try {
       const rawInput = await req.json();
@@ -144,7 +119,6 @@ serve(async (req) => {
 
     console.log('Creating user for tenant:', tenant_id, 'with template:', template_id, 'branch:', branch_id);
 
-    // Check if tenant exists
     const { data: existingTenant, error: tenantError } = await supabaseAdmin
       .from('tenants')
       .select('id')
@@ -159,7 +133,6 @@ serve(async (req) => {
       );
     }
 
-    // Check if email already exists
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
     const emailExists = existingUsers?.users?.some(u => u.email === email);
     
@@ -170,14 +143,11 @@ serve(async (req) => {
       );
     }
 
-    // Create the user
     const { data: newUser, error: userError } = await supabaseAdmin.auth.admin.createUser({
       email: email,
       password: password,
       email_confirm: true,
-      user_metadata: {
-        full_name: full_name,
-      },
+      user_metadata: { full_name: full_name },
     });
 
     if (userError) {
@@ -190,8 +160,6 @@ serve(async (req) => {
 
     console.log('User created:', newUser.user.id);
 
-    // Upsert the user's profile (trigger might fail; don't rely on it)
-    // Set both branch_id and selected_branch_id to ensure proper filtering
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
       .upsert(
@@ -210,7 +178,6 @@ serve(async (req) => {
       console.error('Error updating profile:', profileError);
     }
 
-    // Get role from template if provided, otherwise default to technician
     let userRole = 'technician';
     if (template_id) {
       const { data: templateData } = await supabaseAdmin
@@ -226,7 +193,6 @@ serve(async (req) => {
 
     console.log('Assigning role:', userRole);
 
-    // Create the user role
     const { error: roleError } = await supabaseAdmin
       .from('user_roles')
       .insert({
@@ -239,7 +205,6 @@ serve(async (req) => {
       console.error('Error creating role:', roleError);
     }
 
-    // Create (or update) user permissions with template
     const { error: permError } = await supabaseAdmin
       .from('user_permissions')
       .upsert(
@@ -253,7 +218,6 @@ serve(async (req) => {
 
     if (permError) {
       console.error('Error upserting permissions:', permError);
-      // Don't fail the whole operation, but log the error
     }
 
     console.log('User created successfully with template_id:', template_id);
