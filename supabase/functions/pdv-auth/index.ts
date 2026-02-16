@@ -2,32 +2,15 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
-<<<<<<< HEAD
-function getCorsHeaders(req: Request) {
-  const raw = Deno.env.get("ALLOWED_ORIGINS") ?? "*";
-  const origins = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  const origin = req.headers.get("Origin");
-  const allowOrigin = (origin && origins.includes(origin)) ? origin : (raw === "*" ? "*" : (origins[0] ?? "*"));
-  return {
-    "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
-=======
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 
 const BodySchema = z
   .object({
     action: z.enum(["init", "terminals", "operators", "login"]),
-
-    // terminals + operators + login (optional now - will fetch first tenant if not provided)
     tenant_id: z.string().uuid().optional(),
-
-    // login
     terminal_id: z.string().uuid().optional(),
     operator_id: z.string().uuid().optional(),
     pin: z.string().min(1).max(6).optional(),
@@ -37,10 +20,6 @@ const BodySchema = z
 type Body = z.infer<typeof BodySchema>;
 
 serve(async (req) => {
-<<<<<<< HEAD
-  const corsHeaders = getCorsHeaders(req);
-=======
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -66,9 +45,7 @@ serve(async (req) => {
       throw err;
     }
 
-    // Init: Get first tenant + terminals + operators
     if (body.action === "init") {
-      // Get first active tenant
       const { data: tenant, error: tenantError } = await supabaseAdmin
         .from("tenants")
         .select("id, name, slug, logo_url")
@@ -84,7 +61,6 @@ serve(async (req) => {
         });
       }
 
-      // Fetch terminals and operators in parallel
       const [terminalsResult, operatorsResult] = await Promise.all([
         supabaseAdmin
           .from("pdv_terminals")
@@ -180,13 +156,9 @@ serve(async (req) => {
           .maybeSingle(),
         supabaseAdmin
           .from("pdv_operators")
-<<<<<<< HEAD
-          .select("id, code, name, is_active, can_cancel_sale, can_give_discount, max_discount_percent, tenant_id")
-=======
           .select(
             "id, code, name, pin, is_active, can_cancel_sale, can_give_discount, max_discount_percent, tenant_id",
           )
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
           .eq("id", body.operator_id)
           .eq("tenant_id", body.tenant_id)
           .eq("is_active", true)
@@ -210,22 +182,13 @@ serve(async (req) => {
       });
     }
 
-<<<<<<< HEAD
-    const { data: pinValid } = await supabaseAdmin.rpc("verify_pdv_operator_pin", {
-      _operator_id: body.operator_id,
-      _plain_pin: body.pin,
-    });
-    if (!pinValid) {
-=======
     if (operator.pin !== body.pin) {
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
       return new Response(JSON.stringify({ error: "PIN incorreto" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Do not return the pin
     const safeOperator = {
       id: operator.id,
       code: operator.code,

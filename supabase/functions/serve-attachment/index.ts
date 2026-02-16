@@ -1,31 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-<<<<<<< HEAD
-function getCorsHeaders(req: Request) {
-  const raw = Deno.env.get("ALLOWED_ORIGINS") ?? "*";
-  const origins = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  const origin = req.headers.get("Origin");
-  const allowOrigin = (origin && origins.includes(origin)) ? origin : (raw === "*" ? "*" : (origins[0] ?? "*"));
-  return {
-    "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
-
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req);
-  if (req.method === "OPTIONS") {
-=======
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -41,17 +23,6 @@ serve(async (req) => {
       );
     }
 
-<<<<<<< HEAD
-    // Prevent path traversal (e.g. ../../../etc/passwd)
-    if (filePath.includes('..') || filePath.startsWith('/')) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid file path' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-=======
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
     console.log('Serving file:', filePath, 'download:', download);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -59,7 +30,6 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Validate authentication
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       console.error('No authorization header provided');
@@ -82,10 +52,8 @@ serve(async (req) => {
 
     console.log('Authenticated user:', user.id);
 
-    // Extract tenant_id from file path (first segment)
     const tenantIdFromPath = filePath.split('/')[0];
 
-    // Get user's tenant_id from profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('tenant_id')
@@ -100,10 +68,8 @@ serve(async (req) => {
       );
     }
 
-    // Check if user is superadmin
     const { data: isSuperadmin } = await supabase.rpc('is_superadmin', { _user_id: user.id });
 
-    // Validate access: allow superadmin OR same tenant
     if (!isSuperadmin && profile?.tenant_id !== tenantIdFromPath) {
       console.error('Access denied: user tenant', profile?.tenant_id, 'does not match path tenant', tenantIdFromPath);
       return new Response(
@@ -114,7 +80,6 @@ serve(async (req) => {
 
     console.log('Access granted for user:', user.id, 'to file:', filePath);
 
-    // Download the file from storage
     const { data, error } = await supabase.storage
       .from('tenant-assets')
       .download(filePath);
@@ -127,7 +92,6 @@ serve(async (req) => {
       );
     }
 
-    // Determine content type based on file extension
     const ext = filePath.split('.').pop()?.toLowerCase();
     const fileName = filePath.split('/').pop() || 'file';
     let contentType = 'application/octet-stream';
@@ -153,17 +117,14 @@ serve(async (req) => {
 
     console.log('Serving file with content type:', contentType);
 
-    // Set Content-Disposition based on download flag
     const disposition = download ? `attachment; filename="${fileName}"` : `inline; filename="${fileName}"`;
 
-    // Return the file with appropriate headers
     return new Response(data, {
       headers: {
         ...corsHeaders,
         'Content-Type': contentType,
         'Content-Disposition': disposition,
         'Cache-Control': 'public, max-age=3600',
-        // Allow embedding preview inside the app (PDF/image previews)
         'Content-Security-Policy': "frame-ancestors *",
       },
     });

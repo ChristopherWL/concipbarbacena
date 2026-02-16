@@ -118,12 +118,7 @@ export function DashboardOverview() {
   ];
 
   return (
-<<<<<<< HEAD
-    <div className="space-y-6 sm:space-y-8">
-=======
     <div className="space-y-3 sm:space-y-4 lg:space-y-5">
-      {/* Matriz Branch Selector - Mobile only */}
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
       {isMatriz && (
         <div className="lg:hidden">
           <MatrizBranchSelector 
@@ -133,15 +128,8 @@ export function DashboardOverview() {
         </div>
       )}
 
-<<<<<<< HEAD
       <StatCardsGrid cards={statCards} />
 
-=======
-      {/* Stats Grid */}
-      <StatCardsGrid cards={statCards} />
-
-      {/* Branch Breakdown Table - Only when viewing all branches */}
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
       {showConsolidated && consolidatedStats && (
         <BranchStatsTable 
           branches={consolidatedStats.branches} 
@@ -149,33 +137,17 @@ export function DashboardOverview() {
         />
       )}
 
-<<<<<<< HEAD
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-=======
-      {/* Calendar + Pie Chart Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-5">
-        {/* Calendar - Left side */}
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
         <div className="lg:col-span-8">
           <DashboardCalendar sector="overview" />
         </div>
 
-<<<<<<< HEAD
-        <Card className="lg:col-span-4 futuristic-card rounded-2xl">
-          <CardHeader className="pb-2 px-5 pt-5">
-            <CardTitle className="text-base font-semibold">Estoque por Categoria</CardTitle>
-            <CardDescription className="text-xs mt-0.5">Distribuição atual</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0 px-5 pb-5">
-=======
-        {/* Pie Chart - Right side */}
         <Card className="lg:col-span-4 futuristic-card rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Estoque por Categoria</CardTitle>
             <CardDescription className="text-xs">Distribuição atual</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
             <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -221,22 +193,12 @@ export function DashboardOverview() {
         </Card>
       </div>
 
-<<<<<<< HEAD
-      <Card className="futuristic-card rounded-2xl">
-        <CardHeader className="pb-2 px-5 pt-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-              <CardTitle className="text-base font-semibold">Tendência de Ordens de Serviço</CardTitle>
-              <CardDescription className="text-xs mt-0.5">Últimos 6 meses</CardDescription>
-=======
-      {/* OS Trend Chart */}
       <Card className="futuristic-card rounded-xl">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-sm font-semibold">Tendência de Ordens de Serviço</CardTitle>
               <CardDescription className="text-xs">Últimos 6 meses</CardDescription>
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
@@ -250,13 +212,8 @@ export function DashboardOverview() {
             </div>
           </div>
         </CardHeader>
-<<<<<<< HEAD
-        <CardContent className="pt-0 px-5 pb-5">
-          <div className="h-[200px] chart-container p-2 rounded-xl">
-=======
         <CardContent className="pt-0">
           <div className="h-[200px] chart-container p-2">
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={osTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
@@ -313,25 +270,13 @@ export function DashboardOverview() {
         </CardContent>
       </Card>
 
-<<<<<<< HEAD
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <Card className="futuristic-card rounded-2xl">
-          <CardHeader className="pb-2 px-5 pt-5">
-            <CardTitle className="text-base font-semibold">Atividades Recentes</CardTitle>
-            <CardDescription className="text-xs mt-0.5">Últimas movimentações</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0 px-5 pb-5">
-=======
-      {/* Activity + Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-        {/* Recent Activity */}
         <Card className="futuristic-card rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Atividades Recentes</CardTitle>
             <CardDescription className="text-xs">Últimas movimentações</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
             {activitiesLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
@@ -349,16 +294,6 @@ export function DashboardOverview() {
                 {activities.slice(0, 4).map((activity) => {
                   const Icon = getActivityIcon(activity.type);
                   return (
-<<<<<<< HEAD
-                    <div key={activity.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors">
-                      <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                        <Icon className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium leading-tight">{activity.action}</p>
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">{activity.description}</p>
-                        <p className="text-xs text-muted-foreground/80 mt-1">{activity.time}</p>
-=======
                     <div key={activity.id} className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-muted/30 transition-colors">
                       <div className="p-1.5 rounded-md bg-primary/10 flex-shrink-0">
                         <Icon className="h-3.5 w-3.5 text-primary" />
@@ -367,7 +302,6 @@ export function DashboardOverview() {
                         <p className="text-xs font-medium leading-tight">{activity.action}</p>
                         <p className="text-[10px] text-muted-foreground truncate mt-0.5">{activity.description}</p>
                         <p className="text-[10px] text-muted-foreground/70 mt-1">{activity.time}</p>
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
                       </div>
                     </div>
                   );
@@ -384,22 +318,6 @@ export function DashboardOverview() {
           </CardContent>
         </Card>
 
-<<<<<<< HEAD
-        <Card className="futuristic-card rounded-2xl">
-          <CardHeader className="pb-2 px-5 pt-5">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-warning" />
-              Alertas
-            </CardTitle>
-            <CardDescription className="text-xs mt-0.5">Requerem atenção</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0 px-5 pb-5">
-            {alerts && alerts.length > 0 ? (
-              <div className="space-y-2">
-                {alerts.slice(0, 3).map((alert) => (
-                  <div key={alert.id} className={`p-3 rounded-xl text-sm ${
-=======
-        {/* Alerts */}
         <Card className="futuristic-card rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -413,7 +331,6 @@ export function DashboardOverview() {
               <div className="space-y-2">
                 {alerts.slice(0, 3).map((alert) => (
                   <div key={alert.id} className={`p-2.5 rounded-lg text-xs ${
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
                     alert.type === 'error' ? 'bg-destructive/10 text-destructive border border-destructive/20' :
                     alert.type === 'warning' ? 'bg-warning/10 text-warning-foreground border border-warning/20' :
                     'bg-info/10 text-info-foreground border border-info/20'

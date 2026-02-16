@@ -2,23 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
-<<<<<<< HEAD
-function getCorsHeaders(req: Request) {
-  const raw = Deno.env.get("ALLOWED_ORIGINS") ?? "*";
-  const origins = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  const origin = req.headers.get("Origin");
-  const allowOrigin = (origin && origins.includes(origin)) ? origin : (raw === "*" ? "*" : (origins[0] ?? "*"));
-  return {
-    "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
-=======
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
 
 // Schema for creating new tenant with admin
 const NewTenantAdminSchema = z.object({
@@ -48,11 +35,6 @@ const BranchAdminSchema = z.object({
 });
 
 serve(async (req) => {
-<<<<<<< HEAD
-  const corsHeaders = getCorsHeaders(req);
-=======
-  // Handle CORS preflight requests
->>>>>>> 2b5767b5628a98bf6f9b1410391791e86c127253
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -61,7 +43,6 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-    // Create admin client with service role
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
@@ -69,7 +50,6 @@ serve(async (req) => {
       },
     });
 
-    // Get the authorization header to verify the caller is a superadmin
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       console.error('No authorization header');
@@ -79,7 +59,6 @@ serve(async (req) => {
       );
     }
 
-    // Verify the caller's token and check if they're a superadmin
     const token = authHeader.replace('Bearer ', '');
     const { data: { user: callerUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
     
@@ -91,7 +70,6 @@ serve(async (req) => {
       );
     }
 
-    // Check if caller is superadmin
     const { data: callerRoles, error: rolesError } = await supabaseAdmin
       .from('user_roles')
       .select('role')
@@ -108,12 +86,10 @@ serve(async (req) => {
 
     const rawInput = await req.json();
 
-    // Check if this is a branch admin or director access creation (has tenant_id directly)
     if (rawInput.tenant_id) {
       return await createBranchAdmin(supabaseAdmin, rawInput);
     }
 
-    // Otherwise, it's a new tenant with admin creation
     return await createTenantWithAdmin(supabaseAdmin, rawInput);
 
   } catch (error) {
@@ -126,7 +102,6 @@ serve(async (req) => {
 });
 
 async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
-  // Validate input
   let parsedInput;
   try {
     parsedInput = BranchAdminSchema.parse(rawInput);
@@ -146,7 +121,6 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
 
   console.log('Creating user for tenant:', tenant_id, 'branch:', branch_id || 'none (director access)', 'role:', role, 'template:', template_id || 'none');
 
-  // Verify tenant exists
   const { data: tenant, error: tenantError } = await supabaseAdmin
     .from('tenants')
     .select('id')
@@ -160,7 +134,6 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
     );
   }
 
-  // If branch_id is provided, verify it exists and belongs to tenant
   if (branch_id) {
     const { data: branch, error: branchError } = await supabaseAdmin
       .from('branches')
@@ -177,7 +150,6 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
     }
   }
 
-  // Check if email already exists
   const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
   const emailExists = existingUsers?.users?.some((u: any) => u.email === email);
   
@@ -188,14 +160,11 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
     );
   }
 
-  // Create the admin user
   const { data: newUser, error: userError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
-    user_metadata: {
-      full_name,
-    },
+    user_metadata: { full_name },
   });
 
   if (userError) {
@@ -208,7 +177,6 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
 
   console.log('User created:', newUser.user.id);
 
-  // Upsert the user's profile (trigger might fail; don't rely on it)
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
     .upsert(
@@ -226,7 +194,6 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
     console.error('Error updating profile:', profileError);
   }
 
-  // Create the role
   const { error: roleError } = await supabaseAdmin
     .from('user_roles')
     .insert({
@@ -239,7 +206,6 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
     console.error('Error creating role:', roleError);
   }
 
-  // If template_id is provided, create user_permissions entry
   if (template_id) {
     const { error: permError } = await supabaseAdmin
       .from('user_permissions')
@@ -269,7 +235,6 @@ async function createBranchAdmin(supabaseAdmin: any, rawInput: any) {
 }
 
 async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
-  // Validate input
   let parsedInput;
   try {
     parsedInput = NewTenantAdminSchema.parse(rawInput);
@@ -289,7 +254,6 @@ async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
 
   console.log('Creating tenant:', tenant.name);
 
-  // Check if slug already exists
   const { data: existingTenant } = await supabaseAdmin
     .from('tenants')
     .select('id')
@@ -303,7 +267,6 @@ async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
     );
   }
 
-  // Check if admin email already exists
   const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers();
   const emailExists = existingUser?.users?.some((u: any) => u.email === admin.email);
   
@@ -314,7 +277,6 @@ async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
     );
   }
 
-  // Create the tenant
   const { data: newTenant, error: tenantError } = await supabaseAdmin
     .from('tenants')
     .insert({
@@ -338,7 +300,6 @@ async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
 
   console.log('Tenant created:', newTenant.id);
 
-  // Get the main branch created by trigger
   const { data: mainBranch } = await supabaseAdmin
     .from('branches')
     .select('id')
@@ -346,19 +307,15 @@ async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
     .eq('is_main', true)
     .single();
 
-  // Create the admin user
   const { data: newUser, error: userError } = await supabaseAdmin.auth.admin.createUser({
     email: admin.email,
     password: admin.password,
     email_confirm: true,
-    user_metadata: {
-      full_name: admin.full_name,
-    },
+    user_metadata: { full_name: admin.full_name },
   });
 
   if (userError) {
     console.error('Error creating user:', userError);
-    // Rollback: delete the tenant
     await supabaseAdmin.from('tenants').delete().eq('id', newTenant.id);
     return new Response(
       JSON.stringify({ error: 'Erro ao criar usuário: ' + userError.message }),
@@ -368,7 +325,6 @@ async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
 
   console.log('User created:', newUser.user.id);
 
-  // Upsert the user's profile (trigger might fail; don't rely on it)
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
     .upsert(
@@ -386,7 +342,6 @@ async function createTenantWithAdmin(supabaseAdmin: any, rawInput: any) {
     console.error('Error updating profile:', profileError);
   }
 
-  // Create the admin role
   const { error: roleError } = await supabaseAdmin
     .from('user_roles')
     .insert({
