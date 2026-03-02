@@ -95,14 +95,17 @@
     --brand-foreground: 0 0% 100%;
     --brand-muted: 217 50% 20%;
 
-    --background: 0 0% 4%;
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 0 0% 7%;
+    --card: 222 47% 14%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 7%;
+    --popover: 222 47% 14%;
     --popover-foreground: 210 40% 98%;
+
+    --header-background: 0 0% 4%;
+    --sidebar-background: 0 0% 5%;
 
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
@@ -123,10 +126,9 @@
     --input: 217 33% 20%;
     --ring: 217 91% 60%;
 
-    --header-background: 222 47% 8%;
     --header-foreground: 0 0% 100%;
 
-    --sidebar-background: 222 47% 10%;
+
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
