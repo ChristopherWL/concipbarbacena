@@ -1130,20 +1130,20 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col h-full" data-tour="sidebar">
           {/* Navigation */}
           <nav className={cn(
-            "flex-1 py-2 overflow-y-auto overflow-x-hidden transition-all duration-150",
-            collapsed ? "px-1" : "px-2"
+            "flex-1 py-3 overflow-y-auto overflow-x-hidden transition-all duration-150",
+            collapsed ? "px-1.5" : "px-3"
           )}>
             
             {/* Menu Label */}
             {!collapsed && (
-              <div className="px-2 mb-2">
-                <span className="text-[9px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+              <div className="px-2 mb-3">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
                   Menu Principal
                 </span>
               </div>
             )}
             
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {currentNavigation.map((item, index) => {
                 if (item.children && !collapsed) {
                   const isMenuOpen = openMenus.includes(item.name);
@@ -1154,17 +1154,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       <Button
                         variant="ghost"
                         className={cn(
-                          'w-full justify-between gap-1 rounded-md text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors h-8 px-2',
+                          'w-full justify-between gap-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors h-10 px-3',
                           hasActiveChild && 'bg-sidebar-accent/60 text-sidebar-foreground'
                         )}
                         onClick={() => toggleMenu(item.name)}
                       >
                         <div className="flex items-center gap-2">
                           <item.icon className={cn(
-                            "h-3.5 w-3.5 transition-colors flex-shrink-0",
+                            "h-4 w-4 transition-colors flex-shrink-0",
                             hasActiveChild ? "text-primary" : "text-sidebar-foreground/60"
                           )} />
-                          <span className="text-xs font-medium truncate">{item.name}</span>
+                          <span className="text-sm font-medium truncate">{item.name}</span>
                           <NotificationBadge count={item.badge || 0} type={item.badgeType} />
                         </div>
                         <ChevronRight className={cn(
@@ -1178,7 +1178,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                           isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
                         )}
                       >
-                        <div className="space-y-0.5 border-l border-sidebar-foreground/10 pl-2 py-0.5">
+                        <div className="space-y-0.5 border-l-2 border-sidebar-foreground/10 pl-3 py-1">
                           {item.children.map((child) => (
                             <Button
                               key={child.name}
@@ -1186,17 +1186,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                               size="sm"
                               data-tour={getTourId(child.name)}
                               className={cn(
-                                'w-full justify-between text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-colors h-7 px-2 rounded-md',
-                                isActive(child.href) && 'bg-primary/10 text-primary font-medium'
+                                'w-full justify-between text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-colors h-9 px-2.5 rounded-lg',
+                                isActive(child.href) && 'bg-primary/15 text-primary font-semibold border-l-2 border-primary -ml-[2px]'
                               )}
                               onClick={() => handleNavigation(child.href)}
                             >
                               <div className="flex items-center gap-1.5">
                                 <child.icon className={cn(
-                                  "h-3 w-3 flex-shrink-0",
+                                  "h-3.5 w-3.5 flex-shrink-0",
                                   isActive(child.href) ? "text-primary" : "text-sidebar-foreground/50"
                                 )} />
-                                <span className="text-[11px] font-medium truncate">{child.name}</span>
+                                <span className="text-xs font-medium truncate">{child.name}</span>
                               </div>
                               <NotificationBadge count={child.badge || 0} type={child.badgeType} className="scale-75" />
                             </Button>
@@ -1349,16 +1349,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   variant="ghost"
                   data-tour={getTourId(item.name)}
                   className={cn(
-                    'w-full justify-start gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors h-8 px-2 rounded-md',
-                    isActive(item.href!) && 'bg-sidebar-accent/60 text-sidebar-foreground font-medium'
+                    'w-full justify-start gap-3 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors h-10 px-3 rounded-lg',
+                    isActive(item.href!) && 'bg-primary/15 text-primary font-semibold border-l-2 border-primary'
                   )}
                   onClick={() => handleNavigation(item.href!)}
                 >
                   <item.icon className={cn(
-                    "h-3.5 w-3.5 transition-colors flex-shrink-0",
+                    "h-4 w-4 transition-colors flex-shrink-0",
                     isActive(item.href!) ? "text-primary" : "text-sidebar-foreground/60"
                   )} />
-                  <span className="text-xs font-medium truncate">{item.name}</span>
+                  <span className="text-sm font-medium truncate">{item.name}</span>
                   {(item.badge || 0) > 0 && (
                     <NotificationBadge count={item.badge || 0} type={item.badgeType} className="ml-auto" />
                   )}
@@ -1440,7 +1440,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Spacer - same width as sidebar */}
         <div className={cn(
           "h-full transition-all duration-200",
-          isCollapsed ? "w-12" : "w-44"
+          isCollapsed ? "w-14" : "w-56"
         )} />
 
         {/* Header content - center */}
@@ -1574,7 +1574,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Desktop Sidebar - below header */}
       <aside className={cn(
         "hidden lg:fixed lg:bottom-0 lg:left-0 lg:flex lg:flex-col transition-all duration-200 ease-out z-30 print:!hidden overflow-hidden",
-        isCollapsed ? "lg:w-12" : "lg:w-44",
+        isCollapsed ? "lg:w-14" : "lg:w-56",
         // When collapsed, sidebar starts below the logo area
         isCollapsed ? (isAtTop ? "lg:top-[5rem]" : "lg:top-[4.5rem]") : "lg:top-2"
       )}>
@@ -1642,7 +1642,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {isCollapsed && (
         <div className={cn(
           "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out left-0",
-          isAtTop ? "-top-4 w-24" : "top-2 w-12"
+          isAtTop ? "-top-4 w-24" : "top-2 w-14"
         )}>
           {currentLogo ? (
             <img 
@@ -1667,7 +1667,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Expand Arrow between sidebar and content */}
       <div className={cn(
         "hidden lg:flex fixed top-1/2 -translate-y-1/2 z-40 transition-all duration-200",
-        isCollapsed ? "left-12" : "left-44"
+        isCollapsed ? "left-14" : "left-56"
       )}>
         <Button
           variant="ghost"
@@ -2167,7 +2167,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main Content */}
       <div className={cn(
         "flex-1 flex flex-col transition-all duration-300 ease-out lg:pt-10 relative print:!pl-0 print:!pt-0",
-        isCollapsed ? "lg:pl-12" : "lg:pl-44"
+        isCollapsed ? "lg:pl-14" : "lg:pl-56"
       )}>
         {/* Dark background layer for mobile - simulates sidebar bg */}
         <div className="lg:hidden fixed inset-0 bg-sidebar -z-10 print:hidden" />
