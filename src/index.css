@@ -104,8 +104,8 @@
     --popover: 222 47% 14%;
     --popover-foreground: 210 40% 98%;
 
-    --header-background: 222 47% 7% !important;
-    --sidebar-background: 222 47% 8% !important;
+    --header-background: 222 47% 7%;
+    --sidebar-background: 222 47% 8%;
 
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
@@ -154,6 +154,15 @@
 
 /* Menu Theme: Blue (Default) */
 .menu-theme-blue {
+  --sidebar-background: 213 45% 15%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-accent: 213 40% 22%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 213 35% 25%;
+  --header-background: 222 47% 20%;
+}
+
+.dark .menu-theme-blue {
   --sidebar-background: 222 47% 8%;
   --sidebar-foreground: 210 40% 98%;
   --sidebar-accent: 222 40% 14%;
