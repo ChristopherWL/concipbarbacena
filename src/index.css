@@ -95,13 +95,13 @@
     --brand-foreground: 0 0% 100%;
     --brand-muted: 217 50% 20%;
 
-    --background: 222 47% 11%;
+    --background: 0 0% 4%;
     --foreground: 210 40% 98%;
 
-    --card: 222 47% 14%;
+    --card: 0 0% 7%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 47% 14%;
+    --popover: 0 0% 7%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 217 91% 60%;
