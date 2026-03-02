@@ -43,6 +43,7 @@ const epiSchema = z.object({
   name: z.string().min(2, 'Nome obrigatório').max(200),
   epi_type: z.string().min(1, 'Selecione o tipo'),
   ca_number: z.string().optional(),
+  initial_stock: z.coerce.number().min(0),
   min_stock: z.coerce.number().min(0),
   cost_price: z.coerce.number().min(0),
 });
@@ -69,6 +70,7 @@ export function EPIFormDialog({ open, onOpenChange, product }: EPIFormDialogProp
       name: '',
       epi_type: '',
       ca_number: '',
+      initial_stock: 0,
       min_stock: 5,
       cost_price: 0,
     },
@@ -91,6 +93,7 @@ export function EPIFormDialog({ open, onOpenChange, product }: EPIFormDialogProp
         name: '',
         epi_type: '',
         ca_number: '',
+        initial_stock: 0,
         min_stock: 5,
         cost_price: 0,
       });
@@ -116,7 +119,7 @@ export function EPIFormDialog({ open, onOpenChange, product }: EPIFormDialogProp
     if (isEditing) {
       await updateProduct.mutateAsync({ id: product.id, ...productData });
     } else {
-      await createProduct.mutateAsync(productData);
+      await createProduct.mutateAsync({ ...productData, initial_stock: data.initial_stock });
     }
     onOpenChange(false);
   };
@@ -171,6 +174,13 @@ export function EPIFormDialog({ open, onOpenChange, product }: EPIFormDialogProp
         <Label htmlFor="ca_number">Número do CA (opcional)</Label>
         <Input id="ca_number" placeholder="Ex: 12345" {...form.register('ca_number')} />
       </div>
+
+      {!isEditing && (
+        <div className="space-y-1">
+          <Label htmlFor="initial_stock">Quantidade Inicial</Label>
+          <Input id="initial_stock" type="number" min={0} {...form.register('initial_stock')} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">

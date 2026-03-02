@@ -46,6 +46,7 @@ const equipamentoSchema = z.object({
   equipment_type: z.string().min(1, 'Selecione o tipo'),
   brand: z.string().max(100).optional(),
   model: z.string().max(100).optional(),
+  initial_stock: z.coerce.number().min(0),
   min_stock: z.coerce.number().min(0),
   cost_price: z.coerce.number().min(0),
 });
@@ -73,6 +74,7 @@ export function EquipamentoFormDialog({ open, onOpenChange, product }: Equipamen
       equipment_type: '',
       brand: '',
       model: '',
+      initial_stock: 0,
       min_stock: 2,
       cost_price: 0,
     },
@@ -97,6 +99,7 @@ export function EquipamentoFormDialog({ open, onOpenChange, product }: Equipamen
         equipment_type: '',
         brand: '',
         model: '',
+        initial_stock: 0,
         min_stock: 2,
         cost_price: 0,
       });
@@ -123,7 +126,7 @@ export function EquipamentoFormDialog({ open, onOpenChange, product }: Equipamen
     if (isEditing) {
       await updateProduct.mutateAsync({ id: product.id, ...productData });
     } else {
-      await createProduct.mutateAsync(productData);
+      await createProduct.mutateAsync({ ...productData, initial_stock: data.initial_stock });
     }
     onOpenChange(false);
   };
@@ -184,6 +187,13 @@ export function EquipamentoFormDialog({ open, onOpenChange, product }: Equipamen
           <Input id="model" placeholder="Ex: VIP 1230 B" {...form.register('model')} />
         </div>
       </div>
+
+      {!isEditing && (
+        <div className="space-y-1">
+          <Label htmlFor="initial_stock">Quantidade Inicial</Label>
+          <Input id="initial_stock" type="number" min={0} {...form.register('initial_stock')} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
