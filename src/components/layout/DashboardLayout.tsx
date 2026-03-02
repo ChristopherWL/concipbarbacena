@@ -270,16 +270,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return saved === 'true';
   });
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isDark, setIsDark] = useState(() => {
-    // Check localStorage first for user preference
-    const savedTheme = localStorage.getItem('user_theme_preference');
-    if (savedTheme !== null) {
-      return savedTheme === 'dark';
-    }
-    // Then fallback to tenant config
-    if (tenant?.theme) {
-      return tenant.theme === 'dark';
-    }
+  const [isDark] = useState(() => {
+    // Force light mode always
+    localStorage.removeItem('user_theme_preference');
+    document.documentElement.classList.remove('dark');
     return false;
   });
   const userToggledTheme = useRef(false); // Track if user manually toggled theme
@@ -599,12 +593,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [isDark]);
 
-  // Sync theme from tenant data (only if user hasn't manually toggled)
-  useEffect(() => {
-    if (tenant?.theme && !userToggledTheme.current && !hasSavedThemePreferenceRef.current) {
-      setIsDark(tenant.theme === 'dark');
-    }
-  }, [tenant?.theme]);
+  // Theme sync disabled - light mode only
 
   // Helper to convert hex to HSL for custom menu color
   const hexToHSL = (hex: string) => {
@@ -682,10 +671,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     const menuColor = tenantThemeSettings?.menu_color || (tenant as any)?.menu_color || '#1e3a5f';
     applyCustomMenuColor(menuColor);
 
-    // Only sync theme from backend if user hasn't manually toggled
-    if (tenantThemeSettings?.theme && !userToggledTheme.current && !hasSavedThemePreferenceRef.current) {
-      setIsDark(tenantThemeSettings.theme === 'dark');
-    }
+    // Dark mode disabled - always light
   }, [tenant?.id, tenantThemeSettings?.menu_color, tenantThemeSettings?.theme]);
 
 
@@ -1049,25 +1035,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     navigate('/auth', { replace: true });
   };
 
-  // Toggle theme temporarily (resets to SuperAdmin config on reload)
-  const toggleTheme = () => {
-    // Capture the LIGHT variables once (so we can restore when coming back from dark)
-    if (!lightThemeVarsRef.current) {
-      const styles = getComputedStyle(document.documentElement);
-      lightThemeVarsRef.current = THEME_VARS_TO_TOGGLE.reduce((acc, key) => {
-        acc[key] = styles.getPropertyValue(key).trim();
-        return acc;
-      }, {} as Record<string, string>);
-    }
-
-    userToggledTheme.current = true;
-    hasSavedThemePreferenceRef.current = true;
-    setIsDark((prev) => {
-      const next = !prev;
-      localStorage.setItem('user_theme_preference', next ? 'dark' : 'light');
-      return next;
-    });
-  };
+  // Dark mode toggle removed - light mode only
+  const toggleTheme = () => {};
 
   const toggleMenu = (name: string) => {
     setOpenMenus((prev) => {
@@ -1540,10 +1509,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <DropdownMenuSeparator />
                 </>
               )}
-              <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer">
-                {isDark ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
-                {isDark ? 'Modo Claro' : 'Modo Escuro'}
-              </DropdownMenuItem>
               {canAccessSettings && (
                 <DropdownMenuItem onClick={() => navigate('/configuracoes')} className="cursor-pointer" data-tour="settings">
                   <Settings className="mr-2 h-4 w-4" />
