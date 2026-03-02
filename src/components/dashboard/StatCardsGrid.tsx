@@ -45,10 +45,10 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
   const cardCount = cards.length;
 
   const getGridClasses = () => {
-    if (cardCount <= 2) return 'grid-cols-2 max-w-sm';
-    if (cardCount <= 3) return 'grid-cols-3 max-w-lg';
-    if (cardCount <= 4) return 'grid-cols-2 sm:grid-cols-4 max-w-xl';
-    if (cardCount <= 6) return 'grid-cols-3 sm:grid-cols-6 max-w-3xl';
+    if (cardCount <= 2) return 'grid-cols-2 max-w-lg';
+    if (cardCount <= 3) return 'grid-cols-3 max-w-2xl';
+    if (cardCount <= 4) return 'grid-cols-2 sm:grid-cols-4 max-w-3xl';
+    if (cardCount <= 6) return 'grid-cols-3 sm:grid-cols-6';
     return 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-6';
   };
 
