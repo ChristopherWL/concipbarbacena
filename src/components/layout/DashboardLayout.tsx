@@ -70,6 +70,7 @@ import {
   Play,
   ToggleLeft,
   ToggleRight,
+  User,
 } from 'lucide-react';
 import { Breadcrumb } from './Breadcrumb';
 import { ClockDisplay } from './ClockDisplay';
@@ -1469,8 +1470,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <Button data-tour="user-menu" variant="ghost" size="icon" className="h-8 w-8 p-0 hover:bg-sidebar-accent rounded-full">
                 <Avatar className="h-8 w-8 border-2 border-sidebar-foreground/20">
                   <AvatarImage src={profile?.avatar_url || undefined} />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
-                    {getInitials(profile?.full_name || user?.email || 'SA')}
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    <User className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -1696,8 +1697,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <button data-tour="mobile-user-avatar" className="relative">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                      {getInitials(profile?.full_name || user?.email || 'U')}
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      <User className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                   <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-sidebar" />
