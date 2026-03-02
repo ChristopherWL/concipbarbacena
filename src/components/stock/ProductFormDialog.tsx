@@ -38,6 +38,7 @@ const productSchema = z.object({
   is_serialized: z.boolean(),
   min_stock: z.coerce.number().min(0),
   max_stock: z.coerce.number().min(0).optional(),
+  initial_stock: z.coerce.number().min(0),
   cost_price: z.coerce.number().min(0),
   sale_price: z.coerce.number().min(0).optional(),
   location: z.string().max(100).optional(),
@@ -77,6 +78,7 @@ export function ProductFormDialog({
       is_serialized: false,
       min_stock: 0,
       max_stock: undefined,
+      initial_stock: 0,
       cost_price: 0,
       sale_price: undefined,
       location: '',
@@ -110,10 +112,11 @@ export function ProductFormDialog({
         description: '',
         category: defaultCategory || 'materiais',
         unit: 'UN',
-        is_serialized: false,
-        min_stock: 0,
-        max_stock: undefined,
-        cost_price: 0,
+      is_serialized: false,
+      min_stock: 0,
+      max_stock: undefined,
+      initial_stock: 0,
+      cost_price: 0,
         sale_price: undefined,
         location: '',
         barcode: '',
@@ -141,6 +144,7 @@ export function ProductFormDialog({
         is_serialized: submitData.is_serialized,
         min_stock: submitData.min_stock,
         max_stock: submitData.max_stock,
+        initial_stock: submitData.initial_stock,
         cost_price: submitData.cost_price,
         sale_price: submitData.sale_price,
         location: submitData.location,
@@ -240,6 +244,13 @@ export function ProductFormDialog({
           <Input id="min_stock" type="number" min={0} {...form.register('min_stock')} />
         </div>
       </div>
+
+      {!isEditing && (
+        <div className="space-y-2">
+          <Label htmlFor="initial_stock">Quantidade Inicial</Label>
+          <Input id="initial_stock" type="number" min={0} {...form.register('initial_stock')} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -426,6 +437,13 @@ export function ProductFormDialog({
               <Input id="max_stock" type="number" min={0} {...form.register('max_stock')} />
             </div>
           </div>
+
+          {!isEditing && (
+            <div className="space-y-2">
+              <Label htmlFor="initial_stock_desktop">Quantidade Inicial</Label>
+              <Input id="initial_stock_desktop" type="number" min={0} {...form.register('initial_stock')} />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">

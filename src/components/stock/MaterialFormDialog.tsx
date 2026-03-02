@@ -41,6 +41,7 @@ const materialSchema = z.object({
   name: z.string().min(2, 'Nome obrigatório').max(200),
   material_type: z.string().min(1, 'Selecione o tipo'),
   unit: z.string().min(1, 'Selecione a unidade').max(10),
+  initial_stock: z.coerce.number().min(0),
   min_stock: z.coerce.number().min(0),
   cost_price: z.coerce.number().min(0),
 });
@@ -67,6 +68,7 @@ export function MaterialFormDialog({ open, onOpenChange, product }: MaterialForm
       name: '',
       material_type: '',
       unit: 'UN',
+      initial_stock: 0,
       min_stock: 10,
       cost_price: 0,
     },
@@ -89,6 +91,7 @@ export function MaterialFormDialog({ open, onOpenChange, product }: MaterialForm
         name: '',
         material_type: '',
         unit: 'UN',
+        initial_stock: 0,
         min_stock: 10,
         cost_price: 0,
       });
@@ -113,7 +116,7 @@ export function MaterialFormDialog({ open, onOpenChange, product }: MaterialForm
     if (isEditing) {
       await updateProduct.mutateAsync({ id: product.id, ...productData });
     } else {
-      await createProduct.mutateAsync(productData);
+      await createProduct.mutateAsync({ ...productData, initial_stock: data.initial_stock });
     }
     onOpenChange(false);
   };
@@ -183,6 +186,13 @@ export function MaterialFormDialog({ open, onOpenChange, product }: MaterialForm
           </SelectContent>
         </Select>
       </div>
+
+      {!isEditing && (
+        <div className="space-y-1">
+          <Label htmlFor="initial_stock">Quantidade Inicial</Label>
+          <Input id="initial_stock" type="number" min={0} {...form.register('initial_stock')} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">

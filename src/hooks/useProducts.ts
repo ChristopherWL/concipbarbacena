@@ -66,18 +66,19 @@ export function useCreateProduct() {
 
   return useMutation({
     mutationFn: async (
-      product: Omit<Product, 'id' | 'tenant_id' | 'created_at' | 'updated_at' | 'current_stock'>
+      product: Omit<Product, 'id' | 'tenant_id' | 'created_at' | 'updated_at' | 'current_stock'> & { initial_stock?: number }
     ) => {
       if (!tenant?.id) throw new Error('Tenant não encontrado');
+
+      const { initial_stock, ...productData } = product;
 
       const { data, error } = await supabase
         .from('products')
         .insert({
-          ...product,
+          ...productData,
           tenant_id: tenant.id,
-          // If the user is branch-scoped, default to their branch unless explicitly provided
-          branch_id: (product as any).branch_id ?? (shouldFilter ? branchId : null),
-          current_stock: 0,
+          branch_id: (productData as any).branch_id ?? (shouldFilter ? branchId : null),
+          current_stock: initial_stock ?? 0,
         })
         .select()
         .single();
