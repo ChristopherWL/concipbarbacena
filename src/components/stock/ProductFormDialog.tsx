@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Product, StockCategory, CATEGORY_LABELS } from '@/types/stock';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/useProducts';
+import { useNextProductCode } from '@/hooks/useNextProductCode';
 import {
   Dialog,
   DialogContent,
@@ -87,6 +88,9 @@ export function ProductFormDialog({
     },
   });
 
+  const watchedCategory = form.watch('category');
+  const { data: nextCode } = useNextProductCode(watchedCategory || defaultCategory || 'materiais', open && !isEditing);
+
   useEffect(() => {
     if (product) {
       form.reset({
@@ -107,7 +111,7 @@ export function ProductFormDialog({
       setImageUrl(product.image_url || null);
     } else {
       form.reset({
-        code: '',
+        code: nextCode || '',
         name: '',
         description: '',
         category: defaultCategory || 'materiais',
@@ -124,7 +128,7 @@ export function ProductFormDialog({
       });
       setImageUrl(null);
     }
-  }, [product, defaultCategory, form, open]);
+  }, [product, defaultCategory, form, open, nextCode]);
 
   const handleSubmit = async (data: ProductFormData) => {
     const submitData = {

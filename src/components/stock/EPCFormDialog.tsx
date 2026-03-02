@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Product } from '@/types/stock';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/useProducts';
+import { useNextProductCode } from '@/hooks/useNextProductCode';
 import {
   Dialog,
   DialogContent,
@@ -61,6 +62,7 @@ export function EPCFormDialog({ open, onOpenChange, product }: EPCFormDialogProp
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const [imageUrl, setImageUrl] = useState<string>(product?.image_url || '');
+  const { data: nextCode } = useNextProductCode('epc', open && !isEditing);
 
   const form = useForm<EPCFormData>({
     resolver: zodResolver(epcSchema),
@@ -86,7 +88,7 @@ export function EPCFormDialog({ open, onOpenChange, product }: EPCFormDialogProp
       setImageUrl(product.image_url || '');
     } else {
       form.reset({
-        code: '',
+        code: nextCode || '',
         name: '',
         epc_type: '',
         initial_stock: 0,
@@ -95,7 +97,7 @@ export function EPCFormDialog({ open, onOpenChange, product }: EPCFormDialogProp
       });
       setImageUrl('');
     }
-  }, [product, form, open]);
+  }, [product, form, open, nextCode]);
 
   const handleSubmit = async (data: EPCFormData) => {
     const productData = {

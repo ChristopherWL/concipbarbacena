@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Product } from '@/types/stock';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/useProducts';
+import { useNextProductCode } from '@/hooks/useNextProductCode';
 import {
   Dialog,
   DialogContent,
@@ -65,6 +66,7 @@ export function EquipamentoFormDialog({ open, onOpenChange, product }: Equipamen
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const [imageUrl, setImageUrl] = useState<string>(product?.image_url || '');
+  const { data: nextCode } = useNextProductCode('equipamentos', open && !isEditing);
 
   const form = useForm<EquipamentoFormData>({
     resolver: zodResolver(equipamentoSchema),
@@ -94,7 +96,7 @@ export function EquipamentoFormDialog({ open, onOpenChange, product }: Equipamen
       setImageUrl(product.image_url || '');
     } else {
       form.reset({
-        code: '',
+        code: nextCode || '',
         name: '',
         equipment_type: '',
         brand: '',
@@ -105,7 +107,7 @@ export function EquipamentoFormDialog({ open, onOpenChange, product }: Equipamen
       });
       setImageUrl('');
     }
-  }, [product, form, open]);
+  }, [product, form, open, nextCode]);
 
   const handleSubmit = async (data: EquipamentoFormData) => {
     const productData = {
