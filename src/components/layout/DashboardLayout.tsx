@@ -283,6 +283,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return false;
   });
   const userToggledTheme = useRef(false); // Track if user manually toggled theme
+  const hasSavedThemePreferenceRef = useRef(localStorage.getItem('user_theme_preference') !== null);
   const lightThemeVarsRef = useRef<Record<string, string> | null>(null);
   const THEME_VARS_TO_TOGGLE = [
     '--background',
@@ -600,7 +601,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // Sync theme from tenant data (only if user hasn't manually toggled)
   useEffect(() => {
-    if (tenant?.theme && !userToggledTheme.current) {
+    if (tenant?.theme && !userToggledTheme.current && !hasSavedThemePreferenceRef.current) {
       setIsDark(tenant.theme === 'dark');
     }
   }, [tenant?.theme]);
@@ -682,7 +683,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     applyCustomMenuColor(menuColor);
 
     // Only sync theme from backend if user hasn't manually toggled
-    if (tenantThemeSettings?.theme && !userToggledTheme.current) {
+    if (tenantThemeSettings?.theme && !userToggledTheme.current && !hasSavedThemePreferenceRef.current) {
       setIsDark(tenantThemeSettings.theme === 'dark');
     }
   }, [tenant?.id, tenantThemeSettings?.menu_color, tenantThemeSettings?.theme]);
@@ -1060,6 +1061,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
 
     userToggledTheme.current = true;
+    hasSavedThemePreferenceRef.current = true;
     setIsDark((prev) => {
       const next = !prev;
       localStorage.setItem('user_theme_preference', next ? 'dark' : 'light');
