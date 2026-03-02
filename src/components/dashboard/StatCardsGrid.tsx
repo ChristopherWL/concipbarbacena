@@ -60,7 +60,7 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
         key={stat.label}
         onClick={() => stat.href && navigate(stat.href)}
         className={cn(
-          'group relative overflow-hidden rounded-2xl border border-border/40',
+          'group relative overflow-hidden rounded-xl border border-border/40',
           'bg-card shadow-sm',
           'transition-all duration-300 ease-out',
           'hover:shadow-[var(--shadow-lg)] hover:-translate-y-1 hover:border-primary/30',
@@ -77,42 +77,42 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
           )}
         />
 
-        <CardContent className="relative p-4">
+        <CardContent className="relative p-3">
           {/* Icon + Arrow row */}
-          <div className="flex items-start justify-between mb-3">
+          <div className="flex items-start justify-between mb-2">
             <div className={cn(
-              'flex items-center justify-center w-10 h-10 rounded-xl ring-1',
+              'flex items-center justify-center w-8 h-8 rounded-lg ring-1',
               'transition-transform duration-300 group-hover:scale-110',
               iconStyle.bg,
               iconStyle.ring
             )}>
-              <stat.icon className={cn('h-5 w-5', stat.iconColor)} />
+              <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
             </div>
 
             {stat.href && (
-              <ChevronRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300" />
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300" />
             )}
           </div>
 
           {/* Value */}
-          <div className="mb-1">
+          <div className="mb-0.5">
             {stat.value !== null && !isLoading ? (
-              <p className="text-2xl font-bold tracking-tight text-foreground">
+              <p className="text-lg font-bold tracking-tight text-foreground">
                 {stat.value}
               </p>
             ) : (
-              <Skeleton className="h-7 w-14" />
+              <Skeleton className="h-5 w-12" />
             )}
           </div>
 
           {/* Label */}
-          <p className="text-xs font-medium text-muted-foreground">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {stat.label}
           </p>
 
           {/* Sub info */}
           {(stat.subValue || stat.subtitle || stat.change) && (
-            <div className="flex items-center flex-wrap gap-1.5 mt-2 pt-2 border-t border-border/30">
+            <div className="flex items-center flex-wrap gap-1 mt-1.5 pt-1.5 border-t border-border/30">
               {stat.subValue && (
                 <span className={cn('text-[10px] font-medium', stat.subColor || 'text-muted-foreground')}>
                   {stat.subValue}
@@ -140,7 +140,7 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
   };
 
   return (
-    <div className={cn('grid gap-3 sm:gap-4', getGridClasses())}>
+    <div className={cn('grid gap-2.5 sm:gap-3', getGridClasses())}>
       {cards.map((stat, index) => renderCard(stat, index))}
     </div>
   );
