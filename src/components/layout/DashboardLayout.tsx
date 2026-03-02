@@ -271,7 +271,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   });
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isDark, setIsDark] = useState(() => {
-    // Initialize from tenant if available, default to light (false)
+    // Check localStorage first for user preference
+    const savedTheme = localStorage.getItem('user_theme_preference');
+    if (savedTheme !== null) {
+      return savedTheme === 'dark';
+    }
+    // Then fallback to tenant config
     if (tenant?.theme) {
       return tenant.theme === 'dark';
     }
@@ -1055,7 +1060,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
 
     userToggledTheme.current = true;
-    setIsDark((prev) => !prev);
+    setIsDark((prev) => {
+      const next = !prev;
+      localStorage.setItem('user_theme_preference', next ? 'dark' : 'light');
+      return next;
+    });
   };
 
   const toggleMenu = (name: string) => {
