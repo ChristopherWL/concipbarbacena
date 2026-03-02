@@ -1642,7 +1642,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {isCollapsed && (
         <div className={cn(
           "hidden lg:flex fixed z-40 items-center justify-center transition-all duration-200 ease-out left-0",
-          isAtTop ? "-top-4 w-24" : "top-2 w-14"
+          isAtTop ? "-top-4 w-20" : "top-2 w-14"
         )}>
           {currentLogo ? (
             <img 
@@ -1650,13 +1650,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               alt={tenant?.name || 'Logo'} 
               className={cn(
                 "object-contain transition-all duration-200 ease-out",
-                isAtTop ? "h-24 w-24" : "h-10 w-10"
+                isAtTop ? "h-16 w-16" : "h-8 w-8"
               )}
             />
           ) : (
             <div className={cn(
               "font-bold text-sidebar-foreground transition-all duration-200 ease-out",
-              isAtTop ? "text-3xl" : "text-xl"
+              isAtTop ? "text-2xl" : "text-lg"
             )}>
               {(branchData?.name || tenant?.name)?.charAt(0) || 'S'}
             </div>
