@@ -1437,14 +1437,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         "hidden lg:flex items-center text-sidebar-foreground h-10 z-10 fixed top-0 left-0 right-0 transition-transform duration-200 print:!hidden",
         !showHeader && "-translate-y-full"
       )}>
-        {/* Spacer - same width as sidebar */}
+        {/* Header content - positioned over the content area only */}
         <div className={cn(
-          "h-full transition-all duration-200",
-          isCollapsed ? "w-14" : "w-56"
-        )} />
-
-        {/* Header content - center */}
-        <div className="flex-1 flex items-center justify-center gap-3 px-2">
+          "absolute inset-y-0 right-0 flex items-center justify-center transition-all duration-200",
+          isCollapsed ? "left-14" : "left-56"
+        )}>
           {/* Matriz Branch Selector */}
           {isMatriz && (
             <MatrizBranchSelector 
@@ -1472,8 +1469,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           )}
         </div>
 
-        {/* Notifications and User info - right */}
-        <div className="flex items-center gap-3 px-4">
+        {/* Notifications and User info - right, positioned absolutely */}
+        <div className="absolute right-0 top-0 bottom-0 flex items-center gap-3 px-4">
           {/* User text - hide on smaller screens */}
           <div className="hidden xl:block text-right">
             <div className="text-sidebar-foreground text-xs">Olá, <span className="font-semibold">{profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}</span></div>
