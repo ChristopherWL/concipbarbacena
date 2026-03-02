@@ -1451,7 +1451,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             />
           )}
           {/* Unified info bar */}
-          <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-xs text-sidebar-foreground/90 divide-x divide-white/15">
+          <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-xs text-sidebar-foreground/90 xl:divide-x xl:divide-white/15">
             {/* Date - hide on smaller screens */}
             <div className="hidden xl:flex items-center gap-2 px-4 py-1">
               <Calendar className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
