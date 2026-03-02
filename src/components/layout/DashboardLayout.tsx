@@ -1450,23 +1450,26 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               variant="sidebar"
             />
           )}
-          {/* Date - hide on smaller screens */}
-          <div className="hidden xl:flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1 rounded-full text-xs text-sidebar-foreground/90">
-            <Calendar className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
-            <ClockDisplay format="full-date" className="capitalize" />
-          </div>
-          {/* Time - always visible on lg+ */}
-          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1 rounded-full text-xs font-mono text-sidebar-foreground/90">
-            <Clock className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
-            <ClockDisplay format="time" />
-          </div>
-          {/* Location - hide on smaller screens */}
-          {tenant?.city && (
-            <div className="hidden xl:flex items-center gap-2 bg-black/20 px-4 py-1 rounded-full text-xs text-sidebar-foreground/90">
-              <MapPin className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
-              <span>{tenant.city}</span>
+          {/* Unified info bar */}
+          <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-xs text-sidebar-foreground/90 divide-x divide-white/15">
+            {/* Date - hide on smaller screens */}
+            <div className="hidden xl:flex items-center gap-2 px-4 py-1">
+              <Calendar className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
+              <ClockDisplay format="full-date" className="capitalize" />
             </div>
-          )}
+            {/* Time - always visible */}
+            <div className="flex items-center gap-2 px-4 py-1 font-mono">
+              <Clock className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
+              <ClockDisplay format="time" />
+            </div>
+            {/* Location - hide on smaller screens */}
+            {tenant?.city && (
+              <div className="hidden xl:flex items-center gap-2 px-4 py-1">
+                <MapPin className="h-3.5 w-3.5 text-sidebar-foreground/70 flex-shrink-0" />
+                <span>{tenant.city}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Notifications and User info - right, positioned absolutely */}
