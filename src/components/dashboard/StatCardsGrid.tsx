@@ -78,10 +78,10 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
         />
 
         <CardContent className="relative p-3">
-          {/* Icon + Arrow row */}
-          <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-3">
+            {/* Icon */}
             <div className={cn(
-              'flex items-center justify-center w-8 h-8 rounded-lg ring-1',
+              'flex items-center justify-center w-9 h-9 rounded-lg ring-1 shrink-0',
               'transition-transform duration-300 group-hover:scale-110',
               iconStyle.bg,
               iconStyle.ring
@@ -89,51 +89,51 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
               <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
             </div>
 
-            {stat.href && (
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300" />
-            )}
-          </div>
-
-          {/* Value */}
-          <div className="mb-0.5">
-            {stat.value !== null && !isLoading ? (
-              <p className="text-lg font-bold tracking-tight text-foreground">
-                {stat.value}
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline justify-between gap-2">
+                {stat.value !== null && !isLoading ? (
+                  <p className="text-lg font-bold tracking-tight text-foreground leading-tight">
+                    {stat.value}
+                  </p>
+                ) : (
+                  <Skeleton className="h-5 w-12" />
+                )}
+                {stat.change && (
+                  <div className={cn(
+                    'flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0',
+                    stat.changeType === 'positive' ? 'text-emerald-600 bg-emerald-500/10' :
+                    stat.changeType === 'negative' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
+                  )}>
+                    {stat.changeType === 'positive' && <ArrowUpRight className="h-3 w-3" />}
+                    {stat.changeType === 'negative' && <ArrowDownRight className="h-3 w-3" />}
+                    <span>{stat.change}</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-[11px] font-medium text-muted-foreground leading-tight mt-0.5">
+                {stat.label}
               </p>
-            ) : (
-              <Skeleton className="h-5 w-12" />
-            )}
-          </div>
-
-          {/* Label */}
-          <p className="text-[11px] font-medium text-muted-foreground">
-            {stat.label}
-          </p>
-
-          {/* Sub info */}
-          {(stat.subValue || stat.subtitle || stat.change) && (
-            <div className="flex items-center flex-wrap gap-1 mt-1.5 pt-1.5 border-t border-border/30">
-              {stat.subValue && (
-                <span className={cn('text-[10px] font-medium', stat.subColor || 'text-muted-foreground')}>
-                  {stat.subValue}
-                </span>
-              )}
-              {stat.subtitle && (
-                <span className="text-[10px] text-muted-foreground">{stat.subtitle}</span>
-              )}
-              {stat.change && (
-                <div className={cn(
-                  'flex items-center gap-0.5 text-[10px] font-semibold ml-auto px-1.5 py-0.5 rounded-full',
-                  stat.changeType === 'positive' ? 'text-emerald-600 bg-emerald-500/10' :
-                  stat.changeType === 'negative' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
-                )}>
-                  {stat.changeType === 'positive' && <ArrowUpRight className="h-3 w-3" />}
-                  {stat.changeType === 'negative' && <ArrowDownRight className="h-3 w-3" />}
-                  <span>{stat.change}</span>
-                </div>
+              {(stat.subValue || stat.subtitle) && (
+                <p className="text-[10px] mt-0.5 leading-tight">
+                  {stat.subValue && (
+                    <span className={cn('font-medium', stat.subColor || 'text-muted-foreground')}>
+                      {stat.subValue}
+                    </span>
+                  )}
+                  {stat.subValue && stat.subtitle && <span className="text-muted-foreground"> · </span>}
+                  {stat.subtitle && (
+                    <span className="text-muted-foreground">{stat.subtitle}</span>
+                  )}
+                </p>
               )}
             </div>
-          )}
+
+            {/* Arrow */}
+            {stat.href && (
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300 shrink-0" />
+            )}
+          </div>
         </CardContent>
       </Card>
     );
