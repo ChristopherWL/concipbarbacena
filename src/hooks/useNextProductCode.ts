@@ -5,7 +5,7 @@ import { StockCategory } from '@/types/stock';
 
 const CATEGORY_PREFIXES: Record<string, string> = {
   materiais: 'MAT',
-  equipamentos: 'EQ',
+  equipamentos: 'EQP',
   ferramentas: 'FER',
   epi: 'EPI',
   epc: 'EPC',
