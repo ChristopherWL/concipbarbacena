@@ -20,27 +20,15 @@ export function useNextProductCode(category: string, enabled: boolean = true) {
     queryFn: async () => {
       if (!tenant?.id) return `${prefix}01`;
 
-      const { data, error } = await supabase
+      const { count, error } = await supabase
         .from('products')
-        .select('code')
+        .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenant.id)
-        .eq('category', category as any)
-        .ilike('code', `${prefix}%`)
-        .order('code', { ascending: false })
-        .limit(100);
+        .eq('category', category as any);
 
       if (error) throw error;
 
-      let maxNum = 0;
-      for (const row of data || []) {
-        const match = row.code.match(new RegExp(`^${prefix}(\\d+)$`, 'i'));
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (num > maxNum) maxNum = num;
-        }
-      }
-
-      const next = maxNum + 1;
+      const next = (count || 0) + 1;
       return `${prefix}${String(next).padStart(2, '0')}`;
     },
     enabled: !!tenant?.id && enabled,
