@@ -91,7 +91,10 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-baseline justify-between gap-2">
+              <p className="text-[11px] font-medium text-muted-foreground leading-tight">
+                {stat.label}
+              </p>
+              <div className="flex items-baseline justify-between gap-2 mt-0.5">
                 {stat.value !== null && !isLoading ? (
                   <p className="text-lg font-bold tracking-tight text-foreground leading-tight">
                     {stat.value}
@@ -111,9 +114,6 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
                   </div>
                 )}
               </div>
-              <p className="text-[11px] font-medium text-muted-foreground leading-tight mt-0.5">
-                {stat.label}
-              </p>
               {(stat.subValue || stat.subtitle) && (
                 <p className="text-[10px] mt-0.5 leading-tight">
                   {stat.subValue && (
