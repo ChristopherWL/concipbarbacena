@@ -57,11 +57,11 @@
     --header-background: 222 47% 20%;
     --header-foreground: 0 0% 100%;
 
-    /* Sidebar - Rich Blue */
-    --sidebar-background: 222 47% 22%;
+    /* Sidebar - Deep Navy */
+    --sidebar-background: 213 45% 15%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 222 47% 22%;
+    --sidebar-primary-foreground: 213 45% 15%;
     --sidebar-accent: 217 50% 30%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 217 40% 32%;
@@ -152,11 +152,11 @@
 
 /* Menu Theme: Blue (Default) */
 .menu-theme-blue {
-  --sidebar-background: 207 50% 20%;
+  --sidebar-background: 213 45% 15%;
   --sidebar-foreground: 210 20% 98%;
-  --sidebar-accent: 207 45% 26%;
+  --sidebar-accent: 213 40% 22%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 207 40% 30%;
+  --sidebar-border: 213 35% 25%;
 }
 
 /* Menu Theme: Dark */
@@ -337,7 +337,7 @@
   /* Unified background for header + sidebar - Clean minimal */
   .menu-shell-bg {
     z-index: -1;
-    background: hsl(var(--sidebar-background));
+    background: linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background) / 0.95) 100%);
   }
 
   .dark .menu-shell-bg {
