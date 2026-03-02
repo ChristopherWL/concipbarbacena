@@ -254,7 +254,7 @@ export default function Auth() {
       {/* Login Card */}
       <div className="w-full max-w-md mx-4 sm:mx-auto">
         {/* Back link */}
-        <div className="mb-6 flex justify-center">
+        <div className="mb-6 flex justify-start">
           <Link 
             to="/" 
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full transition-all group text-sm"
