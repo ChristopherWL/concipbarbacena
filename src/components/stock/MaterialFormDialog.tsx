@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Product } from '@/types/stock';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/useProducts';
+import { useNextProductCode } from '@/hooks/useNextProductCode';
 import {
   Dialog,
   DialogContent,
@@ -60,6 +61,7 @@ export function MaterialFormDialog({ open, onOpenChange, product }: MaterialForm
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const [imageUrl, setImageUrl] = useState<string>(product?.image_url || '');
+  const { data: nextCode } = useNextProductCode('materiais', open && !isEditing);
 
   const form = useForm<MaterialFormData>({
     resolver: zodResolver(materialSchema),
@@ -87,7 +89,7 @@ export function MaterialFormDialog({ open, onOpenChange, product }: MaterialForm
       setImageUrl(product.image_url || '');
     } else {
       form.reset({
-        code: '',
+        code: nextCode || '',
         name: '',
         material_type: '',
         unit: 'UN',
@@ -97,7 +99,7 @@ export function MaterialFormDialog({ open, onOpenChange, product }: MaterialForm
       });
       setImageUrl('');
     }
-  }, [product, form, open]);
+  }, [product, form, open, nextCode]);
 
   const handleSubmit = async (data: MaterialFormData) => {
     const productData = {

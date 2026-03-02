@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Product } from '@/types/stock';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/useProducts';
+import { useNextProductCode } from '@/hooks/useNextProductCode';
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,7 @@ export function EPIFormDialog({ open, onOpenChange, product }: EPIFormDialogProp
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const [imageUrl, setImageUrl] = useState<string>(product?.image_url || '');
+  const { data: nextCode } = useNextProductCode('epi', open && !isEditing);
 
   const form = useForm<EPIFormData>({
     resolver: zodResolver(epiSchema),
@@ -89,7 +91,7 @@ export function EPIFormDialog({ open, onOpenChange, product }: EPIFormDialogProp
       setImageUrl(product.image_url || '');
     } else {
       form.reset({
-        code: '',
+        code: nextCode || '',
         name: '',
         epi_type: '',
         ca_number: '',
@@ -99,7 +101,7 @@ export function EPIFormDialog({ open, onOpenChange, product }: EPIFormDialogProp
       });
       setImageUrl('');
     }
-  }, [product, form, open]);
+  }, [product, form, open, nextCode]);
 
   const handleSubmit = async (data: EPIFormData) => {
     const productData = {
