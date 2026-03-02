@@ -45,11 +45,11 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
   const cardCount = cards.length;
 
   const getGridClasses = () => {
-    if (cardCount <= 3) return 'grid-cols-1 sm:grid-cols-3';
-    if (cardCount <= 4) return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4';
-    if (cardCount <= 5) return 'grid-cols-1 sm:grid-cols-3 md:grid-cols-5';
-    if (cardCount <= 6) return 'grid-cols-1 sm:grid-cols-3 md:grid-cols-6';
-    return 'grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-' + Math.min(cardCount, 8);
+    if (cardCount <= 3) return 'grid-cols-2 md:grid-cols-3';
+    if (cardCount <= 4) return 'grid-cols-2 md:grid-cols-4';
+    if (cardCount <= 5) return 'grid-cols-2 md:grid-cols-5';
+    if (cardCount <= 6) return 'grid-cols-2 md:grid-cols-6';
+    return 'grid-cols-2 md:grid-cols-4 lg:grid-cols-' + Math.min(cardCount, 8);
   };
 
   const renderCard = (stat: StatCard, index: number) => {
