@@ -154,11 +154,12 @@
 
 /* Menu Theme: Blue (Default) */
 .menu-theme-blue {
-  --sidebar-background: 213 45% 15%;
+  --sidebar-background: 0 0% 5%;
   --sidebar-foreground: 210 20% 98%;
-  --sidebar-accent: 213 40% 22%;
+  --sidebar-accent: 210 15% 12%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 213 35% 25%;
+  --sidebar-border: 210 15% 15%;
+  --header-background: 0 0% 4%;
 }
 
 /* Menu Theme: Dark */
