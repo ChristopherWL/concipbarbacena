@@ -2,19 +2,21 @@ import { useState } from 'react';
 import { Product, SerialNumber, CATEGORY_LABELS, StockCategory, SERIAL_STATUS_LABELS, SerialStatus } from '@/types/stock';
 import { useSerialNumbers, useUpdateSerialStatus } from '@/hooks/useSerialNumbers';
 import { useStockMovements } from '@/hooks/useStockMovements';
-import { useStockAudits } from '@/hooks/useStockAudits';
+import { useStockAudits, useCreateStockAudit, StockAuditType } from '@/hooks/useStockAudits';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { StockAuditDialog } from '@/components/stock/StockAuditDialog';
 import { 
   Package, Barcode, ArrowUpCircle, ArrowDownCircle, 
-  ClipboardCheck, Loader2, CheckCircle2,
+  ClipboardCheck, Loader2, AlertCircle, AlertTriangle, CheckCircle2,
   Shield, ShieldCheck, ShieldAlert, Clock, AlertOctagon
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -47,7 +49,12 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
   });
   const updateSerialStatus = useUpdateSerialStatus();
   
-  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const createAudit = useCreateStockAudit();
+  
+  const [auditMode, setAuditMode] = useState(false);
+  const [auditType, setAuditType] = useState<StockAuditType>('defeito');
+  const [auditQuantity, setAuditQuantity] = useState('1');
+  const [auditDescription, setAuditDescription] = useState('');
 
   if (!product) return null;
 
@@ -146,14 +153,107 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
               <CardHeader className="py-2 px-3">
                 <CardTitle className="text-xs flex items-center gap-2">
                   <ClipboardCheck className="h-3.5 w-3.5" />
-                  Auditoria / Ocorrência
+                  Registrar Ocorrência
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3 pt-0">
-                <Button onClick={() => setAuditDialogOpen(true)} variant="outline" size="sm" className="w-full text-xs h-8">
-                  <ClipboardCheck className="h-3.5 w-3.5 mr-1" />
-                  Registrar Ocorrência
-                </Button>
+                {!auditMode ? (
+                  <Button onClick={() => setAuditMode(true)} variant="outline" size="sm" className="w-full text-xs h-8">
+                    <ClipboardCheck className="h-3.5 w-3.5 mr-1" />
+                    Registrar Ocorrência
+                  </Button>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 p-2 bg-muted/50 rounded text-xs">
+                      <AlertCircle className="h-4 w-4 text-warning flex-shrink-0" />
+                      <span>Estoque atual: <strong>{product.current_stock}</strong> {product.unit}</span>
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Tipo</Label>
+                      <Select value={auditType} onValueChange={(v) => setAuditType(v as StockAuditType)}>
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="defeito">
+                            <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-warning" /> Defeito</span>
+                          </SelectItem>
+                          <SelectItem value="furto">
+                            <span className="flex items-center gap-1"><Shield className="h-3 w-3 text-destructive" /> Furto</span>
+                          </SelectItem>
+                          <SelectItem value="garantia">
+                            <span className="flex items-center gap-1"><Package className="h-3 w-3 text-info" /> Garantia</span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-[10px]">Quantidade</Label>
+                        <Input 
+                          type="number" 
+                          min={1}
+                          value={auditQuantity} 
+                          onChange={(e) => setAuditQuantity(e.target.value)}
+                          placeholder="1"
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Descrição (mín. 10 caracteres)</Label>
+                      <Textarea 
+                        value={auditDescription} 
+                        onChange={(e) => setAuditDescription(e.target.value)}
+                        placeholder="Descreva a ocorrência..."
+                        className="text-xs min-h-[60px] resize-none"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={async () => {
+                          const qty = parseInt(auditQuantity);
+                          if (isNaN(qty) || qty < 1) {
+                            toast.error('Quantidade inválida');
+                            return;
+                          }
+                          if (auditDescription.length < 10) {
+                            toast.error('Descrição deve ter pelo menos 10 caracteres');
+                            return;
+                          }
+                          try {
+                            await createAudit.mutateAsync({
+                              product_id: product.id,
+                              audit_type: auditType,
+                              quantity: qty,
+                              description: auditDescription,
+                            });
+                            toast.success('Ocorrência registrada com sucesso');
+                            setAuditMode(false);
+                            setAuditQuantity('1');
+                            setAuditDescription('');
+                            setAuditType('defeito');
+                          } catch (error: any) {
+                            toast.error(`Erro: ${error?.message || 'Erro desconhecido'}`);
+                          }
+                        }} 
+                        size="sm" 
+                        className="flex-1 h-8 text-xs"
+                        disabled={createAudit.isPending}
+                      >
+                        {createAudit.isPending ? (
+                          <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                        )}
+                        Confirmar
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setAuditMode(false)} className="h-8 text-xs">
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -393,12 +493,6 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
         </div>
         </div>
       </DialogContent>
-
-      <StockAuditDialog
-        open={auditDialogOpen}
-        onOpenChange={setAuditDialogOpen}
-        defaultProductId={product.id}
-      />
     </Dialog>
   );
 }
