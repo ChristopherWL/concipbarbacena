@@ -8,14 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { StockAuditDialog } from '@/components/stock/StockAuditDialog';
 import { 
   Package, Barcode, ArrowUpCircle, ArrowDownCircle, 
-  ClipboardCheck, Loader2, AlertCircle, CheckCircle2,
+  ClipboardCheck, Loader2, CheckCircle2,
   Shield, ShieldCheck, ShieldAlert, Clock, AlertOctagon
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -48,9 +47,7 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
   });
   const updateSerialStatus = useUpdateSerialStatus();
   
-  const [auditMode, setAuditMode] = useState(false);
-  const [auditCount, setAuditCount] = useState('');
-  const [auditNotes, setAuditNotes] = useState('');
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
 
   if (!product) return null;
 
@@ -71,27 +68,6 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
   const showWarrantySection = product.category === 'materiais' || product.category === 'equipamentos';
 
   if (!product) return null;
-
-  const handleAudit = () => {
-    const counted = parseInt(auditCount);
-    if (isNaN(counted) || counted < 0) {
-      toast.error('Quantidade inválida');
-      return;
-    }
-    
-    const difference = counted - product.current_stock;
-    if (difference === 0) {
-      toast.success('Estoque conferido! Sem divergências.');
-    } else if (difference > 0) {
-      toast.info(`Divergência encontrada: +${difference} itens a mais que o registrado`);
-    } else {
-      toast.warning(`Divergência encontrada: ${difference} itens a menos que o registrado`);
-    }
-    
-    setAuditMode(false);
-    setAuditCount('');
-    setAuditNotes('');
-  };
 
   const handleStatusChange = async (serialId: string, newStatus: SerialStatus) => {
     await updateSerialStatus.mutateAsync({ id: serialId, status: newStatus });
@@ -170,53 +146,14 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
               <CardHeader className="py-2 px-3">
                 <CardTitle className="text-xs flex items-center gap-2">
                   <ClipboardCheck className="h-3.5 w-3.5" />
-                  Auditoria de Inventário
+                  Auditoria / Ocorrência
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3 pt-0">
-                {!auditMode ? (
-                  <Button onClick={() => setAuditMode(true)} variant="outline" size="sm" className="w-full text-xs h-8">
-                    <ClipboardCheck className="h-3.5 w-3.5 mr-1" />
-                    Iniciar Contagem
-                  </Button>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 p-2 bg-muted/50 rounded text-xs">
-                      <AlertCircle className="h-4 w-4 text-warning flex-shrink-0" />
-                      <span>Estoque: <strong>{product.current_stock}</strong> {product.unit}</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-[10px]">Qtd Contada</Label>
-                        <Input 
-                          type="number" 
-                          value={auditCount} 
-                          onChange={(e) => setAuditCount(e.target.value)}
-                          placeholder="0"
-                          className="h-8 text-xs"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-[10px]">Obs</Label>
-                        <Input 
-                          value={auditNotes} 
-                          onChange={(e) => setAuditNotes(e.target.value)}
-                          placeholder="..."
-                          className="h-8 text-xs"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={handleAudit} size="sm" className="flex-1 h-8 text-xs">
-                        <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                        Confirmar
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => setAuditMode(false)} className="h-8 text-xs">
-                        Cancelar
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                <Button onClick={() => setAuditDialogOpen(true)} variant="outline" size="sm" className="w-full text-xs h-8">
+                  <ClipboardCheck className="h-3.5 w-3.5 mr-1" />
+                  Registrar Ocorrência
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -456,6 +393,12 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
         </div>
         </div>
       </DialogContent>
+
+      <StockAuditDialog
+        open={auditDialogOpen}
+        onOpenChange={setAuditDialogOpen}
+        defaultProductId={product.id}
+      />
     </Dialog>
   );
 }
