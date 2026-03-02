@@ -45,11 +45,11 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
   const cardCount = cards.length;
 
   const getGridClasses = () => {
-    if (cardCount <= 2) return 'grid-cols-1 sm:grid-cols-2 max-w-2xl';
-    if (cardCount <= 3) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl';
-    if (cardCount <= 4) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
-    if (cardCount <= 6) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
-    return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+    if (cardCount <= 3) return 'grid-cols-1 sm:grid-cols-3';
+    if (cardCount <= 4) return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4';
+    if (cardCount <= 5) return 'grid-cols-1 sm:grid-cols-3 md:grid-cols-5';
+    if (cardCount <= 6) return 'grid-cols-1 sm:grid-cols-3 md:grid-cols-6';
+    return 'grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-' + Math.min(cardCount, 8);
   };
 
   const renderCard = (stat: StatCard, index: number) => {
@@ -78,69 +78,69 @@ export function StatCardsGrid({ cards, isLoading = false }: StatCardsGridProps) 
         />
 
         <CardContent className="relative p-3">
-          <div className="flex items-center gap-3">
-            {/* Icon */}
+          {/* Top: icon + arrow */}
+          <div className="flex items-center justify-between mb-2">
             <div className={cn(
-              'flex items-center justify-center w-9 h-9 rounded-lg ring-1 shrink-0',
+              'flex items-center justify-center w-8 h-8 rounded-lg ring-1 shrink-0',
               'transition-transform duration-300 group-hover:scale-110',
               iconStyle.bg,
               iconStyle.ring
             )}>
               <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
             </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-medium text-muted-foreground leading-tight">
-                {stat.label}
-              </p>
-              <div className="flex items-baseline justify-between gap-2 mt-0.5">
-                {stat.value !== null && !isLoading ? (
-                  <p className="text-lg font-bold tracking-tight text-foreground leading-tight">
-                    {stat.value}
-                  </p>
-                ) : (
-                  <Skeleton className="h-5 w-12" />
-                )}
-                {stat.change && (
-                  <div className={cn(
-                    'flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0',
-                    stat.changeType === 'positive' ? 'text-emerald-600 bg-emerald-500/10' :
-                    stat.changeType === 'negative' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
-                  )}>
-                    {stat.changeType === 'positive' && <ArrowUpRight className="h-3 w-3" />}
-                    {stat.changeType === 'negative' && <ArrowDownRight className="h-3 w-3" />}
-                    <span>{stat.change}</span>
-                  </div>
-                )}
-              </div>
-              {(stat.subValue || stat.subtitle) && (
-                <p className="text-[10px] mt-0.5 leading-tight">
-                  {stat.subValue && (
-                    <span className={cn('font-medium', stat.subColor || 'text-muted-foreground')}>
-                      {stat.subValue}
-                    </span>
-                  )}
-                  {stat.subValue && stat.subtitle && <span className="text-muted-foreground"> · </span>}
-                  {stat.subtitle && (
-                    <span className="text-muted-foreground">{stat.subtitle}</span>
-                  )}
-                </p>
-              )}
-            </div>
-
-            {/* Arrow */}
             {stat.href && (
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300 shrink-0" />
             )}
           </div>
+
+          {/* Label */}
+          <p className="text-[11px] font-medium text-muted-foreground leading-tight">
+            {stat.label}
+          </p>
+
+          {/* Value + change */}
+          <div className="flex items-baseline gap-2 mt-0.5">
+            {stat.value !== null && !isLoading ? (
+              <p className="text-base font-bold tracking-tight text-foreground leading-tight whitespace-nowrap">
+                {stat.value}
+              </p>
+            ) : (
+              <Skeleton className="h-5 w-12" />
+            )}
+            {stat.change && (
+              <div className={cn(
+                'flex items-center gap-0.5 text-[10px] font-semibold px-1 py-0.5 rounded-full shrink-0',
+                stat.changeType === 'positive' ? 'text-emerald-600 bg-emerald-500/10' :
+                stat.changeType === 'negative' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
+              )}>
+                {stat.changeType === 'positive' && <ArrowUpRight className="h-2.5 w-2.5" />}
+                {stat.changeType === 'negative' && <ArrowDownRight className="h-2.5 w-2.5" />}
+                <span>{stat.change}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Sub info */}
+          {(stat.subValue || stat.subtitle) && (
+            <p className="text-[10px] mt-1 leading-tight">
+              {stat.subValue && (
+                <span className={cn('font-medium', stat.subColor || 'text-muted-foreground')}>
+                  {stat.subValue}
+                </span>
+              )}
+              {stat.subValue && stat.subtitle && <span className="text-muted-foreground"> · </span>}
+              {stat.subtitle && (
+                <span className="text-muted-foreground">{stat.subtitle}</span>
+              )}
+            </p>
+          )}
         </CardContent>
       </Card>
     );
   };
 
   return (
-    <div className={cn('grid gap-2.5 sm:gap-3', getGridClasses())}>
+    <div className={cn('grid gap-2', getGridClasses())}>
       {cards.map((stat, index) => renderCard(stat, index))}
     </div>
   );
