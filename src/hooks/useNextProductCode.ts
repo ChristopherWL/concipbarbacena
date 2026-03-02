@@ -24,7 +24,8 @@ export function useNextProductCode(category: string, enabled: boolean = true) {
         .from('products')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenant.id)
-        .eq('category', category as any);
+        .eq('category', category as any)
+        .eq('is_active', true);
 
       if (error) throw error;
 
