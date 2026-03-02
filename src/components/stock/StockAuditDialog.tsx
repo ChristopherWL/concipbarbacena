@@ -15,6 +15,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { AlertTriangle, Shield, Package, Search, Camera } from 'lucide-react';
 import { useCreateStockAudit } from '@/hooks/useStockAudits';
 import { useProducts } from '@/hooks/useProducts';
@@ -45,13 +52,26 @@ const AUDIT_TYPE_LABELS: Record<'defeito' | 'furto' | 'garantia', { label: strin
   garantia: { label: 'Garantia', icon: <Package className="w-5 h-5" />, color: 'text-blue-500' },
 };
 
+const CATEGORY_OPTIONS = [
+  { value: 'all', label: 'Todas as Categorias' },
+  { value: 'materiais', label: 'Materiais' },
+  { value: 'equipamentos', label: 'Equipamentos' },
+  { value: 'ferramentas', label: 'Ferramentas' },
+  { value: 'epi', label: 'EPI' },
+  { value: 'epc', label: 'EPC' },
+];
+
 export function StockAuditDialog({ open, onOpenChange, defaultProductId }: StockAuditDialogProps) {
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [serialSearch, setSerialSearch] = useState('');
   const [selectedSerialId, setSelectedSerialId] = useState<string | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const { data: products } = useProducts();
+  const filteredProducts = selectedCategory && selectedCategory !== 'all'
+    ? products?.filter(p => p.category === selectedCategory)
+    : products;
   const { data: serialNumbers } = useSerialNumbers(selectedProductId || undefined);
   const createAudit = useCreateStockAudit();
 
@@ -92,6 +112,7 @@ export function StockAuditDialog({ open, onOpenChange, defaultProductId }: Stock
     if (!open) {
       setSerialSearch('');
       setSelectedSerialId(null);
+      setSelectedCategory('all');
       reset();
     }
   }, [open, reset]);
@@ -151,11 +172,37 @@ export function StockAuditDialog({ open, onOpenChange, defaultProductId }: Stock
 
           <ScrollArea className="flex-1 pr-4 -mr-4">
             <div className="space-y-5 pb-2">
+              {/* Category Filter */}
+              <div className="space-y-2">
+                <Label>Categoria</Label>
+                <Select value={selectedCategory} onValueChange={(val) => {
+                  setSelectedCategory(val);
+                  setValue('product_id', '');
+                  setSelectedSerialId(null);
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORY_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Product Selection */}
               <div className="space-y-2">
-                <Label>Produto *</Label>
+                <Label>
+                  Produto *
+                  {selectedCategory && (
+                    <span className="text-muted-foreground ml-1">({filteredProducts?.length || 0} itens)</span>
+                  )}
+                </Label>
                 <ProductSearchSelect
-                  products={products}
+                  products={filteredProducts}
                   value={watchProductId}
                   onChange={(value) => {
                     setValue('product_id', value);
