@@ -41,19 +41,19 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         <div className="relative">
           {/* Folded corner - positioned outside the card */}
           <div 
-            className="absolute -top-0 -right-0 w-10 h-10 pointer-events-none"
+            className="absolute -top-0 -right-0 w-6 h-6 pointer-events-none"
             style={{ zIndex: 1 }}
           >
             {/* The fold triangle (dark part that looks like the back of the page) */}
             <div 
-              className="absolute top-0 right-0 w-10 h-10"
+              className="absolute top-0 right-0 w-6 h-6"
               style={{
                 background: 'linear-gradient(135deg, hsl(var(--primary)) 50%, transparent 50%)',
               }}
             />
             {/* Shadow under the fold */}
             <div 
-              className="absolute top-0 right-0 w-10 h-10"
+              className="absolute top-0 right-0 w-6 h-6"
               style={{
                 background: 'linear-gradient(135deg, transparent 45%, rgba(0,0,0,0.1) 50%, transparent 55%)',
               }}
@@ -65,7 +65,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
               cardVariants({ variant, className }),
               "rounded-tr-none"
             )}
-            style={{ clipPath: 'polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%)' }}
+            style={{ clipPath: 'polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%)' }}
             {...props}
           >
             {children}
