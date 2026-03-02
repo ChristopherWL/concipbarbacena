@@ -104,8 +104,8 @@
     --popover: 222 47% 14%;
     --popover-foreground: 210 40% 98%;
 
-    --header-background: 220 20% 10% !important;
-    --sidebar-background: 220 20% 12% !important;
+    --header-background: 222 47% 7% !important;
+    --sidebar-background: 222 47% 8% !important;
 
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
@@ -154,12 +154,12 @@
 
 /* Menu Theme: Blue (Default) */
 .menu-theme-blue {
-  --sidebar-background: 0 0% 5%;
-  --sidebar-foreground: 210 20% 98%;
-  --sidebar-accent: 210 15% 12%;
+  --sidebar-background: 222 47% 8%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-accent: 222 40% 14%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 210 15% 15%;
-  --header-background: 0 0% 4%;
+  --sidebar-border: 222 35% 18%;
+  --header-background: 222 47% 7%;
 }
 
 /* Menu Theme: Dark */
