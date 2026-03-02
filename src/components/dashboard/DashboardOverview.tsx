@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import { 
   Package, Truck, Users, ClipboardList, TrendingUp, 
   AlertTriangle, CheckCircle, HardHat, Building2
@@ -142,7 +143,7 @@ export function DashboardOverview() {
           <DashboardCalendar sector="overview" />
         </div>
 
-        <Card className="lg:col-span-4 futuristic-card rounded-xl">
+        <Card className="lg:col-span-4 group rounded-2xl border-border/40 bg-card shadow-sm hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5 transition-all duration-300">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Estoque por Categoria</CardTitle>
             <CardDescription className="text-xs">Distribuição atual</CardDescription>
@@ -169,8 +170,9 @@ export function DashboardOverview() {
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--popover))', 
                       border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: '12px'
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      boxShadow: 'var(--shadow-lg)'
                     }}
                     formatter={(value: number, name: string, entry: any) => [
                       `${value} itens`,
@@ -182,10 +184,10 @@ export function DashboardOverview() {
             </div>
             <div className="grid grid-cols-2 gap-2 mt-3">
               {(stockByCategory || []).slice(0, 4).map((item) => (
-                <div key={item.name} className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                <div key={item.name} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted/40 transition-colors">
+                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2 ring-offset-1 ring-offset-card" style={{ backgroundColor: item.color, boxShadow: `0 0 6px ${item.color}40` }} />
                   <span className="text-xs text-muted-foreground truncate">{item.name}</span>
-                  <span className="text-xs font-medium ml-auto">{item.value}</span>
+                  <span className="text-xs font-semibold ml-auto">{item.value}</span>
                 </div>
               ))}
             </div>
@@ -193,7 +195,7 @@ export function DashboardOverview() {
         </Card>
       </div>
 
-      <Card className="futuristic-card rounded-xl">
+      <Card className="rounded-2xl border-border/40 bg-card shadow-sm hover:shadow-[var(--shadow-lg)] transition-all duration-300">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div>
@@ -202,31 +204,31 @@ export function DashboardOverview() {
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.4)]" />
                 <span className="text-xs text-muted-foreground">Total</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                 <span className="text-xs text-muted-foreground">Concluídas</span>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="h-[200px] chart-container p-2">
+          <div className="h-[200px] p-2">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={osTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorOs" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <stop offset="0%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.25}/>
+                    <stop offset="100%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorConcluidas" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.25}/>
                     <stop offset="100%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} vertical={false} />
                 <XAxis 
                   dataKey="name" 
                   tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
@@ -242,16 +244,17 @@ export function DashboardOverview() {
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--popover))', 
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px'
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    boxShadow: 'var(--shadow-lg)'
                   }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="os" 
                   name="Total"
-                  stroke="#3b82f6" 
-                  strokeWidth={2}
+                  stroke="hsl(217, 91%, 60%)" 
+                  strokeWidth={2.5}
                   fillOpacity={1} 
                   fill="url(#colorOs)" 
                 />
@@ -260,7 +263,7 @@ export function DashboardOverview() {
                   dataKey="concluidas" 
                   name="Concluídas"
                   stroke="#10b981" 
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   fillOpacity={1} 
                   fill="url(#colorConcluidas)" 
                 />
@@ -271,7 +274,7 @@ export function DashboardOverview() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-        <Card className="futuristic-card rounded-xl">
+        <Card className="rounded-2xl border-border/40 bg-card shadow-sm hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5 transition-all duration-300">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Atividades Recentes</CardTitle>
             <CardDescription className="text-xs">Últimas movimentações</CardDescription>
@@ -281,7 +284,7 @@ export function DashboardOverview() {
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-lg" />
+                    <Skeleton className="h-9 w-9 rounded-xl" />
                     <div className="space-y-1.5 flex-1">
                       <Skeleton className="h-3 w-28" />
                       <Skeleton className="h-2.5 w-40" />
@@ -290,38 +293,40 @@ export function DashboardOverview() {
                 ))}
               </div>
             ) : activities && activities.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {activities.slice(0, 4).map((activity) => {
                   const Icon = getActivityIcon(activity.type);
                   return (
-                    <div key={activity.id} className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-muted/30 transition-colors">
-                      <div className="p-1.5 rounded-md bg-primary/10 flex-shrink-0">
+                    <div key={activity.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors group/item">
+                      <div className="p-2 rounded-xl bg-primary/10 ring-1 ring-primary/15 flex-shrink-0 group-hover/item:bg-primary/15 transition-colors">
                         <Icon className="h-3.5 w-3.5 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium leading-tight">{activity.action}</p>
                         <p className="text-[10px] text-muted-foreground truncate mt-0.5">{activity.description}</p>
-                        <p className="text-[10px] text-muted-foreground/70 mt-1">{activity.time}</p>
+                        <p className="text-[10px] text-muted-foreground/60 mt-1">{activity.time}</p>
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-center py-6">
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted mb-2">
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-muted/60 mb-3">
                   <TrendingUp className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <p className="text-xs text-muted-foreground">Nenhuma atividade</p>
+                <p className="text-xs text-muted-foreground">Nenhuma atividade recente</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="futuristic-card rounded-xl">
+        <Card className="rounded-2xl border-border/40 bg-card shadow-sm hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5 transition-all duration-300">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-warning" />
+              <div className="p-1 rounded-lg bg-warning/10 ring-1 ring-warning/20">
+                <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+              </div>
               Alertas
             </CardTitle>
             <CardDescription className="text-xs">Requerem atenção</CardDescription>
@@ -330,21 +335,25 @@ export function DashboardOverview() {
             {alerts && alerts.length > 0 ? (
               <div className="space-y-2">
                 {alerts.slice(0, 3).map((alert) => (
-                  <div key={alert.id} className={`p-2.5 rounded-lg text-xs ${
-                    alert.type === 'error' ? 'bg-destructive/10 text-destructive border border-destructive/20' :
-                    alert.type === 'warning' ? 'bg-warning/10 text-warning-foreground border border-warning/20' :
-                    'bg-info/10 text-info-foreground border border-info/20'
-                  }`}>
+                  <div key={alert.id} className={cn(
+                    'p-3 rounded-xl text-xs font-medium border transition-colors',
+                    alert.type === 'error' 
+                      ? 'bg-destructive/8 text-destructive border-destructive/15 hover:bg-destructive/12' 
+                      : alert.type === 'warning' 
+                      ? 'bg-warning/8 text-warning-foreground border-warning/15 hover:bg-warning/12' 
+                      : 'bg-info/8 text-info-foreground border-info/15 hover:bg-info/12'
+                  )}>
                     {alert.message}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6">
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-success/10 mb-2">
-                  <CheckCircle className="h-5 w-5 text-success" />
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-500/20 mb-3">
+                  <CheckCircle className="h-5 w-5 text-emerald-500" />
                 </div>
-                <p className="text-xs text-muted-foreground">Tudo em ordem!</p>
+                <p className="text-xs font-medium text-emerald-600">Tudo em ordem!</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Nenhum alerta pendente</p>
               </div>
             )}
           </CardContent>
