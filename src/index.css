@@ -591,8 +591,8 @@
   /* Page curl / folded corner effect - realistic paper style */
   .page-curl-container {
     position: absolute;
-    width: 18px;
-    height: 18px;
+    width: 28px;
+    height: 28px;
     z-index: 60;
     pointer-events: none;
     /* Shadow that falls on the page content (inside) */
@@ -601,8 +601,8 @@
 
   @media (min-width: 1024px) {
     .page-curl-container {
-      width: 26px;
-      height: 26px;
+      width: 36px;
+      height: 36px;
       filter: drop-shadow(6px 6px 10px hsl(0 0% 0% / 0.25));
     }
   }
@@ -636,12 +636,12 @@
 
   /* Main content with clipped corner for page curl */
   .content-with-curl {
-    clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%, 0 18px);
+    clip-path: polygon(28px 0, 100% 0, 100% 100%, 0 100%, 0 28px);
   }
 
   @media (min-width: 1024px) {
     .content-with-curl {
-      clip-path: polygon(26px 0, 100% 0, 100% 100%, 0 100%, 0 26px);
+      clip-path: polygon(36px 0, 100% 0, 100% 100%, 0 100%, 0 36px);
     }
   }
 
