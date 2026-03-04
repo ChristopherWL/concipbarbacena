@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Building2, ArrowRight, Menu, X,
   Package, Truck, Users, ClipboardList, BarChart3, FileText, Shield, Zap, Clock,
-  Lightbulb, Wifi, Camera, Sun, Radio, Globe, MapPin, CheckCircle, Award, Phone, Mail, AlertCircle,
-  ChevronDown, Sparkles
+  Lightbulb, Wifi, Camera, Sun, Radio, Globe, MapPin, CheckCircle, Award, Phone, Mail, AlertCircle
 } from 'lucide-react';
 import { PageLoading } from '@/components/ui/page-loading';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import barbacenaHero from '@/assets/barbacena-praca.jpg';
 import TicketForm from '@/components/landing/TicketForm';
@@ -73,6 +74,18 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   'globe': Globe,
 };
 
+// Futuristic theme colors
+const theme = {
+  neonBlue: '#0984E3',
+  neonPurple: '#6C5CE7',
+  accentCyan: '#00d2ff',
+  darkBg: '#050b14',
+  darkBgSecondary: '#0A1F3D',
+  glassBg: 'rgba(255, 255, 255, 0.05)',
+  borderColor: 'rgba(255, 255, 255, 0.1)',
+  white: '#FFFFFF',
+};
+
 export default function GenericLandingPage() {
   const navigate = useNavigate();
   const [content, setContent] = useState<GenericContent | null>(null);
@@ -98,23 +111,6 @@ export default function GenericLandingPage() {
     signOutUser();
   }, []);
 
-  // Intersection Observer for scroll animations
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('lp-visible');
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
-    );
-    const elements = document.querySelectorAll('.lp-animate');
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [content]);
-
   useEffect(() => {
     const fetchContent = async () => {
       try {
@@ -122,12 +118,19 @@ export default function GenericLandingPage() {
         if (error) throw error;
         
         const data = result?.branding;
-        if (result?.tenantId) setTenantId(result.tenantId);
-        if (result?.branchId) setBranchId(result.branchId);
+        
+        // Store tenant and branch IDs for ticket form
+        if (result?.tenantId) {
+          setTenantId(result.tenantId);
+        }
+        if (result?.branchId) {
+          setBranchId(result.branchId);
+        }
 
         if (data) {
           const lp = (data.landing_page_content as any) || {};
           const generic = lp.generic || {};
+
           setContent({
             companyName: generic.companyName || data.name || 'Sistema ERP',
             companySubtitle: generic.companySubtitle || '',
@@ -147,34 +150,56 @@ export default function GenericLandingPage() {
             showFeatures: generic.showFeatures !== false,
             ctaTitle: generic.ctaTitle || 'Pronto para transformar sua gestão?',
             ctaDescription: generic.ctaDescription || 'Acesse agora e descubra como podemos ajudar seu negócio a crescer.',
-            primaryColor: data.primary_color || generic.primaryColor || '#0984E3',
-            secondaryColor: data.secondary_color || generic.secondaryColor || '#6C5CE7',
+            primaryColor: data.primary_color || generic.primaryColor || theme.neonBlue,
+            secondaryColor: data.secondary_color || generic.secondaryColor || theme.neonPurple,
           });
         } else {
           setContent({
-            companyName: 'Sistema ERP', companySubtitle: '', logoUrl: '', logoDarkUrl: '',
+            companyName: 'Sistema ERP',
+            companySubtitle: '',
+            logoUrl: '',
+            logoDarkUrl: '',
             badge: 'Soluções para Cidades Inteligentes',
-            heroTitle: 'ILUMINANDO O', heroTitleHighlight: 'FUTURO DE BARBACENA',
+            heroTitle: 'ILUMINANDO O',
+            heroTitleHighlight: 'FUTURO DE BARBACENA',
             heroDescription: 'Parceria Público-Privada avançada entregando iluminação urbana de última geração, conectividade e infraestrutura de monitoramento inteligente para um amanhã mais seguro e brilhante.',
-            ctaPrimary: 'Fale Conosco', ctaSecondary: '',
-            stats: [], showStats: true, modules: [], features: [],
-            showModules: true, showFeatures: false,
-            ctaTitle: '', ctaDescription: '',
-            primaryColor: '#0984E3', secondaryColor: '#6C5CE7',
+            ctaPrimary: 'Fale Conosco',
+            ctaSecondary: '',
+            stats: [],
+            showStats: true,
+            modules: [],
+            features: [],
+            showModules: true,
+            showFeatures: false,
+            ctaTitle: '',
+            ctaDescription: '',
+            primaryColor: theme.neonBlue,
+            secondaryColor: theme.neonPurple,
           });
         }
       } catch (error) {
         console.error('Error fetching landing page content:', error);
         setContent({
-          companyName: 'LUMINA PPP', companySubtitle: '', logoUrl: '', logoDarkUrl: '',
+          companyName: 'LUMINA PPP',
+          companySubtitle: '',
+          logoUrl: '',
+          logoDarkUrl: '',
           badge: 'Soluções para Cidades Inteligentes',
-          heroTitle: 'ILUMINANDO O', heroTitleHighlight: 'FUTURO DE BARBACENA',
+          heroTitle: 'ILUMINANDO O',
+          heroTitleHighlight: 'FUTURO DE BARBACENA',
           heroDescription: 'Parceria Público-Privada avançada entregando iluminação urbana de última geração, conectividade e infraestrutura de monitoramento inteligente para um amanhã mais seguro e brilhante.',
-          ctaPrimary: 'Fale Conosco', ctaSecondary: '',
-          stats: [], showStats: true, modules: [], features: [],
-          showModules: true, showFeatures: false,
-          ctaTitle: '', ctaDescription: '',
-          primaryColor: '#0984E3', secondaryColor: '#6C5CE7',
+          ctaPrimary: 'Fale Conosco',
+          ctaSecondary: '',
+          stats: [],
+          showStats: true,
+          modules: [],
+          features: [],
+          showModules: true,
+          showFeatures: false,
+          ctaTitle: '',
+          ctaDescription: '',
+          primaryColor: theme.neonBlue,
+          secondaryColor: theme.neonPurple,
         });
       } finally {
         setIsLoading(false);
@@ -183,8 +208,13 @@ export default function GenericLandingPage() {
     fetchContent();
   }, []);
 
-  if (isLoading) return <PageLoading text="Carregando" />;
-  if (!content) return null;
+  if (isLoading) {
+    return <PageLoading text="Carregando" />;
+  }
+
+  if (!content) {
+    return null;
+  }
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -195,17 +225,16 @@ export default function GenericLandingPage() {
     { label: 'Serviços', id: 'services' },
     { label: 'Projetos', id: 'projects' },
     { label: 'Tecnologia', id: 'technology' },
-    { label: 'Chamado', id: 'chamado' },
-    { label: 'Contato', id: 'contact' },
+    { label: 'Sobre', id: 'about' },
   ];
 
   const defaultServices = [
-    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Sistemas de iluminação LED de alta eficiência com gerenciamento remoto para brilho e segurança ideais.' },
-    { icon: Building2, title: 'Gestão de PPP', description: 'Modelos sustentáveis de Parceria Público-Privada garantindo manutenção e modernização de longo prazo.' },
-    { icon: Camera, title: 'Câmeras Wi-Fi', description: 'Rede de câmeras de segurança integrada para vigilância urbana e monitoramento de tráfego.' },
-    { icon: Globe, title: 'Link Dedicado', description: 'Links de fibra óptica de alta velocidade conectando infraestrutura pública e transmissão de dados.' },
-    { icon: Sun, title: 'Usina UFV', description: 'Integração de Usinas Fotovoltaicas para compensar consumo e promover energia renovável.' },
-    { icon: Radio, title: 'Iluminação Inteligente', description: 'Sensores IoT para iluminação adaptativa, monitoramento ambiental e manutenção preditiva.' },
+    { icon: Lightbulb, title: 'Iluminação Pública', description: 'Sistemas de iluminação LED de alta eficiência com capacidades de gerenciamento remoto para garantir brilho e segurança ideais.' },
+    { icon: Building2, title: 'Gestão de PPP', description: 'Modelos sustentáveis de Parceria Público-Privada garantindo manutenção de longo prazo, modernização e eficiência operacional.' },
+    { icon: Camera, title: 'Câmeras Wi-Fi', description: 'Rede de câmeras de segurança integrada utilizando postes de iluminação para vigilância urbana aprimorada e monitoramento de tráfego.' },
+    { icon: Globe, title: 'Link Dedicado', description: 'Links de fibra óptica dedicados de alta velocidade conectando infraestrutura pública e permitindo transmissão de dados para cidades inteligentes.' },
+    { icon: Sun, title: 'Usina UFV', description: 'Integração de Usinas Fotovoltaicas para compensar o consumo de energia e promover o uso de energia renovável.' },
+    { icon: Radio, title: 'Iluminação Inteligente', description: 'Sensores inteligentes habilitados para IoT para iluminação adaptativa, monitoramento ambiental e alertas de manutenção preditiva.' },
   ];
 
   const stats = [
@@ -215,212 +244,357 @@ export default function GenericLandingPage() {
     { value: '100%', label: 'Cobertura da Cidade' },
   ];
 
-  const pc = content.primaryColor;
-  const sc = content.secondaryColor;
+  const galleryItems = [
+    { 
+      type: 'image', 
+      image: barbacenaHero, 
+      title: 'Centro de Barbacena', 
+      description: 'Transição LED Completa - 2023',
+      large: true 
+    },
+    { 
+      type: 'tech', 
+      icon: BarChart3, 
+      title: 'Centro de Controle', 
+      description: 'Dados em Tempo Real' 
+    },
+    { 
+      type: 'tech', 
+      icon: Wifi, 
+      title: 'Conectividade', 
+      description: '99.9% de Disponibilidade' 
+    },
+    { 
+      type: 'wide', 
+      icon: MapPin, 
+      title: 'Topologia da Rede Inteligente', 
+      description: 'Mapeamento otimizado da rede de distribuição de energia.',
+      progress: 75 
+    },
+  ];
 
   return (
-    <div className="min-h-screen antialiased overflow-x-hidden bg-[#060c18] text-white" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" }}>
+    <div className="min-h-screen antialiased overflow-x-hidden" style={{ backgroundColor: theme.darkBg, color: theme.white, fontFamily: "'Inter', sans-serif" }}>
+      {/* Header */}
+      <header 
+        className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 lg:px-16 py-4 sm:py-6 flex justify-between items-center"
+        style={{ background: 'linear-gradient(to bottom, rgba(5,11,20,0.95), transparent)' }}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          {content.logoUrl ? (
+            <img src={content.logoUrl} alt={content.companyName} className="h-7 sm:h-10 object-contain" />
+          ) : (
+            <>
+              <Lightbulb className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: theme.accentCyan }} />
+              <span className="font-bold text-lg sm:text-2xl text-white tracking-wider">
+                {content.companyName}
+                <span className="font-light opacity-80 ml-1 hidden sm:inline">PPP</span>
+              </span>
+            </>
+          )}
+        </div>
 
-      {/* ═══════════════════ HEADER ═══════════════════ */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled 
-          ? 'bg-[#060c18]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-2xl shadow-black/20' 
-          : 'bg-gradient-to-b from-[#060c18]/80 to-transparent'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between h-16 sm:h-20">
-          {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            {content.logoUrl ? (
-              <img src={content.logoUrl} alt={content.companyName} className="h-7 sm:h-9 object-contain" />
-            ) : (
-              <>
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${pc}, ${sc})` }}>
-                  <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </div>
-                <span className="font-bold text-lg sm:text-xl tracking-tight text-white">
-                  {content.companyName}
-                </span>
-              </>
-            )}
-          </div>
+        {/* Desktop Nav */}
+        <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => scrollToSection(item.id)}
+              className="text-sm font-medium uppercase tracking-widest transition-colors text-white/80 hover:text-white relative group"
+            >
+              {item.label}
+              <span 
+                className="absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full"
+                style={{ backgroundColor: theme.accentCyan }}
+              />
+            </button>
+          ))}
+        </nav>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
+        {/* CTA Button Desktop */}
+        <button
+          onClick={() => navigate('/auth')}
+          className="hidden lg:flex items-center px-5 xl:px-8 py-2.5 font-bold text-xs xl:text-sm uppercase tracking-wider transition-all duration-300 hover:shadow-lg"
+          style={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: `1px solid ${theme.accentCyan}`,
+            color: theme.accentCyan,
+            clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = theme.accentCyan;
+            e.currentTarget.style.color = '#000';
+            e.currentTarget.style.boxShadow = '0 0 20px rgba(0, 210, 255, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.color = theme.accentCyan;
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          Acesso
+        </button>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden p-2 rounded-lg text-white"
+        >
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </header>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 z-40 pt-16"
+          style={{ backgroundColor: 'rgba(5,11,20,0.98)', backdropFilter: 'blur(10px)' }}
+        >
+          <nav className="flex flex-col items-center justify-center gap-6 h-full px-6">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className="px-4 py-2 text-[13px] font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/[0.04] transition-all duration-200"
+                className="text-lg font-medium uppercase tracking-widest text-white/80 hover:text-white transition-colors"
               >
                 {item.label}
               </button>
             ))}
+            <button
+              onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
+              className="mt-6 px-8 py-3 font-bold text-sm uppercase tracking-wider"
+              style={{ 
+                backgroundColor: theme.accentCyan,
+                color: '#000',
+                clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
+              }}
+            >
+              Acesso
+            </button>
           </nav>
-
-          {/* CTA */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/auth')}
-              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg text-white transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 hover:-translate-y-0.5"
-              style={{ background: `linear-gradient(135deg, ${pc}, ${sc})` }}
-            >
-              Acessar
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/[0.06] transition-colors"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
         </div>
+      )}
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#060c18]/98 backdrop-blur-2xl border-t border-white/[0.06] animate-fade-in">
-            <nav className="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className="text-left px-4 py-3 text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors text-sm font-medium"
-                >
-                  {item.label}
-                </button>
-              ))}
-              <button
-                onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}
-                className="mt-4 w-full py-3 rounded-lg text-white text-sm font-semibold"
-                style={{ background: `linear-gradient(135deg, ${pc}, ${sc})` }}
-              >
-                Acessar Sistema
-              </button>
-            </nav>
-          </div>
-        )}
-      </header>
+      {/* Hero Section */}
+      <section 
+        id="hero" 
+        className="relative w-full min-h-screen flex items-center justify-center text-center pb-24 sm:pb-28"
+        style={{
+          backgroundImage: `url(${barbacenaHero})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Overlay */}
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            background: `linear-gradient(135deg, rgba(10, 31, 61, 0.92) 0%, rgba(5, 11, 20, 0.75) 50%, rgba(108, 92, 231, 0.3) 100%)`,
+          }}
+        />
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            background: 'radial-gradient(circle at 50% 50%, transparent 0%, #050b14 120%)',
+          }}
+        />
 
-      {/* ═══════════════════ HERO ═══════════════════ */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
-          <img src={barbacenaHero} alt="Barbacena" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#060c18]/85 via-[#060c18]/60 to-[#060c18]" />
-          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 30% 40%, ${pc}18 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, ${sc}12 0%, transparent 50%)` }} />
-        </div>
-
-        {/* Subtle grid */}
-        <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
-
-        {/* Content */}
-        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 text-center pt-24 sm:pt-28 pb-32">
-          {/* Badge */}
-          <div className="lp-animate inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/[0.08] text-white/70 text-xs sm:text-sm font-medium mb-8">
-            <Sparkles className="w-3.5 h-3.5" style={{ color: pc }} />
+        {/* Hero Content */}
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24">
+          {/* Tag */}
+          <span 
+            className="inline-block px-3 sm:px-5 py-1.5 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6"
+            style={{ 
+              backgroundColor: 'rgba(9, 132, 227, 0.2)',
+              border: `1px solid ${theme.neonBlue}`,
+              color: theme.accentCyan,
+              backdropFilter: 'blur(5px)',
+            }}
+          >
             {content.badge}
-          </div>
+          </span>
 
-          {/* Title */}
-          <h1 className="lp-animate text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold leading-[1.05] mb-6 tracking-tight">
-            <span className="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
-              {content.heroTitle}
-            </span>
+          {/* Headline */}
+          <h1 
+            className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-4 sm:mb-8"
+            style={{ 
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #A0A0A0 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            }}
+          >
+            {content.heroTitle}
             <br />
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${pc}, ${sc})` }}>
+            <span 
+              className="text-xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl"
+              style={{ 
+                color: theme.neonBlue,
+                WebkitTextFillColor: theme.neonBlue,
+                textShadow: `0 0 40px rgba(9, 132, 227, 0.6)`,
+              }}
+            >
               {content.heroTitleHighlight}
             </span>
           </h1>
 
           {/* Description */}
-          <p className="lp-animate text-sm sm:text-base lg:text-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/70 max-w-3xl mx-auto mb-6 sm:mb-10 leading-relaxed px-2">
             {content.heroDescription}
           </p>
 
-          {/* CTA */}
-          <div className="lp-animate flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={() => scrollToSection('chamado')}
-              className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-white text-sm sm:text-base font-semibold transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5"
-              style={{ background: `linear-gradient(135deg, ${pc}, ${sc})`, boxShadow: `0 8px 32px ${pc}30` }}
-            >
-              Abrir Chamado
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-            <button
-              onClick={() => navigate('/auth')}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-white/70 text-sm sm:text-base font-medium border border-white/10 hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
-            >
-              Acessar Sistema
-            </button>
-          </div>
+          {/* CTA Button */}
+          <button
+            onClick={() => scrollToSection('ticket-form')}
+            className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-10 lg:px-14 py-3 sm:py-4 lg:py-5 font-bold text-sm sm:text-base lg:text-lg uppercase tracking-wide text-white transition-all duration-300 hover:-translate-y-1"
+            style={{ 
+              background: `linear-gradient(90deg, ${theme.neonPurple}, ${theme.neonBlue})`,
+              clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
+              boxShadow: '0 0 30px rgba(108, 92, 231, 0.4)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 50px rgba(9, 132, 227, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 30px rgba(108, 92, 231, 0.4)';
+            }}
+          >
+            Abrir Chamado
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
         </div>
 
         {/* Stats Strip */}
-        <div className="absolute bottom-0 left-0 right-0 bg-[#060c18]/80 backdrop-blur-xl border-t border-white/[0.06]">
-          <div className="max-w-5xl mx-auto px-4 py-5 sm:py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
-            {stats.map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${pc}, ${sc})` }}>
-                  {stat.value}
-                </div>
-                <div className="text-[10px] sm:text-xs text-white/40 uppercase tracking-wider mt-1 font-medium">
-                  {stat.label}
-                </div>
+        <div 
+          className="absolute bottom-0 left-0 right-0 py-4 sm:py-6 lg:py-8 grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-4 sm:gap-8 lg:gap-16 xl:gap-24 z-20 px-4"
+          style={{ 
+            backgroundColor: 'rgba(10, 31, 61, 0.85)',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(20px)',
+          }}
+        >
+          {stats.map((stat, i) => (
+            <div key={i} className="text-center">
+              <div className="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-white mb-0.5 sm:mb-1">
+                {stat.value}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-5 h-5 text-white/20" />
+              <div 
+                className="text-[10px] sm:text-xs uppercase tracking-wider leading-tight"
+                style={{ color: theme.accentCyan }}
+              >
+                {stat.label}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ═══════════════════ SERVICES ═══════════════════ */}
-      <section id="services" className="relative py-20 sm:py-28 lg:py-36">
-        {/* Subtle accent */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${pc}40, transparent)` }} />
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
-          {/* Header */}
-          <div className="text-center mb-14 sm:mb-20">
-            <span className="lp-animate text-xs font-bold uppercase tracking-[0.2em] mb-4 block" style={{ color: pc }}>
+      {/* Services Section */}
+      <section id="services" className="relative py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+        {/* Decorative glow */}
+        <div 
+          className="absolute top-1/4 right-0 w-48 sm:w-72 h-64 sm:h-96 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(9, 132, 227, 0.05) 0%, transparent 70%)' }}
+        />
+        
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-10 sm:mb-16 lg:mb-20">
+            <span 
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
+              style={{ color: theme.neonPurple }}
+            >
               Nossa Expertise
             </span>
-            <h2 className="lp-animate text-2xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
-              Infraestrutura Integrada
+            <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">
+              INFRAESTRUTURA INTEGRADA
             </h2>
-            <p className="lp-animate text-white/40 mt-4 max-w-xl mx-auto text-sm sm:text-base">
-              Soluções completas que unem tecnologia de ponta e eficiência operacional
-            </p>
           </div>
 
-          {/* Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {(content.modules.length > 0 ? content.modules : defaultServices).map((service, i) => {
-              const IconComponent = 'icon' in service && typeof service.icon === 'string'
-                ? iconMap[service.icon] || Building2
+              const IconComponent = 'icon' in service && typeof service.icon === 'string' 
+                ? iconMap[service.icon] || Building2 
                 : ('icon' in service ? service.icon : Building2);
+              
               return (
-                <div
+                <div 
                   key={i}
-                  className="lp-animate group relative p-6 sm:p-8 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all duration-500 hover:-translate-y-1"
-                  style={{ transitionDelay: `${i * 50}ms` }}
+                  className="group relative p-5 sm:p-8 lg:p-10 transition-all duration-400 overflow-hidden"
+                  style={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-10px)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.borderColor = 'rgba(9, 132, 227, 0.3)';
+                    e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.3)';
+                    const bar = e.currentTarget.querySelector('.gradient-bar') as HTMLElement;
+                    if (bar) bar.style.opacity = '1';
+                    const icon = e.currentTarget.querySelector('.service-icon') as HTMLElement;
+                    if (icon) {
+                      icon.style.transform = 'scale(1.1)';
+                      icon.style.color = '#fff';
+                      icon.style.textShadow = `0 0 20px ${theme.neonBlue}`;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.boxShadow = 'none';
+                    const bar = e.currentTarget.querySelector('.gradient-bar') as HTMLElement;
+                    if (bar) bar.style.opacity = '0';
+                    const icon = e.currentTarget.querySelector('.service-icon') as HTMLElement;
+                    if (icon) {
+                      icon.style.transform = 'scale(1)';
+                      icon.style.color = theme.accentCyan;
+                      icon.style.textShadow = 'none';
+                    }
+                  }}
                 >
-                  {/* Top accent line */}
-                  <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-transparent to-transparent group-hover:via-current transition-all duration-500" style={{ color: pc }} />
-
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5" style={{ background: `${pc}15` }}>
-                    <IconComponent className="w-5 h-5" style={{ color: pc }} />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                  {/* Top gradient bar */}
+                  <div 
+                    className="gradient-bar absolute top-0 left-0 right-0 h-1 transition-opacity duration-300"
+                    style={{ 
+                      background: `linear-gradient(90deg, ${theme.neonPurple}, ${theme.neonBlue})`,
+                      opacity: 0,
+                    }}
+                  />
+                  
+                  <IconComponent 
+                    className="service-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mb-4 sm:mb-6 transition-all duration-300"
+                    style={{ color: theme.accentCyan }}
+                  />
+                  
+                  <h3 className="text-base sm:text-xl lg:text-2xl font-bold text-white mb-2 sm:mb-4">
                     {service.title}
                   </h3>
-                  <p className="text-white/40 text-sm leading-relaxed">
+                  <p className="text-white/60 leading-relaxed text-xs sm:text-sm lg:text-base mb-4 sm:mb-6">
                     {service.description}
                   </p>
+                  
+                  <button 
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-wide transition-colors"
+                    style={{ color: theme.neonPurple }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = theme.accentCyan;
+                      const arrow = e.currentTarget.querySelector('svg');
+                      if (arrow) arrow.style.marginLeft = '10px';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = theme.neonPurple;
+                      const arrow = e.currentTarget.querySelector('svg');
+                      if (arrow) arrow.style.marginLeft = '0';
+                    }}
+                  >
+                    Saiba Mais
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 transition-all duration-300" />
+                  </button>
                 </div>
               );
             })}
@@ -428,101 +602,169 @@ export default function GenericLandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════ PROJECTS / GALLERY ═══════════════════ */}
-      <section id="projects" className="py-20 sm:py-28 lg:py-36">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="text-center mb-14 sm:mb-20">
-            <span className="lp-animate text-xs font-bold uppercase tracking-[0.2em] mb-4 block" style={{ color: pc }}>
+      {/* Gallery/Projects Section */}
+      <section id="projects" className="py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-10 sm:mb-16 lg:mb-20">
+            <span 
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
+              style={{ color: theme.neonPurple }}
+            >
               Portfólio
             </span>
-            <h2 className="lp-animate text-2xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
-              Visualização de Projetos
+            <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">
+              VISUALIZAÇÃO DE PROJETOS
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {/* Large image */}
-            <div className="sm:col-span-2 sm:row-span-2 relative overflow-hidden rounded-2xl group cursor-pointer" style={{ minHeight: '280px' }}>
-              <img src={barbacenaHero} alt="Centro de Barbacena" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" style={{ minHeight: '280px' }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7">
-                <h4 className="text-lg sm:text-xl font-bold text-white mb-1">Centro de Barbacena</h4>
-                <p className="text-xs sm:text-sm font-medium" style={{ color: pc }}>Transição LED Completa — 2023</p>
+          {/* Gallery Grid - Mobile: stack, Desktop: complex grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+            {/* Large Image */}
+            <div 
+              className="sm:col-span-2 sm:row-span-2 relative overflow-hidden rounded-md group cursor-pointer"
+              style={{ minHeight: '250px' }}
+            >
+              <img 
+                src={barbacenaHero}
+                alt="Centro de Barbacena"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                style={{ minHeight: '250px' }}
+              />
+              <div 
+                className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-y-0 sm:translate-y-5 sm:group-hover:translate-y-0 transition-all duration-300"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)' }}
+              >
+                <h4 className="text-base sm:text-lg lg:text-xl font-bold text-white mb-1">Centro de Barbacena</h4>
+                <p style={{ color: theme.accentCyan }} className="text-xs sm:text-sm">Transição LED Completa - 2023</p>
               </div>
             </div>
 
-            {/* Tech Card 1 */}
-            <div className="aspect-[16/9] sm:aspect-square flex flex-col items-center justify-center rounded-2xl p-5 border border-white/[0.06] bg-white/[0.02]">
-              <BarChart3 className="w-10 h-10 sm:w-12 sm:h-12 text-white/[0.08] mb-3" />
-              <h4 className="text-sm sm:text-base font-bold mb-1" style={{ color: pc }}>Centro de Controle</h4>
-              <p className="text-white/40 text-xs">Dados em Tempo Real</p>
+            {/* Tech Pattern 1 */}
+            <div 
+              className="aspect-[16/9] sm:aspect-square flex flex-col items-center justify-center rounded-md p-4"
+              style={{ 
+                backgroundColor: '#0d121d',
+                backgroundImage: `radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 20%),
+                  linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.02) 75%, rgba(255, 255, 255, 0.02))`,
+                backgroundSize: '100% 100%, 20px 20px',
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
+              <BarChart3 className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-white/10 mb-2 sm:mb-4" />
+              <h4 className="text-sm sm:text-lg lg:text-xl font-bold mb-1" style={{ color: theme.neonBlue }}>Centro de Controle</h4>
+              <p className="text-white/50 text-xs sm:text-sm">Dados em Tempo Real</p>
             </div>
 
-            {/* Tech Card 2 */}
-            <div className="aspect-[16/9] sm:aspect-square flex flex-col items-center justify-center rounded-2xl p-5 border border-white/[0.06] bg-white/[0.02]">
-              <Wifi className="w-10 h-10 sm:w-12 sm:h-12 text-white/[0.08] mb-3" />
-              <h4 className="text-sm sm:text-base font-bold mb-1" style={{ color: pc }}>Conectividade</h4>
-              <p className="text-white/40 text-xs">99.9% de Disponibilidade</p>
+            {/* Tech Pattern 2 */}
+            <div 
+              className="aspect-[16/9] sm:aspect-square flex flex-col items-center justify-center rounded-md p-4"
+              style={{ 
+                backgroundColor: '#0d121d',
+                backgroundImage: `radial-gradient(circle at 80% 80%, rgba(9, 132, 227, 0.1) 0%, transparent 20%)`,
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
+              <Wifi className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-white/10 mb-2 sm:mb-4" />
+              <h4 className="text-sm sm:text-lg lg:text-xl font-bold mb-1" style={{ color: theme.neonBlue }}>Conectividade</h4>
+              <p className="text-white/50 text-xs sm:text-sm">99.9% de Disponibilidade</p>
             </div>
 
-            {/* Wide Card */}
-            <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row items-start justify-between p-6 sm:p-8 rounded-2xl gap-4 border border-white/[0.06]" style={{ background: `linear-gradient(135deg, ${pc}08, ${sc}06)` }}>
+            {/* Wide Tech Card */}
+            <div 
+              className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row items-start justify-between p-4 sm:p-6 lg:p-10 rounded-md gap-4"
+              style={{ 
+                background: `linear-gradient(90deg, ${theme.darkBgSecondary} 0%, #0d1a2f 100%)`,
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
               <div className="flex-1">
-                <h3 className="text-base sm:text-lg font-bold text-white mb-2">Topologia da Rede Inteligente</h3>
-                <p className="text-white/40 text-sm mb-5">Mapeamento otimizado da rede de distribuição de energia.</p>
-                <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: '75%', background: `linear-gradient(90deg, ${pc}, ${sc})` }} />
+                <h3 className="text-base sm:text-xl lg:text-2xl font-bold text-white mb-2">Topologia da Rede Inteligente</h3>
+                <p className="text-white/60 text-xs sm:text-sm lg:text-base mb-4 sm:mb-6">Mapeamento otimizado da rede de distribuição de energia.</p>
+                
+                {/* Progress bar */}
+                <div 
+                  className="w-full h-1 rounded-full relative"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                >
+                  <div 
+                    className="absolute left-0 top-0 h-full rounded-full"
+                    style={{ 
+                      width: '75%', 
+                      backgroundColor: theme.neonBlue,
+                      boxShadow: `0 0 10px ${theme.neonBlue}`,
+                    }}
+                  />
                 </div>
               </div>
-              <MapPin className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0" style={{ color: sc }} />
+              <MapPin className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 flex-shrink-0" style={{ color: theme.neonPurple }} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════ TECHNOLOGY ═══════════════════ */}
-      <section id="technology" className="py-20 sm:py-28 lg:py-36">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+      {/* Technology/About Section */}
+      <section id="technology" className="py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16" style={{ backgroundColor: theme.darkBg }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-20 items-center">
             {/* Image */}
             <div className="relative order-2 lg:order-1">
-              <div className="relative overflow-hidden rounded-2xl" style={{ aspectRatio: '4/3' }}>
-                <img
-                  src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop"
+              <div 
+                className="relative overflow-hidden rounded-lg"
+                style={{ aspectRatio: '4/3' }}
+              >
+                <img 
+                  src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop" 
                   alt="Tecnologia Smart City"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${pc}15 0%, transparent 50%, ${sc}10 100%)` }} />
+                {/* Overlay effect */}
+                <div 
+                  className="absolute inset-0"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${theme.neonBlue}20 0%, transparent 50%, ${theme.neonPurple}20 100%)`,
+                  }}
+                />
               </div>
-              {/* Decorative border */}
-              <div className="absolute -inset-3 rounded-2xl border border-white/[0.04] -z-10 hidden sm:block" />
+              {/* Decorative frame - hidden on mobile */}
+              <div 
+                className="absolute -inset-3 sm:-inset-4 rounded-lg -z-10 hidden sm:block"
+                style={{ 
+                  border: `1px solid ${theme.neonBlue}30`,
+                }}
+              />
             </div>
 
             {/* Content */}
             <div className="order-1 lg:order-2">
-              <span className="lp-animate text-xs font-bold uppercase tracking-[0.2em] mb-4 block" style={{ color: pc }}>
+              <span 
+                className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
+                style={{ color: theme.neonPurple }}
+              >
                 Tecnologia
               </span>
-              <h2 className="lp-animate text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight tracking-tight">
-                Inovação que{' '}
-                <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${pc}, ${sc})` }}>
-                  Transforma
-                </span>
+              <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-8 leading-tight">
+                INOVAÇÃO QUE<br />
+                <span style={{ color: theme.accentCyan }}>TRANSFORMA</span>
               </h2>
-              <p className="lp-animate text-white/45 leading-relaxed text-sm sm:text-base mb-6">
+              <p className="text-white/70 leading-relaxed text-sm sm:text-base lg:text-lg mb-4 sm:mb-8">
                 Utilizamos as tecnologias mais avançadas do mercado para criar soluções de infraestrutura urbana que não apenas atendem às necessidades de hoje, mas antecipam os desafios do futuro.
               </p>
-              <p className="lp-animate text-white/45 leading-relaxed text-sm sm:text-base mb-8 hidden sm:block">
+              <p className="text-white/70 leading-relaxed text-sm sm:text-base lg:text-lg mb-6 sm:mb-10 hidden sm:block">
                 Nossos sistemas integram IoT, inteligência artificial e análise de dados em tempo real para otimizar o desempenho e garantir a máxima eficiência energética.
               </p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-4">
+              
+              {/* Features list */}
+              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:space-y-4">
                 {['Telegestão Avançada', 'Manutenção Preditiva', 'Análise de Dados', 'Integração IoT'].map((feature, i) => (
-                  <div key={i} className="lp-animate flex items-center gap-3">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${pc}12` }}>
-                      <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: pc }} />
+                  <div key={i} className="flex items-center gap-2 sm:gap-4">
+                    <div 
+                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: `${theme.neonBlue}20` }}
+                    >
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: theme.accentCyan }} />
                     </div>
-                    <span className="text-white/80 font-medium text-xs sm:text-sm">{feature}</span>
+                    <span className="text-white font-medium text-xs sm:text-base">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -531,204 +773,405 @@ export default function GenericLandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════ ABOUT ═══════════════════ */}
-      <section id="about" className="py-20 sm:py-28 lg:py-36 bg-white/[0.015]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 text-center">
-          <span className="lp-animate text-xs font-bold uppercase tracking-[0.2em] mb-4 block" style={{ color: pc }}>
+      {/* About Section */}
+      <section id="about" className="py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16" style={{ backgroundColor: theme.darkBgSecondary }}>
+        <div className="max-w-6xl mx-auto text-center">
+          <span 
+            className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
+            style={{ color: theme.neonPurple }}
+          >
             Quem Somos
           </span>
-          <h2 className="lp-animate text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 tracking-tight">
-            Liderança em Cidades Inteligentes
+          <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-8">
+            LIDERANÇA EM CIDADES INTELIGENTES
           </h2>
-          <p className="lp-animate text-white/40 leading-relaxed text-sm sm:text-base max-w-3xl mx-auto mb-14">
+          <p className="text-white/70 leading-relaxed text-sm sm:text-base lg:text-lg max-w-4xl mx-auto mb-10 sm:mb-16 px-2">
             Nascemos com a missão de transformar a realidade das cidades brasileiras através da tecnologia e da eficiência. Somos especialistas em estruturar projetos complexos que unem o setor público e privado em prol do cidadão.
           </p>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          
+          {/* Stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
             {[
               { value: '+50', label: 'Cidades Atendidas' },
               { value: '+200k', label: 'Pontos de Luz' },
               { value: '15', label: 'Anos de Experiência' },
               { value: '100%', label: 'Compromisso' },
             ].map((stat, i) => (
-              <div key={i} className="lp-animate">
-                <h3 className="text-3xl sm:text-5xl lg:text-6xl font-bold mb-2 bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${pc}, ${sc})` }}>
+              <div key={i} className="text-center">
+                <h3 
+                  className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-1 sm:mb-3"
+                  style={{ color: theme.accentCyan }}
+                >
                   {stat.value}
                 </h3>
-                <span className="text-white/35 text-[10px] sm:text-xs uppercase tracking-wider font-medium">{stat.label}</span>
+                <span className="text-white/60 text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider">{stat.label}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════ TICKET / CHAMADO ═══════════════════ */}
-      <section id="chamado" className="relative py-20 sm:py-28 lg:py-36">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
-          {/* Header */}
-          <div className="text-center mb-10 sm:mb-14">
-            <span className="lp-animate text-xs font-bold uppercase tracking-[0.2em] mb-4 block" style={{ color: pc }}>
+      {/* Ticket/Chamado Section */}
+      <section 
+        id="chamado" 
+        className="relative py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16"
+        style={{ backgroundColor: theme.darkBg }}
+      >
+        {/* Decorative elements */}
+        <div 
+          className="absolute top-1/4 right-0 w-48 sm:w-96 h-48 sm:h-96 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(9, 132, 227, 0.08) 0%, transparent 70%)' }}
+        />
+        <div 
+          className="absolute bottom-1/4 left-0 w-48 sm:w-96 h-48 sm:h-96 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.05) 0%, transparent 70%)' }}
+        />
+
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header with Call Center Info */}
+          <div className="text-center mb-8 sm:mb-12">
+            <span 
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
+              style={{ color: theme.neonPurple }}
+            >
               Registrar Ocorrência
             </span>
-            <h2 className="lp-animate text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 tracking-tight">
-              Abra seu{' '}
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${pc}, ${sc})` }}>
-                Chamado
-              </span>
+            <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4">
+              ABRA SEU <span style={{ color: theme.accentCyan }}>CHAMADO</span>
             </h2>
-            <p className="lp-animate text-white/40 text-sm sm:text-base max-w-xl mx-auto mb-8">
+            <p className="text-white/70 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto mb-6">
               Identificou um problema na iluminação pública? Registre sua ocorrência ou ligue para nosso Call Center.
             </p>
 
-            {/* Call Center Banner */}
-            <div className="lp-animate inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-6 px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
+            {/* Compact Call Center Banner */}
+            <div 
+              className="inline-flex flex-col sm:flex-row items-center gap-3 sm:gap-6 p-4 sm:p-5 rounded-xl"
+              style={{ 
+                backgroundColor: 'rgba(9, 132, 227, 0.1)',
+                border: `1px solid ${theme.neonBlue}30`,
+              }}
+            >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${pc}18` }}>
-                  <Phone className="w-5 h-5" style={{ color: pc }} />
+                <div 
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: `${theme.neonBlue}30` }}
+                >
+                  <Phone className="w-5 h-5" style={{ color: theme.accentCyan }} />
                 </div>
                 <div className="text-left">
-                  <p className="text-white/40 text-[10px] uppercase tracking-wider font-medium">Ligue Grátis</p>
-                  <p className="text-lg sm:text-xl font-bold" style={{ color: pc }}>0800-006-1737</p>
+                  <p className="text-white/60 text-xs uppercase tracking-wider">Ligue Grátis</p>
+                  <p className="text-lg sm:text-xl font-bold" style={{ color: theme.accentCyan }}>
+                    0800-006-1737
+                  </p>
                 </div>
               </div>
-              <div className="hidden sm:block w-px h-8 bg-white/[0.08]" />
-              <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" style={{ color: sc }} />
-                  <span className="text-white/40">Seg-Sex: <span className="text-white/70">7:30-23:00</span></span>
+              
+              <div className="hidden sm:block w-px h-10 bg-white/10" />
+              
+              <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" style={{ color: theme.neonPurple }} />
+                  <span className="text-white/70">Seg-Sex: <span className="text-white">7:30-23:00</span></span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" style={{ color: sc }} />
-                  <span className="text-white/40">Sáb: <span className="text-white/70">8:00-20:00</span></span>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" style={{ color: theme.neonPurple }} />
+                  <span className="text-white/70">Sáb: <span className="text-white">8:00-20:00</span></span>
                 </div>
+              </div>
+
+              <div className="hidden sm:block w-px h-10 bg-white/10" />
+
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <Globe className="w-4 h-4" style={{ color: theme.neonPurple }} />
+                <span className="text-white/70">App <span className="text-white">Cidade Iluminada</span></span>
               </div>
             </div>
           </div>
 
-          {/* Info Cards */}
+          {/* Compact Info Cards */}
           <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">
-            {[
-              { icon: MapPin, label: 'Localize no Mapa', color: pc },
-              { icon: AlertCircle, label: 'Informe a Plaqueta', color: sc },
-              { icon: Zap, label: 'Atendimento Rápido', color: pc },
-            ].map((item, i) => (
-              <div key={i} className="lp-animate p-3 sm:p-5 rounded-xl sm:rounded-2xl text-center border border-white/[0.06] bg-white/[0.02]">
-                <item.icon className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: item.color }} />
-                <h4 className="text-white/80 font-medium text-[11px] sm:text-sm">{item.label}</h4>
-              </div>
-            ))}
+            <div 
+              className="p-3 sm:p-4 rounded-lg sm:rounded-xl text-center"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <MapPin className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: theme.neonBlue }} />
+              <h4 className="text-white font-semibold text-xs sm:text-sm">Localize no Mapa</h4>
+            </div>
+
+            <div 
+              className="p-3 sm:p-4 rounded-lg sm:rounded-xl text-center"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: theme.neonPurple }} />
+              <h4 className="text-white font-semibold text-xs sm:text-sm">Informe a Plaqueta</h4>
+            </div>
+
+            <div 
+              className="p-3 sm:p-4 rounded-lg sm:rounded-xl text-center"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <Zap className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: theme.accentCyan }} />
+              <h4 className="text-white font-semibold text-xs sm:text-sm">Atendimento Rápido</h4>
+            </div>
           </div>
 
           {/* Ticket Form */}
-          <div id="ticket-form" className="relative p-5 sm:p-8 lg:p-10 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm overflow-hidden">
-            <TicketForm accentColor={pc} tenantId={tenantId || undefined} branchId={branchId || undefined} />
+          <div 
+            id="ticket-form"
+            className="relative p-5 sm:p-8 lg:p-10 rounded-xl sm:rounded-2xl overflow-hidden"
+            style={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <TicketForm accentColor={theme.neonBlue} tenantId={tenantId || undefined} branchId={branchId || undefined} />
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════ CONTACT ═══════════════════ */}
-      <section id="contact" className="relative py-20 sm:py-28 lg:py-36 bg-white/[0.01]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="text-center mb-14 sm:mb-20">
-            <span className="lp-animate text-xs font-bold uppercase tracking-[0.2em] mb-4 block" style={{ color: pc }}>
+      {/* Contact Section */}
+      <section 
+        id="contact" 
+        className="relative py-12 sm:py-20 lg:py-28 px-3 sm:px-6 lg:px-16"
+        style={{ background: `linear-gradient(180deg, ${theme.darkBg} 0%, ${theme.darkBgSecondary} 100%)` }}
+      >
+        {/* Decorative glow */}
+        <div 
+          className="absolute bottom-1/4 left-0 w-48 sm:w-96 h-48 sm:h-96 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.05) 0%, transparent 70%)' }}
+        />
+        
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-10 sm:mb-16 lg:mb-20">
+            <span 
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-2 sm:mb-4 block"
+              style={{ color: theme.neonPurple }}
+            >
               Fale Conosco
             </span>
-            <h2 className="lp-animate text-2xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
-              Inicie a Conversa
+            <h2 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">
+              INICIE A CONVERSA
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Call Center Info */}
-            <div className="lp-animate p-6 sm:p-8 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `${pc}15`, border: `1px solid ${pc}20` }}>
-                  <Phone className="w-6 h-6" style={{ color: pc }} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Call Center</h3>
-                  <p className="text-white/40 text-sm">Central de Atendimento</p>
-                </div>
-              </div>
+            <div 
+              className="relative p-5 sm:p-8 lg:p-10 rounded-xl sm:rounded-2xl overflow-hidden"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              {/* Decorative glow */}
+              <div 
+                className="absolute -top-1/2 -left-1/4 w-[300px] h-[300px] pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(0, 210, 255, 0.1) 0%, transparent 70%)' }}
+              />
 
-              <div className="p-4 sm:p-5 rounded-xl mb-6" style={{ background: `${pc}0a`, border: `1px solid ${pc}18` }}>
-                <p className="text-white/40 text-xs uppercase tracking-wider mb-1 font-medium">Ligue Grátis</p>
-                <p className="text-2xl sm:text-3xl font-bold" style={{ color: pc }}>0800-006-1737</p>
-              </div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div 
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${theme.neonBlue}20`, border: `1px solid ${theme.neonBlue}30` }}
+                  >
+                    <Phone className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: theme.accentCyan }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white">Call Center</h3>
+                    <p className="text-white/60 text-sm">Central de Atendimento</p>
+                  </div>
+                </div>
 
-              <div className="space-y-3 mb-6">
-                {[
-                  { label: 'Segunda à Sexta', time: '7:30 às 23:00' },
-                  { label: 'Sábados', time: '8:00 às 20:00' },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: sc }} />
+                {/* Phone Number */}
+                <div 
+                  className="p-4 sm:p-5 rounded-xl mb-6"
+                  style={{ backgroundColor: 'rgba(9, 132, 227, 0.1)', border: `1px solid ${theme.neonBlue}30` }}
+                >
+                  <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Ligue Grátis</p>
+                  <p 
+                    className="text-2xl sm:text-3xl font-bold"
+                    style={{ color: theme.accentCyan }}
+                  >
+                    0800-006-1737
+                  </p>
+                </div>
+
+                {/* Schedule */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: theme.neonPurple }} />
                     <div>
-                      <p className="text-white/80 font-medium text-sm">{item.label}</p>
-                      <p className="text-white/40 text-sm">{item.time}</p>
+                      <p className="text-white font-medium text-sm sm:text-base">Segunda à Sexta</p>
+                      <p className="text-white/60 text-sm">7:30 às 23:00</p>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="p-4 rounded-xl mb-6" style={{ background: `${sc}0a`, border: `1px solid ${sc}18` }}>
-                <div className="flex items-center gap-2.5 mb-1.5">
-                  <Globe className="w-4 h-4" style={{ color: sc }} />
-                  <p className="text-white/80 font-medium text-sm">Aplicativo Cidade Iluminada</p>
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: theme.neonPurple }} />
+                    <div>
+                      <p className="text-white font-medium text-sm sm:text-base">Sábados</p>
+                      <p className="text-white/60 text-sm">8:00 às 20:00</p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-white/40 text-xs leading-relaxed">
-                  Registre solicitações também pelo nosso aplicativo disponível para download.
+
+                {/* App Info */}
+                <div 
+                  className="p-4 rounded-xl mb-6"
+                  style={{ backgroundColor: 'rgba(108, 92, 231, 0.1)', border: `1px solid ${theme.neonPurple}30` }}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <Globe className="w-5 h-5" style={{ color: theme.neonPurple }} />
+                    <p className="text-white font-medium text-sm sm:text-base">Aplicativo Cidade Iluminada</p>
+                  </div>
+                  <p className="text-white/60 text-xs sm:text-sm">
+                    Registre solicitações também pelo nosso aplicativo disponível para download.
+                  </p>
+                </div>
+
+                {/* Description */}
+                <p className="text-white/60 text-xs sm:text-sm leading-relaxed mb-4">
+                  Para registros, solicitações e reparos que envolvam a iluminação pública de Barbacena, os munícipes têm à disposição nosso Call Center. Todos os registros informados pelos usuários são gerenciados e armazenados pelo software de gestão fornecido pela CONCIP, que permite acompanhamento em tempo integral do andamento das atividades.
                 </p>
-              </div>
 
-              <p className="text-white/30 text-xs leading-relaxed mb-4">
-                Para registros, solicitações e reparos que envolvam a iluminação pública de Barbacena, os munícipes têm à disposição nosso Call Center. Todos os registros são gerenciados pelo software de gestão fornecido pela CONCIP.
-              </p>
-
-              <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04] text-xs text-white/25">
-                <strong className="text-white/35">Início das Atividades:</strong> A CONCIP recebeu formalmente a OS no dia 09/03/2022 para início das atividades no dia 20/03/2023.
+                <div 
+                  className="p-3 rounded-lg text-xs"
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+                >
+                  <p className="text-white/40">
+                    <strong className="text-white/60">Início das Atividades:</strong> A CONCIP recebeu formalmente a OS no dia 09/03/2022 para início das atividades no dia 20/03/2023, conforme alinhado com o poder concedente.
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Contact Form */}
-            <div className="lp-animate p-6 sm:p-8 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `${sc}15`, border: `1px solid ${sc}20` }}>
-                  <Mail className="w-6 h-6" style={{ color: sc }} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Envie uma Mensagem</h3>
-                  <p className="text-white/40 text-sm">Responderemos em breve</p>
+            {/* Contact Form Container */}
+            <div 
+              className="relative p-5 sm:p-8 lg:p-10 rounded-xl sm:rounded-2xl overflow-hidden"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              {/* Decorative purple glow */}
+              <div 
+                className="absolute -top-1/2 -right-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(108, 92, 231, 0.15) 0%, transparent 70%)' }}
+              />
+
+              <div className="relative z-10 mb-6">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${theme.neonPurple}20`, border: `1px solid ${theme.neonPurple}30` }}
+                  >
+                    <Mail className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: theme.neonPurple }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white">Envie uma Mensagem</h3>
+                    <p className="text-white/60 text-sm">Responderemos em breve</p>
+                  </div>
                 </div>
               </div>
 
-              <form className="space-y-5">
-                {[
-                  { label: 'Nome Completo', type: 'text' },
-                  { label: 'E-mail', type: 'email' },
-                  { label: 'Assunto', type: 'text' },
-                ].map((field) => (
-                  <div key={field.label}>
-                    <label className="text-xs text-white/40 font-medium uppercase tracking-wider mb-1.5 block">{field.label}</label>
-                    <input
-                      type={field.type}
-                      className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.04] transition-all"
-                      placeholder={field.label}
-                    />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-xs text-white/40 font-medium uppercase tracking-wider mb-1.5 block">Mensagem</label>
-                  <textarea
-                    rows={3}
-                    className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.04] transition-all resize-none"
-                    placeholder="Sua mensagem"
+              <form className="relative z-10 space-y-6">
+                {/* Name */}
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder=" "
+                    className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
                   />
+                  <label 
+                    className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  >
+                    Nome Completo
+                  </label>
                 </div>
+
+                {/* Email */}
+                <div className="relative">
+                  <input 
+                    type="email" 
+                    placeholder=" "
+                    className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                  />
+                  <label 
+                    className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  >
+                    E-mail
+                  </label>
+                </div>
+
+                {/* Subject */}
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder=" "
+                    className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                  />
+                  <label 
+                    className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  >
+                    Assunto
+                  </label>
+                </div>
+
+                {/* Message */}
+                <div className="relative">
+                  <textarea 
+                    placeholder=" "
+                    rows={3}
+                    className="w-full bg-transparent border-b py-3 sm:py-4 text-white text-sm sm:text-base focus:outline-none transition-colors peer resize-none"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = theme.neonBlue}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'}
+                  />
+                  <label 
+                    className="absolute top-3 sm:top-4 left-0 text-white/50 text-sm sm:text-base pointer-events-none transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#0984E3] peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs"
+                  >
+                    Mensagem
+                  </label>
+                </div>
+
+                {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl text-white text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-                  style={{ background: `linear-gradient(135deg, ${pc}, ${sc})`, boxShadow: `0 4px 20px ${pc}25` }}
+                  className="w-full py-4 sm:py-5 font-bold text-sm sm:text-base uppercase tracking-widest text-white transition-all duration-300 mt-2"
+                  style={{ 
+                    backgroundColor: theme.neonBlue,
+                    clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme.neonPurple;
+                    e.currentTarget.style.boxShadow = '0 0 20px rgba(108, 92, 231, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme.neonBlue;
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 >
                   Enviar Mensagem
                 </button>
@@ -738,52 +1181,70 @@ export default function GenericLandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════ FOOTER ═══════════════════ */}
-      <footer className="py-10 sm:py-14 border-t border-white/[0.04] bg-[#030710]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="flex flex-col lg:flex-row justify-between gap-10 mb-10">
+      {/* Footer */}
+      <footer 
+        className="py-8 sm:py-12 lg:py-16 px-3 sm:px-6 lg:px-16"
+        style={{ 
+          backgroundColor: '#020408',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+        }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row justify-between gap-8 lg:gap-20 mb-8 sm:mb-12">
             {/* Brand */}
             <div className="max-w-xs">
-              <div className="flex items-center gap-2 mb-3">
+              <h2 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3 flex items-center gap-2">
                 {content.logoUrl ? (
                   <img src={content.logoUrl} alt={content.companyName} className="h-6 sm:h-8 object-contain" />
                 ) : (
                   <>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${pc}, ${sc})` }}>
-                      <Lightbulb className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    <span className="font-bold text-base text-white">{content.companyName}</span>
+                    <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: theme.accentCyan }} />
+                    {content.companyName} PPP
                   </>
                 )}
-              </div>
-              <p className="text-white/25 text-xs leading-relaxed">
+              </h2>
+              <p className="text-white/40 text-xs sm:text-sm leading-relaxed">
                 Inovando espaços urbanos através da luz, tecnologia e parcerias sustentáveis.
               </p>
             </div>
 
             {/* Links */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 lg:gap-14">
-              {[
-                { title: 'Soluções', links: ['Iluminação Pública', 'Smart City IoT', 'Usinas de Energia', 'Sistemas de Segurança'] },
-                { title: 'Empresa', links: ['Sobre Nós', 'Projetos', 'Notícias', 'Contato'] },
-                { title: 'Conecte-se', links: ['LinkedIn', 'Instagram', 'Twitter'] },
-              ].map((group) => (
-                <div key={group.title}>
-                  <h4 className="font-semibold text-white/60 mb-4 text-xs uppercase tracking-wider">{group.title}</h4>
-                  <ul className="space-y-2.5">
-                    {group.links.map((link) => (
-                      <li key={link}>
-                        <a href="#" className="text-white/30 hover:text-white/60 transition-colors text-xs sm:text-sm">{link}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-16">
+              <div>
+                <h4 className="font-bold text-white mb-3 sm:mb-5 text-xs sm:text-sm">Soluções</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/50 text-xs sm:text-sm">
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Iluminação Pública</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Smart City IoT</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Usinas de Energia</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Sistemas de Segurança</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-bold text-white mb-3 sm:mb-5 text-xs sm:text-sm">Empresa</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/50 text-xs sm:text-sm">
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Sobre Nós</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Projetos</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Notícias</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Contato</a></li>
+                </ul>
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <h4 className="font-bold text-white mb-3 sm:mb-5 text-xs sm:text-sm">Conecte-se</h4>
+                <ul className="space-y-2 sm:space-y-3 text-white/50 text-xs sm:text-sm">
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">LinkedIn</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Instagram</a></li>
+                  <li><a href="#" className="hover:text-cyan-400 transition-colors">Twitter</a></li>
+                </ul>
+              </div>
             </div>
           </div>
 
-          <div className="text-center pt-8 border-t border-white/[0.04] text-white/20 text-[10px] sm:text-xs">
-            &copy; {new Date().getFullYear()} {content.companyName}. Todos os direitos reservados.
+          {/* Copyright */}
+          <div 
+            className="text-center pt-6 sm:pt-8 text-white/30 text-[10px] sm:text-xs"
+            style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}
+          >
+            &copy; 2023 {content.companyName} PPP Solutions. Todos os direitos reservados.
           </div>
         </div>
       </footer>
