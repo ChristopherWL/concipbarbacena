@@ -89,6 +89,7 @@ export default function Fechamento() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [supplierSearch, setSupplierSearch] = useState('');
   const [discountValue, setDiscountValue] = useState('');
+  const [closingDiscount, setClosingDiscount] = useState('');
   
   const [couponForm, setCouponForm] = useState({
     supplier_id: '',
@@ -227,6 +228,8 @@ export default function Fechamento() {
       const supplierData = supplierGroups.find(g => g.supplier.id === supplierId);
       if (!supplierData) throw new Error('Fornecedor não encontrado');
       
+      const discountVal = parseFloat(closingDiscount) || 0;
+      
       const { error } = await supabase
         .from('fechamentos_mensais')
         .insert({
@@ -236,6 +239,7 @@ export default function Fechamento() {
           reference_year: selectedYear,
           total_value: supplierData.total,
           coupons_count: supplierData.coupons.length,
+          discount_value: discountVal,
         });
       
       if (error) throw error;
@@ -249,6 +253,8 @@ export default function Fechamento() {
         duration: 5000,
       });
       setIsClosingDialogOpen(false);
+      setClosingDiscount('');
+      setConfirmClosingStep(false);
     },
     onError: (error) => {
       toast.error('Erro ao fechar fornecedor: ' + error.message);
@@ -558,6 +564,13 @@ export default function Fechamento() {
     [supplierGroups]
   );
 
+  const totalDiscount = useMemo(() =>
+    supplierGroups.reduce((sum, g) => sum + getSupplierDiscount(g.supplier.id), 0),
+    [supplierGroups, closedSuppliers]
+  );
+
+  const totalNetValue = useMemo(() => totalValue - totalDiscount, [totalValue, totalDiscount]);
+
   const selectedSupplierData = useMemo(() => 
     supplierGroups.find(g => g.supplier.id === selectedSupplier),
     [supplierGroups, selectedSupplier]
@@ -689,7 +702,7 @@ export default function Fechamento() {
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-sidebar-foreground/60">Total</p>
+                    <p className="text-xs text-sidebar-foreground/60">Total Bruto</p>
                     <p className="text-2xl font-bold text-sidebar-primary">
                       {formatCurrency(selectedSupplierData?.total)}
                     </p>
@@ -699,7 +712,7 @@ export default function Fechamento() {
                       <div className="text-center">
                         <p className="text-xs text-sidebar-foreground/60">Desconto</p>
                         <p className="text-2xl font-bold text-orange-400">
-                          {selectedSupplierDiscount > 0 ? `- ${formatCurrency(selectedSupplierDiscount)}` : '-'}
+                          {selectedSupplierDiscount > 0 ? `- ${formatCurrency(selectedSupplierDiscount)}` : formatCurrency(0)}
                         </p>
                       </div>
                       <div className="text-right">
@@ -734,10 +747,25 @@ export default function Fechamento() {
                 </div>
                 
                 <div className="text-right">
-                  <p className="text-xs text-sidebar-foreground/60">Total Geral</p>
-                  <p className="text-4xl sm:text-5xl font-bold text-sidebar-primary">
-                    {formatCurrency(totalValue)}
-                  </p>
+                  {totalDiscount > 0 ? (
+                    <>
+                      <p className="text-xs text-sidebar-foreground/60">Total Bruto</p>
+                      <p className="text-2xl font-bold text-sidebar-foreground/40 line-through">
+                        {formatCurrency(totalValue)}
+                      </p>
+                      <p className="text-xs text-sidebar-foreground/60 mt-1">Líquido</p>
+                      <p className="text-4xl sm:text-5xl font-bold text-green-400">
+                        {formatCurrency(totalNetValue)}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-xs text-sidebar-foreground/60">Total Geral</p>
+                      <p className="text-4xl sm:text-5xl font-bold text-sidebar-primary">
+                        {formatCurrency(totalValue)}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -867,7 +895,7 @@ export default function Fechamento() {
                         <span className="text-sm font-medium">Todos</span>
                       </div>
                       <span className="text-xs opacity-80">
-                        {formatCurrency(totalValue)}
+                        {totalDiscount > 0 ? formatCurrency(totalNetValue) : formatCurrency(totalValue)}
                       </span>
                     </button>
 
@@ -1063,7 +1091,16 @@ export default function Fechamento() {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-right font-semibold text-primary">
-                                {formatCurrency(group.total)}
+                                {(() => {
+                                  const discount = getSupplierDiscount(group.supplier.id);
+                                  const netValue = group.total - discount;
+                                  return discount > 0 ? (
+                                    <div>
+                                      <span className="line-through text-muted-foreground text-xs mr-1">{formatCurrency(group.total)}</span>
+                                      <span>{formatCurrency(netValue)}</span>
+                                    </div>
+                                  ) : formatCurrency(group.total);
+                                })()}
                               </TableCell>
                             </TableRow>
                           ))
@@ -1185,7 +1222,7 @@ export default function Fechamento() {
         {/* Closing Dialog */}
         <Dialog open={isClosingDialogOpen} onOpenChange={(open) => {
           setIsClosingDialogOpen(open);
-          if (!open) setConfirmClosingStep(false);
+          if (!open) { setConfirmClosingStep(false); setClosingDiscount(''); }
         }}>
           <DialogContent className="max-w-lg mx-2 sm:mx-auto">
             <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
@@ -1210,8 +1247,18 @@ export default function Fechamento() {
                     {selectedSupplierData?.supplier.name} - {months.find(m => m.value === selectedMonth)?.label}/{selectedYear}
                   </p>
                   <p className="text-lg font-bold text-primary mt-2">
-                    {formatCurrency(selectedSupplierData?.total)}
+                    Total Bruto: {formatCurrency(selectedSupplierData?.total)}
                   </p>
+                  {parseFloat(closingDiscount) > 0 && (
+                    <>
+                      <p className="text-sm text-orange-500 mt-1">
+                        Desconto: - {formatCurrency(parseFloat(closingDiscount))}
+                      </p>
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400 mt-1">
+                        Líquido: {formatCurrency((selectedSupplierData?.total || 0) - (parseFloat(closingDiscount) || 0))}
+                      </p>
+                    </>
+                  )}
                   <p className="text-sm text-muted-foreground mt-4">
                     Após o fechamento, não será possível lançar novos cupons para este fornecedor neste período.
                   </p>
@@ -1229,11 +1276,31 @@ export default function Fechamento() {
                 </div>
                 
                 <div className="bg-sidebar rounded-lg p-4 text-center">
-                  <p className="text-sm text-sidebar-foreground/60">Total do Fornecedor</p>
+                  <p className="text-sm text-sidebar-foreground/60">Total Bruto</p>
                   <p className="text-3xl font-bold text-sidebar-primary">
                     {formatCurrency(selectedSupplierData?.total)}
                   </p>
                 </div>
+
+                <div className="space-y-2">
+                  <Label>Desconto (R$) - opcional</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={closingDiscount}
+                    onChange={(e) => setClosingDiscount(e.target.value)}
+                  />
+                </div>
+
+                {closingDiscount && parseFloat(closingDiscount) > 0 && (
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+                    <p className="text-sm text-green-600 dark:text-green-400">Valor Líquido</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {formatCurrency((selectedSupplierData?.total || 0) - (parseFloat(closingDiscount) || 0))}
+                    </p>
+                  </div>
+                )}
                 
                 <p className="text-sm text-muted-foreground text-center">
                   Após o fechamento, os dados deste fornecedor no período não poderão ser alterados.
