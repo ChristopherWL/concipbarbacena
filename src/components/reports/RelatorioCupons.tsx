@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -31,6 +30,12 @@ const months = [
 ];
 
 const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+
+const parseDateOnly = (dateStr: string) => {
+  const safe = (dateStr || '').slice(0, 10);
+  const [y, m, d] = safe.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+};
 
 export function RelatorioCupons() {
   const { tenant } = useAuthContext();
@@ -63,82 +68,166 @@ export function RelatorioCupons() {
     enabled: !!tenant?.id,
   });
 
-  const filteredCoupons = useMemo(() => {
-    if (supplierFilter === 'all') return coupons;
-    return coupons.filter((c: any) => (c.supplier as any)?.id === supplierFilter);
-  }, [coupons, supplierFilter]);
-
-  const totalValue = useMemo(() =>
-    filteredCoupons.reduce((sum: number, c: any) => sum + (c.total_value || 0), 0),
-    [filteredCoupons]
-  );
-
-  // Get unique suppliers from coupons for filter
-  const couponSuppliers = useMemo(() => {
-    const map = new Map<string, { id: string; name: string }>();
+  // Group coupons by supplier
+  const supplierGroups = useMemo(() => {
+    const map = new Map<string, { supplier: { id: string; name: string; cnpj?: string }; coupons: any[]; total: number }>();
     coupons.forEach((c: any) => {
       const s = c.supplier as any;
-      if (s?.id) map.set(s.id, { id: s.id, name: s.name });
+      const id = s?.id || 'sem-fornecedor';
+      if (!map.has(id)) {
+        map.set(id, { supplier: { id, name: s?.name || 'Sem Fornecedor', cnpj: s?.cnpj }, coupons: [], total: 0 });
+      }
+      const group = map.get(id)!;
+      group.coupons.push(c);
+      group.total += c.total_value || 0;
     });
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+    return Array.from(map.values()).sort((a, b) => a.supplier.name.localeCompare(b.supplier.name));
   }, [coupons]);
 
-  const parseDateOnly = (dateStr: string) => {
-    const safe = (dateStr || '').slice(0, 10);
-    const [y, m, d] = safe.split('-').map(Number);
-    return new Date(y, (m || 1) - 1, d || 1);
-  };
+  const filteredGroups = useMemo(() => {
+    if (supplierFilter === 'all') return supplierGroups;
+    return supplierGroups.filter(g => g.supplier.id === supplierFilter);
+  }, [supplierGroups, supplierFilter]);
 
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
+  const totalValue = useMemo(() =>
+    filteredGroups.reduce((sum, g) => sum + g.total, 0),
+    [filteredGroups]
+  );
+
+  const totalCoupons = useMemo(() =>
+    filteredGroups.reduce((sum, g) => sum + g.coupons.length, 0),
+    [filteredGroups]
+  );
+
+  // Fetch fechamento records
+  const { data: fechamentos = [] } = useQuery({
+    queryKey: ['fechamentos_for_report', tenant?.id, selectedMonth, selectedYear],
+    queryFn: async () => {
+      if (!tenant?.id) return [];
+      const { data, error } = await supabase
+        .from('fechamentos_mensais')
+        .select('*')
+        .eq('tenant_id', tenant.id)
+        .eq('reference_month', selectedMonth)
+        .eq('reference_year', selectedYear);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!tenant?.id,
+  });
+
+  const getClosedRecord = (supplierId: string) =>
+    fechamentos.find((f: any) => f.supplier_id === supplierId);
+
+  const handleExportSupplierPDF = (supplierId: string) => {
+    const group = supplierGroups.find(g => g.supplier.id === supplierId);
+    if (!group) return;
+
+    const closedRecord = getClosedRecord(supplierId);
+    const discount = closedRecord?.discount_value || 0;
     const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
-    const supplierName = supplierFilter !== 'all'
-      ? couponSuppliers.find(s => s.id === supplierFilter)?.name || ''
-      : 'Todos os Fornecedores';
 
-    // Header
-    doc.setFontSize(16);
-    doc.text('Relatório de Cupons Fiscais', 14, 20);
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 14;
+    const rightEdge = pageWidth - margin;
+    let y = 16;
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Relatório de Cupons Fiscais', margin, y);
+    y += 10;
+
+    // Divider
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, y, rightEdge, y);
+    y += 8;
+
+    // Company & supplier info
     doc.setFontSize(10);
-    doc.text(`${tenant?.name || ''}`, 14, 28);
-    doc.text(`Período: ${monthLabel} de ${selectedYear}`, 14, 34);
-    doc.text(`Fornecedor: ${supplierName}`, 14, 40);
-    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 46);
+    doc.setFont('helvetica', 'normal');
+
+    if (tenant?.name) {
+      doc.setFont('helvetica', 'bold');
+      doc.text(tenant.name, margin, y);
+      doc.setFont('helvetica', 'normal');
+      y += 6;
+    }
+    doc.text(`Fornecedor: ${group.supplier.name}`, margin, y);
+    if (group.supplier.cnpj) {
+      doc.text(`CNPJ: ${group.supplier.cnpj}`, rightEdge, y, { align: 'right' });
+    }
+    y += 6;
+    doc.text(`Período: ${monthLabel} de ${selectedYear}`, margin, y);
+    doc.text(`Status: ${closedRecord ? 'FECHADO' : 'EM ABERTO'}`, rightEdge, y, { align: 'right' });
+    y += 6;
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, margin, y);
+    doc.setTextColor(0, 0, 0);
+    y += 8;
+
+    // Divider
+    doc.line(margin, y, rightEdge, y);
+    y += 8;
 
     // Table header
-    let y = 56;
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.setFillColor(240, 240, 240);
-    doc.rect(14, y - 5, 182, 8, 'F');
-    doc.text('Nº Cupom', 16, y);
-    doc.text('Data', 56, y);
-    doc.text('Fornecedor', 86, y);
-    doc.text('Valor', 166, y, { align: 'right' });
+    doc.setFillColor(235, 235, 235);
+    doc.rect(margin, y - 5, rightEdge - margin, 8, 'F');
+    doc.text('Data', margin + 2, y);
+    doc.text('Observação', 60, y);
+    doc.text('Valor (R$)', rightEdge - 2, y, { align: 'right' });
     y += 8;
 
     doc.setFont('helvetica', 'normal');
-    filteredCoupons.forEach((coupon: any) => {
-      if (y > 270) {
+    const sortedCoupons = [...group.coupons].sort(
+      (a: any, b: any) => new Date(a.issue_date).getTime() - new Date(b.issue_date).getTime()
+    );
+
+    let rowIndex = 0;
+    sortedCoupons.forEach((coupon: any) => {
+      if (y > 272) {
         doc.addPage();
         y = 20;
       }
-      doc.text(coupon.coupon_number || '-', 16, y);
-      doc.text(format(parseDateOnly(coupon.issue_date), 'dd/MM/yyyy'), 56, y);
-      const name = (coupon.supplier as any)?.name || '-';
-      doc.text(name.length > 30 ? name.substring(0, 30) + '...' : name, 86, y);
-      doc.text(formatCurrency(coupon.total_value), 166, y, { align: 'right' });
-      y += 6;
+      if (rowIndex % 2 === 1) {
+        doc.setFillColor(248, 248, 248);
+        doc.rect(margin, y - 4.5, rightEdge - margin, 6.5, 'F');
+      }
+      doc.text(format(parseDateOnly(coupon.issue_date), 'dd/MM/yyyy'), margin + 2, y);
+      const notes = coupon.notes || '-';
+      doc.text(notes.length > 50 ? notes.substring(0, 50) + '...' : notes, 60, y);
+      doc.text(formatCurrency(coupon.total_value), rightEdge - 2, y, { align: 'right' });
+      y += 6.5;
+      rowIndex++;
     });
 
-    // Total
+    // Totals
     y += 4;
     doc.setFont('helvetica', 'bold');
-    doc.line(14, y - 3, 196, y - 3);
-    doc.text(`Total: ${filteredCoupons.length} cupom(ns)`, 16, y + 2);
-    doc.text(formatCurrency(totalValue), 166, y + 2, { align: 'right' });
+    doc.setDrawColor(80, 80, 80);
+    doc.line(margin, y - 3, rightEdge, y - 3);
+    doc.setFontSize(10);
+    doc.text(`Total: ${sortedCoupons.length} cupom(ns)`, margin + 2, y + 2);
+    doc.text(formatCurrency(group.total), rightEdge - 2, y + 2, { align: 'right' });
 
-    doc.save(`cupons_${monthLabel}_${selectedYear}.pdf`);
+    if (discount > 0) {
+      y += 8;
+      doc.setTextColor(200, 100, 0);
+      doc.text('Desconto:', margin + 2, y);
+      doc.text(`- ${formatCurrency(discount)}`, rightEdge - 2, y, { align: 'right' });
+      y += 8;
+      doc.setTextColor(0, 128, 0);
+      doc.text('Valor Líquido:', margin + 2, y);
+      doc.text(formatCurrency(group.total - discount), rightEdge - 2, y, { align: 'right' });
+      doc.setTextColor(0, 0, 0);
+    }
+
+    const safeName = group.supplier.name.replace(/[^a-zA-Z0-9]/g, '_');
+    doc.save(`cupons_${safeName}_${monthLabel}_${selectedYear}.pdf`);
   };
 
   return (
@@ -181,17 +270,12 @@ export function RelatorioCupons() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os Fornecedores</SelectItem>
-              {couponSuppliers.map((s) => (
-                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+              {supplierGroups.map((g) => (
+                <SelectItem key={g.supplier.id} value={g.supplier.id}>{g.supplier.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-
-        <Button onClick={handleExportPDF} disabled={filteredCoupons.length === 0} variant="outline">
-          <FileDown className="h-4 w-4 mr-2" />
-          Exportar PDF
-        </Button>
       </div>
 
       {/* Summary */}
@@ -199,7 +283,7 @@ export function RelatorioCupons() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-xs text-muted-foreground">Total de Cupons</p>
-            <p className="text-2xl font-bold">{filteredCoupons.length}</p>
+            <p className="text-2xl font-bold">{totalCoupons}</p>
           </CardContent>
         </Card>
         <Card>
@@ -211,55 +295,77 @@ export function RelatorioCupons() {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-xs text-muted-foreground">Fornecedores</p>
-            <p className="text-2xl font-bold">{couponSuppliers.length}</p>
+            <p className="text-2xl font-bold">{filteredGroups.length}</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          <ScrollArea className="max-h-[500px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nº Cupom</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Fornecedor</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead className="hidden sm:table-cell">Obs.</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
-                    </TableCell>
-                  </TableRow>
-                ) : filteredCoupons.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      <Receipt className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                      Nenhum cupom encontrado no período
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredCoupons.map((coupon: any) => (
-                    <TableRow key={coupon.id}>
-                      <TableCell className="font-medium">{coupon.coupon_number || '-'}</TableCell>
-                      <TableCell>{format(parseDateOnly(coupon.issue_date), 'dd/MM/yyyy')}</TableCell>
-                      <TableCell>{(coupon.supplier as any)?.name || '-'}</TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(coupon.total_value)}</TableCell>
-                      <TableCell className="text-muted-foreground hidden sm:table-cell">{coupon.notes || '-'}</TableCell>
+      {/* Table grouped by supplier */}
+      {isLoading ? (
+        <Card>
+          <CardContent className="py-8 text-center">
+            <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
+          </CardContent>
+        </Card>
+      ) : filteredGroups.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            <Receipt className="h-8 w-8 mx-auto mb-2 opacity-40" />
+            Nenhum cupom encontrado no período
+          </CardContent>
+        </Card>
+      ) : (
+        filteredGroups.map((group) => (
+          <Card key={group.supplier.id}>
+            <CardContent className="p-0">
+              <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
+                <div>
+                  <p className="font-semibold text-sm">{group.supplier.name}</p>
+                  {group.supplier.cnpj && (
+                    <p className="text-xs text-muted-foreground">CNPJ: {group.supplier.cnpj}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">{group.coupons.length} cupom(ns)</p>
+                    <p className="font-semibold text-sm text-primary">{formatCurrency(group.total)}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleExportSupplierPDF(group.supplier.id)}
+                  >
+                    <FileDown className="h-4 w-4 mr-1" />
+                    PDF
+                  </Button>
+                </div>
+              </div>
+              <ScrollArea className="max-h-[300px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Observação</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {group.coupons
+                      .sort((a: any, b: any) => new Date(a.issue_date).getTime() - new Date(b.issue_date).getTime())
+                      .map((coupon: any) => (
+                        <TableRow key={coupon.id}>
+                          <TableCell>{format(parseDateOnly(coupon.issue_date), 'dd/MM/yyyy')}</TableCell>
+                          <TableCell className="text-muted-foreground">{coupon.notes || '-'}</TableCell>
+                          <TableCell className="text-right font-semibold">{formatCurrency(coupon.total_value)}</TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        ))
+      )}
     </div>
   );
 }
