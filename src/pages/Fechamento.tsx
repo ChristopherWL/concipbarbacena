@@ -714,8 +714,8 @@ export default function Fechamento() {
                     <>
                       <div className="text-center">
                         <p className="text-xs text-sidebar-foreground/60">Desconto</p>
-                        <p className="text-2xl font-bold text-orange-400">
-                          {selectedSupplierDiscount > 0 ? `- ${formatCurrency(selectedSupplierDiscount)}` : formatCurrency(0)}
+                        <p className="text-2xl font-bold text-orange-400 whitespace-nowrap tabular-nums">
+                          {formatCurrency(selectedSupplierDiscount)}
                         </p>
                       </div>
                       <div className="text-right">
