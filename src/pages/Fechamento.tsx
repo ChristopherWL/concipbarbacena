@@ -57,8 +57,10 @@ import {
   Trash2,
   Percent,
   Pencil,
+  FileDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import jsPDF from 'jspdf';
 
 export default function Fechamento() {
   const { tenant } = useAuthContext();
@@ -408,6 +410,86 @@ export default function Fechamento() {
     updateDiscount.mutate({ supplierId: selectedSupplier, discount });
   };
 
+  const handleExportSupplierPDF = (supplierId?: string) => {
+    const targetId = supplierId || selectedSupplier;
+    if (!targetId) return;
+    
+    const supplierData = supplierGroups.find(g => g.supplier.id === targetId);
+    if (!supplierData) return;
+    
+    const closedRecord = getClosedRecord(targetId);
+    const discount = closedRecord?.discount_value || 0;
+    const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
+    
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(16);
+    doc.text('Relatório de Cupons Fiscais', 14, 20);
+    doc.setFontSize(10);
+    doc.text(`${tenant?.name || ''}`, 14, 28);
+    doc.text(`Fornecedor: ${supplierData.supplier.name}`, 14, 34);
+    if (supplierData.supplier.cnpj) {
+      doc.text(`CNPJ: ${supplierData.supplier.cnpj}`, 14, 40);
+    }
+    doc.text(`Período: ${monthLabel} de ${selectedYear}`, 14, 46);
+    doc.text(`Status: ${closedRecord ? 'FECHADO' : 'EM ABERTO'}`, 14, 52);
+    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 58);
+    
+    // Table header
+    let y = 68;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(240, 240, 240);
+    doc.rect(14, y - 5, 182, 8, 'F');
+    doc.text('Nº Cupom', 16, y);
+    doc.text('Data', 66, y);
+    doc.text('Valor', 180, y, { align: 'right' });
+    doc.text('Obs.', 100, y);
+    y += 8;
+    
+    doc.setFont('helvetica', 'normal');
+    const sortedCoupons = [...supplierData.coupons].sort(
+      (a, b) => new Date(a.issue_date).getTime() - new Date(b.issue_date).getTime()
+    );
+    
+    sortedCoupons.forEach((coupon: any) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(coupon.coupon_number || '-', 16, y);
+      doc.text(format(parseDateOnly(coupon.issue_date), 'dd/MM/yyyy'), 66, y);
+      doc.text(formatCurrency(coupon.total_value), 180, y, { align: 'right' });
+      const notes = coupon.notes || '-';
+      doc.text(notes.length > 35 ? notes.substring(0, 35) + '...' : notes, 100, y);
+      y += 6;
+    });
+    
+    // Totals
+    y += 4;
+    doc.setFont('helvetica', 'bold');
+    doc.line(14, y - 3, 196, y - 3);
+    doc.text(`Total: ${sortedCoupons.length} cupom(ns)`, 16, y + 2);
+    doc.text(formatCurrency(supplierData.total), 180, y + 2, { align: 'right' });
+    
+    if (discount > 0) {
+      y += 8;
+      doc.setTextColor(200, 100, 0);
+      doc.text('Desconto:', 16, y);
+      doc.text(`- ${formatCurrency(discount)}`, 180, y, { align: 'right' });
+      y += 8;
+      doc.setTextColor(0, 128, 0);
+      doc.text('Valor Líquido:', 16, y);
+      doc.text(formatCurrency(supplierData.total - discount), 180, y, { align: 'right' });
+      doc.setTextColor(0, 0, 0);
+    }
+    
+    const safeSupplierName = supplierData.supplier.name.replace(/[^a-zA-Z0-9]/g, '_');
+    doc.save(`cupons_${safeSupplierName}_${monthLabel}_${selectedYear}.pdf`);
+    toast.success('PDF exportado com sucesso!');
+  };
+
   const supplierGroups = useMemo(() => {
     if (!coupons) return [];
     
@@ -702,6 +784,12 @@ export default function Fechamento() {
                 <Button variant="outline" onClick={handleOpenDiscountDialog}>
                   <Percent className="h-4 w-4 mr-2" />
                   Desconto
+                </Button>
+              )}
+              {selectedSupplier && isSelectedSupplierClosed && (
+                <Button variant="outline" onClick={() => handleExportSupplierPDF()}>
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Exportar PDF
                 </Button>
               )}
             </div>
