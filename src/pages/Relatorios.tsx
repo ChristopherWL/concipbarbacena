@@ -25,7 +25,7 @@ import {
   Package, ArrowLeftRight, HardHat, Wrench, FileSpreadsheet, 
   Search, Loader2, Users, ShieldCheck, Building2, ClipboardList, 
   LayoutGrid, Shield, ChevronRight, BarChart3, TrendingUp,
-  FileText, Calendar, AlertTriangle, Hash
+  FileText, Calendar, AlertTriangle, Hash, Receipt
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -52,6 +52,7 @@ const RelatorioDiarioObras = lazy(() => import('@/components/reports/RelatorioDi
 const RelatorioInventario = lazy(() => import('@/components/reports/RelatorioInventario').then(m => ({ default: m.RelatorioInventario })));
 const RelatorioGarantia = lazy(() => import('@/components/reports/RelatorioGarantia').then(m => ({ default: m.RelatorioGarantia })));
 const RelatorioItensInventario = lazy(() => import('@/components/reports/RelatorioItensInventario').then(m => ({ default: m.RelatorioItensInventario })));
+const RelatorioCupons = lazy(() => import('@/components/reports/RelatorioCupons').then(m => ({ default: m.RelatorioCupons })));
 
 // Report card component for the grid view
 interface ReportCardProps {
@@ -464,6 +465,15 @@ export default function Relatorios() {
           { label: 'Categorias', value: 5 }
         ]
       },
+      { 
+        id: 'cupons', 
+        title: 'Cupons Fiscais', 
+        description: 'Relatório mensal de cupons fiscais por fornecedor',
+        icon: Receipt, 
+        color: 'bg-gradient-to-br from-lime-500/10 to-lime-600/5',
+        permission: 'page_invoices',
+        stats: []
+      },
     ];
 
     return allReports.filter(report => {
@@ -525,6 +535,12 @@ export default function Relatorios() {
         return <EPCReport {...commonProps} assignments={filteredEPCAssignments} loading={loadingEPC} tenant={tenant} />;
       case 'ferramentas':
         return <FerramentasReport {...commonProps} assignments={filteredFerramentasAssignments} loading={loadingFerramentas} employeesWithAssignments={employeesWithFerramentas} onExport={handleExportFerramentas} tenant={tenant} />;
+      case 'cupons':
+        return (
+          <Suspense fallback={<ReportSkeleton />}>
+            <RelatorioCupons />
+          </Suspense>
+        );
       default:
         return null;
     }

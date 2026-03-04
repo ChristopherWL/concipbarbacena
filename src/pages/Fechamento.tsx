@@ -56,6 +56,7 @@ import {
   Search,
   Trash2,
   Percent,
+  Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -72,6 +73,14 @@ export default function Fechamento() {
   const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false);
   const [confirmClosingStep, setConfirmClosingStep] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<any | null>(null);
+  const [isEditingCoupon, setIsEditingCoupon] = useState(false);
+  const [editCouponForm, setEditCouponForm] = useState({
+    coupon_number: '',
+    issue_date: '',
+    total_value: '',
+    notes: '',
+    supplier_id: '',
+  });
   const [isCouponDetailsOpen, setIsCouponDetailsOpen] = useState(false);
   const [showSupplierDetails, setShowSupplierDetails] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -304,6 +313,62 @@ export default function Fechamento() {
       toast.error('Erro ao excluir cupom: ' + error.message);
     },
   });
+
+  // Update coupon mutation
+  const updateCoupon = useMutation({
+    mutationFn: async ({ id, ...data }: { id: string; coupon_number: string; issue_date: string; total_value: number; notes: string | null; supplier_id: string | null }) => {
+      const { error } = await supabase
+        .from('fiscal_coupons')
+        .update({
+          coupon_number: data.coupon_number,
+          issue_date: data.issue_date,
+          total_value: data.total_value,
+          notes: data.notes,
+          supplier_id: data.supplier_id,
+        })
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fiscal_coupons'] });
+      toast.success('Cupom atualizado com sucesso!');
+      setIsEditingCoupon(false);
+      setIsCouponDetailsOpen(false);
+      setSelectedCoupon(null);
+    },
+    onError: (error) => {
+      toast.error('Erro ao atualizar cupom: ' + error.message);
+    },
+  });
+
+  const handleStartEditCoupon = () => {
+    if (!selectedCoupon) return;
+    setEditCouponForm({
+      coupon_number: selectedCoupon.coupon_number || '',
+      issue_date: selectedCoupon.issue_date || '',
+      total_value: String(selectedCoupon.total_value || ''),
+      notes: selectedCoupon.notes || '',
+      supplier_id: (selectedCoupon.supplier as any)?.id || '',
+    });
+    setIsEditingCoupon(true);
+  };
+
+  const handleSaveEditCoupon = () => {
+    if (!selectedCoupon) return;
+    if (!editCouponForm.total_value) {
+      toast.error('Preencha o valor do cupom');
+      return;
+    }
+    updateCoupon.mutate({
+      id: selectedCoupon.id,
+      coupon_number: editCouponForm.coupon_number,
+      issue_date: editCouponForm.issue_date,
+      total_value: parseFloat(editCouponForm.total_value) || 0,
+      notes: editCouponForm.notes || null,
+      supplier_id: editCouponForm.supplier_id || null,
+    });
+  };
 
   // Update discount mutation
   const updateDiscount = useMutation({
@@ -1111,16 +1176,21 @@ export default function Fechamento() {
           </DialogContent>
         </Dialog>
 
-        {/* Coupon Details Dialog */}
-        <Dialog open={isCouponDetailsOpen} onOpenChange={setIsCouponDetailsOpen}>
+        {/* Coupon Details / Edit Dialog */}
+        <Dialog open={isCouponDetailsOpen} onOpenChange={(open) => {
+          setIsCouponDetailsOpen(open);
+          if (!open) { setIsEditingCoupon(false); setSelectedCoupon(null); }
+        }}>
           <DialogContent className="max-w-md mx-2 sm:mx-auto">
             <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
-              <DialogTitle className="text-primary-foreground">Detalhes do Cupom</DialogTitle>
+              <DialogTitle className="text-primary-foreground">
+                {isEditingCoupon ? 'Editar Cupom' : 'Detalhes do Cupom'}
+              </DialogTitle>
               <DialogDescription className="text-primary-foreground/80">
-                Informações do cupom fiscal
+                {isEditingCoupon ? 'Altere os dados do cupom fiscal' : 'Informações do cupom fiscal'}
               </DialogDescription>
             </DialogHeader>
-            {selectedCoupon && (
+            {selectedCoupon && !isEditingCoupon && (
               <div className="space-y-4 py-2">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
@@ -1174,24 +1244,95 @@ export default function Fechamento() {
                 </div>
               </div>
             )}
+            {isEditingCoupon && (
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label>Fornecedor</Label>
+                  <Select
+                    value={editCouponForm.supplier_id}
+                    onValueChange={(v) => setEditCouponForm({ ...editCouponForm, supplier_id: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o fornecedor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suppliers.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Número do Cupom</Label>
+                    <Input
+                      value={editCouponForm.coupon_number}
+                      onChange={(e) => setEditCouponForm({ ...editCouponForm, coupon_number: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Data</Label>
+                    <Input
+                      type="date"
+                      value={editCouponForm.issue_date}
+                      onChange={(e) => setEditCouponForm({ ...editCouponForm, issue_date: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Valor (R$) *</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editCouponForm.total_value}
+                    onChange={(e) => setEditCouponForm({ ...editCouponForm, total_value: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Observações</Label>
+                  <Textarea
+                    value={editCouponForm.notes}
+                    onChange={(e) => setEditCouponForm({ ...editCouponForm, notes: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
             <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
-              {selectedCoupon && !isSupplierClosed((selectedCoupon.supplier as any)?.id) && (
-                <Button 
-                  variant="destructive" 
-                  onClick={() => selectedCoupon && deleteCoupon.mutate(selectedCoupon.id)}
-                  disabled={deleteCoupon.isPending}
-                >
-                  {deleteCoupon.isPending ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4 mr-2" />
+              {!isEditingCoupon ? (
+                <>
+                  {selectedCoupon && !isSupplierClosed((selectedCoupon.supplier as any)?.id) && (
+                    <>
+                      <Button 
+                        variant="destructive" 
+                        onClick={() => selectedCoupon && deleteCoupon.mutate(selectedCoupon.id)}
+                        disabled={deleteCoupon.isPending}
+                      >
+                        {deleteCoupon.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                        Excluir
+                      </Button>
+                      <Button variant="outline" onClick={handleStartEditCoupon}>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Editar
+                      </Button>
+                    </>
                   )}
-                  Excluir
-                </Button>
+                  <Button variant="outline" onClick={() => setIsCouponDetailsOpen(false)}>
+                    Fechar
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={() => setIsEditingCoupon(false)}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleSaveEditCoupon} disabled={updateCoupon.isPending}>
+                    {updateCoupon.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    Salvar
+                  </Button>
+                </>
               )}
-              <Button variant="outline" onClick={() => setIsCouponDetailsOpen(false)}>
-                Fechar
-              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
