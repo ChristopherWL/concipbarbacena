@@ -357,11 +357,11 @@ export default function NotasFiscais() {
       throw new Error('Erro ao fazer upload do arquivo');
     }
     
-    const { data: { publicUrl } } = supabase.storage
+    const { data: signedData } = await supabase.storage
       .from('tenant-assets')
-      .getPublicUrl(data.path);
+      .createSignedUrl(data.path, 3600);
     
-    return publicUrl;
+    return signedData?.signedUrl || null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

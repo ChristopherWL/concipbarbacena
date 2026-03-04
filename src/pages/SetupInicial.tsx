@@ -31,10 +31,10 @@ export default function SetupInicial() {
   const form = useForm<SetupFormData>({
     resolver: zodResolver(setupSchema),
     defaultValues: {
-      email: 'superadmin@admin.local',
-      password: '@Volluty123',
-      confirmPassword: '@Volluty123',
-      fullName: 'Super Admin',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      fullName: '',
       initToken: '',
     },
   });
