@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { uploadTenantAsset } from '@/lib/storageUtils';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Loader2, X, Image as ImageIcon, Camera, ImagePlus } from 'lucide-react';
@@ -45,18 +46,10 @@ export function ObraImageUpload({
       const fileExt = file.name.split('.').pop();
       const fileName = `${tenant.id}/obras/${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('tenant-assets')
-        .upload(fileName, file, { upsert: true });
+      const { url } = await uploadTenantAsset(fileName, file, { upsert: true });
 
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('tenant-assets')
-        .getPublicUrl(fileName);
-
-      setPreviewUrl(publicUrl);
-      onUploadComplete(publicUrl);
+      setPreviewUrl(url);
+      onUploadComplete(url);
       toast.success('Imagem enviada!');
     } catch (error: any) {
       console.error('Upload error:', error);

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, Upload, User, Camera, X } from 'lucide-react';
 import { useCreateTechnician } from '@/hooks/useTeams';
 import { supabase } from '@/integrations/supabase/client';
+import { uploadTenantAsset } from '@/lib/storageUtils';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { formatCPF, formatRG, formatPhone } from '@/lib/formatters';
@@ -77,17 +78,9 @@ export function ColaboradorFormDialog({ open, onOpenChange, onCreated }: Colabor
       const fileExt = file.name.split('.').pop();
       const fileName = `${tenant.id}/colaboradores/${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('tenant-assets')
-        .upload(fileName, file);
+      const { url } = await uploadTenantAsset(fileName, file);
 
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('tenant-assets')
-        .getPublicUrl(fileName);
-
-      setForm(prev => ({ ...prev, photo_url: publicUrl }));
+      setForm(prev => ({ ...prev, photo_url: url }));
       toast.success('Foto enviada com sucesso!');
     } catch (error) {
       toast.error('Erro ao enviar foto');
