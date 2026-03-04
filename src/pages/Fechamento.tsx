@@ -384,12 +384,15 @@ export default function Fechamento() {
       const closedRecord = getClosedRecord(supplierId);
       if (!closedRecord?.id) throw new Error('Fornecedor não está fechado');
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('fechamentos_mensais')
         .update({ discount_value: discount })
-        .eq('id', closedRecord.id);
+        .eq('id', closedRecord.id)
+        .select('id, discount_value')
+        .single();
       
       if (error) throw error;
+      if (!data) throw new Error('Não foi possível atualizar o desconto deste fornecedor');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fechamentos_mensais'] });
