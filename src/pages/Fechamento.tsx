@@ -422,30 +422,59 @@ export default function Fechamento() {
     const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
     
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 14;
+    const rightEdge = pageWidth - margin;
+    let y = 16;
     
-    // Header
-    doc.setFontSize(16);
-    doc.text('Relatório de Cupons Fiscais', 14, 20);
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Relatório de Cupons Fiscais', margin, y);
+    y += 10;
+
+    // Divider
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, y, rightEdge, y);
+    y += 8;
+
+    // Company & supplier info side by side
     doc.setFontSize(10);
-    doc.text(`${tenant?.name || ''}`, 14, 28);
-    doc.text(`Fornecedor: ${supplierData.supplier.name}`, 14, 34);
-    if (supplierData.supplier.cnpj) {
-      doc.text(`CNPJ: ${supplierData.supplier.cnpj}`, 14, 40);
-    }
-    doc.text(`Período: ${monthLabel} de ${selectedYear}`, 14, 46);
-    doc.text(`Status: ${closedRecord ? 'FECHADO' : 'EM ABERTO'}`, 14, 52);
-    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 58);
+    doc.setFont('helvetica', 'normal');
     
-    // Table header
-    let y = 68;
+    // Left column
+    if (tenant?.name) {
+      doc.setFont('helvetica', 'bold');
+      doc.text(tenant.name, margin, y);
+      doc.setFont('helvetica', 'normal');
+      y += 6;
+    }
+    doc.text(`Fornecedor: ${supplierData.supplier.name}`, margin, y);
+    if (supplierData.supplier.cnpj) {
+      doc.text(`CNPJ: ${supplierData.supplier.cnpj}`, rightEdge, y, { align: 'right' });
+    }
+    y += 6;
+    doc.text(`Período: ${monthLabel} de ${selectedYear}`, margin, y);
+    doc.text(`Status: ${closedRecord ? 'FECHADO' : 'EM ABERTO'}`, rightEdge, y, { align: 'right' });
+    y += 6;
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, margin, y);
+    doc.setTextColor(0, 0, 0);
+    y += 8;
+
+    // Divider
+    doc.line(margin, y, rightEdge, y);
+    y += 8;
+
+    // Table header — only Data, Observação, Valor
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.setFillColor(240, 240, 240);
-    doc.rect(14, y - 5, 182, 8, 'F');
-    doc.text('Nº Cupom', 16, y);
-    doc.text('Data', 66, y);
-    doc.text('Valor', 180, y, { align: 'right' });
-    doc.text('Obs.', 100, y);
+    doc.setFillColor(235, 235, 235);
+    doc.rect(margin, y - 5, rightEdge - margin, 8, 'F');
+    doc.text('Data', margin + 2, y);
+    doc.text('Observação', 60, y);
+    doc.text('Valor (R$)', rightEdge - 2, y, { align: 'right' });
     y += 8;
     
     doc.setFont('helvetica', 'normal');
@@ -453,35 +482,43 @@ export default function Fechamento() {
       (a, b) => new Date(a.issue_date).getTime() - new Date(b.issue_date).getTime()
     );
     
+    let rowIndex = 0;
     sortedCoupons.forEach((coupon: any) => {
-      if (y > 270) {
+      if (y > 272) {
         doc.addPage();
         y = 20;
       }
-      doc.text(coupon.coupon_number || '-', 16, y);
-      doc.text(format(parseDateOnly(coupon.issue_date), 'dd/MM/yyyy'), 66, y);
-      doc.text(formatCurrency(coupon.total_value), 180, y, { align: 'right' });
+      // Zebra stripe
+      if (rowIndex % 2 === 1) {
+        doc.setFillColor(248, 248, 248);
+        doc.rect(margin, y - 4.5, rightEdge - margin, 6.5, 'F');
+      }
+      doc.text(format(parseDateOnly(coupon.issue_date), 'dd/MM/yyyy'), margin + 2, y);
       const notes = coupon.notes || '-';
-      doc.text(notes.length > 35 ? notes.substring(0, 35) + '...' : notes, 100, y);
-      y += 6;
+      doc.text(notes.length > 50 ? notes.substring(0, 50) + '...' : notes, 60, y);
+      doc.text(formatCurrency(coupon.total_value), rightEdge - 2, y, { align: 'right' });
+      y += 6.5;
+      rowIndex++;
     });
     
     // Totals
     y += 4;
     doc.setFont('helvetica', 'bold');
-    doc.line(14, y - 3, 196, y - 3);
-    doc.text(`Total: ${sortedCoupons.length} cupom(ns)`, 16, y + 2);
-    doc.text(formatCurrency(supplierData.total), 180, y + 2, { align: 'right' });
+    doc.setDrawColor(80, 80, 80);
+    doc.line(margin, y - 3, rightEdge, y - 3);
+    doc.setFontSize(10);
+    doc.text(`Total: ${sortedCoupons.length} cupom(ns)`, margin + 2, y + 2);
+    doc.text(formatCurrency(supplierData.total), rightEdge - 2, y + 2, { align: 'right' });
     
     if (discount > 0) {
       y += 8;
       doc.setTextColor(200, 100, 0);
-      doc.text('Desconto:', 16, y);
-      doc.text(`- ${formatCurrency(discount)}`, 180, y, { align: 'right' });
+      doc.text('Desconto:', margin + 2, y);
+      doc.text(`- ${formatCurrency(discount)}`, rightEdge - 2, y, { align: 'right' });
       y += 8;
       doc.setTextColor(0, 128, 0);
-      doc.text('Valor Líquido:', 16, y);
-      doc.text(formatCurrency(supplierData.total - discount), 180, y, { align: 'right' });
+      doc.text('Valor Líquido:', margin + 2, y);
+      doc.text(formatCurrency(supplierData.total - discount), rightEdge - 2, y, { align: 'right' });
       doc.setTextColor(0, 0, 0);
     }
     
