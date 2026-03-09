@@ -147,8 +147,8 @@ export function useUpdateVehicle() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...data }: Partial<Vehicle> & { id: string }) => {
-      const { error } = await supabase.from('vehicles').update(data).eq('id', id);
+    mutationFn: async ({ id, ...data }: { id: string } & Record<string, unknown>) => {
+      const { error } = await supabase.from('vehicles').update(data as any).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
