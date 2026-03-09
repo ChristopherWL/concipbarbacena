@@ -117,7 +117,7 @@ export default function Frota() {
       current_km: parseInt(vehicleForm.current_km) || 0,
       fuel_type: vehicleForm.fuel_type,
       fleet_number: vehicleForm.fleet_number || null,
-    });
+    } as any);
     setVehicleDialogOpen(false);
     setVehicleToEdit(null);
     setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '' });
