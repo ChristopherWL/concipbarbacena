@@ -979,7 +979,9 @@ export default function Frota() {
                 {fuelLogToPrint && fuelLogToPrint.vehicle && (
                   <FuelOrderReport
                     vehicle={fuelLogToPrint.vehicle}
-                    fuelLog={fuelLogToPrint}
+                    driverName={fuelLogToPrint.notes || ''}
+                    description=""
+                    authorizedBy=""
                     orderNumber={getFuelLogOrderNumber(fuelLogToPrint)}
                   />
                 )}
