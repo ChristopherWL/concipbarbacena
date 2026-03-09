@@ -1151,6 +1151,146 @@ export default function Frota() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Fuel Order Generation Dialog */}
+        <Dialog open={fuelOrderDialogOpen} onOpenChange={(open) => {
+          if (!open) {
+            setFuelOrderDialogOpen(false);
+            setFuelOrderForm({ vehicle_id: '', driver_name: '', description: '', authorized_by: '' });
+            setFuelOrderPreview(false);
+          }
+        }}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto mx-2 sm:mx-auto">
+            <DialogHeader className="bg-primary rounded-t-xl -mx-6 -mt-6 px-6 pt-6 pb-4">
+              <DialogTitle className="text-primary-foreground">
+                {fuelOrderPreview ? 'Ordem de Abastecimento' : 'Gerar Ordem de Abastecimento'}
+              </DialogTitle>
+              <DialogDescription className="text-primary-foreground/80">
+                {fuelOrderPreview ? 'Visualize e imprima a ordem' : 'Preencha os dados para gerar a ordem de abastecimento'}
+              </DialogDescription>
+            </DialogHeader>
+            
+            {!fuelOrderPreview ? (
+              <div className="space-y-4">
+                <div>
+                  <Label>Veículo *</Label>
+                  <Select value={fuelOrderForm.vehicle_id} onValueChange={v => setFuelOrderForm({...fuelOrderForm, vehicle_id: v})}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
+                    <SelectContent>
+                      {vehicles.map(v => (
+                        <SelectItem key={v.id} value={v.id}>
+                          {v.plate} - {v.brand} {v.model} {v.fleet_number ? `(Frota ${v.fleet_number})` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Nome do Motorista *</Label>
+                  <Input 
+                    placeholder="Nome completo do motorista" 
+                    value={fuelOrderForm.driver_name} 
+                    onChange={e => setFuelOrderForm({...fuelOrderForm, driver_name: e.target.value})} 
+                  />
+                </div>
+                <div>
+                  <Label>Descrição</Label>
+                  <Textarea 
+                    placeholder="Descrição ou observações (opcional)" 
+                    value={fuelOrderForm.description} 
+                    onChange={e => setFuelOrderForm({...fuelOrderForm, description: e.target.value})} 
+                  />
+                </div>
+                <div>
+                  <Label>Autorizado por *</Label>
+                  <Input 
+                    placeholder="Nome de quem autorizou" 
+                    value={fuelOrderForm.authorized_by} 
+                    onChange={e => setFuelOrderForm({...fuelOrderForm, authorized_by: e.target.value})} 
+                  />
+                </div>
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
+                  <Button variant="outline" onClick={() => {
+                    setFuelOrderDialogOpen(false);
+                    setFuelOrderForm({ vehicle_id: '', driver_name: '', description: '', authorized_by: '' });
+                  }}>Cancelar</Button>
+                  <Button 
+                    onClick={() => {
+                      if (!fuelOrderForm.vehicle_id || !fuelOrderForm.driver_name || !fuelOrderForm.authorized_by) {
+                        toast.error('Preencha os campos obrigatórios');
+                        return;
+                      }
+                      setFuelOrderPreview(true);
+                    }}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />Gerar Ordem
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div ref={fuelOrderPrintRef}>
+                  {(() => {
+                    const selectedVehicleForOrder = vehicles.find(v => v.id === fuelOrderForm.vehicle_id);
+                    if (!selectedVehicleForOrder) return null;
+                    const vehicleFuelLogsCount = fuelLogs.filter(f => f.vehicle_id === fuelOrderForm.vehicle_id).length;
+                    return (
+                      <FuelOrderReport
+                        vehicle={selectedVehicleForOrder}
+                        driverName={fuelOrderForm.driver_name}
+                        description={fuelOrderForm.description}
+                        authorizedBy={fuelOrderForm.authorized_by}
+                        orderNumber={vehicleFuelLogsCount + 1}
+                      />
+                    );
+                  })()}
+                </div>
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-4">
+                  <Button variant="outline" onClick={() => setFuelOrderPreview(false)}>Voltar</Button>
+                  <Button onClick={() => {
+                    if (fuelOrderPrintRef.current) {
+                      const printWindow = window.open('', '_blank');
+                      if (printWindow) {
+                        printWindow.document.write(`
+                          <!DOCTYPE html><html><head><title>Ordem de Abastecimento</title>
+                          <style>
+                            * { margin: 0; padding: 0; box-sizing: border-box; }
+                            body { font-family: Arial, sans-serif; background: white; color: black; }
+                            .report-container { padding: 32px; width: 210mm; min-height: 297mm; margin: 0 auto; }
+                            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid black; padding-bottom: 16px; margin-bottom: 16px; }
+                            .logo-container { width: 96px; } .logo-container img { width: 100%; height: auto; }
+                            .logo-placeholder { width: 80px; height: 80px; background: #e5e5e5; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666; }
+                            .company-info { text-align: right; } .company-name { font-size: 20px; font-weight: bold; text-transform: uppercase; } .company-cnpj { font-size: 14px; }
+                            .title-box { background: #dbeafe; text-align: center; padding: 8px; margin-bottom: 24px; border: 1px solid black; } .title-box h2 { font-size: 18px; font-weight: bold; }
+                            .field-row { display: flex; gap: 8px; margin-bottom: 8px; } .field-label { font-weight: 600; font-size: 14px; white-space: nowrap; }
+                            .field-value { border-bottom: 1px solid black; flex: 1; font-size: 14px; padding-left: 4px; }
+                            .grid { display: grid; gap: 12px; } .grid-cols-2 { grid-template-columns: repeat(2, 1fr); } .col-span-2 { grid-column: span 2; }
+                            .signature-line { border-bottom: 1px solid black; width: 100%; height: 48px; }
+                            h3 { font-size: 14px; font-weight: bold; } p { font-size: 14px; }
+                            .border { border: 1px solid black; } .p-4 { padding: 16px; } .mb-6 { margin-bottom: 24px; }
+                            .bg-blue-50 { background: #eff6ff; } .bg-yellow-50 { background: #fefce8; }
+                            .border-b { border-bottom: 1px solid black; } .py-2 { padding: 8px 0; } .px-4 { padding: 0 16px; }
+                            .mt-8 { margin-top: 32px; } .mt-12 { margin-top: 48px; } .space-y-10 > * + * { margin-top: 40px; }
+                            .text-center { text-align: center; } .text-xs { font-size: 12px; }
+                            @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } .report-container { padding: 16px; } }
+                          </style></head><body>${fuelOrderPrintRef.current.innerHTML}</body></html>
+                        `);
+                        printWindow.document.close();
+                        printWindow.focus();
+                        setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+                      }
+                    }
+                    setFuelOrderDialogOpen(false);
+                    setFuelOrderForm({ vehicle_id: '', driver_name: '', description: '', authorized_by: '' });
+                    setFuelOrderPreview(false);
+                  }}>
+                    <Printer className="h-4 w-4 mr-2" />Imprimir
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
         </div>
       </div>
     </DashboardLayout>
