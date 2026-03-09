@@ -1,22 +1,20 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { FuelLog, Vehicle } from '@/types/fleet';
+import { Vehicle } from '@/types/fleet';
 import { useAuth } from '@/hooks/useAuth';
 
 interface FuelOrderReportProps {
   vehicle: Vehicle;
-  fuelLog?: FuelLog;
+  driverName: string;
+  description: string;
+  authorizedBy: string;
   orderNumber: number;
 }
 
-export function FuelOrderReport({ vehicle, fuelLog, orderNumber }: FuelOrderReportProps) {
+export function FuelOrderReport({ vehicle, driverName, description, authorizedBy, orderNumber }: FuelOrderReportProps) {
   const { tenant } = useAuth();
-  const year = fuelLog ? new Date(fuelLog.date).getFullYear() : new Date().getFullYear();
+  const year = new Date().getFullYear();
   const formattedOrderNumber = String(orderNumber).padStart(5, '0');
-
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  };
 
   return (
     <div className="report-container bg-white text-black p-4 sm:p-6 md:p-8 w-full max-w-[210mm] mx-auto print:w-[210mm] print:min-h-[297mm] print:p-8">
@@ -38,115 +36,109 @@ export function FuelOrderReport({ vehicle, fuelLog, orderNumber }: FuelOrderRepo
       </div>
 
       {/* Title */}
-      <div className="title-box bg-blue-100 text-center py-2 mb-4 sm:mb-6 border border-black">
+      <div className="title-box bg-blue-100 text-center py-2 mb-6 border border-black">
         <h2 className="text-sm sm:text-base md:text-lg font-bold px-2">ORDEM DE ABASTECIMENTO Nº {formattedOrderNumber}/{year}</h2>
       </div>
 
-      {/* Driver Info */}
-      <div className="mb-4">
-        <div className="field-row flex flex-col sm:flex-row gap-1 sm:gap-2 mb-2">
-          <span className="field-label font-semibold text-xs sm:text-sm whitespace-nowrap">Nome do Motorista:</span>
-          <span className="field-value border-b border-black flex-1 text-xs sm:text-sm min-w-0">{fuelLog?.notes || ''}</span>
-        </div>
+      {/* Date */}
+      <div className="field-row flex gap-2 mb-4">
+        <span className="field-label font-semibold text-sm whitespace-nowrap">Data:</span>
+        <span className="field-value border-b border-black flex-1 text-sm pl-1">
+          {format(new Date(), "dd/MM/yyyy", { locale: ptBR })}
+        </span>
       </div>
 
       {/* Vehicle Info */}
-      <div className="mb-4">
-        <div className="field-row flex flex-col sm:flex-row gap-1 sm:gap-2 mb-2">
-          <span className="field-label font-semibold text-xs sm:text-sm whitespace-nowrap">Veículo:</span>
-          <span className="field-value border-b border-black flex-1 text-xs sm:text-sm min-w-0">{vehicle.brand} {vehicle.model}</span>
-        </div>
-        <div className="vehicle-fields flex flex-wrap gap-4 sm:gap-6 md:gap-8 mt-2">
-          <div className="flex gap-1 sm:gap-2">
-            <span className="field-label font-semibold text-xs sm:text-sm">Frota:</span>
-            <span className="field-value-fixed border-b border-black px-2 sm:px-4 text-xs sm:text-sm">{vehicle.fleet_number || '___'}</span>
+      <div className="mb-6 border border-black p-4">
+        <h3 className="font-bold text-sm mb-3 bg-blue-50 -mx-4 -mt-4 px-4 py-2 border-b border-black">DADOS DO VEÍCULO</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="field-row flex gap-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">Veículo:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1">{vehicle.brand} {vehicle.model}</span>
           </div>
-          <div className="flex gap-1 sm:gap-2">
-            <span className="field-label font-semibold text-xs sm:text-sm">Placa:</span>
-            <span className="field-value-fixed border-b border-black px-2 sm:px-4 text-xs sm:text-sm">{vehicle.plate}</span>
+          <div className="field-row flex gap-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">Placa:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1">{vehicle.plate}</span>
           </div>
-          <div className="flex gap-1 sm:gap-2">
-            <span className="field-label font-semibold text-xs sm:text-sm">KM:</span>
-            <span className="field-value-fixed border-b border-black px-2 sm:px-4 text-xs sm:text-sm">{fuelLog ? fuelLog.km_at_fill.toLocaleString('pt-BR') : vehicle.current_km.toLocaleString('pt-BR')}</span>
+          <div className="field-row flex gap-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">Frota Nº:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1">{vehicle.fleet_number || '___'}</span>
+          </div>
+          <div className="field-row flex gap-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">KM Atual:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1">{vehicle.current_km.toLocaleString('pt-BR')}</span>
+          </div>
+          <div className="field-row flex gap-2 col-span-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">Combustível:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1">{vehicle.fuel_type}</span>
           </div>
         </div>
       </div>
 
-      {/* Items Table */}
-      <div className="overflow-x-auto mb-8 mt-6">
-        <table className="w-full border-collapse border border-black min-w-[600px]">
-          <thead>
-            
-            <tr className="bg-blue-50">
-              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Fornecedor</th>
-              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Preço Unit. (R$)</th>
-              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Quantid.</th>
-              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Unid.</th>
-              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-left whitespace-nowrap">Descrição</th>
-              <th className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-right whitespace-nowrap">Total (R$)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fuelLog ? (
-              <tr>
-                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm">{fuelLog.supplier?.name || ''}</td>
-                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(fuelLog.price_per_liter)}</td>
-                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm whitespace-nowrap">{fuelLog.liters.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm">Litros</td>
-                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm">{fuelLog.fuel_type || 'Combustível'}</td>
-                <td className="border border-black p-1.5 sm:p-2 text-xs sm:text-sm text-right whitespace-nowrap">{formatCurrency(fuelLog.total_cost)}</td>
-              </tr>
-            ) : (
-              <tr>
-                <td className="border border-black p-1.5 sm:p-2 h-8"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-              </tr>
-            )}
-            {/* Empty rows for additional items */}
-            {[...Array(4)].map((_, i) => (
-              <tr key={i}>
-                <td className="border border-black p-1.5 sm:p-2 h-8"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-                <td className="border border-black p-1.5 sm:p-2"></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Authorization Section */}
-      <div className="signature-section mt-12 space-y-8">
-        <div className="signature-row flex gap-2">
-          <span className="signature-label font-semibold text-sm">Autorizado por</span>
-          <span className="field-value border-b border-black flex-1 text-sm"></span>
-        </div>
-
-        <div className="mt-8">
-          <p className="signature-label font-semibold text-sm mb-2">Assinatura Coordenador</p>
-          <div className="signature-line border-b border-black w-full h-12"></div>
-        </div>
-
-        <div className="signature-row mt-8 flex gap-2">
-          <span className="signature-label font-semibold text-sm">Motorista</span>
-          <span className="field-value border-b border-black flex-1 text-sm">{fuelLog?.notes || ''}</span>
-        </div>
-
-        <div className="mt-8">
-          <p className="signature-label font-semibold text-sm mb-2">Assinatura Motorista</p>
-          <div className="signature-line border-b border-black w-full h-12"></div>
+      {/* Driver Info */}
+      <div className="mb-6 border border-black p-4">
+        <h3 className="font-bold text-sm mb-3 bg-blue-50 -mx-4 -mt-4 px-4 py-2 border-b border-black">MOTORISTA</h3>
+        <div className="field-row flex gap-2">
+          <span className="field-label font-semibold text-sm whitespace-nowrap">Nome:</span>
+          <span className="field-value border-b border-black flex-1 text-sm pl-1">{driverName}</span>
         </div>
       </div>
 
-      {/* Footer with date */}
-      <div className="footer mt-12 text-center text-sm text-gray-600">
-        <p>Data: {fuelLog ? format(new Date(fuelLog.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
+      {/* Description */}
+      <div className="mb-6 border border-black p-4">
+        <h3 className="font-bold text-sm mb-3 bg-blue-50 -mx-4 -mt-4 px-4 py-2 border-b border-black">DESCRIÇÃO</h3>
+        <p className="text-sm min-h-[40px]">{description || '—'}</p>
+      </div>
+
+      {/* Fields to fill at gas station */}
+      <div className="mb-6 border border-black p-4">
+        <h3 className="font-bold text-sm mb-3 bg-yellow-50 -mx-4 -mt-4 px-4 py-2 border-b border-black">PREENCHIMENTO NO POSTO</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="field-row flex gap-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">KM Abastecimento:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1"></span>
+          </div>
+          <div className="field-row flex gap-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">Litros:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1"></span>
+          </div>
+          <div className="field-row flex gap-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">Preço/Litro:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1"></span>
+          </div>
+          <div className="field-row flex gap-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">Valor Total:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1"></span>
+          </div>
+          <div className="field-row flex gap-2 col-span-2">
+            <span className="field-label font-semibold text-sm whitespace-nowrap">Fornecedor/Posto:</span>
+            <span className="field-value border-b border-black flex-1 text-sm pl-1"></span>
+          </div>
+        </div>
+      </div>
+
+      {/* Authorization */}
+      <div className="signature-section mt-8 space-y-10">
+        <div className="field-row flex gap-2">
+          <span className="field-label font-semibold text-sm whitespace-nowrap">Autorizado por:</span>
+          <span className="field-value border-b border-black flex-1 text-sm pl-1">{authorizedBy}</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-16 mt-12">
+          <div>
+            <div className="signature-line border-b border-black w-full h-12"></div>
+            <p className="text-xs text-center mt-1">Assinatura do Coordenador</p>
+          </div>
+          <div>
+            <div className="signature-line border-b border-black w-full h-12"></div>
+            <p className="text-xs text-center mt-1">Assinatura do Motorista</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="footer mt-12 text-center text-xs text-gray-500">
+        <p>Documento gerado em {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
       </div>
     </div>
   );
