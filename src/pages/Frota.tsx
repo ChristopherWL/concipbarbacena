@@ -407,7 +407,8 @@ export default function Frota() {
         />
         {!isReadOnly && (
           <div className="flex flex-wrap justify-center gap-2">
-            <Button variant="outline" onClick={() => setFuelDialogOpen(true)}><Fuel className="h-4 w-4 mr-2" />Abastecer</Button>
+            <Button variant="outline" onClick={() => setFuelOrderDialogOpen(true)}><Fuel className="h-4 w-4 mr-2" />Abastecer</Button>
+            <Button variant="outline" onClick={() => setFuelDialogOpen(true)}><ClipboardList className="h-4 w-4 mr-2" />Registrar Abastecimento</Button>
             <Button variant="outline" onClick={() => setMaintenanceDialogOpen(true)}><Wrench className="h-4 w-4 mr-2" />Nova Manutenção</Button>
             <Button onClick={() => setVehicleDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />Novo Veículo</Button>
           </div>
