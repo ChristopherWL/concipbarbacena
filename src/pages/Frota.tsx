@@ -69,11 +69,12 @@ export default function Frota() {
   const fuelLogRecordRef = useRef<HTMLDivElement>(null);
   const vehiclePrintRef = useRef<HTMLDivElement>(null);
   const fuelOrderPrintRef = useRef<HTMLDivElement>(null);
-  const [vehicleForm, setVehicleForm] = useState({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '' });
+  const [vehicleForm, setVehicleForm] = useState({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '', driver_name: '' });
   const [maintenanceForm, setMaintenanceForm] = useState({ vehicle_id: '', maintenance_type: 'preventiva' as MaintenanceType, description: '', scheduled_date: '', cost: '0' });
   const [fuelForm, setFuelForm] = useState({ vehicle_id: '', supplier_id: '', date: new Date().toISOString().split('T')[0], km_at_fill: '', liters: '', price_per_liter: '', fuel_type: 'gasolina', full_tank: true, notes: '' });
   const [fuelOrderForm, setFuelOrderForm] = useState({ vehicle_id: '', driver_name: '', description: '', authorized_by: '' });
   const [fuelOrderPreview, setFuelOrderPreview] = useState(false);
+  const [supervisors, setSupervisors] = useState<{ id: string; full_name: string }[]>([]);
 
 
   const handleCreateVehicle = async () => {
