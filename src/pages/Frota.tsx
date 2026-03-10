@@ -834,6 +834,10 @@ export default function Frota() {
                 <div><Label>Cor</Label><Input placeholder="Branco" value={vehicleForm.color} onChange={e => setVehicleForm({...vehicleForm, color: e.target.value})} /></div>
                 <div><Label>KM Atual</Label><Input type="number" value={vehicleForm.current_km} onChange={e => setVehicleForm({...vehicleForm, current_km: e.target.value})} /></div>
               </div>
+              <div>
+                <Label>Motorista</Label>
+                <Input placeholder="Nome do motorista responsável" value={vehicleForm.driver_name} onChange={e => setVehicleForm({...vehicleForm, driver_name: e.target.value})} />
+              </div>
               <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <Button variant="outline" onClick={handleCloseVehicleDialog}>Cancelar</Button>
                 {vehicleToEdit ? (
