@@ -356,14 +356,15 @@ export default function Frota() {
     }
   };
 
+  const FUEL_ORDER_OFFSET = 28; // ordens anteriores já emitidas
+
   const getFuelLogOrderNumber = (fuelLog: FuelLog) => {
     const sortedLogs = [...fuelLogs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    return sortedLogs.findIndex(f => f.id === fuelLog.id) + 1;
+    return sortedLogs.findIndex(f => f.id === fuelLog.id) + 1 + FUEL_ORDER_OFFSET;
   };
 
-  const getVehicleNextOrderNumber = (vehicle: Vehicle) => {
-    const vehicleLogs = fuelLogs.filter(f => f.vehicle_id === vehicle.id);
-    return vehicleLogs.length + 1;
+  const getNextGlobalOrderNumber = () => {
+    return fuelLogs.length + 1 + FUEL_ORDER_OFFSET;
   };
 
 
@@ -1309,14 +1310,13 @@ export default function Frota() {
                   {(() => {
                     const selectedVehicleForOrder = vehicles.find(v => v.id === fuelOrderForm.vehicle_id);
                     if (!selectedVehicleForOrder) return null;
-                    const vehicleFuelLogsCount = fuelLogs.filter(f => f.vehicle_id === fuelOrderForm.vehicle_id).length;
                     return (
                       <FuelOrderReport
                         vehicle={selectedVehicleForOrder}
                         driverName={fuelOrderForm.driver_name}
                         description={fuelOrderForm.description}
                         authorizedBy={fuelOrderForm.authorized_by}
-                        orderNumber={vehicleFuelLogsCount + 1}
+                        orderNumber={getNextGlobalOrderNumber()}
                       />
                     );
                   })()}
