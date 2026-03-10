@@ -1227,7 +1227,7 @@ export default function Frota() {
               <div className="space-y-4">
                 <div>
                   <Label>Veículo *</Label>
-                  <Select value={fuelOrderForm.vehicle_id} onValueChange={v => setFuelOrderForm({...fuelOrderForm, vehicle_id: v})}>
+                  <Select value={fuelOrderForm.vehicle_id} onValueChange={handleFuelOrderVehicleChange}>
                     <SelectTrigger><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
                     <SelectContent>
                       {vehicles.map(v => (
@@ -1237,11 +1237,21 @@ export default function Frota() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {fuelOrderForm.vehicle_id && (() => {
+                    const v = vehicles.find(ve => ve.id === fuelOrderForm.vehicle_id);
+                    return v ? (
+                      <div className="mt-2 p-3 rounded-lg bg-muted/50 border text-sm space-y-1">
+                        <p><span className="text-muted-foreground">Placa:</span> <strong>{v.plate}</strong> • <span className="text-muted-foreground">Frota:</span> <strong>{v.fleet_number || '-'}</strong></p>
+                        <p><span className="text-muted-foreground">Veículo:</span> {v.brand} {v.model} {v.year || ''} • <span className="text-muted-foreground">KM:</span> {v.current_km.toLocaleString()}</p>
+                        {v.driver_name && <p><span className="text-muted-foreground">Motorista:</span> {v.driver_name}</p>}
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
                 <div>
                   <Label>Nome do Motorista *</Label>
                   <Input 
-                    placeholder="Nome completo do motorista" 
+                    placeholder="Preenchido automaticamente pelo cadastro do veículo" 
                     value={fuelOrderForm.driver_name} 
                     onChange={e => setFuelOrderForm({...fuelOrderForm, driver_name: e.target.value})} 
                   />
@@ -1256,11 +1266,24 @@ export default function Frota() {
                 </div>
                 <div>
                   <Label>Autorizado por *</Label>
-                  <Input 
-                    placeholder="Nome de quem autorizou" 
-                    value={fuelOrderForm.authorized_by} 
-                    onChange={e => setFuelOrderForm({...fuelOrderForm, authorized_by: e.target.value})} 
-                  />
+                  {supervisors.length > 0 ? (
+                    <Select value={fuelOrderForm.authorized_by} onValueChange={v => setFuelOrderForm({...fuelOrderForm, authorized_by: v})}>
+                      <SelectTrigger><SelectValue placeholder="Selecione o responsável" /></SelectTrigger>
+                      <SelectContent>
+                        {supervisors.map(s => (
+                          <SelectItem key={s.id} value={s.full_name}>
+                            {s.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input 
+                      placeholder="Nome de quem autorizou" 
+                      value={fuelOrderForm.authorized_by} 
+                      onChange={e => setFuelOrderForm({...fuelOrderForm, authorized_by: e.target.value})} 
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
                   <Button variant="outline" onClick={() => {
