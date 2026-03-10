@@ -104,6 +104,7 @@ export default function Frota() {
       current_km: vehicle.current_km.toString(),
       fuel_type: vehicle.fuel_type,
       fleet_number: vehicle.fleet_number || '',
+      driver_name: vehicle.driver_name || '',
     });
     setVehicleDialogOpen(true);
   };
