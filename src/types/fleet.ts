@@ -25,6 +25,7 @@ export interface Vehicle {
   chassis?: string;
   renavam?: string;
   fleet_number?: string;
+  driver_name?: string;
   fuel_type: string;
   current_km: number;
   image_url?: string;
