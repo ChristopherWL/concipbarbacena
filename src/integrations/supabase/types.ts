@@ -5063,6 +5063,7 @@ export type Database = {
           color: string | null
           created_at: string | null
           current_km: number | null
+          driver_name: string | null
           fleet_number: string | null
           fuel_type: string | null
           id: string
@@ -5083,6 +5084,7 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           current_km?: number | null
+          driver_name?: string | null
           fleet_number?: string | null
           fuel_type?: string | null
           id?: string
@@ -5103,6 +5105,7 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           current_km?: number | null
+          driver_name?: string | null
           fleet_number?: string | null
           fuel_type?: string | null
           id?: string

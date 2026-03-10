@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDirectorBranch } from '@/contexts/DirectorBranchContext';
@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useVehicles, useCreateVehicle, useUpdateVehicle, useMaintenances, useCreateMaintenance, useDeleteVehicle, useDeleteMaintenance, useFuelLogs, useCreateFuelLog, useDeleteFuelLog } from '@/hooks/useFleet';
 import { useSuppliers } from '@/hooks/useSuppliers';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,12 +70,57 @@ export default function Frota() {
   const fuelLogRecordRef = useRef<HTMLDivElement>(null);
   const vehiclePrintRef = useRef<HTMLDivElement>(null);
   const fuelOrderPrintRef = useRef<HTMLDivElement>(null);
-  const [vehicleForm, setVehicleForm] = useState({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '' });
+  const [vehicleForm, setVehicleForm] = useState({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '', driver_name: '' });
   const [maintenanceForm, setMaintenanceForm] = useState({ vehicle_id: '', maintenance_type: 'preventiva' as MaintenanceType, description: '', scheduled_date: '', cost: '0' });
   const [fuelForm, setFuelForm] = useState({ vehicle_id: '', supplier_id: '', date: new Date().toISOString().split('T')[0], km_at_fill: '', liters: '', price_per_liter: '', fuel_type: 'gasolina', full_tank: true, notes: '' });
   const [fuelOrderForm, setFuelOrderForm] = useState({ vehicle_id: '', driver_name: '', description: '', authorized_by: '' });
   const [fuelOrderPreview, setFuelOrderPreview] = useState(false);
+  const [supervisors, setSupervisors] = useState<{ id: string; full_name: string }[]>([]);
 
+  // Load supervisors/coordinators for "Autorizado por"
+  useEffect(() => {
+    const loadSupervisors = async () => {
+      if (!user) return;
+      const { data: tenantProfile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('id', user.id)
+        .single();
+      if (!tenantProfile?.tenant_id) return;
+      
+      // Get users with admin, manager, director, branch_manager roles
+      const { data: roleUsers } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('tenant_id', tenantProfile.tenant_id)
+        .in('role', ['admin', 'manager', 'director', 'branch_manager', 'superadmin']);
+      
+      if (roleUsers && roleUsers.length > 0) {
+        const userIds = roleUsers.map(r => r.user_id);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', userIds)
+          .eq('is_active', true)
+          .order('full_name');
+        
+        if (profiles) {
+          setSupervisors(profiles.filter(p => p.full_name).map(p => ({ id: p.id, full_name: p.full_name! })));
+        }
+      }
+    };
+    loadSupervisors();
+  }, [user]);
+
+  // Auto-fill driver name when vehicle is selected in fuel order
+  const handleFuelOrderVehicleChange = (vehicleId: string) => {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    setFuelOrderForm(prev => ({
+      ...prev,
+      vehicle_id: vehicleId,
+      driver_name: vehicle?.driver_name || prev.driver_name,
+    }));
+  };
 
   const handleCreateVehicle = async () => {
     if (!vehicleForm.plate || !vehicleForm.brand || !vehicleForm.model) {
@@ -85,10 +131,11 @@ export default function Frota() {
       ...vehicleForm,
       year: vehicleForm.year ? parseInt(vehicleForm.year) : undefined,
       current_km: parseInt(vehicleForm.current_km) || 0,
+      driver_name: vehicleForm.driver_name || undefined,
       is_active: true,
     });
     setVehicleDialogOpen(false);
-    setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '' });
+    setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '', driver_name: '' });
   };
 
   const handleEditVehicle = (vehicle: Vehicle) => {
@@ -102,6 +149,7 @@ export default function Frota() {
       current_km: vehicle.current_km.toString(),
       fuel_type: vehicle.fuel_type,
       fleet_number: vehicle.fleet_number || '',
+      driver_name: vehicle.driver_name || '',
     });
     setVehicleDialogOpen(true);
   };
@@ -121,16 +169,17 @@ export default function Frota() {
       current_km: parseInt(vehicleForm.current_km) || 0,
       fuel_type: vehicleForm.fuel_type,
       fleet_number: vehicleForm.fleet_number || null,
+      driver_name: vehicleForm.driver_name || null,
     } as any);
     setVehicleDialogOpen(false);
     setVehicleToEdit(null);
-    setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '' });
+    setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '', driver_name: '' });
   };
 
   const handleCloseVehicleDialog = () => {
     setVehicleDialogOpen(false);
     setVehicleToEdit(null);
-    setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '' });
+    setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '', driver_name: '' });
   };
 
   const handleCreateMaintenance = async () => {
@@ -785,6 +834,10 @@ export default function Frota() {
                 <div><Label>Cor</Label><Input placeholder="Branco" value={vehicleForm.color} onChange={e => setVehicleForm({...vehicleForm, color: e.target.value})} /></div>
                 <div><Label>KM Atual</Label><Input type="number" value={vehicleForm.current_km} onChange={e => setVehicleForm({...vehicleForm, current_km: e.target.value})} /></div>
               </div>
+              <div>
+                <Label>Motorista</Label>
+                <Input placeholder="Nome do motorista responsável" value={vehicleForm.driver_name} onChange={e => setVehicleForm({...vehicleForm, driver_name: e.target.value})} />
+              </div>
               <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <Button variant="outline" onClick={handleCloseVehicleDialog}>Cancelar</Button>
                 {vehicleToEdit ? (
@@ -1174,7 +1227,7 @@ export default function Frota() {
               <div className="space-y-4">
                 <div>
                   <Label>Veículo *</Label>
-                  <Select value={fuelOrderForm.vehicle_id} onValueChange={v => setFuelOrderForm({...fuelOrderForm, vehicle_id: v})}>
+                  <Select value={fuelOrderForm.vehicle_id} onValueChange={handleFuelOrderVehicleChange}>
                     <SelectTrigger><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
                     <SelectContent>
                       {vehicles.map(v => (
@@ -1184,11 +1237,21 @@ export default function Frota() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {fuelOrderForm.vehicle_id && (() => {
+                    const v = vehicles.find(ve => ve.id === fuelOrderForm.vehicle_id);
+                    return v ? (
+                      <div className="mt-2 p-3 rounded-lg bg-muted/50 border text-sm space-y-1">
+                        <p><span className="text-muted-foreground">Placa:</span> <strong>{v.plate}</strong> • <span className="text-muted-foreground">Frota:</span> <strong>{v.fleet_number || '-'}</strong></p>
+                        <p><span className="text-muted-foreground">Veículo:</span> {v.brand} {v.model} {v.year || ''} • <span className="text-muted-foreground">KM:</span> {v.current_km.toLocaleString()}</p>
+                        {v.driver_name && <p><span className="text-muted-foreground">Motorista:</span> {v.driver_name}</p>}
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
                 <div>
                   <Label>Nome do Motorista *</Label>
                   <Input 
-                    placeholder="Nome completo do motorista" 
+                    placeholder="Preenchido automaticamente pelo cadastro do veículo" 
                     value={fuelOrderForm.driver_name} 
                     onChange={e => setFuelOrderForm({...fuelOrderForm, driver_name: e.target.value})} 
                   />
@@ -1203,11 +1266,24 @@ export default function Frota() {
                 </div>
                 <div>
                   <Label>Autorizado por *</Label>
-                  <Input 
-                    placeholder="Nome de quem autorizou" 
-                    value={fuelOrderForm.authorized_by} 
-                    onChange={e => setFuelOrderForm({...fuelOrderForm, authorized_by: e.target.value})} 
-                  />
+                  {supervisors.length > 0 ? (
+                    <Select value={fuelOrderForm.authorized_by} onValueChange={v => setFuelOrderForm({...fuelOrderForm, authorized_by: v})}>
+                      <SelectTrigger><SelectValue placeholder="Selecione o responsável" /></SelectTrigger>
+                      <SelectContent>
+                        {supervisors.map(s => (
+                          <SelectItem key={s.id} value={s.full_name}>
+                            {s.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input 
+                      placeholder="Nome de quem autorizou" 
+                      value={fuelOrderForm.authorized_by} 
+                      onChange={e => setFuelOrderForm({...fuelOrderForm, authorized_by: e.target.value})} 
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
                   <Button variant="outline" onClick={() => {
