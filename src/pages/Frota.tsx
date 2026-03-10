@@ -77,6 +77,50 @@ export default function Frota() {
   const [fuelOrderPreview, setFuelOrderPreview] = useState(false);
   const [supervisors, setSupervisors] = useState<{ id: string; full_name: string }[]>([]);
 
+  // Load supervisors/coordinators for "Autorizado por"
+  useEffect(() => {
+    const loadSupervisors = async () => {
+      if (!user) return;
+      const { data: tenantProfile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('id', user.id)
+        .single();
+      if (!tenantProfile?.tenant_id) return;
+      
+      // Get users with admin, manager, director, branch_manager roles
+      const { data: roleUsers } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('tenant_id', tenantProfile.tenant_id)
+        .in('role', ['admin', 'manager', 'director', 'branch_manager', 'superadmin']);
+      
+      if (roleUsers && roleUsers.length > 0) {
+        const userIds = roleUsers.map(r => r.user_id);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', userIds)
+          .eq('is_active', true)
+          .order('full_name');
+        
+        if (profiles) {
+          setSupervisors(profiles.filter(p => p.full_name).map(p => ({ id: p.id, full_name: p.full_name! })));
+        }
+      }
+    };
+    loadSupervisors();
+  }, [user]);
+
+  // Auto-fill driver name when vehicle is selected in fuel order
+  const handleFuelOrderVehicleChange = (vehicleId: string) => {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    setFuelOrderForm(prev => ({
+      ...prev,
+      vehicle_id: vehicleId,
+      driver_name: vehicle?.driver_name || prev.driver_name,
+    }));
+  };
 
   const handleCreateVehicle = async () => {
     if (!vehicleForm.plate || !vehicleForm.brand || !vehicleForm.model) {
