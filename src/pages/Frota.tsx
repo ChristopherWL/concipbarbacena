@@ -134,7 +134,7 @@ export default function Frota() {
   const handleCloseVehicleDialog = () => {
     setVehicleDialogOpen(false);
     setVehicleToEdit(null);
-    setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '' });
+    setVehicleForm({ plate: '', brand: '', model: '', year: '', color: '', current_km: '0', fuel_type: 'flex', fleet_number: '', driver_name: '' });
   };
 
   const handleCreateMaintenance = async () => {
