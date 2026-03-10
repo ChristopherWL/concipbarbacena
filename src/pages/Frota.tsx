@@ -1310,14 +1310,13 @@ export default function Frota() {
                   {(() => {
                     const selectedVehicleForOrder = vehicles.find(v => v.id === fuelOrderForm.vehicle_id);
                     if (!selectedVehicleForOrder) return null;
-                    const vehicleFuelLogsCount = fuelLogs.filter(f => f.vehicle_id === fuelOrderForm.vehicle_id).length;
                     return (
                       <FuelOrderReport
                         vehicle={selectedVehicleForOrder}
                         driverName={fuelOrderForm.driver_name}
                         description={fuelOrderForm.description}
                         authorizedBy={fuelOrderForm.authorized_by}
-                        orderNumber={vehicleFuelLogsCount + 1}
+                        orderNumber={getNextGlobalOrderNumber()}
                       />
                     );
                   })()}
