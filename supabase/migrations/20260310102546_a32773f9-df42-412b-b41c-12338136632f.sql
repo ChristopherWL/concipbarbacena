@@ -1,0 +1,1 @@
+ALTER TABLE public.vehicles ADD COLUMN driver_name TEXT;
