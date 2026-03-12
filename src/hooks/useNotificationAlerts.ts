@@ -16,7 +16,7 @@ const SHOWN_ALARMS_KEY = 'notification-alerts-shown-ids';
 
 export function useNotificationAlerts(alarms: Alarm[], tenantId?: string) {
   const previousAlarmsRef = useRef<string[]>([]);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const queryClient = useQueryClient();
 
   // Show toast for an alarm

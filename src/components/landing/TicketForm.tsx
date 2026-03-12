@@ -53,7 +53,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ accentColor = '#F97316', tenant
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
-  const geocodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const geocodeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isUpdatingFromMap = useRef(false);
 
   // Barbacena center coordinates
