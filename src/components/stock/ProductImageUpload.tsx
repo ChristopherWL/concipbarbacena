@@ -51,10 +51,10 @@ export function ProductImageUpload({
       const fileExt = file.name.split('.').pop();
       const fileName = `${tenant.id}/products/${Date.now()}.${fileExt}`;
 
-      const { url } = await uploadTenantAsset(fileName, file, { upsert: true });
+      const { url, path } = await uploadTenantAsset(fileName, file, { upsert: true });
 
       setPreviewUrl(url);
-      onUploadComplete(url);
+      onUploadComplete(path);
       toast.success('Imagem enviada!');
     } catch (error: any) {
       console.error('Upload error:', error);
