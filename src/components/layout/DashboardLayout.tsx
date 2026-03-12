@@ -207,8 +207,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     let cancelled = false;
-    import('@/lib/storageUtils').then(({ resolveStorageUrl }) => {
-      const resolve = async () => {
+    const resolve = async () => {
       if (rawLogoLight) {
         const url = await resolveStorageUrl(rawLogoLight);
         if (!cancelled) setResolvedLogoLight(url || rawLogoLight);
