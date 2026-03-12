@@ -43,7 +43,7 @@ serve(async (req) => {
       .eq('user_id', caller.id);
 
     const isAdminOrSuperadmin = callerRoles?.some(
-      r => r.role === 'admin' || r.role === 'superadmin'
+      r => r.role === 'admin' || r.role === 'superadmin' || r.role === 'manager' || r.role === 'branch_manager'
     );
 
     if (!isAdminOrSuperadmin) {
