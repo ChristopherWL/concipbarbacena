@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { uploadTenantAsset } from '@/lib/storageUtils';
+import { uploadTenantAsset, resolveStorageUrl } from '@/lib/storageUtils';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Loader2, Upload, X, Camera, Image as ImageIcon } from 'lucide-react';
