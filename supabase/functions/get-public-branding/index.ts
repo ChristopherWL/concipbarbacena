@@ -43,6 +43,38 @@ Deno.serve(async (req) => {
     let matrizLogo = null
     let matrizLogoDark = null
     let ticketBranchId = null
+
+    // Helper to resolve a stored value (path or old signed URL) to a fresh signed URL
+    async function resolveUrl(value: string | null | undefined): Promise<string | null> {
+      if (!value || value.trim() === '') return null
+
+      let path: string | null = null
+
+      // Extract path from signed URL
+      const signedMatch = value.match(/\/storage\/v1\/object\/sign\/tenant-assets\/(.+?)(?:\?|$)/)
+      if (signedMatch) path = decodeURIComponent(signedMatch[1])
+
+      // Extract path from public URL
+      if (!path) {
+        const publicMatch = value.match(/\/storage\/v1\/object\/public\/tenant-assets\/(.+?)(?:\?|$)/)
+        if (publicMatch) path = decodeURIComponent(publicMatch[1])
+      }
+
+      // If it's a raw path (no protocol)
+      if (!path && !value.startsWith('http')) path = value
+
+      if (!path) return value // Unknown format, return as-is
+
+      const { data, error } = await supabase.storage
+        .from('tenant-assets')
+        .createSignedUrl(path, 86400) // 24h
+
+      if (error || !data?.signedUrl) {
+        console.error('Error creating signed URL for', path, error)
+        return null
+      }
+      return data.signedUrl
+    }
     
     if (tenantData?.id) {
       // First, try to get Barbacena branch for tickets
@@ -87,15 +119,23 @@ Deno.serve(async (req) => {
     })
 
     // Priority: tenant logo > matriz branch logo
-    const finalLogoUrl = tenantData?.logo_url || matrizLogo || null
-    const finalLogoDarkUrl = tenantData?.logo_dark_url || matrizLogoDark || null
+    const rawLogoUrl = tenantData?.logo_url || matrizLogo || null
+    const rawLogoDarkUrl = tenantData?.logo_dark_url || matrizLogoDark || null
+    const rawBgUrl = tenantData?.background_url ?? null
+
+    // Resolve all URLs in parallel
+    const [finalLogoUrl, finalLogoDarkUrl, finalBgUrl] = await Promise.all([
+      resolveUrl(rawLogoUrl),
+      resolveUrl(rawLogoDarkUrl),
+      resolveUrl(rawBgUrl),
+    ])
 
     const branding = tenantData
       ? {
           name: tenantData.name ?? 'Sistema',
           logo_url: finalLogoUrl,
           logo_dark_url: finalLogoDarkUrl,
-          background_url: tenantData.background_url ?? null,
+          background_url: finalBgUrl,
           primary_color: tenantData.primary_color ?? null,
           secondary_color: tenantData.secondary_color ?? null,
           landing_page_content: tenantData.landing_page_content ?? null,
