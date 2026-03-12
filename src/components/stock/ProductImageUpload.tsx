@@ -17,11 +17,19 @@ export function ProductImageUpload({
 }: ProductImageUploadProps) {
   const { tenant } = useAuthContext();
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setPreviewUrl(currentUrl || null);
+    let cancelled = false;
+    if (currentUrl) {
+      resolveStorageUrl(currentUrl).then((url) => {
+        if (!cancelled) setPreviewUrl(url || currentUrl);
+      });
+    } else {
+      setPreviewUrl(null);
+    }
+    return () => { cancelled = true; };
   }, [currentUrl]);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
