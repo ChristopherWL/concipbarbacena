@@ -37,22 +37,6 @@ serve(async (req) => {
       );
     }
 
-    const { data: callerRoles } = await supabaseAdmin
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', caller.id);
-
-    const isAdminOrSuperadmin = callerRoles?.some(
-      r => r.role === 'admin' || r.role === 'superadmin' || r.role === 'manager' || r.role === 'branch_manager'
-    );
-
-    if (!isAdminOrSuperadmin) {
-      return new Response(
-        JSON.stringify({ error: 'Insufficient permissions' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const { user_id, new_password } = await req.json();
 
     if (!user_id || !new_password) {
@@ -81,10 +65,32 @@ serve(async (req) => {
       .eq('id', user_id)
       .single();
 
-    const isSuperadmin = callerRoles?.some(r => r.role === 'superadmin');
-    if (!isSuperadmin && callerProfile?.tenant_id !== targetProfile?.tenant_id) {
+    if (!callerProfile?.tenant_id || !targetProfile?.tenant_id) {
       return new Response(
-        JSON.stringify({ error: 'Cannot modify users from different tenant' }),
+        JSON.stringify({ error: 'User profile not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: canManageUsers, error: permissionError } = await supabaseAdmin.rpc(
+      'can_manage_users_in_tenant',
+      {
+        _user_id: caller.id,
+        _tenant_id: targetProfile.tenant_id,
+      }
+    );
+
+    if (permissionError) {
+      console.error('Error checking permissions:', permissionError);
+      return new Response(
+        JSON.stringify({ error: 'Error validating permissions' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!canManageUsers) {
+      return new Response(
+        JSON.stringify({ error: 'Insufficient permissions' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
