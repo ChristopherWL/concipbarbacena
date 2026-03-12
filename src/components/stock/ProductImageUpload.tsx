@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { uploadTenantAsset } from '@/lib/storageUtils';
+import { uploadTenantAsset, resolveStorageUrl } from '@/lib/storageUtils';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Loader2, Upload, X, Camera, Image as ImageIcon } from 'lucide-react';
@@ -18,11 +17,19 @@ export function ProductImageUpload({
 }: ProductImageUploadProps) {
   const { tenant } = useAuthContext();
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setPreviewUrl(currentUrl || null);
+    let cancelled = false;
+    if (currentUrl) {
+      resolveStorageUrl(currentUrl).then((url) => {
+        if (!cancelled) setPreviewUrl(url || currentUrl);
+      });
+    } else {
+      setPreviewUrl(null);
+    }
+    return () => { cancelled = true; };
   }, [currentUrl]);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,10 +51,10 @@ export function ProductImageUpload({
       const fileExt = file.name.split('.').pop();
       const fileName = `${tenant.id}/products/${Date.now()}.${fileExt}`;
 
-      const { url } = await uploadTenantAsset(fileName, file, { upsert: true });
+      const { url, path } = await uploadTenantAsset(fileName, file, { upsert: true });
 
       setPreviewUrl(url);
-      onUploadComplete(url);
+      onUploadComplete(path);
       toast.success('Imagem enviada!');
     } catch (error: any) {
       console.error('Upload error:', error);

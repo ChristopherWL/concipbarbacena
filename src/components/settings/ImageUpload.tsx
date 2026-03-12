@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { uploadTenantAsset } from '@/lib/storageUtils';
+import { uploadTenantAsset, resolveStorageUrl } from '@/lib/storageUtils';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Loader2, Upload, X, Image as ImageIcon } from 'lucide-react';
@@ -13,7 +12,7 @@ interface ImageUploadProps {
   currentUrl?: string | null;
   tenantId: string;
   folder: string;
-  onUploadComplete: (url: string) => void;
+  onUploadComplete: (path: string) => void;
   aspectRatio?: 'square' | 'wide' | 'video';
 }
 
@@ -27,25 +26,31 @@ export function ImageUpload({
   aspectRatio = 'square'
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync previewUrl with currentUrl prop when it changes
+  // Resolve the currentUrl (which might be a path or expired signed URL) to a fresh signed URL
   useEffect(() => {
-    setPreviewUrl(currentUrl || null);
+    let cancelled = false;
+    if (currentUrl) {
+      resolveStorageUrl(currentUrl).then((url) => {
+        if (!cancelled) setPreviewUrl(url || currentUrl);
+      });
+    } else {
+      setPreviewUrl(null);
+    }
+    return () => { cancelled = true; };
   }, [currentUrl]);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Por favor, selecione uma imagem');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('A imagem deve ter no máximo 5MB');
       return;
@@ -56,10 +61,11 @@ export function ImageUpload({
       const fileExt = file.name.split('.').pop();
       const fileName = `${tenantId}/${folder}/${Date.now()}.${fileExt}`;
 
-      const { url } = await uploadTenantAsset(fileName, file, { upsert: true });
+      const { url, path } = await uploadTenantAsset(fileName, file, { upsert: true });
 
       setPreviewUrl(url);
-      onUploadComplete(url);
+      // Save the RAW PATH to the database, not the signed URL
+      onUploadComplete(path);
       toast.success('Imagem enviada com sucesso!');
     } catch (error: any) {
       console.error('Upload error:', error);

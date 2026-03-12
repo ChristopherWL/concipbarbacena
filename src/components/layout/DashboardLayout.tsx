@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect, useRef, useMemo } from 'react';
+import { ReactNode, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDirectorBranch } from '@/contexts/DirectorBranchContext';
@@ -6,6 +6,7 @@ import { useTenantFeatures } from '@/hooks/useTenantFeatures';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useNotificationAlerts } from '@/hooks/useNotificationAlerts';
 import { useOnboardingTour } from '@/hooks/useOnboardingTour';
+import { resolveStorageUrl } from '@/lib/storageUtils';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { PushNotificationPrompt } from '@/components/notifications/PushNotificationPrompt';
 import { Button } from '@/components/ui/button';
@@ -197,24 +198,35 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     enabled: !!currentBranchId,
   });
 
-  // Determine which logo to show:
-  // 1. If branch has its own logo, use it (even for matriz if logo was set)
-  // 2. Fallback to tenant logo
-  const currentLogoLight = useMemo(() => {
-    // Logo for light backgrounds (dark logo)
-    if (branchData?.logo_url) {
-      return branchData.logo_url;
-    }
-    return tenant?.logo_url || null;
-  }, [branchData, tenant?.logo_url]);
+  // Resolve logo paths/URLs to fresh signed URLs
+  const [resolvedLogoLight, setResolvedLogoLight] = useState<string | null>(null);
+  const [resolvedLogoDark, setResolvedLogoDark] = useState<string | null>(null);
 
-  const currentLogoDark = useMemo(() => {
-    // Logo for dark backgrounds (light logo)
-    if (branchData?.logo_dark_url) {
-      return branchData.logo_dark_url;
-    }
-    return tenant?.logo_dark_url || null;
-  }, [branchData, tenant?.logo_dark_url]);
+  const rawLogoLight = branchData?.logo_url || tenant?.logo_url || null;
+  const rawLogoDark = branchData?.logo_dark_url || tenant?.logo_dark_url || null;
+
+  useEffect(() => {
+    let cancelled = false;
+    const resolve = async () => {
+      if (rawLogoLight) {
+        const url = await resolveStorageUrl(rawLogoLight);
+        if (!cancelled) setResolvedLogoLight(url || rawLogoLight);
+      } else {
+        if (!cancelled) setResolvedLogoLight(null);
+      }
+      if (rawLogoDark) {
+        const url = await resolveStorageUrl(rawLogoDark);
+        if (!cancelled) setResolvedLogoDark(url || rawLogoDark);
+      } else {
+        if (!cancelled) setResolvedLogoDark(null);
+      }
+    };
+    resolve();
+    return () => { cancelled = true; };
+  }, [rawLogoLight, rawLogoDark]);
+
+  const currentLogoLight = resolvedLogoLight;
+  const currentLogoDark = resolvedLogoDark;
 
   // Detect if sidebar/menu background is dark or light based on menu_color
   const isMenuDark = useMemo(() => {
