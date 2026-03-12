@@ -6,6 +6,7 @@ import { useTenantFeatures } from '@/hooks/useTenantFeatures';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useNotificationAlerts } from '@/hooks/useNotificationAlerts';
 import { useOnboardingTour } from '@/hooks/useOnboardingTour';
+import { resolveStorageUrl } from '@/lib/storageUtils';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { PushNotificationPrompt } from '@/components/notifications/PushNotificationPrompt';
 import { Button } from '@/components/ui/button';
