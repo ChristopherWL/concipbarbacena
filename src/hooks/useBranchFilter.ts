@@ -40,14 +40,23 @@ export function useBranchFilter(): BranchFilterResult {
   const isMatriz = userBranch?.is_main === true || profile?.branch_id === null;
 
   // ============================================
-  // NÍVEL 1: SuperAdmin - acesso total
+  // NÍVEL 1: SuperAdmin - acesso total (pode filtrar opcionalmente)
   // ============================================
   if (isSuperAdmin) {
+    if (matrizSelectedBranchId) {
+      return { 
+        branchId: matrizSelectedBranchId, 
+        shouldFilter: true, 
+        isDirector: false, 
+        isMatriz: true,
+        canSeeAllBranches: true 
+      };
+    }
     return { 
       branchId: null, 
       shouldFilter: false, 
       isDirector: false, 
-      isMatriz: false,
+      isMatriz: true,
       canSeeAllBranches: true 
     };
   }
