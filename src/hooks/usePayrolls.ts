@@ -280,7 +280,7 @@ export function usePayrolls() {
   useEffect(() => {
     const now = new Date();
     fetchPayrolls(now.getMonth() + 1, now.getFullYear());
-  }, [tenantId]);
+  }, [tenantId, branchId]);
 
   return {
     payrolls,
